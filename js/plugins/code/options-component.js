@@ -1284,12 +1284,6 @@ class OptionsComponent extends LitElement {
         // if plugin.hide is true, don't show it
         filteredPlugins = filteredPlugins.filter(plugin => !plugin.hide);
 
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        var parts = [];
-        if (this.currentView === 'plugin-details') {
-            parts = this.selectedPlugin.description.split(urlRegex);
-        }
-
         return html`
             <div class="container" data-view="${this.currentView}">
                 <!-- Main View -->
@@ -1576,16 +1570,11 @@ class OptionsComponent extends LitElement {
                                           )}
                                       </div>
 
-                                      <p>
-                                          ${parts.map((part, index) => {
-                                              if (part.match(urlRegex)) {
-                                                  return html`<a href="${part}" class="link-blue" target="_blank"
-                                                      >${part.replace(/(^\w+:|^)\/\//, '')}</a
-                                                  >`;
-                                              }
-                                              return part;
-                                          })}
-                                      </p>
+                                      <div
+                                          class="plugin-description-markdown"
+                                          style="width: 100%"
+                                          .innerHTML="${marked.parse(this.selectedPlugin.description)}"
+                                      ></div>
                                   </div>
                               `
                             : ''
