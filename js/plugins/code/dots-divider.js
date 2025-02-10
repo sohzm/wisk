@@ -1,4 +1,4 @@
-class DividerElement extends HTMLElement {
+class DotsDivider extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
@@ -8,7 +8,8 @@ class DividerElement extends HTMLElement {
     getValue() {
         return {};
     }
-    getCurrentIndex() { return 0;
+    getCurrentIndex() {
+        return 0;
     }
     focusOnIndex(index) {}
     focus(identifier) {}
@@ -31,14 +32,24 @@ class DividerElement extends HTMLElement {
                 height: 20px;
                 display: flex;
                 align-items: center;
+                gap: 10px;
+                justify-content: center;
+            }
+            .dot {
+                width: 4px;
+                height: 4px;
+                background-color: var(--fg-2);
+                border-radius: 50%;
             }
             </style>
             <div class="divider">
-                <div style="width: 100%; height: 1px; background-color: var(--border-1);"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
             </div>
         `;
         this.shadowRoot.innerHTML = innerHTML;
     }
 }
 
-customElements.define('divider-element', DividerElement);
+customElements.define('dots-divider', DotsDivider);

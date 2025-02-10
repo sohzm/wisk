@@ -57,17 +57,18 @@ const createBlockElement = (elementId, blockType) => {
 };
 
 // Editor core functions
-wisk.editor.generateNewId = () =>
-    [...Array(7)].map(() => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 52)]).join('');
+wisk.editor.generateNewId = (id) => {
+    var rand = [...Array(7)].map(() => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 52)]).join('');
+    if (id) {
+        return `${id}-${rand}`;
+    }
+    return rand;
+}
 
 wisk.editor.elements = [];
 
 wisk.editor.addConfigChange = async function (arr) {
-    await saveUpdates(
-        arr,
-        wisk.editor.elements.map(e => e.id),
-        []
-    );
+    await saveUpdates(arr, wisk.editor.elements.map(e => e.id), []);
 
     for (const change of arr) {
         configChanges.push(change);
@@ -77,11 +78,7 @@ wisk.editor.addConfigChange = async function (arr) {
 
 wisk.editor.savePluginData = async function (identifier, data) {
     var arr = [{ path: 'document.plugin.' + identifier, values: { data: data } }];
-    await saveUpdates(
-        arr,
-        wisk.editor.elements.map(e => e.id),
-        []
-    );
+    await saveUpdates(arr, wisk.editor.elements.map(e => e.id), []);
 
     for (const change of arr) {
         configChanges.push(change);
@@ -92,6 +89,12 @@ wisk.editor.savePluginData = async function (identifier, data) {
 wisk.editor.createBlockBase = function (elementId, blockType, value, remoteId, isRemote = false) {
     if (elementId === '') {
         elementId = wisk.editor.elements.length > 1 ? wisk.editor.elements[wisk.editor.elements.length - 1].id : wisk.editor.elements[0].id;
+    }
+
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.createBlockBase(elementId, blockType, value, remoteId, isRemote);
+        return;
     }
 
     const id = isRemote ? remoteId : wisk.editor.generateNewId();
@@ -120,6 +123,12 @@ wisk.editor.createBlockBase = function (elementId, blockType, value, remoteId, i
 };
 
 wisk.editor.createRemoteBlock = function (elementId, blockType, value, remoteId) {
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.createRemoteBlock(elementId, blockType, value, remoteId);
+        return;
+    }
+
     const { id, blockElement } = this.createBlockBase(elementId, blockType, value, remoteId, true);
 
     setTimeout(() => {
@@ -128,6 +137,12 @@ wisk.editor.createRemoteBlock = function (elementId, blockType, value, remoteId)
 };
 
 wisk.editor.createNewBlock = function (elementId, blockType, value, focusIdentifier, rec, animate) {
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.createNewBlock(elementId, blockType, value, focusIdentifier, rec, animate);
+        return;
+    }
+
     const { id, blockElement } = this.createBlockBase(elementId, blockType, value, null, false);
 
     setTimeout(() => {
@@ -142,6 +157,12 @@ wisk.editor.createNewBlock = function (elementId, blockType, value, focusIdentif
 };
 
 wisk.editor.createBlockNoFocus = function (elementId, blockType, value, rec, animate) {
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.createBlockNoFocus(elementId, blockType, value, rec, animate);
+        return;
+    }
+
     const { id, blockElement } = this.createBlockBase(elementId, blockType, value, null, false);
 
     setTimeout(() => {
@@ -470,10 +491,22 @@ wisk.editor.htmlToMarkdown = function (html) {
 
 // Element Navigation/Management Functions
 wisk.editor.getElement = function (elementId) {
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.getElement(elementId);
+        return;
+    }
+
     return wisk.editor.elements.find(e => e.id === elementId);
 };
 
 wisk.editor.prevElement = function (elementId) {
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.prevElement(elementId);
+        return;
+    }
+
     if (elementId === wisk.editor.elements[0].id) {
         return null;
     }
@@ -483,6 +516,12 @@ wisk.editor.prevElement = function (elementId) {
 };
 
 wisk.editor.nextElement = function (elementId) {
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.nextElement(elementId);
+        return;
+    }
+
     const index = wisk.editor.elements.findIndex(e => e.id === elementId);
     return index < wisk.editor.elements.length - 1 ? wisk.editor.elements[index + 1] : null;
 };
@@ -493,6 +532,13 @@ wisk.editor.showSelector = function (elementId, focusIdentifier) {
 };
 
 wisk.editor.deleteBlock = function (elementId, rec) {
+
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.deleteBlock(elementId, rec);
+        return;
+    }
+
     deletedElements.push(elementId);
     const element = document.getElementById(`div-${elementId}`);
     if (element) {
@@ -509,6 +555,12 @@ wisk.editor.deleteBlock = function (elementId, rec) {
 };
 
 wisk.editor.focusBlock = function (elementId, identifier) {
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.focusBlock(elementId, identifier);
+        return;
+    }
+
     const element = document.getElementById(elementId);
     if (element) {
         element.focus(identifier);
@@ -516,6 +568,12 @@ wisk.editor.focusBlock = function (elementId, identifier) {
 };
 
 wisk.editor.updateBlock = function (elementId, path, newValue, rec) {
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.updateBlock(elementId, path, newValue, rec);
+        return;
+    }
+
     const element = document.getElementById(elementId);
     if (element) {
         element.setValue(path, newValue);
@@ -529,6 +587,12 @@ wisk.editor.updateBlock = function (elementId, path, newValue, rec) {
 };
 
 wisk.editor.changeBlockType = function (elementId, value, newType, rec) {
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.changeBlockType(elementId, value, newType, rec);
+        return;
+    }
+
     const prevElement = wisk.editor.prevElement(elementId);
     if (!prevElement) {
         return;
@@ -541,6 +605,12 @@ wisk.editor.changeBlockType = function (elementId, value, newType, rec) {
 };
 
 wisk.editor.runBlockFunction = function (elementId, functionName, arg) {
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.runBlockFunction(elementId, functionName, arg);
+        return;
+    }
+
     const element = document.getElementById(elementId);
     if (element && typeof element[functionName] === 'function') {
         element[functionName](arg);

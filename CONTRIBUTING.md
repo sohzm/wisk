@@ -10,7 +10,7 @@ Thank you for your interest in contributing to Wisk! As an open-source project f
 4. Make your changes
 5. Test your changes locally using a simple HTTP server:
     ```bash
-    python -m http.server 8000     # Visit http://localhost:8000
+    python -m http.server 8788     # Visit http://localhost:8788
     ```
 
 ## Development Guidelines
@@ -27,7 +27,7 @@ Thank you for your interest in contributing to Wisk! As an open-source project f
 
 - Prefer plugins to work offline, but its not a requirement
 - Follow the plugin API documentation
-- Include a clear README for your plugin
+- Properly comment your code
 - Test thoroughly in offline mode
 
 ### Submitting Changes
@@ -56,8 +56,4 @@ Thank you for your interest in contributing to Wisk! As an open-source project f
 
 ## License
 
-By contributing to Wisk, you agree that your contributions will be licensed under the Functional Source License (FSL), Version 1.1.
-
----
-
-Remember: Keep it simple, focused, and performant!
+By contributing to Wisk, you agree that your contributions will be licensed under the Functional Source License (FSL), Version 1.1. See [LICENSE.md](LICENSE.md).

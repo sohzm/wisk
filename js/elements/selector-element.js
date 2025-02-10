@@ -54,19 +54,20 @@ class SelectorElement extends HTMLElement {
     }
 
     selectButton(btn) {
-        var element = document.getElementById(this.elementId);
-        var elementData = wisk.editor.getElement(this.elementId);
-        var callingDetail = wisk.plugins.getPluginDetail(elementData.component);
+        var element = byQueryShadowroot('#' + this.elementId);
+        // var elementData = wisk.editor.getElement(this.elementId);
+        // console.log(this.elementId, element, elementData);
+        // var callingDetail = wisk.plugins.getPluginDetail(elementData.component);
 
         var dataPluginId = btn.getAttribute('data-plugin-id');
         var dataContentId = btn.getAttribute('data-content-id');
         var newDetail = wisk.plugins.pluginData.list[dataPluginId].contents[dataContentId];
 
         wisk.editor.changeBlockType(this.elementId, element.getValue(), newDetail.component);
-        if (callingDetail.textual && newDetail.textual) {
-            // TODO see why this is not working
-            // wisk.editor.focusBlock(this.elementId, { x: elementData.value.textContent.length });
-        }
+        // if (callingDetail.textual && newDetail.textual) {
+        //     // TODO see why this is not working
+        //     // wisk.editor.focusBlock(this.elementId, { x: elementData.value.textContent.length });
+        // }
 
         this.hide();
     }

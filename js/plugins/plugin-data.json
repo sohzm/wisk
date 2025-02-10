@@ -166,6 +166,30 @@
             ]
         },
 
+        "columns-element": {
+            "name": "columns-element",
+            "title": "Columns",
+            "author": "Wisk Team",
+            "contact": "https://wisk.cc",
+            "icon": "columns.svg",
+            "tags": ["layout", "simple"],
+            "description": "A simple layout",
+            "hide": true,
+            "contents": [
+                {
+                    "title": "Columns",
+                    "icon": "columns.svg",
+                    "category": "component",
+                    "component": "columns-element",
+                    "nav": false,
+                    "textual": true,
+                    "loadAsModule": false,
+                    "width": "mini"
+                }
+            ]
+        },
+
+
         "code-element": {
             "name": "code-element",
             "title": "Code Element",
@@ -674,6 +698,28 @@
             ]
         },
 
+        "dots-divider": {
+            "name": "dots-divider",
+            "title": "Dots Divider",
+            "author": "Wisk Team",
+            "contact": "https://wisk.cc",
+            "icon": "dots-divider.svg",
+            "tags": ["divider", "separator", "dots"],
+            "description": "Divider block but with dots",
+            "contents": [
+                {
+                    "title": "Dots Divider",
+                    "icon": "dots-divider.svg",
+                    "category": "component",
+                    "component": "dots-divider",
+                    "nav": false,
+                    "textual": false,
+                    "loadAsModule": false,
+                    "width": "mini"
+                }
+            ]
+        },
+
         "py-interpreter": {
             "name": "py-interpreter",
             "title": "Python Interpreter",
@@ -1117,6 +1163,28 @@
                     "component": "document-graph",
                     "nav": true,
                     "textual": false,
+                    "loadAsModule": true
+                }
+            ]
+        },
+
+        "sticky-notes": {
+            "name": "sticky-notes",
+            "title": "Sticky Notes",
+            "author": "Wisk Team",
+            "contact": "https://wisk.cc",
+            "icon": "sticky-notes-2.svg",
+            "tags": ["sticky", "notes", "post", "it", "note"],
+            "description": "Sticky notes is a plugin that allows you to create sticky notes",
+            "contents": [
+                {
+                    "title": "Sticky Notes",
+                    "icon": "sticky-notes.svg",
+                    "category": "mini-dialog",
+                    "component": "sticky-notes",
+                    "nav": true,
+                    "textual": false,
+                    "identifier": "pl_sticky_notes",
                     "loadAsModule": true
                 }
             ]

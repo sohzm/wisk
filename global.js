@@ -15,6 +15,7 @@ if (window.location.href.includes('.wisk.site')) {
     SERVER = 'https://' + subdomain + '.wisk.site';
 }
 
+// TODO move these to wisk.utils
 function byId(id) {
     return document.getElementById(id);
 }
@@ -29,6 +30,22 @@ function byQuery(query) {
 
 function byQueryAll(query) {
     return document.querySelectorAll(query);
+}
+
+function byQueryShadowroot(query) {
+    if (query[0] === '#' && query.includes('-')) {
+        query = query.slice(1);
+        query = query.split('-');
+        console.log('---', query);
+        var e = byQuery('#' + query[0]);
+        console.log('--- 1', e);
+        for (let i = 1; i < query.length; i++) {
+            console.log('--- 2 #', query.slice(0, i + 1).join('-'));
+            e = e.shadowRoot.querySelector('#' + query.slice(0, i + 1).join('-'));
+        }
+        return e;
+    }
+    return document.querySelector(query);
 }
 
 function showToast(message, duration) {

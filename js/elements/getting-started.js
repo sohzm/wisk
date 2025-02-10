@@ -1004,7 +1004,7 @@ class GettingStarted extends LitElement {
                 </div>
 
                 <div style="display: flex; gap: var(--gap-3); flex-wrap: wrap; align-items: center;">
-                    Configure workspace for
+                    1 click install plugins for
                     <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap">
                         <button class="gs-button" @click=${() => this.pluginPacks('student')}>Academic Assignment</button>
                         <button class="gs-button" @click=${() => this.pluginPacks('student-but-cooler')}>Academic Assignment (Cool)</button>

@@ -214,7 +214,7 @@ class OptionsComponent extends LitElement {
             padding: var(--padding-3);
         }
         .options-section--column {
-            gap: var(--gap-3);
+            gap: var(--gap-2);
             flex-direction: column;
             align-items: flex-start;
         }
@@ -610,6 +610,18 @@ class OptionsComponent extends LitElement {
                 margin-top: var(--gap-1);
             }
         }
+        .no-plugins-found {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            opacity: 0.6;
+        }
+        .no-plugins-found img {
+            filter: var(--themed-svg);
+        }
     `;
 
     static properties = {
@@ -870,6 +882,13 @@ class OptionsComponent extends LitElement {
                                     </div>
                                 `
                             )}
+                            
+                            ${filteredPlugins.length === 0 ? html`
+                                <div class="no-plugins-found">
+                                    <img src="/a7/plugins/options-element/puzzled.svg" alt="No plugins" style="width: 80px; margin: 0 auto;"/>
+                                    <p>No plugins found</p>
+                                </div>
+                            ` : ''}
                     </div>
                 </div>
 
@@ -1182,18 +1201,18 @@ class OptionsComponent extends LitElement {
                             <h1 style="color: var(--fg-1); display: flex; width: 100%; align-items: center; justify-content: center; gap: 12px; font-weight: 500">
                                 <img src="/a7/wisk-logo.svg" alt="Wisk" class="resp-img" style="width: 38px; filter: var(--themed-svg)" draggable="false"/> Wisk
                             </h1>
-                            <h3 style="color: var(--fg-1); width: 100%; text-align: center;">Your Workspace, Built Your Way.</h3>
-                            <p style="color: var(--fg-2); text-align: center; width: 100%">
+                            <h3 style="color: var(--fg-1); width: 100%; text-align: center; font-weight: 500">Your Workspace, Built Your Way.</h3>
+                            <p style="color: var(--fg-2); text-align: center; width: 100%; font-size: 14px">
                                 Notes, reports, tasks, and collaboration — offline and customizable. (yes we have AI too!)
                             </p>
                         </div>
 
-                        <hr style="border: 1px solid var(--border-1); margin: 20px 10px"/>
+                        <hr style="border: 1px solid var(--border-1); margin: 10px 10px"/>
 
                         <div class="options-section options-section--column">
-                            <h3 style="color: var(--fg-2)">License</h3>
+                            <h3 style="color: var(--fg-2); font-weight: 500">License</h3>
                             <div style="display: flex; flex-direction: column; gap: var(--gap-1)">
-                                <p style="color: var(--fg-2)">
+                                <p style="color: var(--fg-2); font-size: 14px">
                                     Licensed under the Functional Source License (FSL), Version 1.1, with Apache License Version 2.0 as the Future License.
                                     See the <a href="https://app.wisk.cc/LICENSE.md" target="_blank" class="link-blue">LICENSE.md</a> for more details.
 
@@ -1201,11 +1220,11 @@ class OptionsComponent extends LitElement {
                             </div>
                         </div>
 
-                        <hr style="border: 1px solid var(--border-1); margin: 20px 10px"/>
+                        <hr style="border: 1px solid var(--border-1); margin: 10px 10px"/>
 
                         <div class="options-section options-section--column">
-                            <h3 style="color: var(--fg-2)">Credits</h3>
-                            <div style="display: flex; flex-direction: column; gap: var(--gap-1)">
+                            <h3 style="color: var(--fg-2); font-weight: 500">Credits</h3>
+                            <div style="display: flex; flex-direction: column; gap: var(--gap-1); font-size: 14px">
                                 <p style="color: var(--fg-2)">
                                     All icons in the webapp are from
                                     <ul>
@@ -1216,7 +1235,7 @@ class OptionsComponent extends LitElement {
                                     </ul>
                                 </p>
                                 <p style="color: var(--fg-2)">
-                                    Fonts are provided by <a href="https://fonts.google.com/" target="_blank" class="link-blue">Google Fonts</a>.
+                                    Fonts are taken from <a href="https://fonts.google.com/" target="_blank" class="link-blue">Google Fonts</a>.
                                 </p>
                             </div>
                         </div>

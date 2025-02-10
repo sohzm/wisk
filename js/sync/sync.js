@@ -110,6 +110,7 @@ async function live() {
 }
 
 function saveUpdates(changes, allElements, newDeletedElements) {
+    // return;
     // save to db -- for now
     // wisk.db.setItem(wisk.editor.pageId, {
     //     name: wisk.editor.elements[0].value.textContent,

@@ -24,6 +24,7 @@ wisk.plugins = {
         'latex-element',
         'mermaid-element',
         'chart-element',
+        'columns-element',
 
         // other elements
         'neo-ai',

@@ -14,23 +14,25 @@ A plugin-based document editor built with vanilla JavaScript and Web Components.
 
 Wisk is an open-source document editor focusing on extensibility and performance. The frontend is built without frameworks or build tools, using modern Web APIs and standards.
 
-The frontend is open source and fully functional standalone, but requires Wisk backend services for advanced features like real-time collaboration, sync, citation management, and AI capabilities. The backend services are not open source and some features require a subscription to use.
+The frontend is open source and fully functional standalone, but requires Wisk backend services for advanced features like real-time collaboration, sync, citation management, and AI capabilities. The backend services are not open source and some features may require a subscription to use.
 
 ### Core Functionality
 
 - Block-based editor with real-time rendering
+- LaTeX, charts, canvas, code blocks, and more supported
 - Extensible plugin system
 - Customizable themes and styles
 - Offline-first with automatic saving
 - PWA support for mobile and desktop
 - Templates support for quick start
 - Citation Manager for academic writing
+- Works on all modern browsers and devices
 
 ### Cloud Features (with Wisk backend)
 
 - AI assistance for writing
 - Real-time collaboration
-- Cross-device synchronization
+- Sync across devices
 - One click citations
 - Publishing and sharing
 - Export to various formats (PDF, DOCX, etc.) with latex templates
@@ -40,21 +42,12 @@ The frontend is open source and fully functional standalone, but requires Wisk b
 ```bash
 git clone https://github.com/cynthwave/wisk.git
 cd wisk
-python -m http.server 8000
-# Visit http://localhost:8000
+python -m http.server 8788
+# Visit http://localhost:8788
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
 ## License
 
 Licensed under the Functional Source License (FSL), Version 1.1, with Apache License Version 2.0 as the Future License. See [LICENSE.md](LICENSE.md).
-
-## Contributing
-
-> [!NOTE]
-> We're working on improving the mobile experience! Our current drag-and-drop and click interactions aren't optimal for touch devices. If you have experience with mobile web development and accessibility, we'd love your contributions.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
-
----
-
-Built with ❤️ by [Cynthwave](https://cynthwave.com) • Contact: hey@cynthwave.com

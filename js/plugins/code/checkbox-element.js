@@ -211,7 +211,7 @@ class CheckboxElement extends BaseTextElement {
                 background: var(--bg-accent);
                 cursor: pointer;
                 position: relative;
-                margin-top: 3px;
+                margin-top: 3px; /* because 2+2 is 4-1 that's 3 quick maths */
                 transition: all 0.2s ease;
             }
             #checkbox:checked {
