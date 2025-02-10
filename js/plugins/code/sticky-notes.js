@@ -86,7 +86,7 @@ class StickyNotes extends LitElement {
     `;
 
     static properties = {
-        focusedNoteIndex: { type: Number }
+        focusedNoteIndex: { type: Number },
     };
 
     constructor() {
@@ -110,24 +110,24 @@ class StickyNotes extends LitElement {
 
     generateRandomInitalText() {
         const texts = [
-            "Stay curious, create magic!",
-            "Every idea starts with a spark.",
-            "Write your thoughts, shape your world.",
-            "Inspiration is everywhere.",
-            "Dream big, jot it down.",
-            "Your creativity is your superpower.",
-            "A new note, a new beginning.",
-            "Let the ideas flow.",
-            "The world is your canvas.",
-            "Create, inspire, repeat.",
-            "You are a creator.",
-            "Make today amazing!",
-            "The best is yet to come.",
-            "You are unstoppable.",
-            "Create your own sunshine.",
-            "Dream, create, inspire.",
-            "The world needs your creativity.",
-            "You are a masterpiece.",
+            'Stay curious, create magic!',
+            'Every idea starts with a spark.',
+            'Write your thoughts, shape your world.',
+            'Inspiration is everywhere.',
+            'Dream big, jot it down.',
+            'Your creativity is your superpower.',
+            'A new note, a new beginning.',
+            'Let the ideas flow.',
+            'The world is your canvas.',
+            'Create, inspire, repeat.',
+            'You are a creator.',
+            'Make today amazing!',
+            'The best is yet to come.',
+            'You are unstoppable.',
+            'Create your own sunshine.',
+            'Dream, create, inspire.',
+            'The world needs your creativity.',
+            'You are a masterpiece.',
         ];
         const randomIndex = Math.floor(Math.random() * texts.length);
         return texts[randomIndex];
@@ -212,9 +212,13 @@ class StickyNotes extends LitElement {
                 ${this.focusedNoteIndex !== null ? html`<button @click=${this.deleteNote}>Delete Note</button>` : ''}
                 <div class="color-options">
                     ${this.colors.map(
-                        (color) => html`
-                            <div class="color-option"
-                                style="background-color: ${color.fg}; border-color: ${this.focusedNoteIndex !== null && this.notes[this.focusedNoteIndex]?.bg === color.bg ? 'black' : 'transparent'};"
+                        color => html`
+                            <div
+                                class="color-option"
+                                style="background-color: ${color.fg}; border-color: ${this.focusedNoteIndex !== null &&
+                                this.notes[this.focusedNoteIndex]?.bg === color.bg
+                                    ? 'black'
+                                    : 'transparent'};"
                                 @click=${() => this.changeColor(this.focusedNoteIndex, color)}
                             ></div>
                         `
@@ -223,21 +227,27 @@ class StickyNotes extends LitElement {
             </div>
 
             <div class="note-container">
-                ${this.notes.map((note, index) => html`
-                    <div class="note"
-                        style="background-color: ${note.bg}; color: ${note.fg}; ${this.focusedNoteIndex === index ? 'outline: 2px solid var(--fg-accent);' : ''}"
-                        @focusin=${() => this.setFocus(index)}
-                        ?focused=${this.focusedNoteIndex === index}
-                        @focusout=${() => this.clearFocus()}
-                        tabindex="0"
-                    >
+                ${this.notes.map(
+                    (note, index) => html`
                         <div
-                            contenteditable="true" spellcheck="false"
-                            @input=${(e) => this.updateNote(index, e.target.innerText)}
-                            .innerText=${note.text}
-                        ></div>
-                    </div>
-                `)}
+                            class="note"
+                            style="background-color: ${note.bg}; color: ${note.fg}; ${this.focusedNoteIndex === index
+                                ? 'outline: 2px solid var(--fg-accent);'
+                                : ''}"
+                            @focusin=${() => this.setFocus(index)}
+                            ?focused=${this.focusedNoteIndex === index}
+                            @focusout=${() => this.clearFocus()}
+                            tabindex="0"
+                        >
+                            <div
+                                contenteditable="true"
+                                spellcheck="false"
+                                @input=${e => this.updateNote(index, e.target.innerText)}
+                                .innerText=${note.text}
+                            ></div>
+                        </div>
+                    `
+                )}
             </div>
         `;
     }

@@ -57,18 +57,22 @@ const createBlockElement = (elementId, blockType) => {
 };
 
 // Editor core functions
-wisk.editor.generateNewId = (id) => {
+wisk.editor.generateNewId = id => {
     var rand = [...Array(7)].map(() => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 52)]).join('');
     if (id) {
         return `${id}-${rand}`;
     }
     return rand;
-}
+};
 
 wisk.editor.elements = [];
 
 wisk.editor.addConfigChange = async function (arr) {
-    await saveUpdates(arr, wisk.editor.elements.map(e => e.id), []);
+    await saveUpdates(
+        arr,
+        wisk.editor.elements.map(e => e.id),
+        []
+    );
 
     for (const change of arr) {
         configChanges.push(change);
@@ -78,7 +82,11 @@ wisk.editor.addConfigChange = async function (arr) {
 
 wisk.editor.savePluginData = async function (identifier, data) {
     var arr = [{ path: 'document.plugin.' + identifier, values: { data: data } }];
-    await saveUpdates(arr, wisk.editor.elements.map(e => e.id), []);
+    await saveUpdates(
+        arr,
+        wisk.editor.elements.map(e => e.id),
+        []
+    );
 
     for (const change of arr) {
         configChanges.push(change);
@@ -532,7 +540,6 @@ wisk.editor.showSelector = function (elementId, focusIdentifier) {
 };
 
 wisk.editor.deleteBlock = function (elementId, rec) {
-
     if (elementId.includes('-')) {
         eid = elementId.split('-')[0];
         document.getElementById(eid).editor.deleteBlock(elementId, rec);

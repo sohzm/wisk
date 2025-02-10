@@ -8,7 +8,8 @@ class DividerElement extends HTMLElement {
     getValue() {
         return {};
     }
-    getCurrentIndex() { return 0;
+    getCurrentIndex() {
+        return 0;
     }
     focusOnIndex(index) {}
     focus(identifier) {}

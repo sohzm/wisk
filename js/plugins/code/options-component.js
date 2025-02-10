@@ -883,12 +883,20 @@ class OptionsComponent extends LitElement {
                                 `
                             )}
                             
-                            ${filteredPlugins.length === 0 ? html`
-                                <div class="no-plugins-found">
-                                    <img src="/a7/plugins/options-element/puzzled.svg" alt="No plugins" style="width: 80px; margin: 0 auto;"/>
-                                    <p>No plugins found</p>
-                                </div>
-                            ` : ''}
+                            ${
+                                filteredPlugins.length === 0
+                                    ? html`
+                                          <div class="no-plugins-found">
+                                              <img
+                                                  src="/a7/plugins/options-element/puzzled.svg"
+                                                  alt="No plugins"
+                                                  style="width: 80px; margin: 0 auto;"
+                                              />
+                                              <p>No plugins found</p>
+                                          </div>
+                                      `
+                                    : ''
+                            }
                     </div>
                 </div>
 

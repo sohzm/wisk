@@ -31,7 +31,7 @@ class BaseLayoutElement extends HTMLElement {
         this.editor = {
             elements: this.elements,
             readonly: false,
-            generateNewId: (id) => {
+            generateNewId: id => {
                 const rand = [...Array(7)].map(() => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 52)]).join('');
                 return id ? `${id}-${rand}` : rand;
             },
@@ -86,15 +86,17 @@ class BaseLayoutElement extends HTMLElement {
                     }
                 }, 0);
 
-                this.dispatchEvent(new CustomEvent('block-created', { 
-                    bubbles: true,
-                    composed: true,
-                    detail: { id: this.id }
-                }));
+                this.dispatchEvent(
+                    new CustomEvent('block-created', {
+                        bubbles: true,
+                        composed: true,
+                        detail: { id: this.id },
+                    })
+                );
 
                 return id;
             },
-            getElement: (elementId) => {
+            getElement: elementId => {
                 this.elements.find(e => e.id === elementId);
             },
             changeBlockType: (elementId, value, newBlockType, rec) => {
@@ -133,11 +135,13 @@ class BaseLayoutElement extends HTMLElement {
                     this.shadowRoot.querySelector('.container').removeChild(element);
                     this.elements = this.elements.filter(e => e.id !== elementId);
 
-                    this.dispatchEvent(new CustomEvent('block-deleted', {
-                        bubbles: true,
-                        composed: true,
-                        detail: { id: this.id }
-                    }));
+                    this.dispatchEvent(
+                        new CustomEvent('block-deleted', {
+                            bubbles: true,
+                            composed: true,
+                            detail: { id: this.id },
+                        })
+                    );
 
                     if (rec === undefined) {
                         this.editor.justUpdates();
@@ -156,11 +160,13 @@ class BaseLayoutElement extends HTMLElement {
                     console.log('Updating block', elementId, element, path, newValue);
                     element.setValue(path, newValue);
 
-                    this.dispatchEvent(new CustomEvent('block-updated', {
-                        bubbles: true,
-                        composed: true,
-                        detail: { id: this.id }
-                    }));
+                    this.dispatchEvent(
+                        new CustomEvent('block-updated', {
+                            bubbles: true,
+                            composed: true,
+                            detail: { id: this.id },
+                        })
+                    );
 
                     if (rec === undefined) {
                         this.editor.justUpdates(elementId);
@@ -179,7 +185,7 @@ class BaseLayoutElement extends HTMLElement {
                     element.focus(identifier);
                 }
             },
-            getElement: (elementId) => {
+            getElement: elementId => {
                 // Check if we should delegate to a nested layout
                 if (this.isNextLevelLayout(elementId)) {
                     const nextLayout = this.shadowRoot.getElementById(this.getNextLevel(elementId));
@@ -188,7 +194,7 @@ class BaseLayoutElement extends HTMLElement {
 
                 return this.elements.find(e => e.id === elementId);
             },
-            prevElement: (elementId) => {
+            prevElement: elementId => {
                 // Check if we should delegate to a nested layout
                 if (this.isNextLevelLayout(elementId)) {
                     const nextLayout = this.shadowRoot.getElementById(this.getNextLevel(elementId));
@@ -199,7 +205,7 @@ class BaseLayoutElement extends HTMLElement {
                 const index = this.elements.findIndex(e => e.id === elementId);
                 return index > 0 ? this.elements[index - 1] : null;
             },
-            nextElement: (elementId) => {
+            nextElement: elementId => {
                 // Check if we should delegate to a nested layout
                 if (this.isNextLevelLayout(elementId)) {
                     const nextLayout = this.shadowRoot.getElementById(this.getNextLevel(elementId));
@@ -209,7 +215,7 @@ class BaseLayoutElement extends HTMLElement {
                 const index = this.elements.findIndex(e => e.id === elementId);
                 return index < this.elements.length - 1 ? this.elements[index + 1] : null;
             },
-            justUpdates: async (elementId) => {
+            justUpdates: async elementId => {
                 // Check if we should delegate to a nested layout
                 if (this.isNextLevelLayout(elementId)) {
                     const nextLayout = this.shadowRoot.getElementById(this.getNextLevel(elementId));
@@ -228,15 +234,17 @@ class BaseLayoutElement extends HTMLElement {
                     }
                 }
 
-                this.dispatchEvent(new CustomEvent('layout-updated', {
-                    bubbles: true,
-                    composed: true,
-                    detail: { 
-                        id: this.id,
-                        elements: this.elements
-                    }
-                }));
-            }
+                this.dispatchEvent(
+                    new CustomEvent('layout-updated', {
+                        bubbles: true,
+                        composed: true,
+                        detail: {
+                            id: this.id,
+                            elements: this.elements,
+                        },
+                    })
+                );
+            },
         };
     }
 
@@ -328,16 +336,18 @@ class BaseLayoutElement extends HTMLElement {
 
     getValue() {
         return {
-            elements: this.elements
+            elements: this.elements,
         };
     }
 
     getTextContent() {
         return {
-            text: this.elements.map(e => {
-                const element = this.shadowRoot.getElementById(e.id);
-                return element?.getTextContent?.()?.text || '';
-            }).join('\n')
+            text: this.elements
+                .map(e => {
+                    const element = this.shadowRoot.getElementById(e.id);
+                    return element?.getTextContent?.()?.text || '';
+                })
+                .join('\n'),
         };
     }
 
@@ -347,16 +357,16 @@ class BaseLayoutElement extends HTMLElement {
                 id: this.id + '-xyzxyzx',
                 component: 'text-element',
                 value: {
-                    textContent: 'Hello World'
-                }
+                    textContent: 'Hello World',
+                },
             },
             {
                 id: this.id + '-xyzxyzy',
                 component: 'text-element',
                 value: {
-                    textContent: 'Hello World 2'
-                }
-            }
+                    textContent: 'Hello World 2',
+                },
+            },
         ];
 
         if (!this.elements.length) return;
@@ -368,7 +378,7 @@ class BaseLayoutElement extends HTMLElement {
 
             const imageContainer = this.createHoverImageContainer(element.id);
             const fullWidthWrapper = this.createFullWidthWrapper(element.id, block, imageContainer);
-            
+
             container.appendChild(fullWidthWrapper);
             this.shadowRoot.querySelector('.container').appendChild(container);
 

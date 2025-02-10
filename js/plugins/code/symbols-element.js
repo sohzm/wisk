@@ -423,7 +423,7 @@ class SymbolsElement extends LitElement {
             northWestArrow: '↖',
             leftRightArrow: '↔',
             upDownArrow: '↕',
-                        longRightwardsArrow: '⟶',
+            longRightwardsArrow: '⟶',
             longLeftwardsArrow: '⟵',
             upwardsDoubleArrow: '⇑',
             downwardsDoubleArrow: '⇓',
@@ -729,7 +729,6 @@ class SymbolsElement extends LitElement {
             blackDiamondSuit: '◇',
             blackHeartSuit: '♡',
             blackSpadeSuit: '♤',
-
 
             // Logic Symbols
             forAll: '∀',
