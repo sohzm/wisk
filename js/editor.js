@@ -8,8 +8,8 @@ const createHoverImageContainer = elementId => {
     const imageContainer = document.createElement('div');
     imageContainer.classList.add('hover-images');
 
-    const addButton = createHoverButton('/a7/forget/plus.svg', () => whenPlusClicked(elementId));
-    const deleteButton = createHoverButton('/a7/forget/trash.svg', () => whenTrashClicked(elementId));
+    const addButton = createHoverButton('/a7/forget/plus-hover.svg', () => whenPlusClicked(elementId));
+    const deleteButton = createHoverButton('/a7/forget/trash-hover.svg', () => whenTrashClicked(elementId));
 
     imageContainer.appendChild(addButton);
     imageContainer.appendChild(deleteButton);
@@ -123,7 +123,7 @@ wisk.editor.createBlockBase = function (elementId, blockType, value, remoteId, i
     wisk.editor.elements.splice(elementIndex + 1, 0, obj);
 
     // TODO quick fix? idk if this is the best way to do it
-    if (blockType === 'divider-element' || blockType === 'super-divider') {
+    if (blockType === 'divider-element' || blockType === 'super-divider' || blockType === 'dots-divider') {
         wisk.editor.createNewBlock(id, 'text-element', { textContent: '' }, { x: 0 });
     }
 
@@ -385,7 +385,7 @@ async function initializeElements() {
     const imageContainer = document.createElement('div');
     imageContainer.classList.add('hover-images');
 
-    const plusButton = createHoverButton('/a7/forget/plus.svg', () => whenPlusClicked(firstElement.id));
+    const plusButton = createHoverButton('/a7/forget/plus-hover.svg', () => whenPlusClicked(firstElement.id));
     imageContainer.appendChild(plusButton);
 
     const fullWidthWrapper = createFullWidthWrapper(firstElement.id, block, imageContainer);
@@ -926,3 +926,34 @@ wisk.editor.justUpdates = async function (elementId) {
         deletedElementsLeft = [];
     }, 100); // should it be less? to voice your opinion, join our discord server: https://discord.gg/YyqXEey4JS
 };
+
+function initKeyboardDetection() {
+    // Use Visual Viewport API (better browser support)
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+            const keyboardHeight = window.innerHeight - window.visualViewport.height;
+            window.dispatchEvent(new CustomEvent('virtual-keyboard-visible', {
+                detail: { 
+                    isVisible: keyboardHeight > 0,
+                    height: keyboardHeight
+                }
+            }));
+        });
+    }
+
+    // Also try Virtual Keyboard API for browsers that support it
+    if ("virtualKeyboard" in navigator) {
+        navigator.virtualKeyboard.overlaysContent = true;
+        navigator.virtualKeyboard.addEventListener('geometrychange', (event) => {
+            const { height } = event.target.boundingRect;
+            window.dispatchEvent(new CustomEvent('virtual-keyboard-visible', {
+                detail: { 
+                    isVisible: height > 0,
+                    height
+                }
+            }));
+        });
+    }
+}
+
+initKeyboardDetection();

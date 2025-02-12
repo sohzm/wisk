@@ -1,38 +1,71 @@
-class CalloutElement extends BaseTextElement {
+// TODO add timers to checkbox so that it can be used to track time spent on tasks or play alarms
+class SuperCheckbox extends BaseTextElement {
     constructor() {
-        const initialEmoji = '📌';
+        const initialEmoji = document.querySelector('emoji-selector').randomEmoji() || '📌';
         super();
 
         this.value = {
             textContent: '',
             emoji: initialEmoji,
+            checked: false,
         };
 
-        // Bind the emoji selection handler
         this.handleEmojiSelection = this.handleEmojiSelection.bind(this);
 
         this.render();
+
+        this.checkbox = this.shadowRoot.querySelector('#checkbox');
+        this.updateCheckbox();
+
+        this.updatePlaceholder();
     }
 
     connectedCallback() {
         super.connectedCallback();
-        // Add event listener for emoji selection
         window.addEventListener('emoji-selector', this.handleEmojiSelection);
+        this.render();
+        this.updatePlaceholder();
+
+        this.checkbox = this.shadowRoot.querySelector('#checkbox');
+        this.updateCheckbox();
+        this.updatePlaceholder();
+
+        this.checkbox.addEventListener('change', this.onCheckboxChange.bind(this));
+        this.bindEvents();
     }
 
     disconnectedCallback() {
         super.disconnectedCallback();
-        // Clean up event listener
         window.removeEventListener('emoji-selector', this.handleEmojiSelection);
     }
 
     handleEmojiSelection(event) {
-        // Only handle events meant for this instance
         if (event.detail.id === this.id) {
-            this.value.emoji = (event.detail.emoji != ""? event.detail.emoji : '📌');
+            this.value.emoji = (event.detail.emoji != "" ? event.detail.emoji : '📌');
             this.emojiButton.textContent = this.value.emoji;
             this.sendUpdates();
         }
+    }
+
+    updateCheckbox() {
+        if (this.checkbox) {
+            this.checkbox.checked = this.checked;
+        }
+    }
+
+    onCheckboxChange(event) {
+        if (wisk.editor.readonly) return;
+
+        this.checked = event.target.checked;
+
+        if (this.checked) {
+            this.editable.classList.add('checked');
+        } else {
+            this.editable.classList.remove('checked');
+        }
+
+        this.sendUpdates();
+
     }
 
     getValue() {
@@ -41,6 +74,7 @@ class CalloutElement extends BaseTextElement {
                 textContent: '',
                 references: [],
                 emoji: this.value?.emoji || '📌',
+                checked: this.checked,
             };
         }
         return {
@@ -77,10 +111,23 @@ class CalloutElement extends BaseTextElement {
             }
         }
 
+        this.value.checked = value.checked || false;
         this.updatePlaceholder();
+        this.updateCheckbox();
     }
 
     render() {
+        var colors = [ 'red', 'green', 'blue', 'yellow', 'purple', 'orange', 'cyan' ];
+        console.log(this.id);
+        var colorIndex = 0;
+        if (this.id) {
+            colorIndex = this.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0) % colors.length;
+        }
+
+        console.log(colorIndex, colors[colorIndex]);
+        const bgColor = '--bg-' + colors[colorIndex];
+        const fgColor = '--fg-' + colors[colorIndex];
+
         const style = `
             <style>
             * {
@@ -93,8 +140,8 @@ class CalloutElement extends BaseTextElement {
                 display: flex;
                 align-items: flex-start;
                 gap: var(--padding-4);
-                background-color: var(--bg-accent);
-                border-radius: var(--radius);
+                background-color: var(${bgColor});
+                border-radius: var(--radius-large);
                 padding: var(--padding-4);
                 align-items: center;
                 position: relative;
@@ -123,6 +170,7 @@ class CalloutElement extends BaseTextElement {
                 outline: none;
                 line-height: 1.5;
                 padding: 0;
+                color: var(--fg-1);
             }
             #editable.empty:before {
                 content: attr(data-placeholder);
@@ -188,6 +236,42 @@ class CalloutElement extends BaseTextElement {
                 *::-webkit-scrollbar-thumb:hover { background-color: var(--fg-1); }
             }
 
+            #checkbox {
+                appearance: none;
+                -webkit-appearance: none;
+                width: 20px;
+                height: 20px;
+                border: 2px solid var(--fg-2);
+                border-radius: var(--radius);
+                background: var(--bg-accent);
+                cursor: pointer;
+                position: relative;
+                transition: all 0.2s ease;
+                outline: none;
+            }
+            #checkbox:checked {
+                background: var(--fg-accent);
+                border-color: var(--fg-accent);
+            }
+            #checkbox:checked:after {
+                content: '';
+                position: absolute;
+                left: 5px;
+                top: 2px;
+                width: 4px;
+                height: 8px;
+                border: solid var(--bg-accent);
+                border-width: 0 2px 2px 0;
+                transform: rotate(45deg);
+            }
+            #editable.checked {
+                text-decoration: line-through;
+                opacity: 0.6;
+            }
+            #checkbox:hover {
+                border-color: var(--fg-accent);
+            }
+
             .suggestion-text {
                 opacity: 0.8;
                 color: var(--fg-accent);
@@ -230,6 +314,7 @@ class CalloutElement extends BaseTextElement {
             <div class="container">
                 <button class="emoji-button">${this.value?.emoji || '📌'}</button>
                 <div id="editable" contenteditable="${!wisk.editor.readonly}" spellcheck="false" data-placeholder="${this.placeholder}"></div>
+                <input type="checkbox" id="checkbox" name="checkbox" value="checkbox" ${wisk.editor.readonly ? 'onclick="return false"' : ''} />
                 <div class="suggestion-container">
                     <div class="suggestion-actions">
                         <button class="suggestion-button discard-button">Discard</button>
@@ -265,4 +350,4 @@ class CalloutElement extends BaseTextElement {
     }
 }
 
-customElements.define('callout-element', CalloutElement);
+customElements.define('super-checkbox', SuperCheckbox);

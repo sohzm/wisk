@@ -54,6 +54,15 @@ wisk.utils = {
     hideLoading: function () {},
 };
 
+// TODO https://github.com/cynthwave/wisk/issues/90
+wisk.i18n = {
+    defaultLocale: 'en',
+    fallbackLocale: 'en',
+    localeData: {},
+    locales: [],
+    t: function (key) {},
+};
+
 if (location.href.includes('.wisk.site')) {
     wisk.editor.readonly = true;
 }

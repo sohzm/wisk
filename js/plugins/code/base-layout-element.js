@@ -31,10 +31,6 @@ class BaseLayoutElement extends HTMLElement {
         this.editor = {
             elements: this.elements,
             readonly: false,
-            generateNewId: id => {
-                const rand = [...Array(7)].map(() => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 52)]).join('');
-                return id ? `${id}-${rand}` : rand;
-            },
             createBlockBase: (elementId, blockType, value, remoteId, isRemote = false) => {
                 const container = this.shadowRoot.querySelector('.container');
                 if (!container) return null;
@@ -43,7 +39,7 @@ class BaseLayoutElement extends HTMLElement {
                     elementId = this.elements.length > 1 ? this.elements[this.elements.length - 1].id : this.elements[0].id;
                 }
 
-                const id = isRemote ? remoteId : this.editor.generateNewId(this.id);
+                const id = isRemote ? remoteId : wisk.editor.generateNewId(this.id);
                 const obj = { value, id, component: blockType };
 
                 const prevElement = this.shadowRoot.getElementById(`div-${elementId}`);
@@ -95,9 +91,6 @@ class BaseLayoutElement extends HTMLElement {
                 );
 
                 return id;
-            },
-            getElement: elementId => {
-                this.elements.find(e => e.id === elementId);
             },
             changeBlockType: (elementId, value, newBlockType, rec) => {
                 // Check if we should delegate to a nested layout
@@ -253,8 +246,8 @@ class BaseLayoutElement extends HTMLElement {
         const imageContainer = document.createElement('div');
         imageContainer.classList.add('hover-images');
 
-        const addButton = this.createHoverButton('/a7/forget/plus.svg', () => this.whenPlusClicked(elementId));
-        const deleteButton = this.createHoverButton('/a7/forget/trash.svg', () => this.whenTrashClicked(elementId));
+        const addButton = this.createHoverButton('/a7/forget/plus-hover.svg', () => this.whenPlusClicked(elementId));
+        const deleteButton = this.createHoverButton('/a7/forget/trash-hover.svg', () => this.whenTrashClicked(elementId));
 
         imageContainer.appendChild(addButton);
         imageContainer.appendChild(deleteButton);
@@ -322,8 +315,8 @@ class BaseLayoutElement extends HTMLElement {
     }
 
     setValue(path, value) {
-        this.initializeElements();
-        return;
+        // this.initializeElements();
+        // return;
 
         if (!value) return;
 
@@ -401,9 +394,17 @@ class BaseLayoutElement extends HTMLElement {
                 background: var(--background-secondary);
             }
             .hover-images {
-                display: flex;
+                display: none;
                 opacity: 0;
                 transition: opacity 0.2s;
+                position: absolute;
+                right: 100%;
+                background: var(--bg-1);
+                padding: var(--padding-2);
+                gap: var(--gap-1);
+                border: 1px solid var(--border-1);
+                z-index: 41;
+                border-radius: 40px;
             }
             .full-width-wrapper {
                 display: flex;
@@ -413,6 +414,7 @@ class BaseLayoutElement extends HTMLElement {
             }
             .full-width-wrapper:hover .hover-images {
                 opacity: 1;
+                display: flex;
             }
             .full-width-wrapper > * {
                 flex: 1;
@@ -421,10 +423,15 @@ class BaseLayoutElement extends HTMLElement {
                 flex: 0;
             }
             .hover-image {
-                width: 16px;
-                height: 16px;
+                width: 20px;
+                height: 20px;
+                padding: 3px;
                 cursor: pointer;
                 filter: var(--themed-svg);
+                border-radius: 40px;
+            }
+            .hover-image:hover {
+                background: var(--bg-3);
             }
             .rndr {
                 margin: 0.25rem 0;

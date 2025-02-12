@@ -38,14 +38,6 @@ class OptionsComponent extends LitElement {
             align-items: center;
             flex-wrap: wrap;
         }
-        .plugin-list {
-            display: flex;
-            flex-direction: column;
-            gap: var(--gap-2);
-            overflow: auto;
-            flex: 1;
-            margin-top: var(--gap-3);
-        }
         .plugin-item {
             display: flex;
             align-items: center;
@@ -284,7 +276,6 @@ class OptionsComponent extends LitElement {
             gap: var(--gap-2);
             overflow: auto;
             flex: 1;
-            margin-top: var(--gap-3);
         }
         .plugin-item {
             display: flex;
@@ -352,8 +343,8 @@ class OptionsComponent extends LitElement {
             transition: all 0.2s ease;
         }
         .btn-primary {
-            background-color: var(--fg-blue);
-            color: var(--bg-blue);
+            background-color: var(--fg-accent);
+            color: var(--bg-accent);
             font-weight: bold;
         }
         .btn-primary:hover:not(:disabled) {
@@ -429,10 +420,6 @@ class OptionsComponent extends LitElement {
             border-radius: var(--radius);
             margin-right: 5px;
         }
-        .btn-primary {
-            background-color: var(--fg-blue);
-            color: var(--bg-blue);
-        }
         .btn-danger {
             background-color: var(--fg-red);
             color: var(--bg-red);
@@ -447,9 +434,9 @@ class OptionsComponent extends LitElement {
             outline: none;
         }
         .btn-primary:hover {
-            background-color: var(--bg-blue);
-            color: var(--fg-blue);
-            border: 2px solid var(--fg-blue);
+            background-color: var(--bg-accent);
+            color: var(--fg-accent);
+            border: 2px solid var(--fg-accent);
         }
         .btn-danger:hover {
             background-color: var(--bg-red);
@@ -622,6 +609,24 @@ class OptionsComponent extends LitElement {
         .no-plugins-found img {
             filter: var(--themed-svg);
         }
+
+        .featured {
+            gap: var(--gap-2);
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .feats {
+            padding: var(--padding-w2);
+            border-radius: var(--radius);
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--fg-accent);
+            background-color: var(--bg-accent);
+        }
+
     `;
 
     static properties = {
@@ -768,6 +773,7 @@ class OptionsComponent extends LitElement {
     }
 
     tagClicked(tag) {
+        tag = "#" + tag;
         this.shadowRoot.querySelector('#pluginSearch').value = tag;
         this.searchTerm = tag;
         this.currentView = 'plugins';
@@ -790,7 +796,7 @@ class OptionsComponent extends LitElement {
             plugin =>
                 plugin.title.toLowerCase().includes(this.searchTerm) ||
                 plugin.description.toLowerCase().includes(this.searchTerm) ||
-                plugin.tags.some(tag => tag.toLowerCase().includes(this.searchTerm)) ||
+                plugin.tags.some(tag => ("#" + tag).toLowerCase().includes(this.searchTerm)) ||
                 plugin.author.toLowerCase().includes(this.searchTerm) ||
                 plugin.contents.some(content => content.experimental && 'experimental'.includes(this.searchTerm))
         );
@@ -864,6 +870,25 @@ class OptionsComponent extends LitElement {
                     </div>
 
                     <div class="plugin-list">
+
+                        ${this.searchTerm == '' ? html`
+                            <div class="featured">
+                                <div class="feats featured-programming" @click="${() => this.tagClicked('programming')}">
+                                    Programming
+                                </div>
+                                <div class="feats featured-random" @click="${() => this.tagClicked('random')}">
+                                    Random
+                                </div>
+                                <div class="feats featured-blog" @click="${() => this.tagClicked('blog')}">
+                                    Blog
+                                </div>
+                                <div class="feats featured-utility" @click="${() => this.tagClicked('utility')}">
+                                    Utility
+                                </div>
+                            </div>
+                        `: ``}
+
+
                         ${filteredPlugins
                             .sort((a, b) => a.title.localeCompare(b.title))
                             .map(
@@ -1213,6 +1238,12 @@ class OptionsComponent extends LitElement {
                             <p style="color: var(--fg-2); text-align: center; width: 100%; font-size: 14px">
                                 Notes, reports, tasks, and collaboration — offline and customizable. (yes we have AI too!)
                             </p>
+                            <div style="display: flex; gap: 10px; justify-content: center; width: 100%; font-size: 14px;">
+                                <a href="https://github.com/cynthwave/wisk" target="_blank" rel="noopener noreferrer" class="link-blue"> Github </a>
+                                <a href="https://discord.gg/YyqXEey4JS" target="_blank" rel="noopener noreferrer" class="link-blue"> Discord </a>
+                                <a href="https://instagram.com/wisk.cc" target="_blank" rel="noopener noreferrer" class="link-blue"> Instagram </a>
+                                <a href="https://twitter.com/wisk_cc" target="_blank" rel="noopener noreferrer" class="link-blue"> Twitter </a>
+                            </div>
                         </div>
 
                         <hr style="border: 1px solid var(--border-1); margin: 10px 10px"/>
@@ -1239,7 +1270,7 @@ class OptionsComponent extends LitElement {
                                         <li> • <a href="https://iconoir.com/" target="_blank" class="link-blue">Iconoir</a>, An open source icons library with 1500+ icons. </li>
                                         <li> • <a href="https://www.svgrepo.com/collection/zest-interface-icons/" target="_blank" class="link-blue">Zest Interface Icons</a>, A collection of 1000+ free SVG icons. </li>
                                         <li> • <a href="https://heroicons.com/" target="_blank" class="link-blue">Heroicons</a>, Beautiful hand-crafted SVG icons, by the makers of Tailwind CSS. </li>
-                                        <li> • <a href="https://github.com/sohzm" target="_blank" class="link-blue">Me</a>, I made some too!</li>
+                                        <li> • <a href="https://github.com/sohzm" target="_blank" class="link-blue">Me</a>, I made some too :)</li>
                                     </ul>
                                 </p>
                                 <p style="color: var(--fg-2)">

@@ -95,64 +95,75 @@ class TableElement extends HTMLElement {
                     margin: 0;
                     font-size: 0.97em;
                 }
-                .table-controls {
-                    margin-bottom: 10px;
-                }
-                button {
-                    padding: 5px 10px;
-                    margin-right: 10px;
-                    background-color: var(--bg-2);
-                    border: 1px solid var(--border-1);
-                    border-radius: 4px;
+                .plus-btn {
+                    background-color: var(--bg-1);
+                    border: none;
+                    border-radius: var(--radius);
                     cursor: pointer;
                     color: var(--fg-1);
+                    opacity: 0.5;
+                }
+                .plus-btn:hover {
+                    background: var(--bg-3);
+                }
+                .plus-btn img {
+                    width: 16px;
+                    filter: var(--themed-svg);
+
                 }
                 table {
                     width: 100%;
                     border-collapse: collapse;
-                    border: 1px solid var(--border-1);
+                    border: 1px solid var(--bg-3);
                     border-radius: 4px;
-                    margin: 18px 0;
                     white-space: normal;
                     table-layout: fixed;
                 }
                 th, td {
-                    border: 1px solid var(--border-1);
+                    border: 1px solid var(--bg-3);
                     padding: var(--padding-w2);
+                    text-align: left;
                 }
                 th {
-                    background-color: var(--bg-2);
                     font-weight: 600;
+                    height: 40px;
                 }
                 td {
                     height: 40px;
                     max-width: 400px;
                     min-width: 100px;
                     width: auto;
+
+                    min-width: 200px;
+                    max-width: 400px;
+                    width: auto;
                 }
             </style>
-            <div class="table-controls" ${wisk.editor.readonly ? 'style="display: none;"' : ''}>
-                <button id="add-row">Add Row</button>
-                <button id="add-column">Add Column</button>
-            </div>
-            <table id="table">
-                <thead>
-                    <tr>
-                        ${headers.map((header, i) => `<th contenteditable="${!wisk.editor.readonly}" data-row="-1" data-col="${i}">${header}</th>`).join('')}
-                    </tr>
-                </thead>
-                <tbody>
-                    ${rows
-                        .map(
-                            (row, i) => `
+            <div style="display: flex;">
+                <table id="table" style="flex: 1">
+                    <thead>
                         <tr>
-                            ${row.map((cell, j) => `<td contenteditable="${!wisk.editor.readonly}" data-row="${i}" data-col="${j}">${cell}</td>`).join('')}
+                            ${headers.map((header, i) => `<th contenteditable="${!wisk.editor.readonly}" data-row="-1" data-col="${i}">${header}</th>`).join('')}
                         </tr>
-                    `
-                        )
-                        .join('')}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        ${rows
+                            .map(
+                                (row, i) => `
+                            <tr>
+                                ${row.map((cell, j) => `<td contenteditable="${!wisk.editor.readonly}" data-row="${i}" data-col="${j}">${cell}</td>`).join('')}
+                            </tr>
+                        `
+                            )
+                            .join('')}
+                    </tbody>
+                </table>
+                <button class="plus-btn" id="add-column"><img src="/a7/forget/plus.svg"/></button>
+            </div>
+            <div style="display: flex">
+                <button class="plus-btn" id="add-row" style="flex: 1"><img src="/a7/forget/plus.svg"/></button>
+                <button class="plus-btn" style="opacity: 0; pointer-events: none"><img src="/a7/forget/plus.svg"/></button>
+            </div>
         `;
 
         this.shadowRoot.innerHTML = innerHTML;

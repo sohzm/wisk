@@ -233,6 +233,28 @@
             ]
         },
 
+        "super-checkbox": {
+            "name": "super-checkbox",
+            "title": "Super Checkbox",
+            "author": "Wisk Team",
+            "contact": "https://wisk.cc",
+            "icon": "super-checkbox.svg",
+            "tags": ["super", "random"],
+            "description": "Checkboxes with superpowers",
+            "contents": [
+                {
+                    "title": "Super Checkbox",
+                    "icon": "super-checkbox.svg",
+                    "category": "component",
+                    "component": "super-checkbox",
+                    "nav": false,
+                    "textual": true,
+                    "loadAsModule": false,
+                    "width": "mini"
+                }
+            ]
+        },
+
         "main-element": {
             "name": "main-element",
             "title": "Main  Element",
@@ -372,7 +394,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "image.svg",
-            "tags": ["image", "picture", "photo"],
+            "tags": ["image", "picture", "photo", "gif"],
             "description": "Image element",
             "contents": [
                 {
@@ -570,7 +592,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "database.svg",
-            "tags": ["database", "data", "table"],
+            "tags": ["data", "table"],
             "description": "Database is a spreadsheet like element that allows you to store data in a table format and visualize it in different ways. This supports this supports: sorting and filtering with user defined properties in views like: table, kanban board, calender, list and gallery.",
             "contents": [
                 {
@@ -637,7 +659,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "3d.svg",
-            "tags": ["3d", "model", "object", "viewer"],
+            "tags": ["3d", "editor", "object", "viewer"],
             "description": "3d Object viewer element made with three.js",
             "contents": [
                 {
@@ -725,7 +747,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "py-interpreter.svg",
-            "tags": ["python", "interpreter", "console", "shell", "code", "runner", "execute", "run"],
+            "tags": ["execute", "programming"],
             "description": "Python interpreter on the browser, no server required. You can use the `from js import window, document` to call editor apis and checkout the https://wisk.cc/docs to see how you can interact with the editor apis. This element auto runs on page load.",
             "contents": [
                 {
@@ -747,7 +769,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "javascript.svg",
-            "tags": ["javascript", "code", "runner", "execute", "run"],
+            "tags": ["execute", "programming"],
             "description": "JavaScript code block, execute your javascript code, it auto runs on page load and the javascript code is executed in the browser. Checkout the https://wisk.cc/docs to see how you can interact with the editor apis",
             "contents": [
                 {
@@ -769,7 +791,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "lua.svg",
-            "tags": ["lua", "code", "runner", "execute", "run"],
+            "tags": ["execute", "programming"],
             "description": "Lua code block, execute your lua code, it auto runs on page load and the lua code is executed in the browser. Checkout the https://wisk.cc/docs to see how you can interact with the editor apis",
             "contents": [
                 {
@@ -791,7 +813,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "tier-list.svg",
-            "tags": ["tier", "list", "ranking", "tierlist"],
+            "tags": ["ranking"],
             "description": "Tier list maker, create your own tier list",
             "contents": [
                 {
@@ -813,7 +835,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "symbols.svg",
-            "tags": ["symbols", "math", "greek", "latin", "arrows", "emoji"],
+            "tags": ["symbols", "math"],
             "description": "Commonly used symbols",
             "contents": [
                 {
@@ -833,7 +855,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "nightwave-plaza.svg",
-            "tags": ["radio", "music", "nightwave", "plaza", "lofi"],
+            "tags": ["radio", "music"],
             "description": "Nightwave Plaza is a 24/7 online vaporwave and future funk radio station. You can visit them at https://plaza.one/",
             "contents": [
                 {
@@ -853,8 +875,8 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "music-maker.svg",
-            "tags": ["music", "maker", "composer", "piano", "keyboard"],
-            "description": "Music maker, create your own music (actually its a step sequencer, but you can create music with it too!)",
+            "tags": ["stepsequencer"],
+            "description": "Music maker, create your own music (actually its a step sequencer)",
             "contents": [
                 {
                     "title": "Music Maker",
@@ -874,7 +896,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "whitenoise.svg",
-            "tags": ["radio", "music", "white", "noise", "ambient"],
+            "tags": ["radio", "music", "utility"],
             "description": "White Noise Player is a simple white noise player, we took the sounds from https://youtu.be/AslKWwxPNbY",
             "contents": [
                 {
@@ -894,7 +916,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "pomodoro-timer.svg",
-            "tags": ["timer", "pomodoro", "work", "study", "focus"],
+            "tags": ["timer", "utility"],
             "description": "Pomodoro Timer is a simple timer to help you focus on your work or study",
             "contents": [
                 {
@@ -914,7 +936,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "word-count.svg",
-            "tags": ["word", "count", "text", "editor"],
+            "tags": ["utility"],
             "description": "Shows the word count of the document in the navigation bar",
             "contents": [
                 {
@@ -935,7 +957,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "cursor.svg",
-            "tags": ["cursor", "customize", "change", "pointer"],
+            "tags": ["random", "customization"],
             "description": "Customize your cursor",
             "contents": [
                 {
@@ -957,7 +979,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "tweaks.svg",
-            "tags": ["tweaks", "settings", "options", "customize"],
+            "tags": ["random", "customization"],
             "description": "Tweaks gives you experimental features focused on customization. Since these features are experimental, they may not work as expected and they may break your experience.",
             "contents": [
                 {
@@ -979,7 +1001,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "powerlevel.svg",
-            "tags": ["powerlevel", "power", "level", "game"],
+            "tags": ["random"],
             "description": "Powerlevel is a combo system that adds a game-like experience to the editor",
             "contents": [
                 {
@@ -1000,8 +1022,8 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "brainrot.svg",
-            "tags": ["brain", "rot", "game", "puzzle", "riddle"],
-            "description": "Brainrot is a video player for all you zoomers out there, video taken from https://youtu.be/J2gdK8cHX3A",
+            "tags": ["random"],
+            "description": "Brainrot is a video player for all you zoomers out there, videos are taken from youtube and were under the creative commons license at the time of creation",
             "contents": [
                 {
                     "title": "Brainrot",
@@ -1021,7 +1043,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "keystroke-sound.svg",
-            "tags": ["keystroke", "sound", "audio", "keyboard"],
+            "tags": ["random", "customization"],
             "description": "Keystroke sound is a plugin that adds a sound to your keystrokes",
             "contents": [
                 {
@@ -1042,7 +1064,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "vim.svg",
-            "tags": ["vim", "editor", "text", "code"],
+            "tags": ["keybindings", "programming"],
             "description": "Vim is a experimantal plugin that brings vim keybindings to the editor",
             "contents": [
                 {
@@ -1063,7 +1085,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "emacs.svg",
-            "tags": ["emacs", "editor", "text", "code"],
+            "tags": ["keybindings", "programming"],
             "description": "Emacs is a experimantal plugin that brings emacs keybindings to the editor",
             "contents": [
                 {
@@ -1084,7 +1106,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "accordion.svg",
-            "tags": ["accordion", "expand", "collapse", "toggle"],
+            "tags": ["blog", "faq", "help"],
             "description": "Accordion element for expanding and collapsing content, it can be used to create a FAQ or a help section",
             "contents": [
                 {
@@ -1106,7 +1128,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "table-of-contents.svg",
-            "tags": ["index", "page", "table", "contents"],
+            "tags": ["index", "table", "blog"],
             "description": "Page index element for creating a table of contents",
             "contents": [
                 {
@@ -1173,7 +1195,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "sticky-notes-2.svg",
-            "tags": ["sticky", "notes", "post", "it", "note"],
+            "tags": ["utility", "notes"],
             "description": "Sticky notes is a plugin that allows you to create sticky notes",
             "contents": [
                 {
@@ -1195,7 +1217,7 @@
             "author": "Wisk Team",
             "contact": "https://wisk.cc",
             "icon": "scribble.svg",
-            "tags": ["divider", "separator", "line"],
+            "tags": ["super", "divider", "separator", "random"],
             "description": "Divider just got super",
             "contents": [
                 {

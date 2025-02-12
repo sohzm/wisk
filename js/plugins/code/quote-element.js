@@ -13,7 +13,7 @@ class QuoteElement extends BaseTextElement {
                 font-size: 1.5rem;
                 line-height: 1.5;
                 border: none;
-                border-left: 5px solid var(--fg-red);
+                border-left: 5px solid var(--bg-3);
                 padding: var(--padding-4);
             }
 

@@ -1972,7 +1972,7 @@ class EmojiSelector extends LitElement {
                         <img src="/a7/forget/emoji-shuffle.svg" alt="smiley" draggable="false" />
                     </button>
 
-                    <button @click=${() => this.dispatch(undefined)} class="search-button" class="search-button">Remove</button>
+                    <button @click=${() => this.dispatch("")} class="search-button" class="search-button">Remove</button>
                 </div>
 
                 <div class="emojis">

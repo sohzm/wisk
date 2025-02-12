@@ -139,7 +139,7 @@ nav {
 .rndr {
     position: relative;
     width: 100%;
-    padding: 0 max(calc((100% - 850px) / 2), var(--padding-4));
+    padding: 0 max(calc((100% - var(--width)) / 2), var(--padding-4));
 }
 
 .hover-images {
@@ -178,9 +178,9 @@ nav {
 }
 
 .hover-image {
-    width: 34px;
-    height: 34px;
-    padding: 8px;
+    width: 30px;
+    height: 30px;
+    padding: 7px;
     display: block;
     cursor: pointer;
     border-radius: var(--radius);
@@ -188,6 +188,7 @@ nav {
 }
 
 .hover-image:hover {
+    background-color: var(--bg-3);
 }
 
 @media (min-width: 900px) {
@@ -275,7 +276,7 @@ nav {
     }
 
     .rndr-full-width > .full-width-wrapper > .hover-images {
-        left: max(calc((100% - 850px) / 2), var(--padding-4));
+        left: max(calc((100% - var(--width)) / 2), var(--padding-4));
         height: fit-content;
         padding: 0;
         justify-content: space-between;
@@ -283,8 +284,7 @@ nav {
         border-radius: var(--radius);
         position: absolute;
         transform: translateY(0);
-        bottom: -36px;
-        top: unset;
+        top: 100%;
         background: var(--bg-1);
     }
 
@@ -296,7 +296,7 @@ nav {
 }
 
 #last-space {
-    padding: 100px max(calc((100% - 850px) / 2), var(--padding-4));
+    padding: 100px max(calc((100% - var(--width)) / 2), var(--padding-4));
     flex: 1;
     display: flex;
     align-items: flex-start;

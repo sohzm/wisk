@@ -281,7 +281,7 @@ class MainElement extends BaseTextElement {
                 font-family: var(--font);
             }
             .header-container {
-                padding: 0 max(calc((100% - 850px) / 2), var(--padding-4));
+                padding: 0 max(calc((100% - var(--width)) / 2), var(--padding-4));
                 padding-top: 49px;
                 background-size: cover;
                 background-position: center;
@@ -385,7 +385,7 @@ class MainElement extends BaseTextElement {
                 background: transparent;
                 padding: 8px 12px;
                 border-radius: var(--radius);
-                padding: 0 max(calc((100% - 850px) / 2), var(--padding-4));
+                padding: 0 max(calc((100% - var(--width)) / 2), var(--padding-4));
                 margin-top: 28px;
                 transition: all 0.3s ease;
             }
@@ -589,9 +589,9 @@ class MainElement extends BaseTextElement {
 
             this.emojiSuggestionsContainer.style.display = 'block';
 
-            this.emojiSuggestionsContainer.style.left = `max(calc((100% - 850px) / 2), var(--padding-4))`;
+            this.emojiSuggestionsContainer.style.left = `max(calc((100% - var(--width)) / 2), var(--padding-4))`;
             this.emojiSuggestionsContainer.style.top = `100%`;
-            this.emojiSuggestionsContainer.style.width = `calc(100% - calc(max(calc((100% - 850px) / 2), var(--padding-4)) * 2))`;
+            this.emojiSuggestionsContainer.style.width = `calc(100% - calc(max(calc((100% - var(--width)) / 2), var(--padding-4)) * 2))`;
 
             this.renderEmojiSuggestions();
             this.showingEmojiSuggestions = true;

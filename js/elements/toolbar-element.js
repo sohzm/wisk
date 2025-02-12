@@ -8,6 +8,7 @@ class ToolbarElement extends LitElement {
             margin: 0;
             padding: 0;
             transition: none;
+            outline: none;
         }
 
         :host {
@@ -26,6 +27,31 @@ class ToolbarElement extends LitElement {
             display: none;
             width: max-content;
             transform: translateZ(0); /* Prevents jittering */
+            transition: all 0.2s ease;
+        }
+
+        @media (max-width: 1150px) {
+            .toolbar {
+                position: fixed;
+                background: var(--bg-1);
+                border: 1px solid var(--border-1);
+                border-radius: var(--radius-large);
+                border-left: none;
+                border-right: none;
+                border-radius: var(--radius-large);
+                padding: var(--padding-4);
+                gap: var(--gap-2);
+                z-index: 99;
+                display: none;
+                width: max-content;
+                transform: translateZ(0);
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+                width: 100%;
+                bottom: 0;
+                flex-direction: column;
+                height: 90%;
+            }
         }
 
         .toolbar.visible {
@@ -37,16 +63,22 @@ class ToolbarElement extends LitElement {
             border: none;
             width: 28px;
             height: 26px;
-            border-radius: 3px;
+            border-radius: 30px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--fg-accent);
+            color: var(--fg-1);
             transition: background 0.2s ease-in-out;
             gap: var(--gap-1);
             opacity: 1;
         }
+
+        @media (max-width: 1150px) {
+            .toolbar button {
+            }
+        }
+
         .toolbar div button {
         }
 
@@ -56,7 +88,7 @@ class ToolbarElement extends LitElement {
         }
 
         .toolbar button:hover {
-            background: var(--bg-accent);
+            background: var(--bg-3);
             opacity: 1;
         }
 
@@ -68,23 +100,41 @@ class ToolbarElement extends LitElement {
         }
 
         img {
-            filter: var(--accent-svg);
+            filter: var(--themed-svg);
             height: 19px;
         }
-
         .dialog-container {
-            position: absolute;
             top: 100%;
             left: 0;
-            margin-top: var(--dialog-margin-top--dont-mess-with-this, 40px);
             width: 100%;
-            max-height: 500px;
+            height: 100%;
             background: var(--bg-1);
-            border: 1px solid var(--border-1);
             border-radius: var(--radius);
-            filter: var(--drop-shadow);
-            padding: var(--padding-3);
             display: flex;
+        }
+        @media (max-width: 1150px) {
+            .dialog-container {
+                flex: 1;
+                overflow: auto;
+            }
+        }
+
+        @media (min-width: 1150px) {
+            .dialog-container {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                margin-top: var(--dialog-margin-top--dont-mess-with-this, 40px);
+                width: 100%;
+                max-height: 500px;
+                background: var(--bg-1);
+                border: 1px solid var(--border-1);
+                border-radius: var(--radius);
+                filter: var(--drop-shadow);
+                padding: var(--padding-3);
+                display: flex;
+                height: auto;
+            }
         }
 
         .dialog {
@@ -169,6 +219,14 @@ class ToolbarElement extends LitElement {
             align-items: center;
             justify-content: center;
             border-radius: var(--radius);
+        }
+
+        @media (max-width: 1150px) {
+            .loading-overlay {
+                border-radius: var(--radius-large);
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+            }
         }
 
         .loading-indicator {
@@ -280,7 +338,6 @@ class ToolbarElement extends LitElement {
 
         .submenu {
             display: none;
-            position: absolute;
             left: 100%;
             top: 0;
             background: var(--bg-1);
@@ -290,6 +347,12 @@ class ToolbarElement extends LitElement {
             min-width: 150px;
             z-index: 1002;
             overflow: hidden;
+        }
+
+        @media (min-width: 1150px) {
+            .submenu {
+                position: absolute;
+            }
         }
 
         .submenu button {
@@ -462,6 +525,22 @@ class ToolbarElement extends LitElement {
         .submenu-container:hover .color-submenu {
             display: block;
         }
+
+        .selected-text-mob {
+            border: 1px solid var(--border-1);
+            padding: var(--padding-4);
+            border-radius: var(--radius-large);
+            background: var(--bg-2);
+            text-align: center;
+        }
+
+        @media (max-width: 1150px) {
+            @starting-style {
+                .toolbar {
+                    bottom: -100%;
+                }
+            }
+        }
     `;
 
     static properties = {
@@ -545,6 +624,14 @@ class ToolbarElement extends LitElement {
     }
 
     updateToolbarPosition() {
+        const toolbar = this.shadowRoot.querySelector('.toolbar');
+        var screenWidth = window.innerWidth;
+        if (screenWidth < 1150) {
+            toolbar.style.left = 0;
+            toolbar.style.top = "unset";
+            return;
+        }
+
         if (!this.visible || !this.elementId) return;
 
         const element = document.getElementById(this.elementId);
@@ -556,7 +643,6 @@ class ToolbarElement extends LitElement {
             return;
         }
 
-        const toolbar = this.shadowRoot.querySelector('.toolbar');
         this.style.setProperty('--dialog-margin-top--dont-mess-with-this', `${(position.height > 200 ? 200 : position.height) + 20}px`);
 
         toolbar.style.left = `${Math.max(10, Math.min(position.x - toolbar.offsetWidth / 2, window.innerWidth - toolbar.offsetWidth - 10))}px`;
@@ -960,45 +1046,59 @@ class ToolbarElement extends LitElement {
             ${this.mode === 'dialog' || this.mode === 'preview' ? html`<div class="backdrop" @click=${this.closeDialog}></div>` : ''}
 
             <div class="toolbar ${this.visible ? 'visible' : ''}" style="">
-                <button @click=${() => this.handleToolbarAction('ai-improve')} title="Improve with AI" data-wide>
-                    <img src="/a7/forget/ai.svg" alt="AI" /> Neo AI
-                </button>
-                <div class="separator"></div>
-                <button @click=${() => this.handleToolbarAction('find-source')} title="Find Source" data-wide>
-                    <img src="/a7/forget/source.svg" alt="Source" /> Find Source
-                </button>
-                <div class="separator"></div>
-                <div style="display: flex">
-                    <button @click=${() => this.handleToolbarAction('bold')} title="Bold">
-                        <img src="/a7/forget/bold.svg" alt="Bold" />
+                ${window.innerWidth < 1150? html`
+                    <div style="display: flex;align-items: center;justify-content: space-between;">
+                        <div>Quick Actions</div>
+                        <button @click=${this.hideToolbar} title="Close"> Close </button>
+                    </div>
+                `:``}
+
+                ${window.innerWidth < 1150? html`
+                    <div class="selected-text-mob">
+                        ${this.selectedText}
+                    </div>
+                `:``}
+
+                <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap; justify-content: space-between;">
+                    <button @click=${() => this.handleToolbarAction('ai-improve')} title="Improve with AI" data-wide>
+                        <img src="/a7/forget/ai.svg" alt="AI" /> Neo AI
                     </button>
-                    <button @click=${() => this.handleToolbarAction('italic')} title="Italic">
-                        <img src="/a7/forget/italics.svg" alt="Italic" />
+                    <div class="separator" style="display: ${window.innerWidth < 1150? 'none':'block'};"></div>
+                    <button @click=${() => this.handleToolbarAction('find-source')} title="Find Source" data-wide>
+                        <img src="/a7/forget/source.svg" alt="Source" /> Find Source
                     </button>
-                    <button @click=${() => this.handleToolbarAction('underline')} title="Underline">
-                        <img src="/a7/forget/underline.svg" alt="Underline" />
-                    </button>
-                    <button @click=${() => this.handleToolbarAction('strikeThrough')} title="Strikethrough">
-                        <img src="/a7/forget/strikethrough.svg" alt="Strikethrough" />
-                    </button>
-                    <button @click=${() => this.handleToolbarAction('link')} title="Add Link">
-                        <img src="/a7/forget/link.svg" alt="Link" />
-                    </button>
-                    <button @click=${() => this.handleToolbarAction('subscript')} title="Subscript">
-                        <img src="/a7/plugins/toolbar/subscript.svg" alt="Subscript" />
-                    </button>
-                    <button @click=${() => this.handleToolbarAction('superscript')} title="Superscript">
-                        <img src="/a7/plugins/toolbar/superscript.svg" alt="Superscript" />
-                    </button>
-                    <div class="submenu-container">
-                        <button class="submenu-trigger" title="Colors" style="width: auto; padding: 0 5px">
-                            <img src="/a7/plugins/toolbar/color.svg" alt="Colors" />
-                            <img src="/a7/plugins/toolbar/down.svg" alt="Colors" />
+                    <div class="separator" style="display: ${window.innerWidth < 1150? 'none':'block'};"></div>
+                    <div style="display: flex">
+                        <button @click=${() => this.handleToolbarAction('bold')} title="Bold">
+                            <img src="/a7/forget/bold.svg" alt="Bold" />
                         </button>
-                        ${this.renderColorMenu()}
+                        <button @click=${() => this.handleToolbarAction('italic')} title="Italic">
+                            <img src="/a7/forget/italics.svg" alt="Italic" />
+                        </button>
+                        <button @click=${() => this.handleToolbarAction('underline')} title="Underline">
+                            <img src="/a7/forget/underline.svg" alt="Underline" />
+                        </button>
+                        <button @click=${() => this.handleToolbarAction('strikeThrough')} title="Strikethrough">
+                            <img src="/a7/forget/strikethrough.svg" alt="Strikethrough" />
+                        </button>
+                        <button @click=${() => this.handleToolbarAction('link')} title="Add Link">
+                            <img src="/a7/forget/link.svg" alt="Link" />
+                        </button>
+                        <button @click=${() => this.handleToolbarAction('subscript')} title="Subscript">
+                            <img src="/a7/plugins/toolbar/subscript.svg" alt="Subscript" />
+                        </button>
+                        <button @click=${() => this.handleToolbarAction('superscript')} title="Superscript">
+                            <img src="/a7/plugins/toolbar/superscript.svg" alt="Superscript" />
+                        </button>
+                        <div class="submenu-container">
+                            <button class="submenu-trigger" title="Colors" style="width: auto; padding: 0 5px">
+                                <img src="/a7/plugins/toolbar/color.svg" alt="Colors" />
+                                <img src="/a7/plugins/toolbar/down.svg" alt="Colors" />
+                            </button>
+                            ${this.renderColorMenu()}
+                        </div>
                     </div>
                 </div>
-
                 ${this.mode === 'loading' ? html` <div class="loading-overlay"><div class="loading-indicator"></div></div> ` : ''}
                 ${this.mode === 'dialog' || this.mode === 'preview'
                     ? html`
@@ -1250,9 +1350,9 @@ class ToolbarElement extends LitElement {
                                 @click=${() => this.handleToolbarAction('show-citations')}
                                 title="Add Existing Citation"
                                 data-wide
-                                style="border: none; color: var(--fg-accent);"
+                                style="border: none; color: var(--fg-1);"
                             >
-                                <img src="/a7/forget/list.svg" alt="Citation" style="filter: var(--accent-svg)" /> Show current citations
+                                <img src="/a7/forget/list.svg" alt="Citation" style="filter: var(--themed-svg)" /> Show current citations
                             </button>
                         </div>
                         <div style="overflow: auto; padding: var(--padding-3) 0">
@@ -1269,7 +1369,7 @@ class ToolbarElement extends LitElement {
                                             >
                                             <button
                                                 @click=${() => this.handleCreateReference(source)}
-                                                style="border: 1px solid var(--border-1); color: var(--fg-accent)"
+                                                style="border: 1px solid var(--border-1); color: var(--fg-1)"
                                             >
                                                 Add Source
                                             </button>
