@@ -1233,7 +1233,12 @@ class OptionsComponent extends LitElement {
 
                         <div class="menu-item-static content-section">
                             <label>Clear all service worker cache (for pwa)</label>
-                            <button class="btn btn-developer" @click="${() => window.clearServiceWorkerCache()}">Clear</button>
+                            <button class="btn btn-developer" @click="${() => window.clearWiskPWA()}">Clear</button>
+                        </div>
+
+                        <div class="menu-item-static content-section">
+                            <label>Update Wisk PWA</label>
+                            <button class="btn btn-developer" @click="${() => window.updateWiskPWA()}">Update</button>
                         </div>
 
                         <div class="menu-item-static content-section">
