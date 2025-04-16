@@ -33,6 +33,24 @@ function setURLParam(id) {
     }
 }
 
+async function init() {
+    try {
+        wisk.plugins.pluginData = await fetchDataJSON();
+        console.log('Plugin data loaded:', wisk.plugins.pluginData);
+        await loadAllPlugins();
+        // await sync();
+        //
+        await wisk.db.getItem(wisk.editor.pageId).then(data => {
+            if (data) {
+                console.log('Data:', data);
+                initEditor(data);
+            }
+        });
+    } catch (error) {
+        console.error('Initialization error:', error);
+    }
+}
+
 async function initScript() {
     // var u = await document.querySelector('auth-component').getUserInfo();
     if (getURLParam('id') == null || getURLParam('id') == '') {
@@ -100,7 +118,7 @@ async function initScript() {
         document.getElementById('nav').classList.remove('nav-disappear');
     });
 
-    live();
+    init();
 }
 
 var wasSignedOut = false;

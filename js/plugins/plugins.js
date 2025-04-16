@@ -233,23 +233,3 @@ async function loadAllPlugins() {
         // wisk.utils.hideLoading();
     }
 }
-
-async function init() {
-    try {
-        wisk.plugins.pluginData = await fetchDataJSON();
-        console.log('Plugin data loaded:', wisk.plugins.pluginData);
-        await loadAllPlugins();
-        // await sync();
-        //
-        await wisk.db.getItem(wisk.editor.pageId).then(data => {
-            if (data) {
-                console.log('Data:', data);
-                initEditor(data);
-            }
-        });
-    } catch (error) {
-        console.error('Initialization error:', error);
-    }
-}
-
-init();
