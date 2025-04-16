@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+            body {
+                margin: 0;
+                padding: 20px;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .section {
+                width: 100%;
+                height: 300px;
+                position: relative;
+                overflow: hidden;
+                background: white;
+                clip-path: polygon(0 0, 100% 0, 85% 100%, -15% 100%);
+                margin-bottom: -50px;
+            }
+
+            .section img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        </style>
+    </head>
+    <body>
+        <input type="file" id="photoInput" multiple accept="image/*" />
+        <div class="container" id="photoContainer"></div>
+
+        <script>
+            document.getElementById('photoInput').addEventListener('change', function (event) {
+                const container = document.getElementById('photoContainer');
+                container.innerHTML = '';
+
+                const files = Array.from(event.target.files).slice(0, 11);
+
+                files.forEach(file => {
+                    const section = document.createElement('div');
+                    section.className = 'section';
+
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+
+                    section.appendChild(img);
+                    container.appendChild(section);
+                });
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta name="darkreader" content="random phrase here" />
+        <title>Your Wisk - Home</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link href="/js/theme/variables.css" rel="stylesheet" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+        <link href="/home/style.css" rel="stylesheet" />
+        <link href="/global.css" rel="stylesheet" />
+
+        <meta property="og:title" content="Wisk — Your Workspace, Built Your Way" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://wisk.cc" />
+        <meta property="og:image" content="https://wisk.cc/a7/bg.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Wisk — Your workspace, built your way" />
+        <meta property="og:description" content="Notes, reports, tasks, and collaboration — offline and customizable. (Yes, we have AI too!)" />
+        <meta property="og:site_name" content="Wisk" />
+        <meta property="og:locale" content="en_US" />
+
+        <!-- Twitter Card Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Wisk — Your Workspace, Built Your Way" />
+        <meta name="twitter:description" content="Notes, reports, tasks, and collaboration — offline and customizable. (Yes, we have AI too!)" />
+        <meta name="twitter:image" content="https://wisk.cc/a7/bg.png" />
+        <meta name="twitter:site" content="@wisk_cc" />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Creepster&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Mono:wght@400;500;700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Satisfy&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=VT323&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Varela+Round&family=Sarpanch:wght@400;500;600;700;800;900&Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+            rel="stylesheet"
+        />
+
+        <style>
+            .spinner {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                border: 3.5px solid var(--fg-1);
+                animation:
+                    spinner-bulqg1 0.96s infinite linear alternate,
+                    spinner-oaa3wk 1.92s infinite linear;
+            }
+            @keyframes spinner-bulqg1 {
+                0% {
+                    clip-path: polygon(50% 50%, 0 0, 50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%);
+                }
+                12.5% {
+                    clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 0%, 100% 0%, 100% 0%);
+                }
+                25% {
+                    clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 100%, 100% 100%, 100% 100%);
+                }
+                50% {
+                    clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 100%, 50% 100%, 0% 100%);
+                }
+                62.5% {
+                    clip-path: polygon(50% 50%, 100% 0, 100% 0%, 100% 0%, 100% 100%, 50% 100%, 0% 100%);
+                }
+                75% {
+                    clip-path: polygon(50% 50%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 50% 100%, 0% 100%);
+                }
+                100% {
+                    clip-path: polygon(50% 50%, 50% 100%, 50% 100%, 50% 100%, 50% 100%, 50% 100%, 0% 100%);
+                }
+            }
+            @keyframes spinner-oaa3wk {
+                0% {
+                    transform: scaleY(1) rotate(0deg);
+                }
+                49.99% {
+                    transform: scaleY(1) rotate(135deg);
+                }
+                50% {
+                    transform: scaleY(-1) rotate(0deg);
+                }
+                100% {
+                    transform: scaleY(-1) rotate(-135deg);
+                }
+            }
+            .spr {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .spr p {
+                font-family: 'Inter', sans-serif;
+                font-size: 18px;
+                margin-left: 16px;
+            }
+            .loading-div {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1000;
+                gap: 20px;
+                display: none;
+            }
+            .backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: var(--bg-2);
+                opacity: 0.5;
+                z-index: 1000;
+            }
+            .u1 {
+                z-index: 1001;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: var(--gap-2);
+                padding: 40px;
+                background: var(--bg-1);
+                border-radius: var(--radius-large);
+                border: 1px solid var(--border-1);
+                filter: var(--drop-shadow);
+                max-width: 400px;
+                width: 90%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="spr loading-div">
+            <div class="backdrop"></div>
+            <div class="u1">
+                <div class="spinner"></div>
+                <div style="display: flex; gap: 5px; flex-direction: column">
+                    <p class="loading-text-bottom">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <nav id="nav">
+            <img
+                src="/a7/wisk-logo.svg"
+                alt="Wisk Logo"
+                class="plugin-icon"
+                style="width: 32px; cursor: pointer"
+                onclick="window.location.href = '/'"
+                title="Wisk Alpha"
+            />
+            <div class="nav-plugins"></div>
+
+            <div class="nav-app">
+                <span class="minimize" onclick="minimizeApp()"></span>
+                <span class="maximize" onclick="maximizeApp()"></span>
+                <span class="close" onclick="closeApp()"></span>
+            </div>
+        </nav>
+
+        <home-element id="home"></home-element>
+        <auth-component id="auth"></auth-component>
+
+        <script src="/global.js"></script>
+        <script src="/js/wisk.js"></script>
+        <script src="/js/theme/theme.js"></script>
+        <script type="module" src="/js/elements/auth-component.js"></script>
+        <script type="module" src="/js/elements/home-element.js"></script>
+
+        <script>
+            window.onSignOut = function () {
+                // alert('You need to sign in to use this service. (for now, we are working on making it work without sign in)');
+                // window.location.href = '/';
+                window.showToast('You need to sign in', 5000);
+                document.querySelector('auth-component').show();
+            };
+            window.onSignIn = function () {
+                document.querySelector('#home').fetchFiles();
+            };
+
+            // if url contains 55557 then .nav-app display flex
+            // for desktop app
+            if (window.location.href.includes('55557')) {
+                document.querySelector('.nav-app').style.display = 'flex';
+                document.querySelector('body').style.borderRadius = '20px';
+                document.querySelector('html').style.borderRadius = '20px';
+                document.querySelector('html').style.overflow = 'hidden';
+                document.querySelector('body').style.overflow = 'hidden';
+                document.querySelector('html').style.backgroundColor = 'transparent';
+            }
+
+            const closeApp = () => fetch('/app-nav/close');
+            const minimizeApp = () => fetch('/app-nav/minimize');
+            const maximizeApp = () => fetch('/app-nav/maximize');
+        </script>
+    </body>
+</html>

@@ -1,0 +1,16 @@
+{
+    "rewrites": [
+        { "source": "/css/(.*)", "destination": "/css/$1" },
+        { "source": "/js/(.*)", "destination": "/js/$1" },
+        { "source": "/a7/(.*)", "destination": "/a7/$1" },
+        { "source": "/home/(.*)", "destination": "/home/$1" },
+        { "source": "/exp/(.*)", "destination": "/exp/$1" },
+        { "source": "/favicon.ico", "destination": "/favicon.ico" },
+        { "source": "/global.css", "destination": "/global.css" },
+        { "source": "/global.js", "destination": "/global.js" },
+        { "source": "/script.js", "destination": "/script.js" },
+        { "source": "/style.css", "destination": "/style.css" },
+        { "source": "/LICENSE.md", "destination": "/LICENSE.md" },
+        { "source": "/(.*)", "destination": "/index.html" }
+    ]
+}

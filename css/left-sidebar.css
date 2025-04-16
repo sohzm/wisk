@@ -1,0 +1,112 @@
+.left-sidebar {
+    flex-shrink: 0;
+    flex-grow: 0;
+    width: 100%;
+    max-width: 1000px;
+    background-color: var(--bg-1);
+    border: none;
+    border-right: 1px solid var(--border-1);
+    z-index: 90;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 900px) {
+    .left-sidebar-hidden {
+        display: none;
+    }
+
+    .left-sidebar {
+        transition: width 0.05s;
+    }
+
+    /* Desktop-only resize handle */
+    .resize-handle {
+        position: absolute;
+        width: 10px;
+        height: 100%;
+        top: 0;
+        z-index: 150;
+        transition: background-color 0.2s;
+    }
+
+    .resize-handle-right {
+        right: -5px;
+        cursor: col-resize;
+    }
+
+    .resize-handle:hover {
+        background-color: var(--bg-3);
+    }
+
+    .sidebar-resizing {
+        cursor: col-resize;
+        user-select: none;
+    }
+
+    .sidebar-resizing iframe,
+    .sidebar-resizing .left-sidebar-body {
+        pointer-events: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .left-sidebar {
+        width: 90%;
+        max-width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        margin: 0;
+        border-radius: 0;
+        border: none;
+        filter: var(--drop-shadow);
+        border-right: 1px solid var(--border-1);
+        transition: left 0.2s;
+    }
+
+    .left-sidebar-hidden {
+        left: -100%;
+    }
+
+    .resize-handle {
+        display: none;
+    }
+}
+
+.left-sidebar-close {
+    outline: none;
+    border: none;
+    background-color: transparent;
+    color: var(--fg-1);
+    cursor: pointer;
+    padding: var(--padding-w1);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    gap: var(--gap-2);
+    transition: background-color 0.2s;
+    user-select: none;
+}
+
+.left-sidebar-close:hover {
+    background-color: var(--bg-3);
+}
+
+.left-sidebar-body {
+    overflow: auto;
+    height: 100%;
+    position: relative;
+}
+
+.left-sidebar-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: var(--padding-w2);
+    font-weight: 400;
+}

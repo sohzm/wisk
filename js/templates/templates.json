@@ -1,0 +1,32 @@
+{
+    "templates": [
+        {
+            "name": "Simple Blog",
+            "description": "Default Blog Template whose design is very human",
+            "by": "Wisk Team",
+            "link": "https://wisk.cc",
+            "path": "blog-simple",
+            "images": ["desktop1.png"],
+            "links": [
+                {
+                    "text": "Banner photo by Codioful (formerly Gradienta)",
+                    "url": "https://www.pexels.com/photo/blue-and-purple-gradient-background-7130475/"
+                }
+            ]
+        },
+        {
+            "name": "Travel Itinerary",
+            "description": "A travel itinerary template that is perfect for travel bloggers",
+            "by": "Wisk Team",
+            "link": "https://wisk.cc",
+            "path": "travel-itinerary-simple",
+            "images": [],
+            "links": [
+                {
+                    "text": "Photo by Mihis Alex",
+                    "url": "https://www.pexels.com/photo/black-toy-car-on-world-map-paper-21014/"
+                }
+            ]
+        }
+    ]
+}

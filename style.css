@@ -1,0 +1,363 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+html,
+body {
+    height: 100svh;
+    color: var(--fg-1);
+    width: 100%;
+    background-color: var(--bg-1);
+    scroll-behavior: smooth;
+}
+body {
+    overscroll-behavior: contain;
+}
+* {
+    font-family: var(--font);
+}
+.editor-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2);
+    padding: var(--padding-w3);
+    padding-top: 0;
+    padding-bottom: 0px;
+    /* TODO add option in theme */
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.plugin-icon {
+    filter: var(--themed-svg);
+    width: 22px;
+}
+nav {
+    -webkit-app-region: drag;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    transition: opacity 0.5s;
+    z-index: 69; /* nice */
+}
+.nav-plugins {
+    display: flex;
+    gap: var(--gap-2);
+    display: flex;
+    gap: var(--gap-2);
+    background: var(--bg-1);
+    padding: var(--padding-2);
+    margin: var(--padding-3);
+    border-radius: var(--radius);
+}
+.nav-button {
+    outline: none;
+    border: none;
+    background-color: transparent;
+    color: var(--fg-1);
+    cursor: pointer;
+    padding: var(--padding-2);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-app-region: no-drag;
+    user-select: none;
+}
+.nav-button:hover {
+    background-color: var(--bg-3);
+}
+.nav-button-dont-hover:hover {
+    background-color: transparent;
+    cursor: unset;
+}
+
+.hidden {
+    display: none;
+}
+
+.nav-top-icons {
+    display: flex;
+    gap: var(--gap-2);
+    align-items: center;
+    border-radius: var(--radius);
+    background: var(--bg-1);
+    padding: var(--padding-2);
+    margin: var(--padding-3);
+}
+
+.left-sidebar-title,
+.right-sidebar-title,
+.mini-dialog-title {
+    font-weight: 500;
+}
+
+.left-buttons {
+    opacity: 0;
+    mix-blend-mode: difference;
+    filter: invert(100%) contrast(1000%) brightness(1000%);
+    width: 22px;
+}
+
+.rndr:hover > .left-buttons {
+    opacity: 1;
+}
+
+.rndr > *:last-child {
+    flex: 1;
+}
+
+.left-buttons {
+    cursor: pointer;
+    outline: none;
+    border: none;
+    background-color: transparent;
+    border: 1px solid var(--bg-1);
+    border-radius: var(--radius);
+    padding: var(--padding-2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.left-buttons:hover {
+    background-color: var(--bg-2);
+    border: 1px solid var(--fg-2);
+}
+
+.rndr {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-2);
+}
+
+.rndr > * {
+    flex: 1;
+}
+
+.left-buttons img {
+    width: 16px;
+}
+
+.rndr {
+    position: relative;
+    width: 100%;
+    padding: 0 max(calc((100% - var(--width)) / 2), var(--padding-4));
+}
+
+.hover-images {
+    top: 0;
+    display: none;
+    justify-content: flex-end;
+    padding-right: 10px;
+    width: 80px;
+    align-items: center;
+    height: 100%;
+    right: calc(100%);
+    top: 50%;
+    padding: 10px;
+    white-space: nowrap;
+    user-select: none;
+
+    z-index: 40;
+}
+
+.rndr:hover .hover-images {
+    display: flex;
+}
+
+@media (max-width: 1150px) {
+    .hover-images {
+        left: 0px;
+        height: auto;
+        padding: 0;
+        justify-content: space-between;
+        border: 1px solid var(--border-1);
+        border-radius: var(--radius);
+
+        position: absolute;
+        background: var(--bg-1);
+        top: 100%;
+    }
+}
+
+.hover-image {
+    width: 30px;
+    height: 30px;
+    padding: 7px;
+    display: block;
+    cursor: pointer;
+    border-radius: var(--radius);
+    transition: 0.2s ease;
+}
+
+.hover-image:hover {
+    scale: 1.1;
+}
+
+@media (min-width: 900px) {
+    .nav-disappear {
+        opacity: 0;
+    }
+}
+
+.main {
+    display: flex;
+    width: 100svw;
+    height: 100svh;
+}
+
+.mix {
+    height: 100svh;
+    position: relative;
+    flex-grow: 1;
+    overflow: hidden;
+    transform: translateZ(0); /* haha thanks patrick https://stackoverflow.com/a/38796408 - this will keep the fixed children in place */
+}
+
+.editor {
+    overflow: auto;
+    display: flex;
+    height: 100svh;
+    flex-direction: column;
+    position: relative;
+}
+
+.full-width-wrapper {
+    width: 100%;
+    position: relative;
+}
+
+.full-width-wrapper:last-child {
+    width: 100%;
+}
+
+@media (hover: hover) {
+    *::-webkit-scrollbar {
+        width: 15px;
+    }
+    *::-webkit-scrollbar-track {
+        background: var(--bg-1);
+    }
+    *::-webkit-scrollbar-thumb {
+        background-color: var(--bg-3);
+        border-radius: 20px;
+        border: 4px solid var(--bg-1);
+    }
+    *::-webkit-scrollbar-thumb:hover {
+        background-color: var(--fg-1);
+    }
+}
+
+.editor {
+    container-type: inline-size;
+}
+
+@container (max-width: 1150px) {
+    .full-width-wrapper {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .hover-images {
+        left: 0px;
+        height: auto;
+        padding: 0;
+        justify-content: space-between;
+        border: 1px solid var(--border-1);
+        border-radius: var(--radius);
+    }
+}
+
+@container (min-width: 1150px) {
+    .hover-images {
+        position: absolute;
+        transform: translateY(-50%);
+    }
+
+    .rndr-full-width {
+        padding: 0px;
+    }
+
+    .rndr-full-width > .full-width-wrapper > .hover-images {
+        left: max(calc((100% - var(--width)) / 2), var(--padding-4));
+        height: fit-content;
+        padding: 0;
+        justify-content: space-between;
+        border: 1px solid var(--border-1);
+        border-radius: var(--radius);
+        position: absolute;
+        transform: translateY(0);
+        top: 100%;
+        background: var(--bg-1);
+    }
+
+    .rndr-full-width > .full-width-wrapper {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+}
+
+#last-space {
+    padding: 100px max(calc((100% - var(--width)) / 2), var(--padding-4));
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--gap-3);
+}
+
+.nav-app {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    order: 9999;
+    display: none;
+}
+
+.nav-app span {
+    display: block;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 99999;
+    -webkit-app-region: no-drag;
+}
+
+.minimize {
+    background-color: var(--fg-yellow);
+}
+
+.maximize {
+    background-color: var(--fg-green);
+}
+
+.close {
+    background-color: var(--fg-red);
+}
+
+@media (max-width: 768px) {
+    .options-button {
+        display: none;
+    }
+}
+
+@media (max-width: 1150px) {
+    .hover-images {
+        padding: var(--padding-w1);
+        gap: var(--gap-2);
+        border-radius: 30px;
+        background: var(--bg-3);
+        border: none;
+        width: fit-content;
+    }
+}

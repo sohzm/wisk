@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 24">
+  <!-- Main circle -->
+  <circle cx="12" cy="12" r="12" fill="black"/>
+  
+  <!-- Loading dots -->
+  <circle cx="40" cy="12" r="3" fill="black">
+    <animate 
+      attributeName="opacity"
+      values="1;0;1"
+      dur="3s"
+      repeatCount="indefinite"
+      begin="0s"/>
+  </circle>
+  
+  <circle cx="48" cy="12" r="3" fill="black">
+    <animate 
+      attributeName="opacity"
+      values="1;0;1"
+      dur="3s"
+      repeatCount="indefinite"
+      begin="0.6s"/>
+  </circle>
+  
+  <circle cx="56" cy="12" r="3" fill="black">
+    <animate 
+      attributeName="opacity"
+      values="1;0;1"
+      dur="3s"
+      repeatCount="indefinite"
+      begin="1.2s"/>
+  </circle>
+</svg>

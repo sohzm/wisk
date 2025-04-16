@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Excalidraw Custom Element Example</title>
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 100%;
+            }
+            canvas-element {
+                display: block;
+                width: 100%;
+                height: 100vh;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas-element id="myCanvas"></canvas-element>
+
+        <script>
+            class CanvasElement extends HTMLElement {
+                constructor() {
+                    super();
+                    this.excalidrawAPI = null;
+                    this.resizeObserver = null;
+                }
+
+                async connectedCallback() {
+                    this.innerHTML = '<div id="excalidraw-wrapper" style="width:100%;height:100%;"></div>';
+                    await this.loadDependencies();
+                    this.initializeExcalidraw();
+                    this.setupResizeObserver();
+                }
+
+                async loadDependencies() {
+                    const scripts = [
+                        'https://unpkg.com/react@17.0.2/umd/react.production.min.js',
+                        'https://unpkg.com/react-dom@17.0.2/umd/react-dom.production.min.js',
+                        'https://unpkg.com/@excalidraw/excalidraw@0.15.2/dist/excalidraw.production.min.js',
+                    ];
+
+                    for (const src of scripts) {
+                        await new Promise((resolve, reject) => {
+                            const script = document.createElement('script');
+                            script.src = src;
+                            script.onload = resolve;
+                            script.onerror = reject;
+                            this.appendChild(script);
+                        });
+                    }
+                }
+
+                initializeExcalidraw() {
+                    const wrapper = this.querySelector('#excalidraw-wrapper');
+                    const App = () => {
+                        const [dimensions, setDimensions] = React.useState({ width: wrapper.clientWidth, height: wrapper.clientHeight });
+
+                        React.useEffect(() => {
+                            this.updateDimensions = () => setDimensions({ width: wrapper.clientWidth, height: wrapper.clientHeight });
+                        }, []);
+
+                        const excalidrawRef = React.useCallback(api => {
+                            if (api) {
+                                this.excalidrawAPI = api;
+                            }
+                        }, []);
+
+                        return React.createElement(ExcalidrawLib.Excalidraw, {
+                            ref: excalidrawRef,
+                            initialData: {
+                                appState: {
+                                    viewBackgroundColor: '#FFFFFF',
+                                    zenModeEnabled: true,
+                                },
+                            },
+                            width: dimensions.width,
+                            height: dimensions.height,
+                            UIOptions: {
+                                canvasActions: {
+                                    toggleZenMode: false,
+                                },
+                            },
+                        });
+                    };
+
+                    ReactDOM.render(React.createElement(App), wrapper);
+                    this.shadowRoot.querySelector('.disable-zen-mode').style.display = 'none';
+                }
+
+                setupResizeObserver() {
+                    this.resizeObserver = new ResizeObserver(() => {
+                        if (this.updateDimensions) {
+                            this.updateDimensions();
+                        }
+                    });
+                    this.resizeObserver.observe(this);
+                }
+
+                disconnectedCallback() {
+                    if (this.resizeObserver) {
+                        this.resizeObserver.disconnect();
+                    }
+                }
+
+                getValue() {
+                    if (!this.excalidrawAPI) {
+                        return { canvasContent: null };
+                    }
+                    const elements = this.excalidrawAPI.getSceneElements();
+                    const appState = this.excalidrawAPI.getAppState();
+                    return {
+                        canvasContent: JSON.stringify({ elements, appState }),
+                    };
+                }
+
+                setValue(identifier, value) {
+                    if (!this.excalidrawAPI) {
+                        console.warn('Excalidraw API not initialized');
+                        return;
+                    }
+
+                    if (value == null || value.canvasContent == undefined || value.canvasContent == null) {
+                        this.excalidrawAPI.resetScene();
+                        return;
+                    }
+
+                    try {
+                        const { elements, appState } = JSON.parse(value.canvasContent);
+                        this.excalidrawAPI.updateScene({
+                            elements,
+                            appState: { ...appState, zenModeEnabled: true },
+                        });
+                    } catch (error) {
+                        console.error('Error parsing canvas content:', error);
+                    }
+                }
+            }
+
+            customElements.define('canvas-element', CanvasElement);
+        </script>
+    </body>
+</html>

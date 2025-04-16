@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>New Wisk</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0" />
+        <link href="/js/theme/variables.css" rel="stylesheet" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+        <link href="/css/mini-dialog.css" rel="stylesheet" />
+        <link href="/css/right-sidebar.css" rel="stylesheet" />
+        <link href="/css/left-sidebar.css" rel="stylesheet" />
+        <link href="/style.css" rel="stylesheet" />
+        <link href="/global.css" rel="stylesheet" />
+
+        <meta property="og:title" content="Wisk — Your Workspace, Built Your Way" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://wisk.cc" />
+        <meta property="og:image" content="https://wisk.cc/a7/bg.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Wisk — Your workspace, built your way" />
+        <meta property="og:description" content="Notes, reports, tasks, and collaboration — offline and customizable. (Yes, we have AI too!)" />
+        <meta property="og:site_name" content="Wisk" />
+        <meta property="og:locale" content="en_US" />
+
+        <!-- Twitter Card Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Wisk — Your Workspace, Built Your Way" />
+        <meta name="twitter:description" content="Notes, reports, tasks, and collaboration — offline and customizable. (Yes, we have AI too!)" />
+        <meta name="twitter:image" content="https://wisk.cc/a7/bg.png" />
+        <meta name="twitter:site" content="@wisk_cc" />
+
+        <!-- darkreader -->
+        <meta name="darkreader" content="Maybe I Lost my mind No one noticed No one noticed" />
+
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Creepster&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Mono:wght@400;500;700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Satisfy&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=VT323&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Varela+Round&family=Sarpanch:wght@400;500;600;700;800;900&Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+            rel="stylesheet"
+        />
+
+        <style>
+            .spinner {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                border: 3.5px solid var(--fg-1);
+                animation:
+                    spinner-bulqg1 0.96s infinite linear alternate,
+                    spinner-oaa3wk 1.92s infinite linear;
+            }
+            @keyframes spinner-bulqg1 {
+                0% {
+                    clip-path: polygon(50% 50%, 0 0, 50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%);
+                }
+                12.5% {
+                    clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 0%, 100% 0%, 100% 0%);
+                }
+                25% {
+                    clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 100%, 100% 100%, 100% 100%);
+                }
+                50% {
+                    clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 100%, 50% 100%, 0% 100%);
+                }
+                62.5% {
+                    clip-path: polygon(50% 50%, 100% 0, 100% 0%, 100% 0%, 100% 100%, 50% 100%, 0% 100%);
+                }
+                75% {
+                    clip-path: polygon(50% 50%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 50% 100%, 0% 100%);
+                }
+                100% {
+                    clip-path: polygon(50% 50%, 50% 100%, 50% 100%, 50% 100%, 50% 100%, 50% 100%, 0% 100%);
+                }
+            }
+            @keyframes spinner-oaa3wk {
+                0% {
+                    transform: scaleY(1) rotate(0deg);
+                }
+                49.99% {
+                    transform: scaleY(1) rotate(135deg);
+                }
+                50% {
+                    transform: scaleY(-1) rotate(0deg);
+                }
+                100% {
+                    transform: scaleY(-1) rotate(-135deg);
+                }
+            }
+            .spr {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .spr p {
+                font-family: 'Inter', sans-serif;
+                font-size: 18px;
+                margin-left: 16px;
+            }
+            .loading-div {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1000;
+                gap: 20px;
+                display: none;
+            }
+            .backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: var(--bg-2);
+                opacity: 0.5;
+                z-index: 1000;
+            }
+            .u1 {
+                z-index: 1001;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: var(--gap-2);
+                padding: 40px;
+                background: var(--bg-1);
+                border-radius: 0;
+                border: none;
+                filter: var(--drop-shadow);
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="spr loading-div">
+            <div class="backdrop"></div>
+            <div class="u1">
+                <div class="spinner"></div>
+                <div style="display: flex; gap: 5px; flex-direction: column">
+                    <p class="loading-text-bottom">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <auth-component id="auth"></auth-component>
+        <toolbar-element id="formatting-toolbar"></toolbar-element>
+
+        <selector-element></selector-element>
+        <command-palette style="z-index: 9999; position: fixed"></command-palette>
+
+        <div class="main">
+            <div class="left-sidebar left-sidebar-hidden">
+                <div class="left-sidebar-header">
+                    <button class="left-sidebar-close" onclick="hideLeftSidebar()">
+                        <p class="left-sidebar-title">Title</p>
+                        <img src="/a7/forget/max-sidebar.svg" alt="Close" class="plugin-icon" />
+                    </button>
+                </div>
+                <div class="left-sidebar-body">
+                    <left-menu></left-menu>
+                </div>
+            </div>
+
+            <div class="mix">
+                <nav id="nav">
+                    <div class="nav-top-icons">
+                        <button class="nav-button" onclick="toggleMenu()" id="menu-1">
+                            <img src="/js/plugins/icons/menu.svg" alt="Menu" class="plugin-icon" />
+                        </button>
+                    </div>
+                    <div class="nav-plugins">
+                        <div class="nav-app">
+                            <span class="minimize" onclick="minimizeApp()"></span>
+                            <span class="maximize" onclick="maximizeApp()"></span>
+                            <span class="close" onclick="closeApp()"></span>
+                        </div>
+                    </div>
+                </nav>
+
+                <div class="editor">
+                    <div class="editor-main" id="editor"></div>
+                    <div id="last-space">
+                        <getting-started id="getting-started"></getting-started>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-sidebar right-sidebar-hidden">
+                <div class="right-sidebar-header">
+                    <button class="right-sidebar-close" onclick="hideRightSidebar()">
+                        <p class="right-sidebar-title">Title</p>
+                        <img src="/a7/forget/hide-sidebar.svg" alt="Close" class="plugin-icon" />
+                    </button>
+                </div>
+                <div class="right-sidebar-body"></div>
+            </div>
+        </div>
+
+        <div class="mini-dialog hidden">
+            <div class="mini-dialog-bg" onclick="wisk.editor.hideMiniDialog()"></div>
+
+            <div class="mini-dialog-content">
+                <div class="mini-dialog-sheet-holder-area"></div>
+                <div class="mini-dialog-sheet-holder"></div>
+                <div class="mini-dialog-header">
+                    <p class="mini-dialog-title">Title</p>
+                    <button class="mini-dialog-close" onclick="hideMiniDialog()">
+                        <img src="/a7/iconoir/xmark.svg" alt="Close" class="plugin-icon" draggable="false" />
+                    </button>
+                </div>
+                <div class="mini-dialog-body"></div>
+            </div>
+        </div>
+
+        <help-dialog></help-dialog>
+        <feedback-dialog></feedback-dialog>
+        <template-dialog></template-dialog>
+        <emoji-selector></emoji-selector>
+        <bottom-bar></bottom-bar>
+        <show-dialog style="z-index: 9999"></show-dialog>
+
+        <script src="/global.js"></script>
+        <script src="/js/wisk.js"></script>
+        <script src="/js/polyfill.js"></script>
+        <script src="/js/utils.js"></script>
+
+        <script src="/js/elements/selector-element.js"></script>
+        <script src="/js/elements/command-palette.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+
+        <script src="/js/theme/theme.js"></script>
+        <script src="/js/editor.js"></script>
+        <script src="/js/sync/sync.js"></script>
+        <script src="/js/plugins/code/base-text-element.js"></script>
+        <script src="/js/plugins/code/base-layout-element.js"></script>
+        <script src="/js/plugins/plugins.js"></script>
+
+        <script src="/js/storage/db.js"></script>
+
+        <script src="/js/mini-dialog.js"></script>
+        <script src="/js/right-sidebar.js"></script>
+        <script src="/js/left-sidebar.js"></script>
+
+        <script type="module" src="/js/elements/loading.js"></script>
+        <script type="module" src="/js/elements/show-dialog.js"></script>
+        <script type="module" src="/js/elements/getting-started.js"></script>
+        <script type="module" src="/js/elements/help-dialog.js"></script>
+        <script type="module" src="/js/elements/bottom-bar.js"></script>
+        <script type="module" src="/js/elements/emoji-element.js"></script>
+        <script type="module" src="/js/elements/feedback-dialog.js"></script>
+        <script type="module" src="/js/elements/template-dialog.js"></script>
+        <script type="module" src="/js/elements/file-upload-dialog.js"></script>
+        <script type="module" src="/js/elements/auth-component.js"></script>
+        <script type="module" src="/js/elements/cite-element.js"></script>
+        <script type="module" src="/js/elements/toolbar-element.js"></script>
+
+        <!-- more details at https://jalebi.soham.sh/examples -->
+        <script src="https://jalebi.soham.sh/src/jalebi-toggle.js"></script>
+
+        <script src="/script.js"></script>
+
+        <script>
+            // Add this directly in a script tag in index.html
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', async () => {
+                    try {
+                        const registration = await navigator.serviceWorker.register('/service-worker.js');
+                        console.log('Service Worker registered:', registration.scope);
+                    } catch (error) {
+                        console.error('Service Worker registration failed:', error);
+                    }
+                });
+
+                // Update PWA cache function
+                window.updateWiskPWA = async (specificAssets = []) => {
+                    if (!navigator.serviceWorker.controller) {
+                        throw new Error('No active Service Worker');
+                    }
+
+                    return new Promise((resolve, reject) => {
+                        const messageListener = event => {
+                            if (event.data?.type === 'CACHE_UPDATED') {
+                                navigator.serviceWorker.removeEventListener('message', messageListener);
+                                if (event.data.success) {
+                                    resolve(true);
+                                } else {
+                                    reject('Update failed');
+                                }
+                            }
+                        };
+
+                        navigator.serviceWorker.addEventListener('message', messageListener);
+
+                        navigator.serviceWorker.controller.postMessage({
+                            type: 'UPDATE_CACHE',
+                            assets: specificAssets,
+                        });
+
+                        setTimeout(() => {
+                            navigator.serviceWorker.removeEventListener('message', messageListener);
+                            reject('Update timed out');
+                        }, 10000);
+                    });
+                };
+
+                // Clear PWA cache function
+                window.clearWiskPWA = async () => {
+                    if (!navigator.serviceWorker.controller) {
+                        throw new Error('No active Service Worker');
+                    }
+
+                    return new Promise((resolve, reject) => {
+                        const messageListener = event => {
+                            if (event.data?.type === 'CACHES_CLEARED') {
+                                navigator.serviceWorker.removeEventListener('message', messageListener);
+                                if (event.data.success) {
+                                    resolve(true);
+                                } else {
+                                    reject('Clear failed');
+                                }
+                            }
+                        };
+
+                        navigator.serviceWorker.addEventListener('message', messageListener);
+
+                        navigator.serviceWorker.controller.postMessage('CLEAR_CACHES');
+
+                        setTimeout(() => {
+                            navigator.serviceWorker.removeEventListener('message', messageListener);
+                            reject('Clear timed out');
+                        }, 5000);
+                    });
+                };
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+            .container {
+                margin: 20px;
+                font-family: sans-serif;
+            }
+            .button {
+                padding: 8px 16px;
+                background: #4caf50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            .button:hover {
+                background: #45a049;
+            }
+            .textarea {
+                display: block;
+                width: 300px;
+                height: 100px;
+                margin: 10px 0;
+                padding: 8px;
+            }
+            #message {
+                color: #666;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h3>Try it out:</h3>
+            <textarea id="myTextarea" class="textarea" placeholder="Start typing here..."></textarea>
+            <button class="button" onmousedown="handleClick(event)">Click me</button>
+            <div id="message">Click count: 0</div>
+        </div>
+
+        <script>
+            let clicks = 0;
+            const textarea = document.getElementById('myTextarea');
+
+            function handleClick(e) {
+                // Prevent the default behavior
+                e.preventDefault();
+
+                // Store the current cursor position
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+
+                // Update click counter
+                clicks++;
+                document.getElementById('message').textContent = `Click count: ${clicks}`;
+
+                // Return focus to textarea and restore cursor position
+                setTimeout(() => {
+                    textarea.focus();
+                    textarea.setSelectionRange(start, end);
+                }, 0);
+            }
+        </script>
+    </body>
+</html>

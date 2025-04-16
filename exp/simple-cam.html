@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Video Segmentation</title>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/deeplab"></script>
+        <style>
+            .loader {
+                border: 5px solid #f3f3f3;
+                border-radius: 50%;
+                border-top: 5px solid #3498db;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin: 20px auto;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div style="text-align: center; max-width: 1200px; margin: 0 auto">
+            <h2>Video Segmentation</h2>
+
+            <div id="loader" class="loader"></div>
+
+            <div style="margin: 20px">
+                <input type="file" id="videoInput" accept="video/*" disabled />
+                <button id="startButton" disabled>Start Segmentation</button>
+                <button id="pauseButton" disabled>Pause</button>
+            </div>
+
+            <div style="display: flex; justify-content: center; gap: 20px">
+                <div>
+                    <h3>Original Video</h3>
+                    <video id="video" width="480" height="360" controls style="display: block"></video>
+                </div>
+                <div>
+                    <h3>Segmentation Output</h3>
+                    <canvas id="output" width="480" height="360"></canvas>
+                </div>
+            </div>
+
+            <div id="status" style="margin-top: 20px; font-weight: bold"></div>
+        </div>
+
+        <script>
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('output');
+            const ctx = canvas.getContext('2d');
+            const statusDiv = document.getElementById('status');
+            const startButton = document.getElementById('startButton');
+            const pauseButton = document.getElementById('pauseButton');
+            const videoInput = document.getElementById('videoInput');
+            const loader = document.getElementById('loader');
+
+            let model = null;
+            let isProcessing = false;
+
+            // Load the DeepLab model
+            async function loadModel() {
+                try {
+                    statusDiv.textContent = 'Loading model... (this may take a minute)';
+                    model = await deeplab.load({
+                        base: 'pascal', // Changed to 'pascal' which is a valid base model
+                        quantizationBytes: 2,
+                    });
+
+                    // Enable controls only after model is loaded
+                    videoInput.disabled = false;
+                    loader.style.display = 'none';
+                    statusDiv.textContent = 'Model loaded! Select a video to begin.';
+                } catch (error) {
+                    statusDiv.textContent = 'Error loading model: ' + error.message;
+                    console.error('Model loading error:', error);
+                }
+            }
+
+            // Handle video file selection
+            videoInput.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                const url = URL.createObjectURL(file);
+                video.src = url;
+
+                // Wait for video metadata to load
+                video.onloadedmetadata = () => {
+                    startButton.disabled = false;
+                    statusDiv.textContent = 'Video loaded! Click Start to begin segmentation.';
+                };
+
+                video.onerror = () => {
+                    statusDiv.textContent = 'Error loading video file!';
+                };
+            });
+
+            // Start segmentation
+            startButton.addEventListener('click', async () => {
+                if (!isProcessing && model) {
+                    isProcessing = true;
+                    video.play();
+                    pauseButton.disabled = false;
+                    processVideo();
+                }
+            });
+
+            // Pause segmentation
+            pauseButton.addEventListener('click', () => {
+                isProcessing = false;
+                video.pause();
+                statusDiv.textContent = 'Paused. Click Start to resume.';
+            });
+
+            // Process video frames
+            async function processVideo() {
+                if (!isProcessing || !model) return;
+
+                try {
+                    if (!video.paused && !video.ended) {
+                        statusDiv.textContent = 'Processing...';
+
+                        // Ensure video is ready
+                        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                            // Get segmentation
+                            const segmentation = await model.segment(video);
+
+                            // Visualize the segmentation
+                            const coloredData = new Uint8ClampedArray(canvas.width * canvas.height * 4);
+
+                            // Create a custom colormap for different segments
+                            for (let i = 0; i < segmentation.height * segmentation.width; i++) {
+                                const label = segmentation.segmentationMap[i];
+                                const j = i * 4;
+
+                                // Assign different colors based on segment label
+                                switch (label) {
+                                    case 0: // background
+                                        coloredData[j] = 0;
+                                        coloredData[j + 1] = 0;
+                                        coloredData[j + 2] = 0;
+                                        break;
+                                    case 15: // person
+                                        coloredData[j] = 255;
+                                        coloredData[j + 1] = 0;
+                                        coloredData[j + 2] = 0;
+                                        break;
+                                    default: // other objects
+                                        coloredData[j] = 0;
+                                        coloredData[j + 1] = 255;
+                                        coloredData[j + 2] = 0;
+                                }
+                                coloredData[j + 3] = 255; // alpha channel
+                            }
+
+                            const imageData = new ImageData(coloredData, canvas.width, canvas.height);
+                            ctx.putImageData(imageData, 0, 0);
+                        }
+
+                        // Request next frame
+                        requestAnimationFrame(processVideo);
+                    } else if (video.ended) {
+                        statusDiv.textContent = 'Video finished!';
+                        isProcessing = false;
+                        pauseButton.disabled = true;
+                    }
+                } catch (error) {
+                    console.error('Error during processing:', error);
+                    statusDiv.textContent = 'Error during processing: ' + error.message;
+                    isProcessing = false;
+                }
+            }
+
+            // Start loading model on page load
+            window.onload = () => {
+                loadModel().catch(console.error);
+            };
+
+            // Handle video end
+            video.addEventListener('ended', () => {
+                isProcessing = false;
+                statusDiv.textContent = 'Video finished!';
+                pauseButton.disabled = true;
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,339 @@
+{
+    "plugins": ["database-element", "accordion-element", "table-of-contents"],
+    "theme": "Light",
+    "elements": [
+        {
+            "id": "abcdxyz",
+            "lastEdited": 1737249910,
+            "component": "main-element",
+            "value": {
+                "backgroundUrl": "",
+                "bannerSize": "big",
+                "emoji": "🔥",
+                "textContent": "Why Apples Are Clearly Just a Government Psyop"
+            }
+        },
+        {
+            "id": "bDnClXrSwuQqKqR",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": "Have you ever stopped to think about apples? Like, really think about them? The fruit that’s been shoved down our throats (literally and metaphorically) since we were kids. “An apple a day keeps the doctor away,” they said. Who said? Doctors? The government? Big Fruit™? "
+            }
+        },
+        {
+            "id": "LsGZCoscmeUmxjm",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": "The answer is clear: apples are a psyop."
+            }
+        },
+        {
+            "id": "aWzuPXShdzkeCkD",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "NNaIruJuzXotlDL",
+            "lastEdited": 1737249903,
+            "component": "table-of-contents",
+            "value": {}
+        },
+        {
+            "id": "WtkIQEqdcwrDDgJ",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "EhCqrYLmgwKvVGl",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "GoeDGkJkVnWemGz",
+            "lastEdited": 1737249903,
+            "component": "heading2-element",
+            "value": {
+                "textContent": "The Evidence"
+            }
+        },
+        {
+            "id": "ddJYLUIXRZFLSgI",
+            "lastEdited": 1737249903,
+            "component": "heading3-element",
+            "value": {
+                "textContent": "Too Conveniently Perfect"
+            }
+        },
+        {
+            "id": "jLSozYyFklUuIBv",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": "Think about it—apples are shiny, portable, and perfectly bite-sized. Nature doesn’t work like that. Bananas, for instance, are weirdly shaped and need peeling. Mangos are a mess. But apples? Too easy. It’s as if they were designed in some top-secret lab to be the poster child of \"healthy snacks.\""
+            }
+        },
+        {
+            "id": "vgYItJeaFsXMdgw",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "kSAbaABqxfxtQjR",
+            "lastEdited": 1737249903,
+            "component": "heading3-element",
+            "value": {
+                "textContent": "Suspicious Marketing"
+            }
+        },
+        {
+            "id": "QzQtvCjKRjZEbav",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": "Ever noticed how apples have the best PR in the fruit world? Whole idioms are based on them: “the apple of my eye,” “an apple for the teacher,” “as American as apple pie.” Apples are like the fruit world’s teacher’s pet. Meanwhile, nobody’s writing proverbs about kiwis. Coincidence? Highly doubtful."
+            }
+        },
+        {
+            "id": "IiSeiOQyZSudXhO",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "rCJzYgMcTGfRPxB",
+            "lastEdited": 1737249903,
+            "component": "heading3-element",
+            "value": {
+                "textContent": "Big Tech and Big Apple"
+            }
+        },
+        {
+            "id": "vUfeiGFUuTRsXSW",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": "Let’s not ignore the glaring connection: Apple Inc. This multi-trillion-dollar tech giant just so happens to share a name with the fruit we’re all supposed to eat. What if the Apple logo—a bitten apple—is a subtle nod to humanity’s blind consumption of this government-approved “health” narrative?"
+            }
+        },
+        {
+            "id": "yhcPgRMnimbsJJJ",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "eIeKyIuewStRsGj",
+            "lastEdited": 1737249903,
+            "component": "heading3-element",
+            "value": {
+                "textContent": "The Eve Conspiracy"
+            }
+        },
+        {
+            "id": "hqXRhVpcPYSUFzQ",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": "The Bible says Eve ate an apple and doomed humanity. First of all, why an apple? Why not a durian or a fig? Because apples are symbolic of control. From the very beginning, apples have been about manipulation."
+            }
+        },
+        {
+            "id": "ftCKxXdkZdxkibs",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "PHMYyOmZpMjuppP",
+            "lastEdited": 1737249903,
+            "component": "image-element",
+            "value": {
+                "imageUrl": "",
+                "textContent": ""
+            }
+        },
+        {
+            "id": "JQpJygYqHRCpNfB",
+            "lastEdited": 1737249903,
+            "component": "heading2-element",
+            "value": {
+                "textContent": "What Are They Hiding?"
+            }
+        },
+        {
+            "id": "zbJUcSjawYBtDgh",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": "The government doesn’t want us asking the big questions, like:"
+            }
+        },
+        {
+            "id": "zKxRAizJwBBCcLX",
+            "lastEdited": 1737249903,
+            "component": "list-element",
+            "value": {
+                "indent": 0,
+                "references": [],
+                "textContent": "Why are there 7,500 apple varieties, but grocery stores only sell 3?"
+            }
+        },
+        {
+            "id": "JmdpgOxyHBUVVnX",
+            "lastEdited": 1737249903,
+            "component": "list-element",
+            "value": {
+                "indent": 0,
+                "references": [],
+                "textContent": "What’s the deal with apple seeds containing cyanide? Is this a subtle warning?"
+            }
+        },
+        {
+            "id": "afcMNNBRBAZEkAy",
+            "lastEdited": 1737249903,
+            "component": "list-element",
+            "value": {
+                "indent": 0,
+                "references": [],
+                "textContent": "Why is apple juice always offered as the non-threatening drink option for kids?"
+            }
+        },
+        {
+            "id": "iQYNnicsaVwMlgD",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "MgurDJSZHnblRIH",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "lRUMipfbRGDLbSt",
+            "lastEdited": 1737249903,
+            "component": "accordion-element",
+            "value": {
+                "emoji": "🍏",
+                "question": "Why are there green apples?",
+                "textContent": "theyre not you weirdo, its just a psyop by the government"
+            }
+        },
+        {
+            "id": "IpWBlHkUdxnDXZU",
+            "lastEdited": 1737249903,
+            "component": "accordion-element",
+            "value": {
+                "emoji": "🍎",
+                "question": "What about red apples?",
+                "textContent": "theyre also fake when are you gonna wake up???"
+            }
+        },
+        {
+            "id": "kIQsQiGqZBmnhmw",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "jJhROzTFmwbQJuH",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "NlxZaNwVweMDlfI",
+            "lastEdited": 1737249903,
+            "component": "heading2-element",
+            "value": {
+                "textContent": "The Real Agenda"
+            }
+        },
+        {
+            "id": "EeTAovetCPoOhIR",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": "The truth is, apples are just a tool to distract us. While we’re busy eating our daily Fuji or Granny Smith, the government is watching. They don’t want us asking why grapes are sold in clusters but apples are suspiciously solitary. Or why apple orchards are suddenly thriving while bees are mysteriously dying."
+            }
+        },
+        {
+            "id": "XVhqzKwQYXGnxeI",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "OEkhzDySAaHIFXZ",
+            "lastEdited": 1737249903,
+            "component": "heading2-element",
+            "value": {
+                "textContent": "Conclusion"
+            }
+        },
+        {
+            "id": "maiagjuekzuXjhh",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": "Am I saying apples are bad? Not necessarily. They’re fine. Crunchy. Sweet. But are they part of a larger, government-led psychological operation to control the masses? Absolutely. Next time you reach for an apple, just remember: you’re playing right into their hands."
+            }
+        },
+        {
+            "id": "UpkuKNLGPaKsyvI",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": "Wake up and eat a pear instead."
+            }
+        },
+        {
+            "id": "xNfxSvxokmbEtOP",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        },
+        {
+            "id": "yMArqkdvuXtnrHU",
+            "lastEdited": 1737249903,
+            "component": "text-element",
+            "value": {
+                "textContent": ""
+            }
+        }
+    ],
+    "name": "🔥 Why Apples Are Clearly Just a Government Psyop"
+}

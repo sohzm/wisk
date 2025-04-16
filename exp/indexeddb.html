@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>IndexedDB Performance Test</title>
+    </head>
+    <body>
+        <h1>IndexedDB Performance Test</h1>
+        <button id="startTest">Start Test</button>
+        <div id="status"></div>
+        <div id="results"></div>
+
+        <script>
+            let db;
+            let writeCount = 0;
+            let readCount = 0;
+            const testDuration = 60000; // 1 minute in milliseconds
+            let testRunning = false;
+
+            const openDB = () => {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open('PerformanceTestDB', 1);
+                    request.onerror = event => reject('Error opening database');
+                    request.onsuccess = event => resolve(event.target.result);
+                    request.onupgradeneeded = event => {
+                        const db = event.target.result;
+                        db.createObjectStore('testStore', { keyPath: 'id', autoIncrement: true });
+                    };
+                });
+            };
+
+            const runTest = async () => {
+                if (testRunning) return;
+                testRunning = true;
+                writeCount = 0;
+                readCount = 0;
+                db = await openDB();
+                const startTime = Date.now();
+                const endTime = startTime + testDuration;
+                const statusElement = document.getElementById('status');
+                statusElement.innerHTML = 'Test running...';
+
+                const updateStatus = setInterval(() => {
+                    statusElement.innerHTML = `Test running...<br>Writes: ${writeCount}<br>Reads: ${readCount}`;
+                }, 100);
+
+                while (Date.now() < endTime) {
+                    await write();
+                    await read();
+                }
+
+                clearInterval(updateStatus);
+                testRunning = false;
+                statusElement.innerHTML = 'Test completed.';
+                displayResults();
+            };
+
+            const write = () => {
+                return new Promise(resolve => {
+                    const transaction = db.transaction(['testStore'], 'readwrite');
+                    const store = transaction.objectStore('testStore');
+                    const request = store.add({ value: 'test' });
+                    request.onsuccess = () => {
+                        writeCount++;
+                        resolve();
+                    };
+                });
+            };
+
+            const read = () => {
+                return new Promise(resolve => {
+                    const transaction = db.transaction(['testStore'], 'readonly');
+                    const store = transaction.objectStore('testStore');
+                    const request = store.get(1);
+                    request.onsuccess = () => {
+                        readCount++;
+                        resolve();
+                    };
+                });
+            };
+
+            const displayResults = () => {
+                const results = document.getElementById('results');
+                results.innerHTML = `
+                <h2>Final Results:</h2>
+                <p>Writes per minute: ${writeCount}</p>
+                <p>Reads per minute: ${readCount}</p>
+            `;
+            };
+
+            document.getElementById('startTest').addEventListener('click', runTest);
+        </script>
+    </body>
+</html>

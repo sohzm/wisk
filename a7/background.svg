@@ -1,0 +1,16 @@
+<svg viewBox="0 0 550 423" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M498.499 19.4966L263.165 108.588C242.52 116.403 237.101 143.087 253.063 158.336L432.526 329.794C449.493 346.004 477.663 337.336 482.583 314.392L538.454 53.8435C543.436 30.6123 520.72 11.0847 498.499 19.4966Z" stroke="black" stroke-opacity="1" stroke-linecap="round" stroke-dasharray="5 5"/>
+    <path d="M289.954 260.115L119.323 96.6199C102.443 80.4462 74.3699 88.9384 69.2855 111.756L12.4086 367.009C7.15402 390.59 30.5056 410.393 52.9117 401.356L280.419 309.599C300.615 301.453 305.677 275.181 289.954 260.115Z" stroke="black" stroke-opacity="1" stroke-linecap="round" stroke-dasharray="5 5"/>
+    <circle id="movingLight" cx="0" cy="0" r="27" fill="white">
+        <animateMotion dur="5s" repeatCount="indefinite">
+            <mpath href="#path1"/>
+        </animateMotion>
+    </circle>
+    <path id="path1" d="M498.499 19.4966L263.165 108.588C242.52 116.403 237.101 143.087 253.063 158.336L432.526 329.794C449.493 346.004 477.663 337.336 482.583 314.392L538.454 53.8435C543.436 30.6123 520.72 11.0847 498.499 19.4966Z" fill="none"/>
+    <path id="path2" d="M289.954 260.115L119.323 96.6199C102.443 80.4462 74.3699 88.9384 69.2855 111.756L12.4086 367.009C7.15402 390.59 30.5056 410.393 52.9117 401.356L280.419 309.599C300.615 301.453 305.677 275.181 289.954 260.115Z" fill="none"/>
+    <circle id="movingLight2" cx="0" cy="0" r="27" fill="white">
+        <animateMotion dur="5s" repeatCount="indefinite">
+            <mpath href="#path2"/>
+        </animateMotion>
+    </circle>
+</svg>

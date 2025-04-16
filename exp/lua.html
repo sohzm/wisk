@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Reactive Temperature Converter (Lua + Fengari)</title>
+        <script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.min.js"></script>
+    </head>
+    <body>
+        <h1>Temperature Converter</h1>
+        <label for="celsius">Celsius:</label>
+        <input type="number" id="celsius" placeholder="Enter temperature in Celsius" />
+        <br />
+        <label for="fahrenheit">Fahrenheit:</label>
+        <input type="text" id="fahrenheit" readonly />
+
+        <script type="application/lua">
+            local js = require("js")
+            local document = js.global.document
+
+            function celsiusToFahrenheit(celsius)
+                return celsius * 9/5 + 32
+            end
+
+            function updateFahrenheit()
+                local celsiusInput = document:getElementById("celsius")
+                local fahrenheitInput = document:getElementById("fahrenheit")
+
+                local celsius = tonumber(celsiusInput.value)
+                if celsius then
+                    local fahrenheit = celsiusToFahrenheit(celsius)
+                    fahrenheitInput.value = string.format("%.2f", fahrenheit)
+                else
+                    fahrenheitInput.value = ""
+                end
+            end
+
+            local celsiusInput = document:getElementById("celsius")
+            celsiusInput:addEventListener("input", updateFahrenheit)
+        </script>
+    </body>
+</html>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <!-- Large sparkle - starts at 45 degrees -->
+  <g transform="translate(15, 15)">
+    <path d="M-7 0C-2.1253 0 0 -2.051 0 -7C0 -2.051 2.1104 0 7 0C2.1104 0 0 2.1104 0 7C0 2.1104 -2.1253 0 -7 0Z" 
+          stroke="#000000" 
+          stroke-width="1.2" 
+          stroke-linejoin="round"
+          fill="none">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        from="45"
+        to="405"
+        dur="2s"
+        repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Small sparkle - starts at 0 degrees -->
+  <g transform="translate(6.5, 6.5)">
+    <path d="M-4.5 0C-1.36624 0 0 -1.31847 0 -4.5C0 -1.31847 1.35669 0 4.5 0C1.35669 0 0 1.35669 0 4.5C0 1.35669 -1.36624 0 -4.5 0Z"
+          stroke="#000000" 
+          stroke-width="1.2" 
+          stroke-linejoin="round"
+          fill="none">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        from="0"
+        to="-360"
+        dur="2s"
+        repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>

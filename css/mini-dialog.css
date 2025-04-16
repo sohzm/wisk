@@ -1,0 +1,133 @@
+.mini-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    transition: all 0.1s ease;
+}
+
+.mini-dialog-bg {
+    background-color: var(--fg-2);
+    opacity: 0.3;
+    width: 100%;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.mini-dialog-content {
+    background-color: var(--bg-1);
+    padding: 0;
+    border-radius: var(--radius-large);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    max-width: 1010px;
+    max-height: 730px;
+    /*filter: var(--drop-shadow);*/
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.1s ease;
+}
+
+.mini-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--padding-w2);
+    border-bottom: 1px solid var(--bg-3);
+    font-weight: 400;
+    user-select: none;
+    display: none;
+}
+
+.mini-dialog-sheet-holder-area {
+    height: 40px;
+    width: calc(100% - 120px);
+    background-color: transparent;
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 10px;
+    cursor: pointer;
+    display: none;
+    z-index: 1;
+    user-select: none;
+}
+
+.mini-dialog-sheet-holder {
+    height: 5px;
+    width: 100px;
+    background-color: var(--bg-3);
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 10px;
+    cursor: pointer;
+    display: none;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.mini-dialog-close {
+    outline: none;
+    border: none;
+    background-color: transparent;
+    color: var(--fg-1);
+    cursor: pointer;
+    padding: var(--padding-2);
+    border-radius: calc(var(--radius-large) * 10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+    user-select: none;
+}
+
+.mini-dialog-close:hover {
+    background-color: var(--bg-3);
+}
+
+.mini-dialog-body {
+    position: relative;
+    overflow: auto;
+    height: 100%;
+}
+
+.mini-dialog-body > * {
+    height: 100%;
+}
+
+@media (max-width: 900px) {
+    .mini-dialog-content {
+        top: 10%; /* i dont know why this is 10 and help-dialog/getting-started/template-dialog is 5 */
+        left: 0;
+        transform: none;
+        width: 100%;
+        height: 90%;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 0;
+        border-top-left-radius: var(--radius-large);
+        border-top-right-radius: var(--radius-large);
+    }
+
+    @starting-style {
+        .mini-dialog-content {
+            top: 60%;
+        }
+    }
+
+    .mini-dialog-sheet-holder,
+    .mini-dialog-sheet-holder-area {
+        display: block;
+    }
+}

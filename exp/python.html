@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+    </head>
+    <body>
+        <p>You can execute multiple lines of Python code. Enter your code in the box below and click the "Run Python Code" button.</p>
+        <textarea id="code" rows="10" style="width: 100%">
+# Enter your Python code here
+# Example:
+def greet(name):
+    return f"Hello, {name}!"
+
+print(greet("World"))
+print(sum([1, 2, 3, 4, 5]))
+</textarea
+        >
+        <br /><br />
+        <input id="package" placeholder="Enter package name to import" style="width: 50%" />
+        <button onclick="importPackage()">Import Package</button>
+        <br /><br />
+        <button onclick="evaluatePython()">Run Python Code</button>
+        <br /><br />
+        <div>Output:</div>
+        <textarea id="output" style="width: 100%" rows="10" disabled></textarea>
+        <script>
+            const output = document.getElementById('output');
+            const code = document.getElementById('code');
+            const packageInput = document.getElementById('package');
+
+            function addToOutput(s) {
+                output.value += s + '\n';
+            }
+
+            output.value = 'Initializing...\n';
+
+            // init Pyodide
+            async function main() {
+                let pyodide = await loadPyodide();
+                output.value += 'Ready!\n';
+                return pyodide;
+            }
+
+            let pyodideReadyPromise = main();
+
+            async function evaluatePython() {
+                let pyodide = await pyodideReadyPromise;
+                try {
+                    addToOutput('>>> Executing Python code:');
+                    addToOutput(code.value);
+                    addToOutput('Output:');
+
+                    // Capture stdout
+                    pyodide.runPython(`
+            import sys
+            import io
+            sys.stdout = io.StringIO()
+          `);
+
+                    // Run the user's code
+                    let result = pyodide.runPython(code.value);
+
+                    // Get captured stdout
+                    let stdout = pyodide.runPython('sys.stdout.getvalue()');
+
+                    // Display stdout if there's any output
+                    if (stdout) {
+                        addToOutput(stdout);
+                    }
+
+                    // Display the result if it's not None
+                    if (result !== undefined) {
+                        addToOutput('Return value:');
+                        addToOutput(result);
+                    }
+
+                    // Reset stdout
+                    pyodide.runPython('sys.stdout = sys.__stdout__');
+                } catch (err) {
+                    addToOutput(`Error: ${err}`);
+                }
+                addToOutput(''); // Add an empty line for readability
+            }
+
+            async function importPackage() {
+                let pyodide = await pyodideReadyPromise;
+                let packageName = packageInput.value.trim();
+                if (packageName) {
+                    addToOutput(`Importing package: ${packageName}`);
+                    try {
+                        await pyodide.loadPackage('micropip');
+                        let micropip = pyodide.pyimport('micropip');
+                        await micropip.install(packageName);
+                        addToOutput(`Successfully imported ${packageName}`);
+                    } catch (err) {
+                        addToOutput(`Error importing ${packageName}: ${err}`);
+                    }
+                } else {
+                    addToOutput('Please enter a package name');
+                }
+                addToOutput(''); // Add an empty line for readability
+            }
+        </script>
+    </body>
+</html>
