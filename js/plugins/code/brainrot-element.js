@@ -103,8 +103,7 @@ class BrainrotElement extends LitElement {
         this.currentX = 0;
         this.currentY = 0;
         this.moveDistance = 0;
-        this.videos = {
-        };
+        this.videos = {};
         this.currentVideo = this.videos[Object.keys(this.videos)[Math.floor(Math.random() * Object.keys(this.videos).length)]];
     }
 
