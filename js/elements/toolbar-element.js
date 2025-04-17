@@ -868,30 +868,29 @@ class ToolbarElement extends LitElement {
         this.requestUpdate();
 
         try {
-            const auth = await document.getElementById('auth').getUserInfo();
-            const response = await fetch(wisk.editor.backendUrl + '/v2/ai/ops', {
+            const response = await fetch(wisk.editor.backendUrl + '/v1/toolbar-ai', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: 'Bearer ' + auth.token,
                 },
                 body: JSON.stringify({
                     operation: operation,
-                    content: this.selectedText,
+                    selectedText: this.selectedText,
                 }),
             });
 
             if (response.ok) {
-                const data = await response.text();
+                const data = await response.json();
 
                 // Instead of dispatching event, show preview
-                this.previewText = data;
+                this.previewText = data.response;
                 this.mode = 'preview';
                 this.dialogName = 'preview';
             } else {
                 throw new Error('AI operation failed');
             }
         } catch (error) {
+            this.mode = 'dialog';
             console.error('AI operation error:', error);
             wisk.utils.showToast('AI operation failed', 3000);
         } finally {
@@ -1105,11 +1104,11 @@ class ToolbarElement extends LitElement {
                 ${window.innerWidth < 1150 ? html` <div class="selected-text-mob">${this.selectedText}</div> ` : ``}
 
                 <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap; justify-content: space-between;">
-                    <!--
                     <button @click=${() => this.handleToolbarAction('ai-improve')} title="Improve with AI" data-wide>
                         <img src="/a7/forget/ai.svg" alt="AI" draggable="false" /> Neo AI
                     </button>
                     <div class="separator" style="display: ${window.innerWidth < 1150 ? 'none' : 'block'};"></div>
+                    <!--
                     <button @click=${() => this.handleToolbarAction('find-source')} title="Find Source" data-wide>
                         <img src="/a7/forget/source.svg" alt="Source" draggable="false" /> Find Source
                     </button>
