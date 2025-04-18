@@ -487,7 +487,6 @@ const CORE_ASSETS = [
     '/service-worker.js',
     '/style.css',
     '/vercel.json',
-    '/config.json',
 ];
 
 // Install event - don't wait for caching to complete
