@@ -6,8 +6,12 @@ const CORE_ASSETS = [
     '/',
     '/404.html',
     '/a7/background.svg',
+    '/a7/cdn/chart.js',
+    '/a7/cdn/katex-0.16.9.min.css',
+    '/a7/cdn/katex-0.16.9.min.js',
     '/a7/cdn/lit-core-2.7.4.min.js',
     '/a7/cdn/lit-core.min.js.map',
+    '/a7/cdn/marked-4.3.0.min.js',
     '/a7/cdn/marked.esm-9.1.2.min.js',
     '/a7/cdn/mermaid-11.4.0.min.js',
     '/a7/cdn/pica.min.js',
@@ -483,6 +487,7 @@ const CORE_ASSETS = [
     '/service-worker.js',
     '/style.css',
     '/vercel.json',
+    '/config.json',
 ];
 
 // Install event - don't wait for caching to complete

@@ -219,7 +219,7 @@ class ToolbarElement extends LitElement {
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: var(--radius);
+            border-radius: calc(var(--radius-large) * 10);
         }
 
         @media (max-width: 1150px) {

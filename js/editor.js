@@ -969,7 +969,7 @@ function initKeyboardDetection() {
         });
     }
 
-    // Also try Virtual Keyboard API for browsers that support it
+    // Also try Virtual Keyboard API for browsers that support it :)
     if ('virtualKeyboard' in navigator) {
         navigator.virtualKeyboard.overlaysContent = true;
         navigator.virtualKeyboard.addEventListener('geometrychange', event => {

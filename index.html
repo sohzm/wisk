@@ -228,6 +228,15 @@
             </div>
         </div>
 
+        <div class="update-box" style="display: none">
+            <div class="update-box-bg"></div>
+            <div class="update-box-dialog">
+                <p class="update-box-title">New Update Available!</p>
+                <button class="update-box-confirm" onclick="window.updateWiskPWA()">Update Now</button>
+                <button class="update-box-cancel" onclick="document.querySelector('.update-box').style.display = 'none'">Close</button>
+            </div>
+        </div>
+
         <help-dialog></help-dialog>
         <feedback-dialog></feedback-dialog>
         <template-dialog></template-dialog>
@@ -242,7 +251,7 @@
 
         <script src="/js/elements/selector-element.js"></script>
         <script src="/js/elements/command-palette.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+        <script src="/a7/cdn/marked-4.3.0.min.js"></script>
 
         <script src="/js/theme/theme.js"></script>
         <script src="/js/editor.js"></script>
@@ -289,6 +298,7 @@
 
                 // Update PWA cache function
                 window.updateWiskPWA = async (specificAssets = []) => {
+                    wisk.utils.showToast('Updating...', 3000);
                     if (!navigator.serviceWorker.controller) {
                         throw new Error('No active Service Worker');
                     }
@@ -296,6 +306,9 @@
                     return new Promise((resolve, reject) => {
                         const messageListener = event => {
                             if (event.data?.type === 'CACHE_UPDATED') {
+                                wisk.utils.showToast('Update complete', 3000);
+                                document.querySelector('.update-box').style.display = 'none';
+                                localStorage.setItem('lastUpdate', new Date().toISOString().split('T')[0]);
                                 navigator.serviceWorker.removeEventListener('message', messageListener);
                                 if (event.data.success) {
                                     resolve(true);
@@ -348,6 +361,32 @@
                     });
                 };
             }
+
+            function checkForUpdate() {
+                const lastUpdate = localStorage.getItem('lastUpdate');
+                const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+
+                if (!lastUpdate) {
+                    localStorage.setItem('lastUpdate', currentDate);
+                    return true;
+                }
+
+                // Calculate days between lastUpdate and current date
+                const lastUpdateDate = new Date(lastUpdate);
+                const now = new Date(currentDate);
+                const timeDiff = now.getTime() - lastUpdateDate.getTime();
+                const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+
+                if (daysDiff >= 3) {
+                    console.log('updateplz - last update was ' + daysDiff + ' days ago');
+                    document.querySelector('.update-box').style.display = 'block';
+                    return true;
+                }
+
+                return false;
+            }
+
+            checkForUpdate();
         </script>
     </body>
 </html>

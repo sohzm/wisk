@@ -8,12 +8,12 @@ var katexReady = new Promise(resolve => {
     if (!document.querySelector('link[href*="katex"]')) {
         const katexCSS = document.createElement('link');
         katexCSS.rel = 'stylesheet';
-        katexCSS.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css';
+        katexCSS.href = '/a7/cdn/katex-0.16.9.min.css';
         document.head.appendChild(katexCSS);
     }
     if (!document.querySelector('script[src*="katex"]')) {
         const katexScript = document.createElement('script');
-        katexScript.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';
+        katexScript.src = '/a7/cdn/katex-0.16.9.min.js';
         katexScript.onload = () => resolve();
         document.head.appendChild(katexScript);
     }

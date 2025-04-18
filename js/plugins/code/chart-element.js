@@ -7,7 +7,7 @@ var chartjsReady = new Promise(resolve => {
     }
     if (!document.querySelector('script[src*="chart.js"]')) {
         const chartScript = document.createElement('script');
-        chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        chartScript.src = '/a7/cdn/chart.js';
         chartScript.onload = () => resolve();
         document.head.appendChild(chartScript);
     }

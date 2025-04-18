@@ -361,3 +361,57 @@ nav {
         width: fit-content;
     }
 }
+
+.update-box-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--fg-1);
+    opacity: 0.3;
+}
+
+.update-box-dialog {
+    position: fixed;
+    z-index: 1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-1);
+    padding: var(--padding-4);
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius);
+    gap: var(--gap-2);
+    width: 90%;
+    max-width: 360px;
+}
+
+.update-box-title {
+    font-size: large;
+    font-weight: 500;
+    margin-bottom: var(--padding-4);
+}
+
+.update-box-confirm {
+    background: var(--fg-1);
+    color: var(--bg-1);
+    border-radius: var(--radius);
+    outline: none;
+    border: none;
+    padding: var(--padding-w3);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.update-box-cancel {
+    background: var(--bg-3);
+    color: var(--fg-1);
+    border-radius: var(--radius);
+    outline: none;
+    border: none;
+    padding: var(--padding-w3);
+    font-weight: 500;
+    cursor: pointer;
+}
