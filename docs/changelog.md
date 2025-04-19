@@ -4,7 +4,7 @@
     - added changelog
     - added search
     - added home
-    - fixed left menu delete page bug
+    - bug fixes
 
 - Apr 18
 
