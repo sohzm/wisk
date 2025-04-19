@@ -36,6 +36,7 @@ const CORE_ASSETS = [
     '/a7/forget/bold.svg',
     '/a7/forget/close.svg',
     '/a7/forget/colab.png',
+    '/a7/forget/cp.svg',
     '/a7/forget/dialog-back.svg',
     '/a7/forget/dialog-x.svg',
     '/a7/forget/emoji-basketball.svg',
@@ -74,6 +75,7 @@ const CORE_ASSETS = [
     '/a7/forget/marker.svg',
     '/a7/forget/max-sidebar.svg',
     '/a7/forget/morex.svg',
+    '/a7/forget/new-3.svg',
     '/a7/forget/no-signin.svg',
     '/a7/forget/open1.svg',
     '/a7/forget/open.svg',
@@ -87,6 +89,7 @@ const CORE_ASSETS = [
     '/a7/forget/reload.svg',
     '/a7/forget/report.png',
     '/a7/forget/search-2.svg',
+    '/a7/forget/search-3.svg',
     '/a7/forget/search.svg',
     '/a7/forget/search-thicc.svg',
     '/a7/forget/source.svg',
@@ -318,6 +321,7 @@ const CORE_ASSETS = [
     '/js/elements/home-element.js',
     '/js/elements/image-editor.js',
     '/js/elements/loading.js',
+    '/js/elements/search-element.js',
     '/js/elements/selector-element.js',
     '/js/elements/show-dialog.js',
     '/js/elements/template-dialog.js',
@@ -489,6 +493,7 @@ const CORE_ASSETS = [
     '/service-worker.js',
     '/style.css',
     '/vercel.json',
+    'https://jalebi.soham.sh/src/jalebi-toggle.js',
 ];
 
 // Install event - don't wait for caching to complete

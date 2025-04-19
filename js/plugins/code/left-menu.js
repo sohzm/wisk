@@ -48,20 +48,19 @@ class LeftMenu extends LitElement {
             outline: none;
             border: none;
             width: 100%;
-            color: var(--fg-accent);
         }
         .vert-nav-button img {
             width: 18px;
         }
         .vert-nav-button:hover {
-            background-color: var(--bg-accent);
+            background-color: var(--bg-2);
         }
         li a:hover {
             background-color: var(--bg-3);
             color: var(--fg-1);
         }
         .outer {
-            padding: 0 var(--padding-3);
+            padding: 0 var(--padding-4);
             display: flex;
             flex-direction: column;
             height: 100%;
@@ -83,12 +82,10 @@ class LeftMenu extends LitElement {
             color: var(--fg-1);
         }
         .new-img {
-            width: 22px;
-            height: 22px;
-            filter: var(--accent-svg);
+            width: 20px;
+            height: 20px;
         }
         .new:hover .new-img {
-            filter: var(--themed-svg);
         }
         #search {
             width: 100%;
@@ -410,10 +407,14 @@ class LeftMenu extends LitElement {
 
         return html`
             <div class="outer" @click=${this.closeDropdown}>
-                <div class="vert-nav" style="display: none">
-                    <button class="vert-nav-button" @click=${() => (window.location.href = '/home')}>
-                        <img src="/a7/forget/search-2.svg" class="new-img" /> Search All Documents
+                <div class="vert-nav">
+                    <button class="vert-nav-button" @click=${() => (window.location.href = '/')}>
+                        <img src="/a7/forget/new-3.svg" class="new-img" /> New Page
                     </button>
+                    <button class="vert-nav-button" @click=${() => document.querySelector('search-element').show()}>
+                        <img src="/a7/forget/search-3.svg" class="new-img" /> Search
+                    </button>
+                    <!--
                     <button class="vert-nav-button" @click=${() => (window.location.href = '/home')}>
                         <img src="/a7/forget/home.svg" class="new-img" /> Home
                     </button>
@@ -429,9 +430,10 @@ class LeftMenu extends LitElement {
                     <button class="vert-nav-button" @click=${() => document.querySelector('help-dialog').show()}>
                         <img src="/a7/forget/help.svg" class="new-img" /> Help
                     </button>
+                    -->
                 </div>
 
-                <div style="display: flex; gap: 10px; align-items: stretch; padding: var(--padding-w1)">
+                <div style="display: flex; gap: 10px; align-items: stretch; padding: var(--padding-w1); display: none">
                     <div class="search-div od">
                         <img src="/a7/forget/search.svg" alt="Search" />
                         <input type="text" id="search" name="search" class="srch" placeholder="Filter Documents" @input=${this.filterList} />
@@ -440,6 +442,7 @@ class LeftMenu extends LitElement {
                     <a href="/" class="new"> <img src="/a7/forget/plus1.svg" alt="New Page" class="new-img" /> </a>
                 </div>
                 <ul style="flex: 1; overflow: auto;">
+                    <p class="title" style="padding: var(--padding-w1); padding-top: var(--padding-4); color: var(--fg-2)">My Pages</p>
                     ${this.filteredList.map(
                         item => html`
                             <li class="item">

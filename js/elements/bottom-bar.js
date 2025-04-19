@@ -59,8 +59,8 @@ class BottomBar extends LitElement {
             case 'home':
                 wisk.utils.showToast('feature in works', 5000);
                 break;
-            case 'sparkle':
-                wisk.utils.showToast('feature in works', 5000);
+            case 'search':
+                document.querySelector('search-element').show();
                 break;
             case 'plus':
                 window.location.href = '/';
