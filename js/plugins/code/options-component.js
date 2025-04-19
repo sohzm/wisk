@@ -495,6 +495,7 @@ class OptionsComponent extends LitElement {
         showUsernameEdit: { type: Boolean },
         showPluginSearch: { type: Boolean },
         notificationsEnabled: { type: Boolean },
+        changelog: { type: String },
     };
 
     constructor() {
@@ -508,6 +509,8 @@ class OptionsComponent extends LitElement {
         this.notificationsEnabled = Notification.permission === 'granted';
         this.storageUsed = null;
         this.initEmojiTracker();
+        this.changelog = '';
+        this.fetchChangelog();
     }
 
     connectedCallback() {
@@ -517,6 +520,10 @@ class OptionsComponent extends LitElement {
         if (typeof wisk.editor.notificationsEnabled === 'undefined') {
             wisk.editor.notificationsEnabled = Notification.permission === 'granted';
         }
+    }
+
+    async fetchChangelog() {
+        this.changelog = await fetch('/docs/changelog.md').then(res => res.text());
     }
 
     toggleNotifications() {
@@ -771,6 +778,10 @@ class OptionsComponent extends LitElement {
         this.currentView = 'developer';
     }
 
+    async showChangelogView() {
+        this.currentView = 'changelog';
+    }
+
     async tagClicked(tag) {
         if (tag == 'search') {
             this.showPluginSearch = true;
@@ -948,7 +959,7 @@ class OptionsComponent extends LitElement {
 
                     <div class="menu-item" @click="${this.showSettingsView}">
                         <label> <img src="/a7/plugins/options-element/settings.svg" alt="Settings" class="icon" draggable="false"/> Settings</label>
-                        <img src="/a7/iconoir/right.svg" alt="About" class="icon" draggable="false"/>
+                        <img src="/a7/iconoir/right.svg" alt="Settings" class="icon" draggable="false"/>
                     </div>
 
                     <div style="flex: 1"></div>
@@ -1373,6 +1384,11 @@ class OptionsComponent extends LitElement {
                         <img src="/a7/iconoir/right.svg" alt="About" class="icon" draggable="false"/>
                     </div>
 
+                    <div class="menu-item" @click="${this.showChangelogView}">
+                        <label>Changelog</label>
+                        <img src="/a7/iconoir/right.svg" alt="Changelog" class="icon" draggable="false"/>
+                    </div>
+
                     <div class="menu-item" @click="${this.showDeveloperView}">
                         <label>Developer Options</label>
                         <img src="/a7/iconoir/right.svg" alt="Developer" class="icon" draggable="false"/>
@@ -1442,6 +1458,25 @@ class OptionsComponent extends LitElement {
                                 </div>
                             `
                         )}
+                    </div>
+                </div>
+
+                <!-- Changelog View -->
+                <div class="view ${this.currentView === 'changelog' ? 'active' : ''}">
+                    <div class="header">
+                        <div class="header-wrapper">
+                            <div class="header-controls">
+                                <img src="/a7/forget/dialog-back.svg" alt="Back" @click="${this.showSettingsView}" class="icon" draggable="false"/>
+                                <img src="/a7/forget/dialog-x.svg" alt="Close" @click="${() => {
+                                    wisk.editor.hideMiniDialog();
+                                }}" class="icon" draggable="false" style="padding: var(--padding-3);"/>
+                            </div>
+                            <label class="header-title">Changelog</label>
+                        </div>
+                    </div>
+
+                    <div style="flex: 1; overflow-y: auto">
+                        <div class="content-section content-section--column" style="white-space: break-spaces; font-family: var(--font-mono);">${this.changelog}</div>
                     </div>
                 </div>
 

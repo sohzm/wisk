@@ -154,12 +154,10 @@ class ImageElement extends BaseTextElement {
         }
 
         try {
-            const user = await document.querySelector('auth-component').getUserInfo();
-            const response = await fetch(wisk.editor.backendUrl + '/v2/gif', {
+            const response = await fetch(wisk.editor.backendUrl + '/v1/gif', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: 'Bearer ' + user.token,
                 },
                 body: JSON.stringify({ query }),
             });
