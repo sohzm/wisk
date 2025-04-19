@@ -1,19 +1,30 @@
-// TODO fix this messy code later
-var SERVER = 'http://localhost:8788';
+function determineServerUrl() {
+    const currentUrl = window.location.href;
+    let serverUrl = 'http://localhost:8788';
 
-if (window.location.href.includes('ngrok')) {
-    SERVER = window.location.href.split('.ngrok-free.app')[0] + '.ngrok-free.app';
-} else if (window.location.href.includes('wisk.cc')) {
-    SERVER = 'https://app.wisk.cc';
-}
-if (window.location.href.includes('30009')) {
-    SERVER = 'http://localhost:30009';
+    switch (true) {
+        case currentUrl.includes('30009'):
+            serverUrl = 'http://localhost:30009';
+            break;
+
+        case currentUrl.includes('.wisk.site'):
+            const subdomain = currentUrl.split('https://')[1].split('.wisk.site')[0];
+            serverUrl = `https://${subdomain}.wisk.site`;
+            break;
+
+        case currentUrl.includes('ngrok'):
+            serverUrl = currentUrl.split('.ngrok-free.app')[0] + '.ngrok-free.app';
+            break;
+
+        case currentUrl.includes('wisk.cc'):
+            serverUrl = 'https://app.wisk.cc';
+            break;
+    }
+
+    return serverUrl;
 }
 
-if (window.location.href.includes('.wisk.site')) {
-    const subdomain = window.location.href.split('https://')[1].split('.wisk.site')[0];
-    SERVER = 'https://' + subdomain + '.wisk.site';
-}
+const SERVER = determineServerUrl();
 
 // TODO move these to wisk.utils
 function byId(id) {

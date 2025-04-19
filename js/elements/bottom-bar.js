@@ -57,7 +57,7 @@ class BottomBar extends LitElement {
     buttonClicked(arg) {
         switch (arg) {
             case 'home':
-                wisk.utils.showToast('feature in works', 5000);
+                window.location.href = '/?id=home';
                 break;
             case 'search':
                 document.querySelector('search-element').show();
@@ -66,6 +66,11 @@ class BottomBar extends LitElement {
                 window.location.href = '/';
                 break;
             case 'more':
+                // if url id is home return
+                if (window.location.href.includes('id=home')) {
+                    wisk.utils.showToast('uwu', 1000);
+                    return;
+                }
                 toggleMiniDialogNew('options-component', 'Options');
                 break;
             default:

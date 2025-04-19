@@ -36,9 +36,9 @@ class HomeElement extends LitElement {
 
         .search-div {
             padding: var(--padding-3);
-            border-radius: var(--radius);
-            border: 1px solid var(--border-1);
-            background-color: var(--bg-2);
+            border-radius: calc(var(--radius-large) * 10);
+            border: 2px solid transparent;
+            background-color: var(--bg-3);
             display: flex;
             align-items: center;
             gap: var(--gap-2);
@@ -55,8 +55,8 @@ class HomeElement extends LitElement {
         }
 
         .search-div:has(.search-input:focus-within) {
-            border: 1px solid var(--fg-accent);
-            background-color: var(--bg-accent);
+            border: 2px solid var(--fg-accent);
+            background-color: var(--bg-1);
             color: var(--fg-accent);
         }
 
@@ -85,7 +85,6 @@ class HomeElement extends LitElement {
             border-radius: var(--radius-large);
             overflow: hidden;
             background: var(--bg-2);
-            border: 1px solid var(--border-1);
             cursor: pointer;
         }
 
@@ -107,7 +106,6 @@ class HomeElement extends LitElement {
             right: -36px;
             object-fit: cover;
             border-radius: var(--radius);
-            border: 1px solid var(--border-1);
             background-size: cover;
         }
 
@@ -279,6 +277,9 @@ class HomeElement extends LitElement {
     }
 
     firstUpdated() {
+        // Fetch files when the component is first updated
+        this.fetchFiles();
+
         // why? because it's fun
         const greeting = this.shadowRoot.querySelector('.this-greet');
         if (!greeting) return;
@@ -430,31 +431,30 @@ class HomeElement extends LitElement {
 
     async fetchFiles() {
         try {
-            const auth = await document.getElementById('auth').getUserInfo();
-            const response = await fetch(wisk.editor.backendUrl + '/v1/document', {
-                method: 'GET',
-                headers: {
-                    Authorization: 'Bearer ' + auth.token,
-                },
-            });
+            // Get all keys from wisk.db
+            const keys = await wisk.db.getAllKeys();
+            console.log('Fetched keys:', keys);
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch documents');
-                return;
+            this.files = [];
+            // Iterate through keys and get each item
+            for (let i = 0; i < keys.length; i++) {
+                const item = await wisk.db.getItem(keys[i]);
+                console.log('Fetched item:', item);
+
+                // Push the item to files array
+                this.files.push({
+                    id: item.id,
+                    name: item.data.config.name,
+                });
             }
 
-            const data = await response.json();
-            this.files = data.map(item => ({
-                id: item.id,
-                name: item.title,
-            }));
             this.filteredFiles = [...this.files];
-
-            this.message = 'No files found';
-
+            this.message = this.files.length === 0 ? 'No files found' : '';
             this.requestUpdate();
         } catch (error) {
             console.error('Error fetching documents:', error);
+            this.message = 'Error loading files';
+            this.requestUpdate();
         }
     }
 
@@ -468,22 +468,15 @@ class HomeElement extends LitElement {
         }
 
         try {
-            const auth = await document.getElementById('auth').getUserInfo();
-            const response = await fetch(`${wisk.editor.backendUrl}/v1/document?id=${id}`, {
-                method: 'DELETE',
-                headers: {
-                    Authorization: 'Bearer ' + auth.token,
-                },
-            });
+            // Use wisk.db to remove the item
+            await wisk.db.removeItem(id);
 
-            if (!response.ok) {
-                throw new Error('Failed to delete document');
-            }
-
+            // Update the UI state
             this.files = this.files.filter(item => item.id !== id);
             this.filteredFiles = this.filteredFiles.filter(item => item.id !== id);
             this.requestUpdate();
 
+            // If the deleted file is the current one, redirect to home
             if (id === wisk?.editor?.pageId) {
                 window.location.href = '/';
             }

@@ -53,6 +53,14 @@ async function init() {
 
 async function initScript() {
     // var u = await document.querySelector('auth-component').getUserInfo();
+    if (getURLParam('id') == 'home') {
+        // add <home-element> in #editor
+        document.querySelector('#last-space').remove();
+        const editor = document.querySelector('#editor');
+        const homeElement = document.createElement('home-element');
+        editor.appendChild(homeElement);
+        return;
+    }
     if (getURLParam('id') == null || getURLParam('id') == '') {
         var id = ('o' + Date.now() + Math.random().toString(36).substring(2, 22)).toUpperCase();
 
@@ -134,14 +142,6 @@ window.onSignIn = function () {
 };
 
 initScript();
-
-window.onSignOut = function () {
-    wasSignedOut = true;
-    // alert('You need to sign in to use this service. (for now, we are working on making it work without sign in)');
-    // window.location.href = '/';
-    // wisk.utils.showToast('You should think about signing in', 5000);
-    // document.querySelector('auth-component').show();
-};
 
 if (window.location.href.includes('.wisk.site/')) {
     live();

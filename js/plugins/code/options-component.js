@@ -1476,7 +1476,7 @@ class OptionsComponent extends LitElement {
                     </div>
 
                     <div style="flex: 1; overflow-y: auto">
-                        <div class="content-section content-section--column" style="white-space: break-spaces; font-family: var(--font-mono);">${this.changelog}</div>
+                        <div class="content-section content-section--column" style="white-space: break-spaces; font-family: var(--font-mono); user-select: text;">${this.changelog}</div>
                     </div>
                 </div>
 

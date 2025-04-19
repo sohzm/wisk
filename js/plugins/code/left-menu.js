@@ -40,7 +40,6 @@ class LeftMenu extends LitElement {
             align-items: center;
             gap: var(--gap-2);
             padding: var(--padding-w1);
-            border-radius: var(--radius);
             color: var(--fg-1);
             background-color: var(--bg-1);
             text-decoration: none;
@@ -48,6 +47,7 @@ class LeftMenu extends LitElement {
             outline: none;
             border: none;
             width: 100%;
+            border-radius: var(--radius);
         }
         .vert-nav-button img {
             width: 18px;
@@ -306,27 +306,20 @@ class LeftMenu extends LitElement {
         }
 
         try {
-            const auth = await document.getElementById('auth').getUserInfo();
-            const response = await fetch(`${wisk.editor.backendUrl}/v1/document?id=${id}`, {
-                method: 'DELETE',
-                headers: {
-                    Authorization: 'Bearer ' + auth.token,
-                },
-            });
+            // Use wisk.db to remove the item instead of fetch API
+            await wisk.db.removeItem(id);
 
-            if (!response.ok) {
-                throw new Error('Failed to delete document');
-            }
-
+            // Update the UI state
             this.list = this.list.filter(item => item.id !== id);
             this.filteredList = this.filteredList.filter(item => item.id !== id);
             this.requestUpdate();
+
+            // If the deleted page is the current one, redirect to home
+            if (id == wisk.editor.pageId) {
+                window.location.href = '/';
+            }
         } catch (error) {
             console.error('Error deleting document:', error);
-        }
-
-        if (id == wisk.editor.pageId) {
-            window.location.href = '/';
         }
     }
 
@@ -414,13 +407,13 @@ class LeftMenu extends LitElement {
                     <button class="vert-nav-button" @click=${() => document.querySelector('search-element').show()}>
                         <img src="/a7/forget/search-3.svg" class="new-img" /> Search
                     </button>
+                    <button class="vert-nav-button" @click=${() => (window.location.href = '/?id=home')}>
+                        <img src="/a7/forget/home-2.svg" class="new-img" /> Home
+                    </button>
                     <button class="vert-nav-button" @click=${() => document.querySelector('help-dialog').show()}>
                         <img src="/a7/forget/help-3.svg" class="new-img" /> Help
                     </button>
                     <!--
-                    <button class="vert-nav-button" @click=${() => (window.location.href = '/home')}>
-                        <img src="/a7/forget/home.svg" class="new-img" /> Home
-                    </button>
                     <button class="vert-nav-button" @click=${() => document.querySelector('neo-ai').expandDialog()}>
                         <img src="/a7/forget/spark.svg" class="new-img" /> Neo AI
                     </button>
