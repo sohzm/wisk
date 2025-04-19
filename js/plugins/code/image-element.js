@@ -788,15 +788,17 @@ class ImageElement extends BaseTextElement {
                 display: flex;
                 gap: var(--gap-1);
                 align-items: center;
+                border-radius: var(--radius);
+                background: var(--bg-3);
             }
 
             #gif-search-input {
                 flex: 1;
                 padding: var(--padding-w2);
                 outline: none;
-                border: 1px solid var(--border-1);
-                border-radius: 100px;
-                background: var(--bg-2);
+                border: none;
+                border-radius: 0;
+                background: transparent;
                 color: var(--fg-1);
             }
 

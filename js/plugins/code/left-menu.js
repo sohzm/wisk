@@ -414,6 +414,9 @@ class LeftMenu extends LitElement {
                     <button class="vert-nav-button" @click=${() => document.querySelector('search-element').show()}>
                         <img src="/a7/forget/search-3.svg" class="new-img" /> Search
                     </button>
+                    <button class="vert-nav-button" @click=${() => document.querySelector('help-dialog').show()}>
+                        <img src="/a7/forget/help-3.svg" class="new-img" /> Help
+                    </button>
                     <!--
                     <button class="vert-nav-button" @click=${() => (window.location.href = '/home')}>
                         <img src="/a7/forget/home.svg" class="new-img" /> Home
@@ -426,9 +429,6 @@ class LeftMenu extends LitElement {
                     </button>
                     <button class="vert-nav-button" @click=${() => document.querySelector('feedback-dialog').show()}>
                         <img src="/a7/forget/feedback.svg" class="new-img" /> Feedback
-                    </button>
-                    <button class="vert-nav-button" @click=${() => document.querySelector('help-dialog').show()}>
-                        <img src="/a7/forget/help.svg" class="new-img" /> Help
                     </button>
                     -->
                 </div>

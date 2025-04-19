@@ -126,6 +126,25 @@ class HelpDialog extends LitElement {
                 background-color: var(--fg-1);
             }
         }
+
+        .shortcut {
+            font-size: 14px;
+            color: var(--fg-1);
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+            max-width: 400px;
+        }
+
+        .shortcut-key {
+            background: var(--bg-3);
+            color: var(--fg-1);
+            padding: var(--padding-w1);
+            border-radius: var(--radius);
+            font-size: 14px;
+            border: 1px solid var(--border-1);
+        }
     `;
 
     static properties = {
@@ -159,12 +178,18 @@ class HelpDialog extends LitElement {
                         <div style="display: flex; align-items: center; gap: var(--gap-3); font-size: 15px; flex-wrap: wrap">
                             <label class="input-label">Quick Links</label>
                             <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap">
-                                <a target="_blank" href="https://wisk.cc/getting-started" class="quick-link">Getting Started</a>
                                 <a target="_blank" href="https://wisk.cc/faq" class="quick-link">FAQ</a>
-                                <a target="_blank" href="https://wisk.cc/blog" class="quick-link">Blog</a>
                                 <a target="_blank" href="https://discord.gg/D8tQCvgDhu" class="quick-link">Discord</a>
                                 <a target="_blank" href="https://github.com/sohzm/wisk/blob/master/docs/docs.md" class="quick-link">Documentation</a>
                                 <a target="_blank" href="https://wisk.cc/contact" class="quick-link">Contact Support</a>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--gap-2); margin-top: var(--gap-3)">
+                            <h3>Shortcuts</h3>
+                            <div style="display: flex; gap: var(--gap-2); flex-direction: column; width: 100%;">
+                                <p class="shortcut">Command Palette <span class="shortcut-key">Ctrl + Shift + P</span></p>
+                                <p class="shortcut">Search <span class="shortcut-key">Ctrl + Shift + F</span></p>
                             </div>
                         </div>
 

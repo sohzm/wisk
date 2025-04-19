@@ -9,8 +9,8 @@ class SearchElement extends HTMLElement {
 
     addGlobalShortcut() {
         document.addEventListener('keydown', e => {
-            // ctrl shift s
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 83) {
+            // ctrl shift f
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 70) {
                 e.preventDefault();
                 this.show();
             }
@@ -403,7 +403,6 @@ class SearchElement extends HTMLElement {
                 line-height: 1.4;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                white-space: nowrap;
                 max-width: 500px;
             }
             .highlight {
