@@ -333,6 +333,7 @@ class OptionsComponent extends LitElement {
             border-radius: var(--radius);
             cursor: pointer;
             transition: background-color 0.2s ease;
+            border: 3px solid transparent;
         }
         .theme-card:hover {
             background-color: var(--bg-3);

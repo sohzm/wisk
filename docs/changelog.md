@@ -1,10 +1,14 @@
+- Apr 20
+
+    - tweaks tool bug fixes
+
 - Apr 19
 
     - gif support in image-element using tenor api
     - added changelog
     - added search
     - added home
-    - fixed left menu delete page bug
+    - bug fixes
 
 - Apr 18
 

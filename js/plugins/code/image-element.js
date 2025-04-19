@@ -58,35 +58,49 @@ class ImageElement extends BaseTextElement {
         addLink?.addEventListener('click', async () => {
             const url = imageUrlInput.value.trim();
             if (url) {
+                // Show loading state
+                addLink.textContent = 'Loading...';
+                addLink.disabled = true;
+
                 try {
-                    // Test if the URL is valid
-                    const testImage = new Image();
-                    testImage.onload = async () => {
-                        try {
-                            // Download and store the external image in the asset store
-                            const response = await fetch(url);
-                            const blob = await response.blob();
-                            const uniqueUrl = 'image-' + Date.now() + '.' + this.getFileExtension(url);
+                    // Create a fetch request to download the image
+                    const response = await fetch(url);
 
-                            // Save to asset store
-                            await wisk.db.saveAsset(uniqueUrl, blob);
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+                    }
 
-                            this.imageUrl = uniqueUrl;
-                            this.updateImage();
-                            this.sendUpdates();
-                            closeDialog();
-                        } catch (error) {
-                            console.error('Error saving linked image:', error);
-                            alert('Failed to save image. Please try again.');
-                        }
-                    };
-                    testImage.onerror = () => {
-                        alert('Invalid image URL. Please check the URL and try again.');
-                    };
-                    testImage.src = url;
+                    // Get the image as a blob
+                    const blob = await response.blob();
+
+                    // Validate that it's an image
+                    if (!blob.type.startsWith('image/')) {
+                        throw new Error('The URL did not point to a valid image');
+                    }
+
+                    // Generate a unique filename with the correct extension
+                    const extension = this.getFileExtension(url);
+                    const uniqueUrl = 'image-' + Date.now() + '.' + extension;
+
+                    // Save to asset store
+                    await wisk.db.saveAsset(uniqueUrl, blob);
+
+                    // Update the component with the new image
+                    this.imageUrl = uniqueUrl;
+                    this.updateImage();
+                    this.sendUpdates();
+
+                    // Close the dialog
+                    closeDialog();
+
+                    wisk.utils.showToast('Image successfully added', 3000);
                 } catch (error) {
                     console.error('Error loading image:', error);
-                    alert('Failed to load image. Please check the URL and try again.');
+                    wisk.utils.showToast('Failed to load image. Please check the URL and try again.', 5000);
+                } finally {
+                    // Reset the button state
+                    addLink.textContent = 'Add Image';
+                    addLink.disabled = false;
                 }
             }
         });
@@ -218,7 +232,7 @@ class ImageElement extends BaseTextElement {
         const optionsDialog = this.shadowRoot.querySelector('#options-dialog');
         const changeImageBtn = this.shadowRoot.querySelector('#change-image');
         const searchGifBtn = this.shadowRoot.querySelector('#search-gif');
-        const addLinkBtn = this.shadowRoot.querySelector('#add-link');
+        const addLinkMenuBtn = this.shadowRoot.querySelector('#add-link-menu'); // Changed ID here
         const linkImageBtn = this.shadowRoot.querySelector('#link-button');
         const searchGifBtn2 = this.shadowRoot.querySelector('#search-gifs-btn');
         const fullscreenBtn = this.shadowRoot.querySelector('#fullscreen');
@@ -318,7 +332,7 @@ class ImageElement extends BaseTextElement {
             gifSearchInput?.focus();
         });
 
-        addLinkBtn?.addEventListener('click', () => {
+        addLinkMenuBtn?.addEventListener('click', () => {
             this.shadowRoot.querySelector('#link-dialog').style.display = 'flex';
             optionsDialog.style.display = 'none';
         });
@@ -1003,7 +1017,7 @@ class ImageElement extends BaseTextElement {
                     <button class="dialog-option" ${wisk.editor.readonly ? 'style="display: none;"' : ''} id="change-image">Change Image</button>
                     <button class="dialog-option" id="download-image">Download Image</button>
                     <button class="dialog-option" ${wisk.editor.readonly ? 'style="display: none;"' : ''} id="search-gif">Search GIFs</button>
-                    <button class="dialog-option" ${wisk.editor.readonly ? 'style="display: none;"' : ''} id="add-link">Add Image URL</button>
+                    <button class="dialog-option" ${wisk.editor.readonly ? 'style="display: none;"' : ''} id="add-link-menu">Add Image URL</button>
                     <button class="dialog-option" id="fullscreen">View Full Size</button>
                     <div class="dialog-option border-toggle" ${wisk.editor.readonly ? 'style="display: none;"' : ''}>
                         <label for="border-toggle">Show Border</label>
@@ -1014,7 +1028,7 @@ class ImageElement extends BaseTextElement {
                 <div id="gif-search-dialog" style="display: none;">
                     <div class="gif-search-header">
                         <input type="text" id="gif-search-input" placeholder="Search GIFs..." autocomplete="off" />
-                        <button id="close-gif-search"><img src="/a7/forget/close.svg" alt="Close" width="20" height="20"></button>
+                        <button id="close-gif-search"><img src="/a7/forget/close.svg" alt="Close" width="20" height="20" style="filter: var(--themed-svg);"></button>
                     </div>
                     <p style="text-align: end; color: var(--fg-2); font-size: small;">Powered by Tenor</p>
                     <div class="gif-results">
@@ -1026,7 +1040,7 @@ class ImageElement extends BaseTextElement {
                         <div class="link-dialog-header">
                             <h3>Add Image URL</h3>
                             <button id="close-link-dialog">
-                                <img src="/a7/forget/close.svg" alt="Close" width="20" height="20">
+                                <img src="/a7/forget/close.svg" alt="Close" width="20" height="20" style="filter: var(--themed-svg);" />
                             </button>
                         </div>
                         <div class="link-dialog-body">

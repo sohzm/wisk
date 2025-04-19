@@ -58,3 +58,76 @@ function byQueryShadowroot(query) {
     }
     return document.querySelector(query);
 }
+
+// TODO think
+// const consoleHistory = [];
+//
+// const originalConsole = {
+//   log: console.log,
+//   warn: console.warn,
+//   error: console.error,
+//   info: console.info,
+//   debug: console.debug
+// };
+//
+// console.log = function() {
+//   originalConsole.log.apply(console, arguments);
+//
+//   consoleHistory.push({
+//     type: 'log',
+//     timestamp: new Date(),
+//     message: Array.from(arguments)
+//   });
+// };
+//
+// console.warn = function() {
+//   originalConsole.warn.apply(console, arguments);
+//   consoleHistory.push({
+//     type: 'warn',
+//     timestamp: new Date(),
+//     message: Array.from(arguments)
+//   });
+// };
+//
+// console.error = function() {
+//   originalConsole.error.apply(console, arguments);
+//   consoleHistory.push({
+//     type: 'error',
+//     timestamp: new Date(),
+//     message: Array.from(arguments)
+//   });
+// };
+//
+// console.info = function() {
+//   originalConsole.info.apply(console, arguments);
+//   consoleHistory.push({
+//     type: 'info',
+//     timestamp: new Date(),
+//     message: Array.from(arguments)
+//   });
+// };
+//
+// console.debug = function() {
+//   originalConsole.debug.apply(console, arguments);
+//   consoleHistory.push({
+//     type: 'debug',
+//     timestamp: new Date(),
+//     message: Array.from(arguments)
+//   });
+// };
+//
+// function getConsoleHistory() {
+//   return consoleHistory;
+// }
+//
+// function clearConsoleHistory() {
+//   consoleHistory.length = 0;
+// }
+//
+// function restoreConsole() {
+//   console.log = originalConsole.log;
+//   console.warn = originalConsole.warn;
+//   console.error = originalConsole.error;
+//   console.info = originalConsole.info;
+//   console.debug = originalConsole.debug;
+// }

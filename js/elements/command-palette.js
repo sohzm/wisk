@@ -165,7 +165,9 @@ class CommandPalette extends HTMLElement {
 
         const titleSpan = document.createElement('span');
         titleSpan.classList.add('command-title');
-        titleSpan.textContent = command.title;
+        titleSpan.innerHTML = command.category
+            ? `${command.category} <?xml version="1.0" encoding="UTF-8"?><svg width="16px" height="16px" stroke-width="2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg> ${command.title}`
+            : `Other <?xml version="1.0" encoding="UTF-8"?><svg width="16px" height="16px" stroke-width="2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg> ${command.title}`;
 
         const descSpan = document.createElement('span');
         descSpan.classList.add('command-description');
@@ -315,6 +317,11 @@ class CommandPalette extends HTMLElement {
                 font-family: var(--font);
                 flex: 1;
                 font-size: 13px;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                gap: var(--gap-2);
+                text-align: left;
             }
             .command-description {
                 color: var(--fg-2);
@@ -329,6 +336,7 @@ class CommandPalette extends HTMLElement {
                 font-size: 0.8em;
                 font-family: var(--font);
                 padding: var(--padding-w2);
+                display: none;
             }
 
             @media (hover: hover) {
@@ -372,7 +380,7 @@ function registerCommand(title, description, category, callback, shortcut = '') 
     // check if the command already exists
     const existingCommand = commandRegistry.find(command => command.title === title);
     if (existingCommand) {
-        console.error(`Command "${title} (${category}) - ${description}" already exists.`);
+        console.error(`Command "${title} (${category}) > ${description}" already exists.`);
         return;
     }
     commandRegistry.push({ title, description, category, callback, shortcut });

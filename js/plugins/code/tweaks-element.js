@@ -101,7 +101,7 @@ class TweaksElement extends LitElement {
         }
         .upload-tile {
             width: 100%;
-            height: 120px;
+            height: 100%;
             background: var(--bg-1);
             border: 1px solid var(--border-1);
             border-radius: var(--radius);
@@ -134,14 +134,14 @@ class TweaksElement extends LitElement {
         .plus-icon::before {
             width: 2px;
             height: 24px;
-            left: 19px;
-            top: 8px;
+            left: 17px;
+            top: 6px;
         }
         .plus-icon::after {
             width: 24px;
             height: 2px;
-            top: 19px;
-            left: 8px;
+            top: 17px;
+            left: 6px;
         }
         .upload-text {
             color: var(--fg-1);
@@ -169,6 +169,15 @@ class TweaksElement extends LitElement {
             align-items: center;
             gap: var(--gap-2);
         }
+        .btn-primary {
+            background-color: var(--fg-accent);
+            color: var(--bg-1);
+            font-weight: 600;
+            border: 2px solid transparent;
+        }
+        .btn-primary:hover {
+            background-color: var(--fg-accent-hover);
+        }
         .btn-danger {
             background-color: var(--fg-red);
             color: var(--bg-red);
@@ -192,6 +201,55 @@ class TweaksElement extends LitElement {
         }
         .status-message.show {
             opacity: 1;
+        }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .toggle-label {
+            color: var(--fg-1);
+            font-size: 16px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-3);
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: '';
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--bg-1);
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: var(--fg-accent);
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
         }
 
         /* Custom scrollbar for webkit browsers */
@@ -239,6 +297,9 @@ class TweaksElement extends LitElement {
         currentBackground: { type: String },
         statusMessage: { type: String },
         showStatus: { type: Boolean },
+        blobCache: { type: Object },
+        currentPageId: { type: String },
+        globalBackground: { type: Boolean },
     };
 
     constructor() {
@@ -260,24 +321,49 @@ class TweaksElement extends LitElement {
         this.currentBackground = '';
         this.statusMessage = '';
         this.showStatus = false;
+        this.blobCache = {}; // Cache for blob URLs
+        this.currentPageId = '';
+        this.globalBackground = false;
     }
 
     connectedCallback() {
         super.connectedCallback();
+        this.currentPageId = wisk.editor.pageId || '';
         this.loadSavedBackgrounds();
-        // Get current background if set
-        this.getCurrentBackground();
     }
 
     async loadSavedBackgrounds() {
         try {
             // Load saved background settings
-            const savedData = await wisk.db.getPluginItem(this.identifier);
-            if (savedData && savedData.uploadedImages) {
-                this.uploadedImages = [...savedData.uploadedImages];
+            const savedData = (await wisk.db.getPluginItem(this.identifier)) || {};
+
+            // Initialize structure if not exists
+            if (!savedData.assets) {
+                savedData.assets = [];
             }
-            if (savedData && savedData.currentBackground) {
-                this.currentBackground = savedData.currentBackground;
+            if (!savedData.selectedAssets) {
+                savedData.selectedAssets = [];
+            }
+            if (savedData.globalBackground === undefined) {
+                savedData.globalBackground = false;
+            }
+
+            // Set global background preference
+            this.globalBackground = savedData.globalBackground;
+
+            // Load the uploaded assets
+            this.uploadedImages = savedData.assets || [];
+
+            // Find the current background for this page
+            const pageBackground = savedData.selectedAssets.find(item => item.pageId === this.currentPageId);
+
+            if (pageBackground) {
+                this.currentBackground = pageBackground.asset;
+                this.applyBackground(this.currentBackground);
+            } else if (this.globalBackground && savedData.globalAsset) {
+                // If global background is enabled and exists, use it
+                this.currentBackground = savedData.globalAsset;
+                this.applyBackground(this.currentBackground);
             }
         } catch (error) {
             console.error('Error loading saved backgrounds:', error);
@@ -286,23 +372,60 @@ class TweaksElement extends LitElement {
 
     async saveSettings() {
         try {
-            await wisk.db.setPluginItem(this.identifier, {
-                uploadedImages: this.uploadedImages,
-                currentBackground: this.currentBackground,
-            });
+            // Get current settings
+            const savedData = (await wisk.db.getPluginItem(this.identifier)) || {};
+
+            // Initialize structure if not exists
+            if (!savedData.assets) {
+                savedData.assets = [];
+            }
+            if (!savedData.selectedAssets) {
+                savedData.selectedAssets = [];
+            }
+
+            // Update assets
+            savedData.assets = this.uploadedImages;
+
+            // Update global setting
+            savedData.globalBackground = this.globalBackground;
+
+            // Update current page's background
+            if (this.currentBackground) {
+                // If global background is enabled, save to globalAsset
+                if (this.globalBackground) {
+                    savedData.globalAsset = this.currentBackground;
+
+                    // Clear any page-specific backgrounds if needed
+                    // Or keep them for when global is turned off
+                } else {
+                    // Find if we already have a setting for this page
+                    const existingIndex = savedData.selectedAssets.findIndex(item => item.pageId === this.currentPageId);
+
+                    if (existingIndex >= 0) {
+                        // Update existing entry
+                        savedData.selectedAssets[existingIndex].asset = this.currentBackground;
+                    } else {
+                        // Add new entry
+                        savedData.selectedAssets.push({
+                            pageId: this.currentPageId,
+                            asset: this.currentBackground,
+                        });
+                    }
+                }
+            } else {
+                // No background selected, remove entry if exists
+                if (!this.globalBackground) {
+                    savedData.selectedAssets = savedData.selectedAssets.filter(item => item.pageId !== this.currentPageId);
+                } else {
+                    // Clear global background
+                    savedData.globalAsset = null;
+                }
+            }
+
+            // Save to database
+            await wisk.db.setPluginItem(this.identifier, savedData);
         } catch (error) {
             console.error('Error saving background settings:', error);
-        }
-    }
-
-    getCurrentBackground() {
-        const bgImage = document.body.style.backgroundImage;
-        if (bgImage && bgImage !== 'none') {
-            // Extract URL from the background-image property
-            const urlMatch = bgImage.match(/url\(['"]?(.*?)['"]?\)/);
-            if (urlMatch && urlMatch[1]) {
-                this.currentBackground = urlMatch[1];
-            }
         }
     }
 
@@ -317,23 +440,26 @@ class TweaksElement extends LitElement {
                     const response = await fetch(dataUrl);
                     const blob = await response.blob();
 
-                    // Generate a unique URL for this image
+                    // Generate a unique ID for this image
                     const imageId = `user_bg_${Date.now()}_${file.name.replace(/[^a-z0-9]/gi, '_')}`;
-                    const imageUrl = `wisk://assets/${imageId}`;
 
                     // Store the image in the asset store
-                    await wisk.db.saveAsset(imageUrl, blob);
+                    await wisk.db.saveAsset(imageId, blob);
+
+                    // Create a blob URL for display
+                    const blobUrl = URL.createObjectURL(blob);
+                    this.blobCache[imageId] = blobUrl;
 
                     // Add to uploadedImages list
                     const newImage = {
-                        src: imageUrl,
+                        id: imageId,
+                        src: blobUrl, // For display in the UI
                         text: file.name,
-                        link: null,
                         isUploaded: true,
                     };
 
                     this.uploadedImages = [...this.uploadedImages, newImage];
-                    this.saveSettings();
+                    await this.saveSettings();
 
                     // Show success message
                     this.showStatusMessage('Image uploaded successfully!');
@@ -348,25 +474,47 @@ class TweaksElement extends LitElement {
 
     async removeUploadedImage(image, index) {
         try {
-            // Remove from asset store if it's a user-uploaded image
-            if (image.src.startsWith('wisk://assets/')) {
-                await wisk.db.removeAsset(image.src);
+            // Remove from asset store
+            if (image.id) {
+                await wisk.db.removeAsset(image.id);
+            }
+
+            // Revoke blob URL if it exists in cache
+            if (this.blobCache[image.id]) {
+                URL.revokeObjectURL(this.blobCache[image.id]);
+                delete this.blobCache[image.id];
             }
 
             // Remove from array
             this.uploadedImages.splice(index, 1);
             this.uploadedImages = [...this.uploadedImages];
 
-            // Update settings
-            this.saveSettings();
+            // Get saved data to update
+            const savedData = (await wisk.db.getPluginItem(this.identifier)) || {};
+
+            // If this was the current background for any page, reset it
+            if (savedData.selectedAssets) {
+                savedData.selectedAssets = savedData.selectedAssets.filter(item => item.asset !== image.id);
+            }
+
+            // If this was the global background, reset it
+            if (savedData.globalAsset === image.id) {
+                savedData.globalAsset = null;
+            }
+
+            // Update assets list
+            savedData.assets = this.uploadedImages;
+
+            // Save changes
+            await wisk.db.setPluginItem(this.identifier, savedData);
+
+            // If the removed image was the current background, reset background
+            if (this.currentBackground === image.id) {
+                this.resetBackground();
+            }
 
             // Show success message
             this.showStatusMessage('Image removed successfully!');
-
-            // If the removed image was the current background, reset background
-            if (this.currentBackground === image.src) {
-                this.resetBackground();
-            }
         } catch (error) {
             console.error('Error removing image:', error);
             this.showStatusMessage('Error removing image. Please try again.', 'error');
@@ -383,26 +531,58 @@ class TweaksElement extends LitElement {
         }, 3000);
     }
 
-    async changeBackground(image) {
+    async applyBackground(imageId) {
         try {
-            let imageUrl = image.src;
+            // Check if it's a built-in image
+            const builtIn = this.images.find(img => img.src === imageId);
 
-            // For uploaded images that use the wisk:// protocol, we need to get the actual blob
-            if (imageUrl.startsWith('wisk://assets/')) {
-                const blob = await wisk.db.getAsset(imageUrl);
+            if (builtIn) {
+                // Use the src directly for built-in images
+                document.body.style.backgroundColor = 'transparent';
+                document.body.style.background = `url(${builtIn.src}) no-repeat center center fixed`;
+                document.body.style.backgroundSize = 'cover';
+                return;
+            }
+
+            // For uploaded images, we need to check by ID
+            let blob = null;
+            let blobUrl = null;
+
+            // Check if we have it in cache first
+            if (this.blobCache[imageId]) {
+                blobUrl = this.blobCache[imageId];
+            } else {
+                // Get the asset from the database
+                blob = await wisk.db.getAsset(imageId);
+
                 if (blob) {
-                    // Create a temporary object URL
-                    imageUrl = URL.createObjectURL(blob);
+                    // Create a blob URL and cache it
+                    blobUrl = URL.createObjectURL(blob);
+                    this.blobCache[imageId] = blobUrl;
                 }
             }
 
-            document.body.style.backgroundColor = 'transparent';
-            document.body.style.background = `url(${imageUrl}) no-repeat center center fixed`;
-            document.body.style.backgroundSize = 'cover';
+            if (blobUrl) {
+                document.body.style.backgroundColor = 'transparent';
+                document.body.style.background = `url(${blobUrl}) no-repeat center center fixed`;
+                document.body.style.backgroundSize = 'cover';
+            }
+        } catch (error) {
+            console.error('Error applying background:', error);
+        }
+    }
 
-            // Store the current background preference
-            this.currentBackground = image.src;
-            this.saveSettings();
+    async changeBackground(image) {
+        try {
+            // Set the current background ID (either src for built-in or id for uploaded)
+            const imageId = image.isUploaded ? image.id : image.src;
+            this.currentBackground = imageId;
+
+            // Apply the background
+            await this.applyBackground(imageId);
+
+            // Save the settings
+            await this.saveSettings();
 
             this.showStatusMessage('Background changed successfully!');
         } catch (error) {
@@ -411,16 +591,31 @@ class TweaksElement extends LitElement {
         }
     }
 
-    resetBackground() {
+    async resetBackground() {
         document.body.style.background = '';
         document.body.style.backgroundColor = 'var(--bg-1)';
         this.currentBackground = '';
-        this.saveSettings();
+        await this.saveSettings();
         this.showStatusMessage('Background reset to default');
+    }
+
+    async toggleGlobalBackground(e) {
+        this.globalBackground = e.target.checked;
+        await this.saveSettings();
+
+        // If enabling global background, apply current background to all pages
+        if (this.globalBackground && this.currentBackground) {
+            this.showStatusMessage('Global background enabled - same background will be used for all pages');
+        } else if (!this.globalBackground) {
+            this.showStatusMessage('Page-specific backgrounds enabled');
+        }
     }
 
     render() {
         const allImages = [...this.images, ...this.uploadedImages];
+
+        // Determine active image by checking current background
+        const activeImageId = this.currentBackground;
 
         return html`
             <div class="container">
@@ -441,6 +636,14 @@ class TweaksElement extends LitElement {
                         </div>
                     </div>
 
+                    <div class="toggle-container">
+                        <label class="toggle-label">Use same background for all pages:</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" ?checked=${this.globalBackground} @change=${this.toggleGlobalBackground} />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
                     <div class="controls">
                         <div class="section-title">Background Images</div>
                         <button class="btn btn-danger" @click=${this.resetBackground}>Reset Background</button>
@@ -450,7 +653,7 @@ class TweaksElement extends LitElement {
                         ${allImages.map(
                             (image, index) => html`
                                 <button
-                                    class="bg ${this.currentBackground === image.src ? 'active' : ''}"
+                                    class="bg ${activeImageId === (image.isUploaded ? image.id : image.src) ? 'active' : ''}"
                                     @click="${() => this.changeBackground(image)}"
                                 >
                                     <img src="${image.src}" alt="${image.text}" />
@@ -468,7 +671,11 @@ class TweaksElement extends LitElement {
                                                       }}"
                                                       style="background: transparent; border: none; cursor: pointer; padding: 5px;"
                                                   >
-                                                      <img src="/a7/iconoir/trash.svg" alt="Delete" style="width: 16px; height: 16px;" />
+                                                      <img
+                                                          src="/a7/iconoir/trash.svg"
+                                                          alt="Delete"
+                                                          style="width: 16px; height: 16px; filter: var(--themed-svg)"
+                                                      />
                                                   </button>
                                               `
                                             : ''}
