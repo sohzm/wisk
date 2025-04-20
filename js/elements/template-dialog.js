@@ -43,14 +43,9 @@ class TemplateDialog extends LitElement {
         .dialog-content {
             background: var(--bg-1);
             padding: calc(var(--padding-4) * 2);
-            border-radius: var(--radius-large);
-            border: 1px solid var(--border-1);
-            filter: var(--drop-shadow);
-            max-width: 1400px;
-            max-height: 700px;
-            height: 90%;
-            width: 90%;
-            position: absolute;
+            height: 100%;
+            width: 100%;
+            position: fixed;
             z-index: 1000;
             transform: translateZ(0);
             overflow-y: auto;
@@ -213,15 +208,6 @@ class TemplateDialog extends LitElement {
 
         @media (max-width: 768px) {
             .dialog-content {
-                padding: var(--padding-4);
-                height: 90%;
-                width: 100%;
-                border-radius: 0;
-                border-top-left-radius: var(--radius-large);
-                border-top-right-radius: var(--radius-large);
-                top: 10%;
-                left: 0;
-                max-height: none;
             }
         }
 
@@ -240,14 +226,14 @@ class TemplateDialog extends LitElement {
 
         .dialog-close {
             position: absolute;
-            top: var(--padding-3);
-            right: var(--padding-3);
+            top: var(--padding-4);
+            right: var(--padding-4);
             display: flex;
-            width: 24px;
-            height: 24px;
+            width: 30px;
+            height: 30px;
             background: none;
             border: none;
-            border-radius: var(--radius);
+            border-radius: calc(var(--radius) * 20);
             cursor: pointer;
             color: var(--fg-1);
             font-size: 1.5rem;

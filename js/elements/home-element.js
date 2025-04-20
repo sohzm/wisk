@@ -65,7 +65,6 @@ class HomeElement extends LitElement {
         }
 
         .search-div:has(.search-input:focus-within) img {
-            filter: var(--accent-svg);
         }
 
         .files-grid {
@@ -720,7 +719,7 @@ class HomeElement extends LitElement {
                     </div>
                 </div>
 
-                <div class="section" style="gap: calc(2*var(--gap-3))">
+                <div class="section" style="gap: calc(2*var(--gap-3)); min-height: 100svh">
                     <div class="your-files-header">
                         <h2 class="section-title">Your Files</h2>
                         <div class="search-div">

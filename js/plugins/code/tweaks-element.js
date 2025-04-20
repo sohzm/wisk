@@ -522,13 +522,7 @@ class TweaksElement extends LitElement {
     }
 
     showStatusMessage(message, type = 'success') {
-        this.statusMessage = message;
-        this.showStatus = true;
-
-        // Auto-hide after 3 seconds
-        setTimeout(() => {
-            this.showStatus = false;
-        }, 3000);
+        wisk.utils.showToast(message, 3000);
     }
 
     async applyBackground(imageId) {

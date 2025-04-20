@@ -1064,6 +1064,27 @@
             ]
         },
 
+        "screensaver": {
+            "name": "screensaver",
+            "title": "Screensaver",
+            "author": "Wisk Team",
+            "contact": "https://wisk.cc",
+            "icon": "screensaver.svg",
+            "tags": ["screensaver", "random"],
+            "description": "Screensaver is a plugin that adds a dvd-like screensaver after 60 seconds of inactivity",
+            "contents": [
+                {
+                    "title": "Screensaver",
+                    "icon": "screensaver.svg",
+                    "category": "auto",
+                    "component": "screensaver",
+                    "nav": false,
+                    "textual": false,
+                    "loadAsModule": false
+                }
+            ]
+        },
+
         "brainrot": {
             "name": "brainrot",
             "title": "Brainrot",
