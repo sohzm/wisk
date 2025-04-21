@@ -412,6 +412,28 @@
             ]
         },
 
+        "video-element": {
+            "name": "video-element",
+            "title": "Video Element",
+            "author": "Wisk Team",
+            "contact": "https://wisk.cc",
+            "icon": "video.svg",
+            "tags": ["video", "movie", "clip"],
+            "description": "Video element",
+            "contents": [
+                {
+                    "title": "Video",
+                    "icon": "video.svg",
+                    "category": "component",
+                    "component": "video-element",
+                    "nav": false,
+                    "textual": true,
+                    "loadAsModule": false,
+                    "width": "mini"
+                }
+            ]
+        },
+
         "canvas-element": {
             "name": "canvas-element",
             "title": "Canvas",

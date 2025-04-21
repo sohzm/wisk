@@ -1,0 +1,235 @@
+{
+    "plugins": [],
+    "theme": "Caramel Swirl",
+    "elements": [
+        {
+            "id": "abcdxyz",
+            "component": "main-element",
+            "value": { "textContent": "Minimal Weekly Todo", "emoji": "🔖", "backgroundUrl": null, "bannerSize": "small" },
+            "lastUpdated": 1745150776223,
+            "lastEdited": 1745151058
+        },
+        { "value": { "textContent": "" }, "id": "kPAidZG", "component": "text-element", "lastEdited": 1745151058 },
+        {
+            "value": [
+                {
+                    "id": "DWUMIhO-UIzIMWt",
+                    "elements": [
+                        {
+                            "id": "DWUMIhO-UIzIMWt-mexeQKE",
+                            "component": "heading3-element",
+                            "value": { "textContent": "MON" },
+                            "lastEdited": 1745151054
+                        },
+                        {
+                            "id": "DWUMIhO-UIzIMWt-QJiwSkP",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151054
+                        },
+                        {
+                            "id": "DWUMIhO-UIzIMWt-iNTBKaA",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151054
+                        },
+                        {
+                            "id": "DWUMIhO-UIzIMWt-QGbarMJ",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151054
+                        }
+                    ]
+                },
+                {
+                    "id": "DWUMIhO-ZiLGXqN",
+                    "elements": [
+                        {
+                            "id": "DWUMIhO-ZiLGXqN-sTGDUOG",
+                            "component": "heading3-element",
+                            "value": { "textContent": "TUE" },
+                            "lastEdited": 1745151054
+                        },
+                        {
+                            "id": "DWUMIhO-ZiLGXqN-HpnJWLd",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151054
+                        },
+                        {
+                            "id": "DWUMIhO-ZiLGXqN-OxvQaEi",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151054
+                        },
+                        {
+                            "id": "DWUMIhO-ZiLGXqN-PbMTXLd",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151054
+                        }
+                    ]
+                },
+                {
+                    "id": "DWUMIhO-RSmACtA",
+                    "elements": [
+                        {
+                            "id": "DWUMIhO-RSmACtA-qWLGsgM",
+                            "component": "heading3-element",
+                            "value": { "textContent": "WED" },
+                            "lastEdited": 1745151054
+                        },
+                        {
+                            "id": "DWUMIhO-RSmACtA-yPHJZKM",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151054
+                        },
+                        {
+                            "id": "DWUMIhO-RSmACtA-NhvOvIk",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151054
+                        },
+                        {
+                            "id": "DWUMIhO-RSmACtA-vjLxhJh",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151054
+                        }
+                    ]
+                },
+                {
+                    "id": "DWUMIhO-leNicSN",
+                    "elements": [
+                        {
+                            "id": "DWUMIhO-leNicSN-FuWFNSB",
+                            "component": "heading3-element",
+                            "value": { "textContent": "THU" },
+                            "lastEdited": 1745151054
+                        },
+                        {
+                            "id": "DWUMIhO-leNicSN-VDMCuBM",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151054
+                        },
+                        {
+                            "id": "DWUMIhO-leNicSN-jNPGdLx",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151054
+                        },
+                        {
+                            "id": "DWUMIhO-leNicSN-HTarmGn",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151054
+                        }
+                    ]
+                }
+            ],
+            "id": "DWUMIhO",
+            "component": "columns-element",
+            "lastEdited": 1745151054
+        },
+        { "value": { "textContent": "" }, "id": "VjPautU", "component": "text-element", "lastEdited": 1745151064 },
+        {
+            "value": [
+                {
+                    "id": "NyreiOD-rOnRZHX",
+                    "elements": [
+                        {
+                            "id": "NyreiOD-rOnRZHX-VrqeSPM",
+                            "component": "heading3-element",
+                            "value": { "textContent": "FRI" },
+                            "lastEdited": 1745151190
+                        },
+                        {
+                            "id": "NyreiOD-rOnRZHX-FlkwmWL",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151190
+                        },
+                        {
+                            "id": "NyreiOD-rOnRZHX-HTHEJwX",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151190
+                        },
+                        {
+                            "id": "NyreiOD-rOnRZHX-eSqTFuM",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151190
+                        }
+                    ]
+                },
+                {
+                    "id": "NyreiOD-iGxapJU",
+                    "elements": [
+                        {
+                            "id": "NyreiOD-iGxapJU-XshSlCT",
+                            "component": "heading3-element",
+                            "value": { "textContent": "SAT" },
+                            "lastEdited": 1745151190
+                        },
+                        {
+                            "id": "NyreiOD-iGxapJU-FayjtDF",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151190
+                        },
+                        {
+                            "id": "NyreiOD-iGxapJU-DIeqAVe",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151190
+                        },
+                        {
+                            "id": "NyreiOD-iGxapJU-dLxhzaW",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151190
+                        }
+                    ]
+                },
+                {
+                    "id": "NyreiOD-vpnKSSN",
+                    "elements": [
+                        {
+                            "id": "NyreiOD-vpnKSSN-YtJljgM",
+                            "component": "heading3-element",
+                            "value": { "textContent": "SUN" },
+                            "lastEdited": 1745151190
+                        },
+                        {
+                            "id": "NyreiOD-vpnKSSN-iwlGMDs",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151190
+                        },
+                        {
+                            "id": "NyreiOD-vpnKSSN-wxhmzxe",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "todo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151190
+                        },
+                        {
+                            "id": "NyreiOD-vpnKSSN-JATCRmt",
+                            "component": "checkbox-element",
+                            "value": { "textContent": "tydo", "indent": 0, "checked": false, "reminder": null },
+                            "lastEdited": 1745151190
+                        }
+                    ]
+                },
+                { "id": "NyreiOD-IfMBfek", "elements": [] }
+            ],
+            "id": "NyreiOD",
+            "component": "columns-element",
+            "lastEdited": 1745151190
+        },
+        { "value": { "textContent": "" }, "id": "MRucbsX", "component": "text-element", "lastEdited": 1745151191 }
+    ],
+    "name": "Minimal Weekly Todo"
+}

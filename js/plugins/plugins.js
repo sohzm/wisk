@@ -10,6 +10,7 @@ wisk.plugins = {
         'heading4-element',
         'heading5-element',
         'image-element',
+        'video-element',
         'code-element',
         'list-element',
         'numbered-list-element',

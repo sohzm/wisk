@@ -3,10 +3,23 @@ function showMiniDialog(component, title) {
     byQuery('.mini-dialog-body').innerHTML = `<${component}></${component}>`;
     byQuery('.mini-dialog').classList.remove('hidden');
     if (byQuery(component).opened) byQuery(component).opened();
+
+    // Push state to history for back button functionality
+    pushMiniDialogHistory();
 }
 
 function hideMiniDialog() {
-    byQuery('.mini-dialog').classList.add('hidden');
+    const dialog = byQuery('.mini-dialog');
+    if (!dialog.classList.contains('hidden')) {
+        dialog.classList.add('hidden');
+
+        // Only go back if we're not already going back via popstate
+        if (!dialog.dataset.closingViaPopstate) {
+            if (history.state && history.state.miniDialogOpen) {
+                history.back();
+            }
+        }
+    }
 }
 
 function toggleMiniDialogNew(component, title) {
@@ -22,11 +35,14 @@ function toggleMiniDialogNew(component, title) {
             comp.style.display = comp.tagName.toLowerCase() === component.toLowerCase() ? 'block' : 'none';
         });
         dialog.classList.remove('hidden');
+
+        // Push state to history for back button functionality
+        pushMiniDialogHistory();
     } else {
         // If same component is clicked, hide dialog
         const visibleComponent = Array.from(allComponents).find(comp => comp.style.display !== 'none');
         if (visibleComponent && visibleComponent.tagName.toLowerCase() === component.toLowerCase()) {
-            dialog.classList.add('hidden');
+            hideMiniDialog();
         } else {
             // Switch to new component
             titleElement.innerText = title;
@@ -36,6 +52,29 @@ function toggleMiniDialogNew(component, title) {
         }
     }
 }
+
+// Function to push a new state to history when dialog opens
+function pushMiniDialogHistory() {
+    if (!history.state || !history.state.miniDialogOpen) {
+        history.pushState({ miniDialogOpen: true }, '');
+    }
+}
+
+// Handle browser back button / Android back button
+function handleMiniDialogPopstate(event) {
+    const dialog = byQuery('.mini-dialog');
+    if (!dialog.classList.contains('hidden')) {
+        // Mark as closing via popstate to prevent recursive history changes
+        dialog.dataset.closingViaPopstate = 'true';
+        hideMiniDialog();
+        setTimeout(() => {
+            delete dialog.dataset.closingViaPopstate;
+        }, 100);
+    }
+}
+
+// Add popstate event listener
+window.addEventListener('popstate', handleMiniDialogPopstate);
 
 wisk.editor.showMiniDialog = showMiniDialog;
 wisk.editor.hideMiniDialog = hideMiniDialog;
@@ -178,23 +217,23 @@ function initDraggableSheet() {
 
     const style = document.createElement('style');
     style.textContent = `
-      .mini-dialog-sheet-holder {
-        transition: background-color 0.2s;
-      }
-      .mini-dialog-sheet-holder.active {
-        background-color: var(--bg-4);
-      }
-      .mini-dialog-content {
-        will-change: transform;
-      }
-      @media (max-width: 900px) {
         .mini-dialog-sheet-holder {
-          cursor: grab;
+            transition: background-color 0.2s;
         }
         .mini-dialog-sheet-holder.active {
-          cursor: grabbing;
+            background-color: var(--bg-4);
         }
-      }
+        .mini-dialog-content {
+            will-change: transform;
+        }
+        @media (max-width: 900px) {
+            .mini-dialog-sheet-holder {
+                cursor: grab;
+            }
+            .mini-dialog-sheet-holder.active {
+                cursor: grabbing;
+            }
+        }
   `;
     document.head.appendChild(style);
 

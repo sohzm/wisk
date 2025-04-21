@@ -106,6 +106,7 @@ class HomeElement extends LitElement {
             object-fit: cover;
             border-radius: var(--radius);
             background-size: cover;
+            border: 1px solid var(--bg-3);
         }
 
         .template-info h3 {

@@ -664,6 +664,8 @@ wisk.editor.useTemplate = async function (template) {
     }
 
     wisk.theme.setTheme(template.theme);
+    wisk.editor.document.data.elements = template.elements;
+
     await wisk.editor.addConfigChange('document.config.theme', template.theme);
 
     wisk.editor.justUpdates();

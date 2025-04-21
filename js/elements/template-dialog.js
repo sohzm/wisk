@@ -428,7 +428,13 @@ class TemplateDialog extends LitElement {
                                           <p>${this.selectedTemplate.description}</p>
 
                                           <div>
-                                              <h3 style="margin-bottom: var(--gap-2)">Links</h3>
+                                              <h3
+                                                  style="margin-bottom: var(--gap-2); display: ${this.selectedTemplate.links.length > 0
+                                                      ? 'block'
+                                                      : 'none'}"
+                                              >
+                                                  Links
+                                              </h3>
                                               ${this.selectedTemplate.links
                                                   ? html`
                                                         <ul>

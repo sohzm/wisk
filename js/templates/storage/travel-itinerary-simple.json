@@ -4,14 +4,9 @@
     "elements": [
         {
             "id": "abcdxyz",
-            "lastEdited": 1737913512,
+            "lastEdited": 1745155818,
             "component": "main-element",
-            "value": {
-                "backgroundUrl": "",
-                "bannerSize": "small",
-                "emoji": "🌏",
-                "textContent": "Travel Itinerary 🗺️"
-            }
+            "value": { "textContent": "Travel Itinerary 🗺️", "emoji": "🌏", "backgroundUrl": null, "bannerSize": "small" }
         },
         {
             "id": "zrZFeSI",
@@ -21,377 +16,175 @@
                 "textContent": "Planning a trip can be overwhelming, but this Travel Itinerary makes it easy to stay organized and stress-free! Designed to be used globally, this helps you plan every detail of your travel, from flights and accommodation to daily activities and expenses."
             }
         },
-        {
-            "id": "sCWtSxY",
-            "lastEdited": 1737913599,
-            "component": "text-element",
-            "value": {
-                "textContent": ""
-            }
-        },
-        {
-            "id": "tTyEqbl",
-            "lastEdited": 1737913605,
-            "component": "heading1-element",
-            "value": {
-                "textContent": "Trip Overview"
-            }
-        },
+        { "id": "sCWtSxY", "lastEdited": 1737913599, "component": "text-element", "value": { "textContent": "" } },
+        { "id": "tTyEqbl", "lastEdited": 1737913605, "component": "heading1-element", "value": { "textContent": "Trip Overview" } },
         {
             "id": "XXaWtOo",
             "lastEdited": 1737913629,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Destination(s):"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Destination(s):" }
         },
         {
             "id": "WHyKpge",
             "lastEdited": 1737913634,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Travel Dates:"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Travel Dates:" }
         },
         {
             "id": "KPxPbey",
             "lastEdited": 1737913637,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Purpose of Travel: (Leisure, Business, Adventure, etc.)"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Purpose of Travel: (Leisure, Business, Adventure, etc.)" }
         },
         {
             "id": "EAOPHzK",
             "lastEdited": 1737913641,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Travel Companion(s):"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Travel Companion(s):" }
         },
-        {
-            "id": "kWHxbcY",
-            "lastEdited": 1737913667,
-            "component": "text-element",
-            "value": {
-                "textContent": ""
-            }
-        },
-        {
-            "id": "suzfyDe",
-            "lastEdited": 1737913674,
-            "component": "heading2-element",
-            "value": {
-                "textContent": "Pre-Travel Checklist ✈️"
-            }
-        },
+        { "id": "kWHxbcY", "lastEdited": 1737913667, "component": "text-element", "value": { "textContent": "" } },
+        { "id": "suzfyDe", "lastEdited": 1737913674, "component": "heading2-element", "value": { "textContent": "Pre-Travel Checklist ✈️" } },
         {
             "id": "HdwZyEZ",
             "lastEdited": 1737913760,
             "component": "checkbox-element",
-            "value": {
-                "checked": false,
-                "indent": 0,
-                "references": [],
-                "textContent": "<b>Passport/Visa</b>"
-            }
+            "value": { "checked": false, "indent": 0, "references": [], "textContent": "<b>Passport/Visa</b>" }
         },
         {
             "id": "NMgSvfA",
             "lastEdited": 1737913761,
             "component": "checkbox-element",
-            "value": {
-                "checked": false,
-                "indent": 0,
-                "references": [],
-                "textContent": "<b>Travel Insurance</b>"
-            }
+            "value": { "checked": false, "indent": 0, "references": [], "textContent": "<b>Travel Insurance</b>" }
         },
         {
             "id": "zRBWAtm",
             "lastEdited": 1737913765,
             "component": "checkbox-element",
-            "value": {
-                "checked": false,
-                "indent": 0,
-                "references": [],
-                "textContent": "<b>Accommodation Bookings</b>"
-            }
+            "value": { "checked": false, "indent": 0, "references": [], "textContent": "<b>Accommodation Bookings</b>" }
         },
         {
             "id": "TrYGaRr",
             "lastEdited": 1737913767,
             "component": "checkbox-element",
-            "value": {
-                "checked": false,
-                "indent": 0,
-                "references": [],
-                "textContent": "<b>Vaccinations/Health Requirements</b>"
-            }
+            "value": { "checked": false, "indent": 0, "references": [], "textContent": "<b>Vaccinations/Health Requirements</b>" }
         },
         {
             "id": "bbpYbpW",
             "lastEdited": 1737913769,
             "component": "checkbox-element",
-            "value": {
-                "checked": false,
-                "indent": 0,
-                "references": [],
-                "textContent": "<b>Local Currency/Credit Cards</b>"
-            }
+            "value": { "checked": false, "indent": 0, "references": [], "textContent": "<b>Local Currency/Credit Cards</b>" }
         },
         {
             "id": "lbJkpdu",
             "lastEdited": 1737913779,
             "component": "checkbox-element",
-            "value": {
-                "checked": false,
-                "indent": 0,
-                "references": [],
-                "textContent": "<b>Flight/Train Tickets</b>"
-            }
+            "value": { "checked": false, "indent": 0, "references": [], "textContent": "<b>Flight/Train Tickets</b>" }
         },
         {
             "id": "tkDspOW",
             "lastEdited": 1737916092,
             "component": "checkbox-element",
-            "value": {
-                "checked": false,
-                "indent": 0,
-                "references": [],
-                "textContent": "<b>Packing List</b>"
-            }
+            "value": { "checked": false, "indent": 0, "references": [], "textContent": "<b>Packing List</b>" }
         },
-        {
-            "id": "Kdjbmnx",
-            "lastEdited": 1737916137,
-            "component": "text-element",
-            "value": {
-                "textContent": ""
-            }
-        },
-        {
-            "id": "UaHgHqn",
-            "lastEdited": 1737916135,
-            "component": "heading3-element",
-            "value": {
-                "textContent": "Day-by-Day Itinerary 📅"
-            }
-        },
-        {
-            "id": "XclqIsv",
-            "lastEdited": 1737916157,
-            "component": "text-element",
-            "value": {
-                "textContent": "<b>Day 1: [Date]</b>"
-            }
-        },
+        { "id": "Kdjbmnx", "lastEdited": 1737916137, "component": "text-element", "value": { "textContent": "" } },
+        { "id": "UaHgHqn", "lastEdited": 1737916135, "component": "heading3-element", "value": { "textContent": "Day-by-Day Itinerary 📅" } },
+        { "id": "XclqIsv", "lastEdited": 1737916157, "component": "text-element", "value": { "textContent": "<b>Day 1: [Date]</b>" } },
         {
             "id": "AKJnkWp",
             "lastEdited": 1737916244,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "<b>Arrival</b>: Time, Location, Transport Details"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "<b>Arrival</b>: Time, Location, Transport Details" }
         },
         {
             "id": "jhGCZwh",
             "lastEdited": 1737916253,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "<b>Accommodation Check-In: </b>Name, Address, Contact"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "<b>Accommodation Check-In: </b>Name, Address, Contact" }
         },
         {
             "id": "ybjuSbo",
             "lastEdited": 1737916266,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "<b>Activities Planned:</b>"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "<b>Activities Planned:</b>" }
         },
         {
             "id": "mGHJhQy",
             "lastEdited": 1737916279,
             "component": "list-element",
-            "value": {
-                "indent": 1,
-                "references": [],
-                "textContent": "<b></b>Morning"
-            }
+            "value": { "indent": 1, "references": [], "textContent": "<b></b>Morning" }
         },
         {
             "id": "wkxCsSt",
             "lastEdited": 1737916281,
             "component": "list-element",
-            "value": {
-                "indent": 1,
-                "references": [],
-                "textContent": "Afternoon"
-            }
+            "value": { "indent": 1, "references": [], "textContent": "Afternoon" }
         },
         {
             "id": "KbLemLp",
             "lastEdited": 1737916284,
             "component": "list-element",
-            "value": {
-                "indent": 1,
-                "references": [],
-                "textContent": "Evening"
-            }
+            "value": { "indent": 1, "references": [], "textContent": "Evening" }
         },
         {
             "id": "mLSaSbG",
             "lastEdited": 1737916305,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "<b>Meals:</b> Suggestions/Reservations"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "<b>Meals:</b> Suggestions/Reservations" }
         },
         {
             "id": "PeEeBZJ",
             "lastEdited": 1737916307,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Notes:"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Notes:" }
         },
-        {
-            "id": "CfcGKjL",
-            "lastEdited": 1737916320,
-            "component": "text-element",
-            "value": {
-                "textContent": ""
-            }
-        },
-        {
-            "id": "JiUCxZj",
-            "lastEdited": 1737916329,
-            "component": "heading3-element",
-            "value": {
-                "textContent": "Local Contacts 📞"
-            }
-        },
+        { "id": "CfcGKjL", "lastEdited": 1737916320, "component": "text-element", "value": { "textContent": "" } },
+        { "id": "JiUCxZj", "lastEdited": 1737916329, "component": "heading3-element", "value": { "textContent": "Local Contacts 📞" } },
         {
             "id": "MXdnrDA",
             "lastEdited": 1737916362,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Tour Guides/Local Contacts:"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Tour Guides/Local Contacts:" }
         },
         {
             "id": "DtCaCcP",
             "lastEdited": 1737916365,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Emergency Services:"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Emergency Services:" }
         },
         {
             "id": "zafpinN",
             "lastEdited": 1737916371,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Embassy/Consulate:"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Embassy/Consulate:" }
         },
-        {
-            "id": "iwuaoJJ",
-            "lastEdited": 1737916382,
-            "component": "text-element",
-            "value": {
-                "textContent": ""
-            }
-        },
-        {
-            "id": "AUrDvFO",
-            "lastEdited": 1737916387,
-            "component": "heading3-element",
-            "value": {
-                "textContent": "Key Locations to Explore 🏞️"
-            }
-        },
+        { "id": "iwuaoJJ", "lastEdited": 1737916382, "component": "text-element", "value": { "textContent": "" } },
+        { "id": "AUrDvFO", "lastEdited": 1737916387, "component": "heading3-element", "value": { "textContent": "Key Locations to Explore 🏞️" } },
         {
             "id": "AtjHMzZ",
             "lastEdited": 1737916408,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Landmarks:"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Landmarks:" }
         },
         {
             "id": "vrxBwSm",
             "lastEdited": 1737916411,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Restaurants:"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Restaurants:" }
         },
         {
             "id": "rGWFtUN",
             "lastEdited": 1737916413,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Markets/Shopping Areas:"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Markets/Shopping Areas:" }
         },
         {
             "id": "ILaWAmQ",
             "lastEdited": 1737916419,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Events/Festivals (if applicable):"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Events/Festivals (if applicable):" }
         },
-        {
-            "id": "BREKSeJ",
-            "lastEdited": 1737916420,
-            "component": "text-element",
-            "value": {
-                "textContent": ""
-            }
-        },
-        {
-            "id": "JwWGfqx",
-            "lastEdited": 1737916436,
-            "component": "heading3-element",
-            "value": {
-                "textContent": "Travel Expenses Tracker 💰"
-            }
-        },
+        { "id": "BREKSeJ", "lastEdited": 1737916420, "component": "text-element", "value": { "textContent": "" } },
+        { "id": "JwWGfqx", "lastEdited": 1737916436, "component": "heading3-element", "value": { "textContent": "Travel Expenses Tracker 💰" } },
         {
             "id": "LOhrqpB",
             "lastEdited": 1737916533,
@@ -409,76 +202,34 @@
                 }
             }
         },
-        {
-            "id": "FYSkvxz",
-            "lastEdited": 1737916540,
-            "component": "text-element",
-            "value": {
-                "textContent": ""
-            }
-        },
-        {
-            "id": "JyWseTB",
-            "lastEdited": 1737916559,
-            "component": "heading3-element",
-            "value": {
-                "textContent": "Post-Travel Notes ✍️"
-            }
-        },
+        { "id": "FYSkvxz", "lastEdited": 1737916540, "component": "text-element", "value": { "textContent": "" } },
+        { "id": "JyWseTB", "lastEdited": 1737916559, "component": "heading3-element", "value": { "textContent": "Post-Travel Notes ✍️" } },
         {
             "id": "psPnMuQ",
             "lastEdited": 1737916573,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Challenges:"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Challenges:" }
         },
         {
             "id": "GmXpLmL",
             "lastEdited": 1737916575,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Highlights:"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Highlights:" }
         },
         {
             "id": "hQehpbK",
             "lastEdited": 1737916578,
             "component": "list-element",
-            "value": {
-                "indent": 0,
-                "references": [],
-                "textContent": "Tips for Future Visits:"
-            }
+            "value": { "indent": 0, "references": [], "textContent": "Tips for Future Visits:" }
         },
-        {
-            "id": "ljKilkW",
-            "lastEdited": 1737916580,
-            "component": "text-element",
-            "value": {
-                "textContent": ""
-            }
-        },
+        { "id": "ljKilkW", "lastEdited": 1737916580, "component": "text-element", "value": { "textContent": "" } },
         {
             "id": "aEjYfaA",
             "lastEdited": 1737916612,
             "component": "quote-element",
-            "value": {
-                "textContent": "<b>life is either a daring adventure, or nothing</b>"
-            }
+            "value": { "textContent": "<b>life is either a daring adventure, or nothing</b>" }
         },
-        {
-            "id": "knUDuSS",
-            "lastEdited": 1737916558,
-            "component": "text-element",
-            "value": {
-                "textContent": ""
-            }
-        }
+        { "id": "knUDuSS", "lastEdited": 1737916558, "component": "text-element", "value": { "textContent": "" } }
     ],
-    "name": "🌏 Travel Itinerary 🗺️"
+    "name": "Travel Itinerary 🗺️"
 }

@@ -2,6 +2,8 @@
 
     - tweaks tool bug fixes
     - screensaver plugin
+    - added video element
+    - bug fixes
 
 - Apr 19
 

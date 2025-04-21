@@ -6,7 +6,7 @@
             "by": "Wisk Team",
             "link": "https://wisk.cc",
             "path": "blog-simple",
-            "images": ["desktop1.png"],
+            "images": [],
             "links": [
                 {
                     "text": "Banner photo by Codioful (formerly Gradienta)",
@@ -27,6 +27,15 @@
                     "url": "https://www.pexels.com/photo/black-toy-car-on-world-map-paper-21014/"
                 }
             ]
+        },
+        {
+            "name": "Minimal Weekly Todo",
+            "description": "A simple weekly todo list template",
+            "by": "Wisk Team",
+            "link": "https://wisk.cc",
+            "path": "minimal-weekly-todo",
+            "images": [],
+            "links": []
         }
     ]
 }
