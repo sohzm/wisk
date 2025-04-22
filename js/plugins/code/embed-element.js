@@ -185,14 +185,13 @@ class EmbedElement extends HTMLElement {
                 font-family: var(--font);
             }
             .outer {
-                border: 1px solid var(--border-1);
                 border-radius: var(--radius-large);
                 overflow: hidden;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                border: 1px solid var(--bg-3);
             }
             .browser-toolbar {
                 padding: 8px 12px;
-                border-bottom: 1px solid var(--border-1);
+                background-color: var(--bg-2);
                 display: flex;
                 align-items: center;
                 gap: 8px;
@@ -225,8 +224,8 @@ class EmbedElement extends HTMLElement {
             }
             .address-bar {
                 background-color: var(--bg-1);
-                border: 1px solid var(--bg-3);
                 border-radius: var(--radius);
+                border: 1px solid var(--bg-3);
                 padding: 4px 8px;
                 flex-grow: 1;
                 display: flex;

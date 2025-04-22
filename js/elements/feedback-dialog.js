@@ -236,7 +236,7 @@ class FeedbackDialog extends LitElement {
                 logs: '', // TODO - Implement log attachment -- for that clear the logs that have personal information then we add it :)
             };
 
-            const response = await fetch(wisk.editor.backendUrl + '/v2/feedback', {
+            const response = await fetch(wisk.editor.backendUrl + '/v1/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -246,6 +246,7 @@ class FeedbackDialog extends LitElement {
 
             if (!response.ok) {
                 wisk.utils.showToast('Failed to submit feedback. Please try again later.', 3000);
+                return;
             }
 
             this.rating = 0;

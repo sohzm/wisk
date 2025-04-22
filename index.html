@@ -233,7 +233,9 @@
             <div class="update-box-bg"></div>
             <div class="update-box-dialog">
                 <p class="update-box-title">New Update Available!</p>
-                <button class="update-box-confirm" onclick="window.updateWiskPWA()">Update Now</button>
+                <button class="update-box-confirm" onclick="(async () => { await window.clearWiskPWA(); window.updateWiskPWA(); })()">
+                    Update Now
+                </button>
                 <button class="update-box-cancel" onclick="document.querySelector('.update-box').style.display = 'none'">Close</button>
             </div>
         </div>
@@ -344,6 +346,7 @@
                     return new Promise((resolve, reject) => {
                         const messageListener = event => {
                             if (event.data?.type === 'CACHES_CLEARED') {
+                                wisk.utils.showToast('Caches cleared', 3000);
                                 navigator.serviceWorker.removeEventListener('message', messageListener);
                                 if (event.data.success) {
                                     resolve(true);

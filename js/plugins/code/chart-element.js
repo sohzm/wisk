@@ -236,15 +236,11 @@ class ChartElement extends LitElement {
             this._isLoading = true;
             this.requestUpdate();
 
-            var user = await document.querySelector('auth-component').getUserInfo();
-            var token = user.token;
-
             const aiPrompt = this.shadowRoot.querySelector('.ai-input').value;
 
-            var response = await fetch(wisk.editor.backendUrl + '/v2/plugins/chartjs', {
+            var response = await fetch(wisk.editor.backendUrl + '/v1/chart', {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -261,7 +257,8 @@ class ChartElement extends LitElement {
                 return;
             }
 
-            var chartContent = await response.text();
+            var chartContent = await response.json();
+            chartContent = chartContent.response;
 
             let inCodeBlock = false;
             const lines = chartContent.split('\n');

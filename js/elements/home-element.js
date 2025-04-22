@@ -210,6 +210,12 @@ class HomeElement extends LitElement {
             filter: var(--accent-svg);
         }
 
+        .emoji-display {
+            font-size: 18px;
+            line-height: 1;
+            margin-right: var(--gap-1);
+        }
+
         @media (max-width: 768px) {
             .mobhide {
                 display: none;
@@ -441,10 +447,17 @@ class HomeElement extends LitElement {
                 const item = await wisk.db.getItem(keys[i]);
                 console.log('Fetched item:', item);
 
-                // Push the item to files array
+                // Get emoji from first element if available (similar to left-menu)
+                let emoji = null;
+                if (item.data.elements && item.data.elements.length > 0 && item.data.elements[0].value && item.data.elements[0].value.emoji) {
+                    emoji = item.data.elements[0].value.emoji;
+                }
+
+                // Push the item to files array with emoji info
                 this.files.push({
                     id: item.id,
                     name: item.data.config.name,
+                    emoji: emoji,
                 });
             }
 
@@ -734,11 +747,13 @@ class HomeElement extends LitElement {
                             const fileInfo = this.getFileDisplayInfo(file.name);
                             return html`
                                 <a href="/?id=${file.id}" class="file-card">
-                                    <div class="file-content">
-                                        ${fileInfo.hasEmoji
-                                            ? html`<span style="font-size: 18px">${fileInfo.emoji}</span>`
-                                            : html`<img src="/a7/forget/page-1.svg" alt="File" style="width: 18px" />`}
-                                        ${fileInfo.displayName}
+                                    <div class="file-content" style="">
+                                        ${file.emoji
+                                            ? html`<span class="emoji-display">${file.emoji}</span>`
+                                            : fileInfo.hasEmoji
+                                              ? html`<span class="emoji-display">${fileInfo.emoji}</span>`
+                                              : html`<img src="/a7/forget/page-1.svg" alt="File" style="width: 18px" />`}
+                                        <span>${fileInfo.hasEmoji ? fileInfo.displayName : file.name}</span>
                                     </div>
                                     <div class="more-options" @click=${e => this.removeFile(file.id, e)}>
                                         <img src="/a7/forget/trash.svg" alt="More options" style="width: 18px" />

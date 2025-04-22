@@ -40,42 +40,8 @@ class SearchElement extends HTMLElement {
                     // Create a record with the page name if available
                     const pageName = item.data.config && item.data.config.name ? item.data.config.name : 'Untitled Page';
 
-                    // Search through all elements with textContent
-                    for (const element of item.data.elements) {
-                        if (element.value && element.value.textContent) {
-                            // Create a temporary div to parse HTML to text
-                            const tempDiv = document.createElement('div');
-                            tempDiv.innerHTML = element.value.textContent;
-                            const plainText = tempDiv.innerText || tempDiv.textContent;
-
-                            // Check if the query is found in the plain text
-                            const lowerText = plainText.toLowerCase();
-                            if (lowerText.includes(query)) {
-                                // Find the position of the match
-                                const matchIndex = lowerText.indexOf(query);
-
-                                // Extract a snippet around the match
-                                const startPos = Math.max(0, matchIndex - 30);
-                                const endPos = Math.min(plainText.length, matchIndex + query.length + 30);
-                                let snippet = plainText.substring(startPos, endPos);
-
-                                // Add ellipsis if we're not at the beginning/end
-                                if (startPos > 0) snippet = '...' + snippet;
-                                if (endPos < plainText.length) snippet += '...';
-
-                                // Create a result object
-                                results.push({
-                                    id: key,
-                                    pageName: pageName,
-                                    elementId: element.id,
-                                    snippet: snippet,
-                                    matchStart: matchIndex - startPos + (startPos > 0 ? 3 : 0),
-                                    matchLength: query.length,
-                                    component: element.component,
-                                });
-                            }
-                        }
-                    }
+                    // Search through all elements recursively
+                    this.searchElementsRecursive(item.data.elements, query, key, pageName, results);
                 }
             } catch (error) {
                 console.error(`Error searching item ${key}:`, error);
@@ -83,6 +49,56 @@ class SearchElement extends HTMLElement {
         }
 
         return results;
+    }
+
+    // Recursive function to search through elements, including nested ones in columns
+    searchElementsRecursive(elements, query, pageId, pageName, results) {
+        for (const element of elements) {
+            // Check if this is a column element with nested elements
+            if (element.component === 'columns-element' && Array.isArray(element.value)) {
+                // Loop through each column
+                for (const column of element.value) {
+                    if (column.elements && Array.isArray(column.elements)) {
+                        // Search through elements in this column
+                        this.searchElementsRecursive(column.elements, query, pageId, pageName, results);
+                    }
+                }
+            }
+            // Check if the element has text content to search
+            else if (element.value && element.value.textContent) {
+                // Create a temporary div to parse HTML to text
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = element.value.textContent;
+                const plainText = tempDiv.innerText || tempDiv.textContent;
+
+                // Check if the query is found in the plain text
+                const lowerText = plainText.toLowerCase();
+                if (lowerText.includes(query)) {
+                    // Find the position of the match
+                    const matchIndex = lowerText.indexOf(query);
+
+                    // Extract a snippet around the match
+                    const startPos = Math.max(0, matchIndex - 30);
+                    const endPos = Math.min(plainText.length, matchIndex + query.length + 30);
+                    let snippet = plainText.substring(startPos, endPos);
+
+                    // Add ellipsis if we're not at the beginning/end
+                    if (startPos > 0) snippet = '...' + snippet;
+                    if (endPos < plainText.length) snippet += '...';
+
+                    // Create a result object
+                    results.push({
+                        id: pageId,
+                        pageName: pageName,
+                        elementId: element.id,
+                        snippet: snippet,
+                        matchStart: matchIndex - startPos + (startPos > 0 ? 3 : 0),
+                        matchLength: query.length,
+                        component: element.component,
+                    });
+                }
+            }
+        }
     }
 
     navigateToResult(id) {
@@ -281,11 +297,23 @@ class SearchElement extends HTMLElement {
         const componentMap = {
             'main-element': 'Title',
             'text-element': 'Text',
+            'heading1-element': 'Heading 1',
+            'heading2-element': 'Heading 2',
+            'heading3-element': 'Heading 3',
+            'heading4-element': 'Heading 4',
+            'heading5-element': 'Heading 5',
             'image-element': 'Image',
+            'video-element': 'Video',
             'code-element': 'Code',
-            'embed-element': 'Embed',
             'list-element': 'List',
+            'numbered-list-element': 'Numbered List',
+            'checkbox-element': 'Checkbox',
+            'quote-element': 'Quote',
+            'callout-element': 'Callout',
+            'divider-element': 'Divider',
+            'columns-element': 'Columns',
             'table-element': 'Table',
+            'embed-element': 'Embed',
         };
 
         return componentMap[componentType] || componentType;

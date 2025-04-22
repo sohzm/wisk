@@ -75,6 +75,7 @@ const CORE_ASSETS = [
     '/a7/forget/home.svg',
     '/a7/forget/italics.svg',
     '/a7/forget/layouts.svg',
+    '/a7/forget/layout-2.svg',
     '/a7/forget/link.svg',
     '/a7/forget/list.svg',
     '/a7/forget/marker-icon.png',

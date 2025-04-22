@@ -1,3 +1,13 @@
+- Apr 22
+
+    - nested pages
+    - chart, latex, mermaid ai works
+    - quality of life improvements and bug fixes
+
+- Apr 21
+
+    - bedrotting
+
 - Apr 20
 
     - tweaks tool bug fixes

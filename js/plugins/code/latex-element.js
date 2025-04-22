@@ -261,15 +261,11 @@ class LatexElement extends LitElement {
             this._isLoading = true;
             this.requestUpdate();
 
-            var user = await document.querySelector('auth-component').getUserInfo();
-            var token = user.token;
-
             const aiPrompt = this.shadowRoot.querySelector('.ai-input').value;
 
-            const response = await fetch(wisk.editor.backendUrl + '/v2/plugins/latex', {
+            const response = await fetch(wisk.editor.backendUrl + '/v1/latex', {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -285,7 +281,8 @@ class LatexElement extends LitElement {
                 return;
             }
 
-            var latexContent = await response.text();
+            var latexContent = await response.json();
+            var latexContent = latexContent.response;
 
             let inCodeBlock = false;
             const lines = latexContent.split('\n');

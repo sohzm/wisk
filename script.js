@@ -52,9 +52,7 @@ async function init() {
 }
 
 async function initScript() {
-    // var u = await document.querySelector('auth-component').getUserInfo();
     if (getURLParam('id') == 'home') {
-        // add <home-element> in #editor
         document.querySelector('#last-space').remove();
         const editor = document.querySelector('#editor');
         const homeElement = document.createElement('home-element');
@@ -62,7 +60,10 @@ async function initScript() {
         return;
     }
     if (getURLParam('id') == null || getURLParam('id') == '') {
-        var id = ('o' + Date.now() + Math.random().toString(36).substring(2, 22)).toUpperCase();
+        var id = Math.random().toString(36).substring(2, 12).toUpperCase();
+        if (getURLParam('parent_id') != null) {
+            id = getURLParam('parent_id') + '.' + id;
+        }
 
         console.log('No ID found in URL, generating new ID:', id, getURLParam('id'));
 
@@ -128,18 +129,6 @@ async function initScript() {
 
     init();
 }
-
-var wasSignedOut = false;
-
-var firstTime = true;
-window.onSignIn = function () {
-    //     if (firstTime) {
-    //         firstTime = false;
-    //     }
-    //     if (wasSignedOut) {
-    //         window.location.href = '/';
-    //     }
-};
 
 initScript();
 

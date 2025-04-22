@@ -366,15 +366,11 @@ class MermaidElement extends LitElement {
             this._isLoading = true;
             this.requestUpdate();
 
-            var user = await document.querySelector('auth-component').getUserInfo();
-            var token = user.token;
-
             const aiPrompt = this.shadowRoot.querySelector('.ai-input').value;
 
-            var response = await fetch(wisk.editor.backendUrl + '/v2/plugins/mermaid', {
+            var response = await fetch(wisk.editor.backendUrl + '/v1/mermaid', {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -390,7 +386,8 @@ class MermaidElement extends LitElement {
                 return;
             }
 
-            var mermaidContent = await response.text();
+            var mermaidContent = await response.json();
+            var mermaidContent = mermaidContent.response;
 
             let inCodeBlock = false;
             const lines = mermaidContent.split('\n');
