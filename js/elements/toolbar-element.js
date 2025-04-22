@@ -1315,6 +1315,7 @@ class ToolbarElement extends LitElement {
                                         <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-vi')}>Vietnamese</button>
                                         <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-th')}>Thai</button>
                                         <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-hi')}>Hindi</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-mr')}>Marathi</button>
                                         <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ar')}>Arabic</button>
                                         <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ru')}>Russian</button>
                                     </div>
