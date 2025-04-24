@@ -7,7 +7,6 @@ A plugin-based document editor built with vanilla JavaScript and Web Components.
 ## Quick Links
 
 - **Try Wisk**: Start using Wisk immediately at [app.wisk.cc](https://app.wisk.cc)
-- **Documentation**: Full documentation available at [wisk.cc/docs](https://wisk.cc/docs)
 - **Website**: Visit [wisk.cc](https://wisk.cc) for more information
 
 ## Overview

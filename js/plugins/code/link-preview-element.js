@@ -91,7 +91,7 @@ class LinkElement extends HTMLElement {
                 url = 'https://' + url;
             }
 
-            const response = await fetch('https://render.cynthwave.com/fetch-metadata', {
+            const response = await fetch('https://render.wisk.cc/fetch-metadata', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -214,6 +214,14 @@ class MainElement extends BaseTextElement {
 
     resizeImage(src, fileType) {
         return new Promise((resolve, reject) => {
+            if (fileType === 'image/gif') {
+                fetch(src)
+                    .then(res => res.blob())
+                    .then(blob => resolve(blob))
+                    .catch(err => reject(err));
+                return;
+            }
+
             const img = new Image();
             img.onload = () => {
                 let width = img.width;
@@ -251,7 +259,7 @@ class MainElement extends BaseTextElement {
                 this.emojiElement.innerHTML = this.emoji;
                 this.emojiElement.classList.remove('empty-emoji');
             } else {
-                this.emojiElement.innerHTML = '<span class="add-emoji-text">add emoji</span>';
+                this.emojiElement.innerHTML = `<span class="add-emoji-text"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width=20 height=20 fill="currentColor" class="size-5"> <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.536-4.464a.75.75 0 1 0-1.061-1.061 3.5 3.5 0 0 1-4.95 0 .75.75 0 0 0-1.06 1.06 5 5 0 0 0 7.07 0ZM9 8.5c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S7.448 7 8 7s1 .672 1 1.5Zm3 1.5c.552 0 1-.672 1-1.5S12.552 7 12 7s-1 .672-1 1.5.448 1.5 1 1.5Z" clip-rule="evenodd" /> </svg>Add emoji</span>`;
                 this.emojiElement.classList.add('empty-emoji');
             }
         }
@@ -373,10 +381,14 @@ class MainElement extends BaseTextElement {
                 justify-content: center;
             }
             .add-emoji-text {
-                font-size: 16px;
+                font-size: 14px;
                 color: var(--text-3);
                 opacity: 0.8;
                 padding: 4px 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: var(--gap-1);
             }
             .empty-emoji {
                 background: var(--bg-2) !important;
@@ -420,16 +432,19 @@ class MainElement extends BaseTextElement {
                 bottom: 12px;
                 right: 0;
                 padding: var(--padding-w1);
-                background-color: var(--bg-1);
+                background-color: var(--bg-2);
                 color: var(--fg-1);
-                border: 1px solid var(--border-1);
                 border-radius: var(--radius);
                 cursor: pointer;
                 opacity: 0;
                 transition: opacity 0.3s;
+                border: none;
             }
             .header-container:hover #background-upload-button {
                 opacity: 1;
+            }
+            #background-upload-button:hover {
+                background-color: var(--bg-3);
             }
             #background-file {
                 display: none;
@@ -485,9 +500,9 @@ class MainElement extends BaseTextElement {
                 bottom: 12px;
                 right: 94px;
                 padding: var(--padding-w1);
-                background-color: var(--bg-1);
+                background-color: var(--bg-2);
+                border: none;
                 color: var(--fg-1);
-                border: 1px solid var(--border-1);
                 border-radius: var(--radius);
                 cursor: pointer;
                 opacity: 0;
@@ -495,6 +510,10 @@ class MainElement extends BaseTextElement {
             }
             .header-container:hover #banner-size-button {
                 opacity: 1;
+            }
+
+            #banner-size-button:hover {
+                background-color: var(--bg-3);
             }
 
             @media (hover: hover) {
@@ -557,7 +576,7 @@ class MainElement extends BaseTextElement {
                         : ''
                 }
                 <div class="header-content">
-                    <div id="emoji">${this.emoji && this.emoji.trim() ? this.emoji : '<span class="add-emoji-text">add emoji</span>'}</div>
+                    <div id="emoji">${this.emoji && this.emoji.trim() ? this.emoji : '<span class="add-emoji-text"><svg xmlns="http://www.w3.org/2000/svg" width=20 height=20 viewBox="0 0 20 20" fill="currentColor" class="size-5"> <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.536-4.464a.75.75 0 1 0-1.061-1.061 3.5 3.5 0 0 1-4.95 0 .75.75 0 0 0-1.06 1.06 5 5 0 0 0 7.07 0ZM9 8.5c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S7.448 7 8 7s1 .672 1 1.5Zm3 1.5c.552 0 1-.672 1-1.5S12.552 7 12 7s-1 .672-1 1.5.448 1.5 1 1.5Z" clip-rule="evenodd" /> </svg>Add emoji</span>'}</div>
                     ${
                         !wisk.editor.readonly
                             ? `

@@ -263,7 +263,7 @@ class CommandPalette extends HTMLElement {
             #selector-input {
                 width: 100%;
                 outline: none;
-                font-size: 30px;
+                font-size: 20px;
                 font-weight: 500;
             }
             .buttons {
@@ -351,6 +351,9 @@ class CommandPalette extends HTMLElement {
                 font-size: 12px;
                 color: var(--fg-2);
                 user-select: none;
+            }
+            ::placeholder {
+                color: var(--fg-2);
             }
 
             </style>

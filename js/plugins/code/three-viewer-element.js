@@ -10,7 +10,7 @@ var threeReady = new Promise(resolve => {
         // Load Three.js core
         await new Promise(resolve => {
             const threeScript = document.createElement('script');
-            threeScript.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js';
+            threeScript.src = '/a7/cdn/three-0.128.0.min.js';
             threeScript.onload = resolve;
             document.head.appendChild(threeScript);
         });
@@ -18,16 +18,13 @@ var threeReady = new Promise(resolve => {
         // Load OrbitControls from separate module
         await new Promise(resolve => {
             const orbitScript = document.createElement('script');
-            orbitScript.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';
+            orbitScript.src = '/a7/cdn/three-0.128.0-OrbitControls.js';
             orbitScript.onload = resolve;
             document.head.appendChild(orbitScript);
         });
 
         // Load model loaders
-        const loaderScripts = [
-            'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js',
-            'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js',
-        ];
+        const loaderScripts = ['/a7/cdn/three-0.128.0-GLTFLoader.js', '/a7/cdn/three-0.128.0-OBJLoader.js'];
 
         for (const src of loaderScripts) {
             await new Promise(resolve => {

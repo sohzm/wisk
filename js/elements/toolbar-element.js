@@ -33,24 +33,20 @@ class ToolbarElement extends LitElement {
         @media (max-width: 1150px) {
             .toolbar {
                 position: fixed;
-                background: var(--bg-1);
-                border: 1px solid var(--border-1);
-                border-radius: var(--radius-large);
-                border-left: none;
-                border-right: none;
+                background: var(--bg-3);
+                border: none;
                 border-radius: var(--radius-large);
                 padding: var(--padding-4);
                 gap: var(--gap-2);
+                filter: none;
                 z-index: 99;
                 display: none;
-                width: max-content;
                 transform: translateZ(0);
-                border-bottom-left-radius: 0;
-                border-bottom-right-radius: 0;
-                width: 100%;
-                bottom: 0;
+                width: calc(100% - 2 * var(--padding-4));
+                bottom: var(--padding-4);
                 flex-direction: column;
                 height: 90%;
+                height: 500px;
             }
         }
 
@@ -77,10 +73,10 @@ class ToolbarElement extends LitElement {
 
         @media (max-width: 1150px) {
             .toolbar button {
+                min-height: 30px;
+                border-radius: var(--radius);
+                flex: 1;
             }
-        }
-
-        .toolbar div button {
         }
 
         .toolbar button[data-wide] {
@@ -104,6 +100,7 @@ class ToolbarElement extends LitElement {
             filter: var(--themed-svg);
             height: 19px;
         }
+
         .dialog-container {
             top: 100%;
             left: 0;
@@ -113,10 +110,12 @@ class ToolbarElement extends LitElement {
             border-radius: var(--radius);
             display: flex;
         }
+
         @media (max-width: 1150px) {
             .dialog-container {
                 flex: 1;
                 overflow: auto;
+                background: var(--bg-3);
             }
         }
 
@@ -284,6 +283,7 @@ class ToolbarElement extends LitElement {
                 background-color: var(--fg-1);
             }
         }
+
         .command-section {
             display: flex;
             flex-direction: column;
@@ -417,11 +417,11 @@ class ToolbarElement extends LitElement {
             border: 1px solid var(--border-1);
             border-radius: var(--radius);
             cursor: pointer;
-            color: var(--fg-1);
+            color: var(--bg-1);
         }
 
         .preview-buttons button.accept {
-            background: var(--bg-2);
+            background: var(--fg-accent);
             border: 1px solid var(--border-1);
         }
 
@@ -430,15 +430,17 @@ class ToolbarElement extends LitElement {
         }
 
         .preview-buttons button.discard {
-            background: var(--bg-1);
+            background: transparent;
+            color: var(--fg-1);
             border: none;
         }
+
         .od {
             color: var(--fg-1);
             background-color: var(--bg-2);
             border-radius: var(--radius);
             outline: none;
-            border: 1px solid var(--bg-3);
+            border: 2px solid var(--bg-3);
             transition: all 0.2s ease;
             margin: 2px;
             display: flex;
@@ -448,16 +450,18 @@ class ToolbarElement extends LitElement {
             padding: var(--padding-1) var(--padding-3);
             margin-bottom: 16px;
         }
+
         .od:has(input:focus) {
-            border-color: var(--border-2);
+            border-color: var(--fg-accent);
             background-color: var(--bg-1);
-            box-shadow: 0 0 0 2px var(--bg-3);
         }
+
         .save {
             background: var(--bg-2);
             border: 1px solid var(--border-1);
             color: var(--fg-1);
         }
+
         .save:hover {
             background: var(--bg-3);
         }
@@ -479,7 +483,6 @@ class ToolbarElement extends LitElement {
             box-shadow: var(--drop-shadow);
             padding: var(--padding-4);
             z-index: 1002;
-            width: 250px;
             margin-top: calc(var(--padding-2) * -1);
         }
 
@@ -505,7 +508,7 @@ class ToolbarElement extends LitElement {
 
         .color-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: var(--gap-2);
         }
 
@@ -513,7 +516,6 @@ class ToolbarElement extends LitElement {
             width: 30px;
             height: 30px;
             border-radius: var(--radius);
-            border: 1px solid var(--border-1);
             cursor: pointer;
             transition: transform 0.2s;
             position: relative;
@@ -550,12 +552,22 @@ class ToolbarElement extends LitElement {
             .color-option {
                 width: 100%;
                 height: 20px;
-                border: none;
             }
             .color-grid {
-                grid-template-columns: repeat(9, 1fr);
+                grid-template-columns: repeat(8, 1fr);
                 gap: var(--gap-1);
             }
+        }
+
+        @media (max-width: 1150px) {
+            .ai-commands button,
+            .submenu {
+                background: var(--bg-3);
+            }
+        }
+
+        .mob-input {
+            display: none;
         }
 
         @media (max-width: 1150px) {
@@ -564,22 +576,41 @@ class ToolbarElement extends LitElement {
                 margin-left: 21px;
                 display: block;
             }
+            .mobhide {
+                display: none;
+            }
+            .mob-input {
+                display: block;
+                width: 100%;
+                padding: var(--padding-w2);
+                border: 2px solid transparent;
+                border-radius: calc(var(--radius-large) * 10);
+                background: var(--bg-1);
+                color: var(--fg-1);
+            }
+            .mob-input:focus {
+                border-color: var(--fg-accent);
+                background-color: var(--bg-1);
+            }
         }
     `;
 
     static properties = {
-        mode: { type: String },
-        dialogName: { type: String },
-        selectedText: { type: String },
-        elementId: { type: String },
-        elementText: { type: String },
-        visible: { type: Boolean },
+        mode: { type: String, reflect: true },
+        dialogName: { type: String, reflect: true },
+        selectedText: { type: String, reflect: true },
+        elementId: { type: String, reflect: true },
+        elementText: { type: String, reflect: true },
+        visible: { type: Boolean, reflect: true },
         linkUrl: { type: String, state: true },
-        sources: { type: Array },
-        loading: { type: Boolean },
-        previewText: { type: String },
-        citations: { type: Array },
-        showCitationsDialog: { type: Boolean },
+        sources: { type: Array, state: true },
+        loading: { type: Boolean, state: true },
+        previewText: { type: String, state: true },
+        citations: { type: Array, state: true },
+        showCitationsDialog: { type: Boolean, state: true },
+        activeTextColor: { type: String, state: true },
+        activeBackgroundColor: { type: String, state: true },
+        isMobile: { type: Boolean, state: true },
     };
 
     constructor() {
@@ -593,17 +624,10 @@ class ToolbarElement extends LitElement {
         this.linkUrl = '';
         this.sources = [];
         this.loading = false;
-
-        const editor = document.querySelector('.editor');
-        if (editor) {
-            editor.addEventListener('scroll', () => {
-                this.updateToolbarPosition();
-            });
-            window.addEventListener('resize', () => {
-                this.updateToolbarPosition();
-            });
-        }
         this.previewText = '';
+        this.citations = [];
+        this.showCitationsDialog = false;
+        this.isMobile = window.innerWidth < 1150;
 
         this.colorOptions = {
             red: { fg: 'var(--fg-red)', bg: 'var(--bg-red)', name: 'Red' },
@@ -614,21 +638,53 @@ class ToolbarElement extends LitElement {
             cyan: { fg: 'var(--fg-cyan)', bg: 'var(--bg-cyan)', name: 'Cyan' },
             orange: { fg: 'var(--fg-orange)', bg: 'var(--bg-orange)', name: 'Orange' },
             white: { fg: 'var(--fg-1)', bg: 'var(--bg-1)', name: 'Default' },
-            black: { fg: 'var(--fg-black)', bg: 'var(--bg-black)', name: 'Black' },
         };
 
         this.activeTextColor = 'var(--fg-1)';
         this.activeBackgroundColor = 'var(--bg-1)';
+    }
 
-        this.citations = [];
-        this.showCitationsDialog = false;
+    connectedCallback() {
+        super.connectedCallback();
+
+        // Add event listeners when component is connected
+        const editor = document.querySelector('.editor');
+        if (editor) {
+            this._scrollListener = this.updateToolbarPosition.bind(this);
+            editor.addEventListener('scroll', this._scrollListener);
+        }
+
+        this._resizeListener = () => {
+            this.isMobile = window.innerWidth < 1150;
+            this.updateToolbarPosition();
+        };
+        window.addEventListener('resize', this._resizeListener);
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+
+        // Clean up event listeners when component is disconnected
+        const editor = document.querySelector('.editor');
+        if (editor && this._scrollListener) {
+            editor.removeEventListener('scroll', this._scrollListener);
+        }
+
+        if (this._resizeListener) {
+            window.removeEventListener('resize', this._resizeListener);
+        }
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has('visible') && this.visible) {
+            this.updateToolbarPosition();
+        }
     }
 
     async fetchCitations() {
         const citationsManager = document.querySelector('manage-citations');
         if (citationsManager) {
             this.citations = citationsManager.references;
-            this.requestUpdate();
         }
     }
 
@@ -647,16 +703,17 @@ class ToolbarElement extends LitElement {
         this.closeDialog();
     }
 
-    updateToolbarPosition(x, y) {
+    updateToolbarPosition() {
+        if (!this.visible || !this.elementId) return;
+
         const toolbar = this.shadowRoot.querySelector('.toolbar');
-        var screenWidth = window.innerWidth;
-        if (screenWidth < 1150) {
-            toolbar.style.left = 0;
+        if (!toolbar) return;
+
+        if (this.isMobile) {
+            toolbar.style.left = 'var(--padding-4)';
             toolbar.style.top = 'unset';
             return;
         }
-
-        if (!this.visible || !this.elementId) return;
 
         // Helper function to search across shadow roots
         const getElementAcrossShadowRoots = (targetId, root = document) => {
@@ -679,8 +736,6 @@ class ToolbarElement extends LitElement {
 
         if (!element?.getSelectionPosition) {
             this.style.setProperty('--dialog-margin-top--dont-mess-with-this', '40px');
-            toolbar.style.left = `${Math.max(10, Math.min(x - toolbar.offsetWidth / 2, window.innerWidth - toolbar.offsetWidth - 10))}px`;
-            toolbar.style.top = y + 'px';
             return;
         }
 
@@ -708,21 +763,6 @@ class ToolbarElement extends LitElement {
                     })
                 );
                 break;
-            case 'text-color':
-                this.activeTextColor = value;
-                this.dispatchEvent(
-                    new CustomEvent('toolbar-action', {
-                        detail: {
-                            action: 'foreColor',
-                            elementId: this.elementId,
-                            selectedText: this.selectedText,
-                            formatValue: value,
-                        },
-                        bubbles: true,
-                        composed: true,
-                    })
-                );
-                break;
 
             case 'show-citations':
                 this.mode = 'dialog';
@@ -730,34 +770,22 @@ class ToolbarElement extends LitElement {
                 this.fetchCitations();
                 break;
 
-            case 'background-color':
-                this.activeBackgroundColor = value;
-                this.dispatchEvent(
-                    new CustomEvent('toolbar-action', {
-                        detail: {
-                            action: 'backColor',
-                            elementId: this.elementId,
-                            selectedText: this.selectedText,
-                            formatValue: value,
-                        },
-                        bubbles: true,
-                        composed: true,
-                    })
-                );
-                break;
             case 'link':
                 this.mode = 'dialog';
                 this.dialogName = 'link';
                 break;
+
             case 'ai-improve':
                 this.mode = 'dialog';
                 this.dialogName = 'ai-chat';
                 break;
+
             case 'find-source':
                 this.mode = 'dialog';
                 this.dialogName = 'sources';
                 this.fetchSources();
                 break;
+
             case 'make-longer':
             case 'make-shorter':
             case 'fix-spelling-grammar':
@@ -765,24 +793,19 @@ class ToolbarElement extends LitElement {
             case 'summarize':
                 await this.handleAIOperation(action);
                 break;
+
             case 'ai-operation':
                 await this.handleAIOperation(operation);
                 break;
 
             case 'ai-submenu':
                 // Handle submenu operations (translate/tone)
-                if (operation === 'translate') {
-                    // Handle translate submenu
-                    console.log('Show translate submenu');
-                } else if (operation === 'tone') {
-                    // Handle tone submenu
-                    console.log('Show tone submenu');
-                }
                 break;
 
             case 'ai-custom':
                 await this.handleAIOperation(operation);
                 break;
+
             default:
                 this.dispatchEvent(
                     new CustomEvent('toolbar-action', {
@@ -797,75 +820,12 @@ class ToolbarElement extends LitElement {
     handleLinkKeyDown(e) {
         if (e.key === 'Enter') {
             e.preventDefault(); // Prevent newline insertion
-            this.handleLinkSubmit(e);
+            this.handleLinkSubmit();
         }
-    }
-
-    renderColorMenu() {
-        return html`
-            <div class="color-menu">
-                <div class="color-section">
-                    <h3 style="user-select: none;">Text Color</h3>
-                    <div class="color-grid">
-                        ${Object.entries(this.colorOptions).map(
-                            ([key, color]) => html`
-                                <div
-                                    class="color-option ${color.fg === this.activeTextColor ? 'active' : ''}"
-                                    style="background-color: ${color.fg}"
-                                    @click=${() =>
-                                        this.dispatchEvent(
-                                            new CustomEvent('toolbar-action', {
-                                                detail: {
-                                                    action: 'foreColor',
-                                                    elementId: this.elementId,
-                                                    selectedText: this.selectedText,
-                                                    formatValue: color.fg,
-                                                },
-                                                bubbles: true,
-                                                composed: true,
-                                            })
-                                        )}
-                                    title="${color.name}"
-                                ></div>
-                            `
-                        )}
-                    </div>
-                </div>
-                <div class="color-section">
-                    <h3 style="user-select: none;">Background Color</h3>
-                    <div class="color-grid">
-                        ${Object.entries(this.colorOptions).map(
-                            ([key, color]) => html`
-                                <div
-                                    class="color-option ${color.bg === this.activeBackgroundColor ? 'active' : ''}"
-                                    style="background-color: ${color.bg}"
-                                    @click=${() =>
-                                        this.dispatchEvent(
-                                            new CustomEvent('toolbar-action', {
-                                                detail: {
-                                                    action: 'backColor',
-                                                    elementId: this.elementId,
-                                                    selectedText: this.selectedText,
-                                                    formatValue: color.bg,
-                                                },
-                                                bubbles: true,
-                                                composed: true,
-                                            })
-                                        )}
-                                    title="${color.name}"
-                                ></div>
-                            `
-                        )}
-                    </div>
-                </div>
-            </div>
-        `;
     }
 
     async handleAIOperation(operation) {
         this.mode = 'loading';
-
-        this.requestUpdate();
 
         try {
             const response = await fetch(wisk.editor.backendUrl + '/v1/toolbar-ai', {
@@ -895,7 +855,6 @@ class ToolbarElement extends LitElement {
             wisk.utils.showToast('AI operation failed', 3000);
         } finally {
             this.loading = false;
-            this.requestUpdate();
         }
     }
 
@@ -977,21 +936,24 @@ class ToolbarElement extends LitElement {
     closeDialog() {
         this.mode = 'simple';
         this.dialogName = '';
+        this.hideToolbar();
     }
 
     showToolbar(x, y, elementId, selectedText, elementText) {
-        console.log('Showing toolbar', x, y, elementId, selectedText, elementText);
         if (wisk.editor.readonly) {
             return;
         }
+
+        this.shadowRoot.querySelector('.mob-input').value = '';
 
         this.selectedText = selectedText;
         this.elementId = elementId;
         this.elementText = elementText;
         this.visible = true;
 
+        // Run in next frame to ensure DOM is updated
         setTimeout(() => {
-            this.updateToolbarPosition(x, y);
+            this.updateToolbarPosition();
         }, 0);
     }
 
@@ -1088,106 +1050,137 @@ class ToolbarElement extends LitElement {
         }
     }
 
-    render() {
-        return html`
-            ${this.mode === 'dialog' || this.mode === 'preview' ? html`<div class="backdrop" @click=${this.closeDialog}></div>` : ''}
-
-            <div class="toolbar ${this.visible ? 'visible' : ''}" style="">
-                ${window.innerWidth < 1150
-                    ? html`
-                          <div style="display: flex;align-items: center;justify-content: space-between;">
-                              <div>Quick Actions</div>
-                              <button @click=${this.hideToolbar} title="Close">Close</button>
-                          </div>
-                      `
-                    : ``}
-                ${window.innerWidth < 1150 ? html` <div class="selected-text-mob">${this.selectedText}</div> ` : ``}
-
-                <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap; justify-content: space-between;">
-                    <button @click=${() => this.handleToolbarAction('ai-improve')} title="Improve with AI" data-wide>
-                        <img src="/a7/forget/ai.svg" alt="AI" draggable="false" /> Neo AI
-                    </button>
-                    <div class="separator" style="display: ${window.innerWidth < 1150 ? 'none' : 'block'};"></div>
-                    <!--
-                    <button @click=${() => this.handleToolbarAction('find-source')} title="Find Source" data-wide>
-                        <img src="/a7/forget/source.svg" alt="Source" draggable="false" /> Find Source
-                    </button>
-                    <div class="separator" style="display: ${window.innerWidth < 1150 ? 'none' : 'block'};"></div>
-                    -->
-                    <div style="display: flex; width: 100%; flex: 1; justify-content: space-between;">
-                        <button @click=${() => this.handleToolbarAction('bold')} title="Bold">
-                            <img src="/a7/forget/bold.svg" alt="Bold" draggable="false" />
-                        </button>
-                        <button @click=${() => this.handleToolbarAction('italic')} title="Italic">
-                            <img src="/a7/forget/italics.svg" alt="Italic" draggable="false" />
-                        </button>
-                        <button @click=${() => this.handleToolbarAction('underline')} title="Underline">
-                            <img src="/a7/forget/underline.svg" alt="Underline" draggable="false" />
-                        </button>
-                        <button @click=${() => this.handleToolbarAction('strikeThrough')} title="Strikethrough">
-                            <img src="/a7/forget/strikethrough.svg" alt="Strikethrough" draggable="false" />
-                        </button>
-                        <button @click=${() => this.handleToolbarAction('link')} title="Add Link">
-                            <img src="/a7/forget/link.svg" alt="Link" draggable="false" />
-                        </button>
-                        <button @click=${() => this.handleToolbarAction('subscript')} title="Subscript">
-                            <img src="/a7/plugins/toolbar/subscript.svg" alt="Subscript" draggable="false" />
-                        </button>
-                        <button @click=${() => this.handleToolbarAction('superscript')} title="Superscript">
-                            <img src="/a7/plugins/toolbar/superscript.svg" alt="Superscript" draggable="false" />
-                        </button>
-                        <div class="submenu-container">
-                            <button class="submenu-trigger" title="Colors" style="width: auto; padding: 0 5px">
-                                <img src="/a7/plugins/toolbar/color.svg" alt="Colors" draggable="false" />
-                                <img src="/a7/plugins/toolbar/down.svg" alt="Colors" draggable="false" />
-                            </button>
-                            ${this.renderColorMenu()}
-                        </div>
-                    </div>
-                </div>
-                ${this.mode === 'loading' ? html` <div class="loading-overlay"><div class="loading-indicator"></div></div> ` : ''}
-                ${this.mode === 'dialog' || this.mode === 'preview'
-                    ? html`
-                          <div class="dialog-container">
-                              <div style="overflow: auto; width: 100%;">
-                                  ${this.renderDialog()}
-                                  <div></div>
-                              </div>
-                          </div>
-                      `
-                    : ''}
-            </div>
-        `;
-    }
-
     async updateSearch() {
         wisk.utils.showToast('Searching for sources...', 3000);
         this.loading = true;
         this.sources = [];
-        this.requestUpdate();
 
-        var user = await document.getElementById('auth').getUserInfo();
-        var search = this.shadowRoot.getElementById('source-search').value;
+        try {
+            const user = await document.getElementById('auth').getUserInfo();
+            const searchInput = this.shadowRoot.getElementById('source-search');
+            const search = searchInput ? searchInput.value : this.selectedText;
 
-        var response = await fetch(wisk.editor.backendUrl + '/v1/source', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + user.token,
-            },
-            body: JSON.stringify({ ops: 'find-source', selectedText: search }),
-        });
+            const response = await fetch(wisk.editor.backendUrl + '/v1/source', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + user.token,
+                },
+                body: JSON.stringify({ ops: 'find-source', selectedText: search }),
+            });
 
-        if (response.ok) {
-            var data = await response.json();
-            this.sources = data.results;
-        } else {
-            wisk.utils.showToast('Failed to load sources', 3000);
+            if (response.ok) {
+                const data = await response.json();
+                this.sources = data.results;
+            } else {
+                wisk.utils.showToast('Failed to load sources', 3000);
+            }
+        } catch (error) {
+            console.error('Error searching sources:', error);
+            wisk.utils.showToast('Search failed', 3000);
+        } finally {
+            this.loading = false;
         }
+    }
 
-        this.loading = false;
-        this.requestUpdate();
-        console.log(this.sources);
+    renderColorMenu() {
+        return html`
+            <div class="color-menu">
+                <div class="color-section">
+                    <h3 style="user-select: none;">Text Color</h3>
+                    <div class="color-grid">
+                        ${Object.entries(this.colorOptions).map(
+                            ([key, color]) => html`
+                                <div
+                                    class="color-option ${color.fg === this.activeTextColor ? 'active' : ''}"
+                                    style="background-color: ${color.fg}"
+                                    @click=${() => this._handleTextColorClick(color.fg)}
+                                    title="${color.name}"
+                                ></div>
+                            `
+                        )}
+                    </div>
+                </div>
+                <div class="color-section">
+                    <h3 style="user-select: none;">Background Color</h3>
+                    <div class="color-grid">
+                        ${Object.entries(this.colorOptions).map(
+                            ([key, color]) => html`
+                                <div
+                                    class="color-option ${color.bg === this.activeBackgroundColor ? 'active' : ''}"
+                                    style="background-color: ${color.bg}"
+                                    @click=${() => this._handleBackgroundColorClick(color.bg)}
+                                    title="${color.name}"
+                                ></div>
+                            `
+                        )}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // yeah i know this is a mess, but i don't want to refactor it right now
+    renderNonAbsoluteColorMenu() {
+        return html`
+                    <div class="color-grid">
+                        ${Object.entries(this.colorOptions).map(
+                            ([key, color]) => html`
+                                <div
+                                    class="color-option ${color.fg === this.activeTextColor ? 'active' : ''}"
+                                    style="background-color: ${color.fg}"
+                                    @click=${() => this._handleTextColorClick(color.fg)}
+                                    title="${color.name}"
+                                ></div>
+                            `
+                        )}
+                    </div>
+                    <div style="margin-top: var(--gap-2);"></h3>
+                    <div class="color-grid">
+                        ${Object.entries(this.colorOptions).map(
+                            ([key, color]) => html`
+                                <div
+                                    class="color-option ${color.bg === this.activeBackgroundColor ? 'active' : ''}"
+                                    style="background-color: ${color.bg}"
+                                    @click=${() => this._handleBackgroundColorClick(color.bg)}
+                                    title="${color.name}"
+                                ></div>
+                            `
+                        )}
+                    </div>
+        `;
+    }
+
+    _handleTextColorClick(color) {
+        this.activeTextColor = color;
+        this.dispatchEvent(
+            new CustomEvent('toolbar-action', {
+                detail: {
+                    action: 'foreColor',
+                    elementId: this.elementId,
+                    selectedText: this.selectedText,
+                    formatValue: color,
+                },
+                bubbles: true,
+                composed: true,
+            })
+        );
+    }
+
+    _handleBackgroundColorClick(color) {
+        this.activeBackgroundColor = color;
+        this.dispatchEvent(
+            new CustomEvent('toolbar-action', {
+                detail: {
+                    action: 'backColor',
+                    elementId: this.elementId,
+                    selectedText: this.selectedText,
+                    formatValue: color,
+                },
+                bubbles: true,
+                composed: true,
+            })
+        );
     }
 
     renderDialog() {
@@ -1216,8 +1209,7 @@ class ToolbarElement extends LitElement {
                                 ? html`<p style="line-height: 1.5; font-size: 14px">
                                       No citations available. Add citations using the Citations Manager. Or add new using
                                       <span
-                                          style="background: var(--bg-3); padding: 2px 4px; border-radius: 4px; color: var(--fg-1); display: inline-flex
-; align-items: center;"
+                                          style="background: var(--bg-3); padding: 2px 4px; border-radius: 4px; color: var(--fg-1); display: inline-flex; align-items: center;"
                                       >
                                           <img src="/a7/forget/source.svg" alt="Source" style="height: 14px; margin-right: 4px;" /> Find Source</span
                                       >
@@ -1279,7 +1271,6 @@ class ToolbarElement extends LitElement {
                                 type="text"
                                 placeholder="Ask AI anything..."
                                 class="ai-input"
-                                style=""
                                 @keydown=${e => e.key === 'Enter' && this.handleToolbarAction('ai-custom', e.target.value)}
                             />
                         </div>
@@ -1384,7 +1375,7 @@ class ToolbarElement extends LitElement {
                     <div class="dialog">
                         <div style="display: flex; gap: 8px; margin-bottom: 8px; flex-direction: column">
                             <div class="od" style="margin-bottom: 0; flex: 1; padding: var(--padding-1) var(--padding-2)">
-                                <input type="text" placeholder="Search sources" id="source-search" value=${this.selectedText} class="ai-input" />
+                                <input type="text" placeholder="Search sources" id="source-search" .value=${this.selectedText} class="ai-input" />
                                 <button
                                     style="border: none; font-size: 12px; padding: var(--padding-3); background: transparent"
                                     @click=${this.updateSearch}
@@ -1403,33 +1394,106 @@ class ToolbarElement extends LitElement {
                             </button>
                         </div>
                         <div style="overflow: auto; padding: var(--padding-3) 0">
-                            ${this.sources.map(
-                                source => html`
-                                    <div class="source-item">
-                                        <h3 style="user-select: text">${source.title}</h3>
-                                        <p style="user-select: text">${source.content}</p>
-                                        <div
-                                            style="display: flex; flex-direction: row; justify-content: space-between; width: 100%; align-items: center;"
-                                        >
-                                            <a class="url" href=${source.url} target="_blank"
-                                                >${source.url.length > 40 ? source.url.slice(0, 40) + '...' : source.url}</a
-                                            >
-                                            <button
-                                                @click=${() => this.handleCreateReference(source)}
-                                                style="border: 1px solid var(--border-1); color: var(--fg-1)"
-                                            >
-                                                Add Source
-                                            </button>
-                                        </div>
-                                    </div>
-                                `
-                            )}
+                            ${this.loading
+                                ? html`<div style="display: flex; justify-content: center; padding: 20px;">
+                                      <div class="loading-indicator"></div>
+                                  </div>`
+                                : this.sources.map(
+                                      source => html`
+                                          <div class="source-item">
+                                              <h3 style="user-select: text">${source.title}</h3>
+                                              <p style="user-select: text">${source.content}</p>
+                                              <div
+                                                  style="display: flex; flex-direction: row; justify-content: space-between; width: 100%; align-items: center;"
+                                              >
+                                                  <a class="url" href=${source.url} target="_blank"
+                                                      >${source.url.length > 40 ? source.url.slice(0, 40) + '...' : source.url}</a
+                                                  >
+                                                  <button
+                                                      @click=${() => this.handleCreateReference(source)}
+                                                      style="border: 1px solid var(--border-1); color: var(--fg-1)"
+                                                  >
+                                                      Add Source
+                                                  </button>
+                                              </div>
+                                          </div>
+                                      `
+                                  )}
                         </div>
                     </div>
                 `;
             default:
                 return null;
         }
+    }
+
+    render() {
+        return html`
+            ${this.mode === 'dialog' || this.mode === 'preview' ? html`<div class="backdrop" @click=${this.closeDialog}></div>` : ''}
+
+            <div class="toolbar ${this.visible ? 'visible' : ''}">
+                <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap; justify-content: space-between; ">
+                    <button
+                        @click=${() => this.handleToolbarAction('ai-improve')}
+                        title="Improve with AI"
+                        data-wide
+                        style="${this.isMobile ? 'display: none;' : ''}"
+                    >
+                        <img src="/a7/forget/ai.svg" alt="AI" draggable="false" /> Neo AI
+                    </button>
+                    <div class="separator" style="${this.isMobile ? 'display: none;' : ''}"></div>
+
+                    <div style="display: flex; width: 100%; flex: 1; justify-content: space-between; gap: var(--gap-1);">
+                        <button @click=${() => this.handleToolbarAction('bold')} title="Bold">
+                            <img src="/a7/forget/bold.svg" alt="Bold" draggable="false" />
+                        </button>
+                        <button @click=${() => this.handleToolbarAction('italic')} title="Italic">
+                            <img src="/a7/forget/italics.svg" alt="Italic" draggable="false" />
+                        </button>
+                        <button @click=${() => this.handleToolbarAction('underline')} title="Underline">
+                            <img src="/a7/forget/underline.svg" alt="Underline" draggable="false" />
+                        </button>
+                        <button @click=${() => this.handleToolbarAction('strikeThrough')} title="Strikethrough">
+                            <img src="/a7/forget/strikethrough.svg" alt="Strikethrough" draggable="false" />
+                        </button>
+                        <button @click=${() => this.handleToolbarAction('link')} title="Add Link">
+                            <img src="/a7/forget/link.svg" alt="Link" draggable="false" />
+                        </button>
+                        <button @click=${() => this.handleToolbarAction('subscript')} title="Subscript">
+                            <img src="/a7/plugins/toolbar/subscript.svg" alt="Subscript" draggable="false" />
+                        </button>
+                        <button @click=${() => this.handleToolbarAction('superscript')} title="Superscript">
+                            <img src="/a7/plugins/toolbar/superscript.svg" alt="Superscript" draggable="false" />
+                        </button>
+                        <div class="submenu-container mobhide">
+                            <button class="submenu-trigger" title="Colors" style="width: auto; padding: 0 5px">
+                                <img src="/a7/plugins/toolbar/color.svg" alt="Colors" draggable="false" />
+                                <img src="/a7/plugins/toolbar/down.svg" alt="Colors" draggable="false" />
+                            </button>
+                            ${this.renderColorMenu()}
+                        </div>
+                    </div>
+                </div>
+
+                <div style="${this.isMobile ? '' : 'display: none'};">${this.renderNonAbsoluteColorMenu()}</div>
+
+                <input
+                    type="text"
+                    placeholder="Ask AI anything..."
+                    class="mob-input"
+                    @keydown=${e => e.key === 'Enter' && this.handleToolbarAction('ai-custom', e.target.value)}
+                />
+
+                ${this.mode === 'loading' ? html`<div class="loading-overlay"><div class="loading-indicator"></div></div>` : ''}
+                ${this.mode === 'dialog' || this.mode === 'preview'
+                    ? html`
+                          <div class="dialog-container">
+                              <div style="overflow: auto; width: 100%;">${this.renderDialog()}</div>
+                          </div>
+                      `
+                    : ''}
+            </div>
+        `;
     }
 }
 

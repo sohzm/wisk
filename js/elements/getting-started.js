@@ -985,7 +985,11 @@ class GettingStarted extends LitElement {
                         <button class="gs-button" @click=${() => this.showDialog('draft')}>
                             <img src="/a7/forget/gs-draft-anything.svg" alt="" /> Draft anything
                         </button>
-                        <button class="gs-button" @click=${() => document.querySelector('template-dialog').show()}>
+                        <button
+                            class="gs-button"
+                            @click=${() => document.querySelector('template-dialog').show()}
+                            style="display: ${localStorage.getItem('devMode') === 'true' ? 'flex' : 'none'};"
+                        >
                             <img src="/a7/forget/gs-templates.svg" alt="" /> Start with Templates
                         </button>
                         <button class="gs-button" @click=${() => this.showDialog('brainstorm')} style="display: none">

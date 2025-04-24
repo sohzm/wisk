@@ -492,7 +492,11 @@ class LeftMenu extends LitElement {
                     <button class="vert-nav-button" @click=${() => (window.location.href = '/?id=home')}>
                         <img src="/a7/forget/home-2.svg" class="new-img" /> Home
                     </button>
-                    <button class="vert-nav-button" @click=${() => document.querySelector('template-dialog').show()}>
+                    <button
+                        class="vert-nav-button"
+                        @click=${() => document.querySelector('template-dialog').show()}
+                        style="display: ${localStorage.getItem('devMode') === 'true' ? 'flex' : 'none'};"
+                    >
                         <img src="/a7/forget/layout-2.svg" class="new-img" /> Templates
                     </button>
                     <p class="title">My Pages</p>

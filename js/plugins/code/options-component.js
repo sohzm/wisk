@@ -106,6 +106,7 @@ class OptionsComponent extends LitElement {
         }
         label {
             font-size: 18px;
+            cursor: unset;
         }
         .menu-item:hover {
             background-color: var(--bg-2);
