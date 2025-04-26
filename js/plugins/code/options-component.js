@@ -628,6 +628,8 @@ class OptionsComponent extends LitElement {
     }
 
     async handlePluginInstall(plugin) {
+        // TODO check if that plugin is experimental, if yes, show a confirmation dialog
+
         await wisk.plugins.loadPlugin(plugin.name);
         await wisk.editor.addConfigChange('document.config.plugins.add', plugin.name);
         this.requestUpdate();

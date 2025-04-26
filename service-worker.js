@@ -24,6 +24,7 @@ const CORE_ASSETS = [
     '/a7/cdn/three-0.128.0-OrbitControls.js',
     '/a7/cdn/three-0.128.0-GLTFLoader.js',
     '/a7/cdn/three-0.128.0-OBJLoader.js',
+    '/a7/cdn/d3-7.9.0.min.js',
     '/a7/export-templates/academic.jpg',
     '/a7/export-templates/business.jpg',
     '/a7/export-templates/compact.jpg',

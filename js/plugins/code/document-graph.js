@@ -1,5 +1,19 @@
 import { html, css, LitElement } from '/a7/cdn/lit-core-2.7.4.min.js';
 
+var d3Ready = new Promise(resolve => {
+    if (window.d3) {
+        resolve();
+        return;
+    }
+
+    if (!document.querySelector('script[src*="d3"]')) {
+        const d3Script = document.createElement('script');
+        d3Script.src = '/a7/cdn/d3-7.9.0.min.js';
+        d3Script.onload = () => resolve();
+        document.head.appendChild(d3Script);
+    }
+});
+
 class DocumentGraphElement extends LitElement {
     static styles = css`
         * {
@@ -7,6 +21,7 @@ class DocumentGraphElement extends LitElement {
             padding: 0;
             margin: 0;
             user-select: none;
+            transition: none;
         }
         :host {
             display: block;
@@ -91,10 +106,34 @@ class DocumentGraphElement extends LitElement {
         .link.dimmed {
             stroke-opacity: 0.1;
         }
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: var(--fg-1);
+            font-size: 16px;
+        }
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--fg-accent);
+            border-radius: 50%;
+            border-top-color: var(--bg-accent);
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        /* --- END OF STYLES --- */
     `;
 
     static properties = {
         data: { type: Array },
+        isLoading: { type: Boolean },
     };
 
     constructor() {
@@ -118,16 +157,21 @@ class DocumentGraphElement extends LitElement {
             { id: 16, title: 'Turbine Engine Design', terms: ['engineering', 'aerospace', 'turbine', 'mechanical'] },
             { id: 17, title: 'Robotics Automation', terms: ['robotics', 'automation', 'engineering', 'mechanical', 'control'] },
         ];
+        // --- END OF DATA ---
+
+        this.d3 = null; // Initialize d3 holder
+        this.simulation = null;
+        this.currentZoom = null;
+        this.isLoading = true; // Add loading state
 
         this.handleThemeChange = () => {
-            if (this.shadowRoot) {
+            if (this.shadowRoot && this.d3) {
+                // Check if d3 is initialized
                 this.shadowRoot.querySelector('#graph').innerHTML = '';
                 this.renderGraph();
             }
         };
     }
-
-    opened() {}
 
     connectedCallback() {
         super.connectedCallback();
@@ -135,40 +179,48 @@ class DocumentGraphElement extends LitElement {
     }
 
     disconnectedCallback() {
-        super.disconnectedCallback();
+        // Clean up simulation and listeners
+        if (this.simulation) {
+            this.simulation.stop();
+        }
         window.removeEventListener('wisk-theme-changed', this.handleThemeChange);
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
+        super.disconnectedCallback();
     }
 
     async firstUpdated() {
         if (!this.shadowRoot?.querySelector('#graph')) return;
 
-        const d3Module = await import('https://cdn.jsdelivr.net/npm/d3@7/+esm');
-        const { select, forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide, zoom, drag, forceX, forceY, zoomIdentity } = d3Module;
-        this.d3 = {
-            select,
-            forceSimulation,
-            forceLink,
-            forceManyBody,
-            forceCenter,
-            forceCollide,
-            zoom,
-            drag,
-            forceX,
-            forceY,
-            zoomIdentity,
-        };
+        try {
+            await d3Ready;
+            this.d3 = window.d3;
+            this.isLoading = false;
+            this.requestUpdate();
 
-        let resizeTimeout;
-        const ro = new ResizeObserver(() => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                this.shadowRoot.querySelector('#graph').innerHTML = '';
-                this.renderGraph();
-            }, 250);
-        });
-        ro.observe(this);
+            let resizeTimeout;
+            this.resizeObserver = new ResizeObserver(() => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    if (this.shadowRoot?.querySelector('#graph')) {
+                        this.shadowRoot.querySelector('#graph').innerHTML = '';
+                        this.renderGraph();
+                    }
+                }, 250);
+            });
+            this.resizeObserver.observe(this);
 
-        this.renderGraph();
+            this.renderGraph();
+        } catch (error) {
+            console.error('Error loading D3:', error);
+            this.isLoading = false;
+            this.requestUpdate();
+            const graphDiv = this.shadowRoot.querySelector('#graph');
+            if (graphDiv) {
+                graphDiv.innerHTML = '<p style="color: var(--fg-red); padding: 20px;">Error loading D3.js library.</p>';
+            }
+        }
     }
 
     processDataForGraph() {
@@ -201,7 +253,11 @@ class DocumentGraphElement extends LitElement {
         const height = this.offsetHeight;
         const d3 = this.d3;
 
-        if (!d3 || !graphData.nodes.length) return;
+        if (!d3 || !graphData.nodes.length || !width || !height) {
+            console.warn('Cannot render graph: D3 not ready, no data, or zero dimensions.');
+            return;
+        }
+        d3.select(this.shadowRoot.querySelector('#graph')).select('svg').remove();
 
         const svg = d3.select(this.shadowRoot.querySelector('#graph')).append('svg').attr('width', width).attr('height', height);
 
@@ -248,7 +304,13 @@ class DocumentGraphElement extends LitElement {
             .enter()
             .append('g')
             .attr('class', 'node')
-            .call(d3.drag().on('start', this.dragstarted.bind(this)).on('drag', this.dragged.bind(this)).on('end', this.dragended.bind(this)));
+            .call(
+                d3
+                    .drag()
+                    .on('start', (event, d) => this.dragstarted(event, d, simulation))
+                    .on('drag', (event, d) => this.dragged(event, d))
+                    .on('end', (event, d) => this.dragended(event, d, simulation))
+            );
 
         node.append('circle').attr('r', d => 2 + d.terms.length);
 
@@ -257,22 +319,42 @@ class DocumentGraphElement extends LitElement {
             .attr('dy', '.35em')
             .text(d => d.title);
 
+        this.nodeSelection = node;
+        this.linkSelection = link;
+
         node.on('mouseover', (event, d) => {
-            const connectedNodeIds = new Set();
+            const connectedNodeIds = new Set([d.id]);
             link.each(l => {
-                if (l.source.id === d.id) connectedNodeIds.add(l.target.id);
-                if (l.target.id === d.id) connectedNodeIds.add(l.source.id);
+                const sourceNode = typeof l.source === 'object' ? l.source : graphData.nodes.find(n => n.id === l.source);
+                const targetNode = typeof l.target === 'object' ? l.target : graphData.nodes.find(n => n.id === l.target);
+
+                if (sourceNode && targetNode) {
+                    if (sourceNode.id === d.id) connectedNodeIds.add(targetNode.id);
+                    if (targetNode.id === d.id) connectedNodeIds.add(sourceNode.id);
+                }
             });
 
-            node.classed('highlighted', n => n.id === d.id).classed('dimmed', n => n.id !== d.id && !connectedNodeIds.has(n.id));
+            const currentNodes = d3.select(this.shadowRoot).selectAll('.node');
+            const currentLinks = d3.select(this.shadowRoot).selectAll('.link');
 
-            link.classed('highlighted', l => l.source.id === d.id || l.target.id === d.id).classed(
-                'dimmed',
-                l => l.source.id !== d.id && l.target.id !== d.id
-            );
+            currentNodes.classed('highlighted', n => n.id === d.id).classed('dimmed', n => !connectedNodeIds.has(n.id));
+
+            currentLinks
+                .classed('highlighted', l => {
+                    const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
+                    const targetId = typeof l.target === 'object' ? l.target.id : l.target;
+                    return sourceId === d.id || targetId === d.id;
+                })
+                .classed('dimmed', l => {
+                    const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
+                    const targetId = typeof l.target === 'object' ? l.target.id : l.target;
+                    return sourceId !== d.id && targetId !== d.id;
+                });
         }).on('mouseout', () => {
-            node.classed('highlighted', false).classed('dimmed', false);
-            link.classed('highlighted', false).classed('dimmed', false);
+            const currentNodes = d3.select(this.shadowRoot).selectAll('.node');
+            const currentLinks = d3.select(this.shadowRoot).selectAll('.link');
+            currentNodes.classed('highlighted', false).classed('dimmed', false);
+            currentLinks.classed('highlighted', false).classed('dimmed', false);
         });
 
         simulation.on('tick', () => {
@@ -284,38 +366,46 @@ class DocumentGraphElement extends LitElement {
             node.attr('transform', d => `translate(${d.x},${d.y})`);
         });
 
-        this.simulation = simulation;
+        this.simulation = simulation; // Store simulation instance
     }
 
-    dragstarted(event) {
-        if (!event.active) this.simulation.alphaTarget(0.3).restart();
-        event.subject.fx = event.subject.x;
-        event.subject.fy = event.subject.y;
+    dragstarted(event, d, simulation) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x; // Use d directly instead of event.subject
+        d.fy = d.y;
     }
 
-    dragged(event) {
-        event.subject.fx = event.x;
-        event.subject.fy = event.y;
+    dragged(event, d) {
+        d.fx = event.x;
+        d.fy = event.y;
     }
 
-    dragended(event) {
-        if (!event.active) this.simulation.alphaTarget(0);
-        event.subject.fx = null;
-        event.subject.fy = null;
+    dragended(event, d, simulation) {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
     }
 
     resetView() {
+        if (!this.d3 || !this.shadowRoot?.querySelector('svg') || !this.currentZoom || !this.simulation) return;
+
         const svg = this.d3.select(this.shadowRoot.querySelector('svg'));
-        const zoom = this.currentZoom;
-        if (svg && zoom) {
-            svg.transition().duration(750).call(zoom.transform, this.d3.zoomIdentity);
-            this.simulation.alpha(1).restart();
-        }
+        svg.transition().duration(750).call(this.currentZoom.transform, this.d3.zoomIdentity);
+        this.simulation.alpha(0.5).restart();
     }
 
     render() {
         return html`
-            <div id="graph"></div>
+            <div id="graph">
+                ${this.isLoading
+                    ? html`
+                          <div class="loading-container">
+                              <div class="loading-spinner"></div>
+                              <span>Loading D3.js...</span>
+                          </div>
+                      `
+                    : ''}
+            </div>
             <button class="home-btn" @click=${this.resetView} title="Reset View">
                 <img src="/a7/plugins/document-graph/home.svg" alt="Home" width="22" height="22" style="filter: var(--accent-svg)" />
             </button>

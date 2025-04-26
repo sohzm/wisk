@@ -96,6 +96,7 @@ async function initScript() {
                     access: [],
                     public: false,
                     name: 'Untitled',
+                    databaseProps: {},
                 },
                 elements: [
                     {
