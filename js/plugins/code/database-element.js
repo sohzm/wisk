@@ -1028,8 +1028,174 @@ class DatabaseElement extends LitElement {
             align-items: center;
             gap: var(--gap-2);
         }
+
+        .edit-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .edit-dialog {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .edit-dialog-title {
+            margin: 0 0 24px 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .properties-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .property-list-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .property-list-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .property-list-item.removed {
+            opacity: 0.5;
+            background-color: #f8f8f8;
+            cursor: default;
+        }
+
+        .property-name {
+            flex: 1;
+        }
+
+        .property-type {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .property-edit-view {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .edit-back-button {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 16px;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .edit-back-button:hover {
+            color: #333;
+        }
+
+        .property-edit-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .edit-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .edit-form-label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .edit-form-input,
+        .edit-form-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .edit-form-input:focus,
+        .edit-form-select:focus {
+            outline: none;
+            border-color: #2196f3;
+        }
+
+        .edit-dialog-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #eee;
+        }
+
+        .edit-button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .edit-button:hover {
+            background: #f5f5f5;
+        }
+
+        .edit-button-primary {
+            background: #2196f3;
+            color: white;
+            border: none;
+        }
+
+        .edit-button-primary:hover {
+            background: #1976d2;
+        }
+
+        .add-property-button {
+            margin-top: 12px;
+            width: 100%;
+            padding: 12px;
+            background: #f5f5f5;
+            border: 1px dashed #ddd;
+            color: #666;
+        }
+
+        .add-property-button:hover {
+            background: #eeeeee;
+            color: #333;
+        }
     `;
 
+    // TODO add visibleProperties to most (all?) views
     static properties = {
         entries: { type: Array },
         properties: { type: Array },
@@ -1051,6 +1217,7 @@ class DatabaseElement extends LitElement {
 
         showEditPropertiesDialog: { type: Boolean },
         editingProperties: { type: Array },
+        openedProperty: { type: String },
 
         currentSlide: { type: Number },
     };
@@ -1138,20 +1305,21 @@ class DatabaseElement extends LitElement {
             },
         ];
         this.properties = [
-            { name: 'title', type: 'text' },
-            { name: 'status', type: 'select', options: ['To Do', 'In Progress', 'Done'] },
-            { name: 'date', type: 'date' },
+            { name: 'title', type: 'text', emoji: '📝' },
+            { name: 'status', type: 'select', options: ['To Do', 'In Progress', 'Done'], emoji: '🔄' },
+            { name: 'date', type: 'date', emoji: '📅' },
             {
                 name: 'tags',
                 type: 'multi-select',
                 options: ['important', 'frontend', 'backend', 'devops', 'documentation', 'security', 'performance'],
+                emoji: '🏷️',
             },
-            { name: 'completed', type: 'checkbox' },
-            { name: 'url', type: 'url' },
-            { name: 'email', type: 'email' },
-            { name: 'phone', type: 'phone' },
-            { name: 'startDate', type: 'date' },
-            { name: 'endDate', type: 'date' },
+            { name: 'completed', type: 'checkbox', emoji: '✅' },
+            { name: 'url', type: 'url', emoji: '🔗' },
+            { name: 'email', type: 'email', emoji: '📧' },
+            { name: 'phone', type: 'phone', emoji: '📱' },
+            { name: 'startDate', type: 'date', emoji: '🏁' },
+            { name: 'endDate', type: 'date', emoji: '🏁' },
         ];
         this.views = [
             { id: 'default-table', name: 'Default Table', type: 'table', filters: [], sorts: [] },
@@ -1201,6 +1369,7 @@ class DatabaseElement extends LitElement {
 
         this.showEditPropertiesDialog = false;
         this.editingProperties = [];
+        this.openedProperty = null;
 
         this.currentTouchedColumn = null;
 
@@ -1211,6 +1380,7 @@ class DatabaseElement extends LitElement {
 
         this.currentSlide = 0;
     }
+
 
     toggleAddColumnForm() {
         this.showAddColumnForm = !this.showAddColumnForm;
@@ -1681,53 +1851,104 @@ class DatabaseElement extends LitElement {
         if (!this.showEditPropertiesDialog) return '';
 
         return html`
-            <div class="dialog-overlay">
-                <div class="dialog">
-                    <h2>Edit Properties</h2>
-                    ${this.editingProperties.map(
-                        (prop, index) => html`
-                            <div class="property-item ${prop.removed ? 'removed' : ''}">
-                                <input
-                                    type="text"
-                                    .value=${prop.name}
-                                    @input=${e => this.updatePropertyName(index, e.target.value)}
-                                    ?disabled=${prop.removed}
-                                />
-                                <select .value=${prop.type} @change=${e => this.updatePropertyType(index, e.target.value)} ?disabled=${prop.removed}>
-                                    <option value="text">Text</option>
-                                    <option value="number">Number</option>
-                                    <option value="select">Select</option>
-                                    <option value="multi-select">Multi-select</option>
-                                    <option value="date">Date</option>
-                                    <option value="datetime-local">DateTime</option>
-                                    <option value="checkbox">Checkbox</option>
-                                    <option value="url">URL</option>
-                                    <option value="email">Email</option>
-                                    <option value="phone">Phone</option>
-                                </select>
-                                ${(prop.type === 'select' || prop.type === 'multi-select') && !prop.removed
-                                    ? html`
-                                          <input
-                                              type="text"
-                                              placeholder="Options (comma-separated)"
-                                              .value=${prop.options ? prop.options.join(', ') : ''}
-                                              @input=${e => this.updatePropertyOptions(index, e.target.value)}
-                                          />
+            <div class="edit-dialog-overlay">
+                <div class="edit-dialog">
+                    <h2 class="edit-dialog-title">Edit Properties</h2>
+                    ${this.openedProperty === null
+                        ? html`
+                              <div class="properties-list">
+                                  ${this.editingProperties.map(
+                                      (prop, index) => html`
+                                          <div
+                                              class="property-list-item ${prop.removed ? 'removed' : ''}"
+                                              @click=${() => !prop.removed && (this.openedProperty = index)}
+                                          >
+                                              <span class="property-name">${prop.name}</span>
+                                              <span class="property-type">${prop.type}</span>
+                                              ${prop.removed
+                                                  ? html`<button
+                                                        class="edit-button"
+                                                        @click=${e => {
+                                                            e.stopPropagation();
+                                                            this.restoreProperty(index);
+                                                        }}
+                                                    >
+                                                        Restore
+                                                    </button>`
+                                                  : html`<button
+                                                        class="edit-button"
+                                                        @click=${e => {
+                                                            e.stopPropagation();
+                                                            this.removeProperty(index);
+                                                        }}
+                                                    >
+                                                        Remove
+                                                    </button>`}
+                                          </div>
                                       `
-                                    : ''}
-                                ${prop.removed
-                                    ? html` <button @click=${() => this.restoreProperty(index)}>Restore</button> `
-                                    : html` <button @click=${() => this.removeProperty(index)}>Remove</button> `}
-                            </div>
-                        `
-                    )}
-                    <button @click=${this.addNewProperty}>Add New Property</button>
-                    <div class="dialog-buttons">
-                        <div></div>
-                        <div>
-                            <button @click=${this.toggleEditPropertiesDialog}>Cancel</button>
-                            <button @click=${this.saveProperties}>Save</button>
-                        </div>
+                                  )}
+                                  <button class="add-property-button" @click=${this.addNewProperty}>Add New Property</button>
+                              </div>
+                          `
+                        : html`
+                              <div class="property-edit-view">
+                                  <button class="edit-back-button" @click=${() => (this.openedProperty = null)}>&larr; Back to List</button>
+                                  <div class="property-edit-form">
+                                      <div class="edit-form-group">
+                                          <label class="edit-form-label">Emoji</label>
+                                          <button class="emoji-button" @click=${() => document.querySelector('emoji-selector').show(this.id)}>
+                                              open emoji selector
+                                          </button>
+                                          <label class="edit-form-label">Name</label>
+                                          <input
+                                              class="edit-form-input"
+                                              type="text"
+                                              .value=${this.editingProperties[this.openedProperty].name}
+                                              @input=${e => this.updatePropertyName(this.openedProperty, e.target.value)}
+                                          />
+                                      </div>
+                                      <div class="edit-form-group">
+                                          <label class="edit-form-label">Type</label>
+                                          <select
+                                              class="edit-form-select"
+                                              .value=${this.editingProperties[this.openedProperty].type}
+                                              @change=${e => this.updatePropertyType(this.openedProperty, e.target.value)}
+                                          >
+                                              <option value="text">Text</option>
+                                              <option value="number">Number</option>
+                                              <option value="select">Select</option>
+                                              <option value="multi-select">Multi-select</option>
+                                              <option value="date">Date</option>
+                                              <option value="datetime-local">DateTime</option>
+                                              <option value="checkbox">Checkbox</option>
+                                              <option value="url">URL</option>
+                                              <option value="email">Email</option>
+                                              <option value="phone">Phone</option>
+                                          </select>
+                                      </div>
+                                      ${this.editingProperties[this.openedProperty].type === 'select' ||
+                                      this.editingProperties[this.openedProperty].type === 'multi-select'
+                                          ? html`
+                                                <div class="edit-form-group">
+                                                    <label class="edit-form-label">Options</label>
+                                                    <input
+                                                        class="edit-form-input"
+                                                        type="text"
+                                                        placeholder="Options (comma-separated)"
+                                                        .value=${this.editingProperties[this.openedProperty].options
+                                                            ? this.editingProperties[this.openedProperty].options.join(', ')
+                                                            : ''}
+                                                        @input=${e => this.updatePropertyOptions(this.openedProperty, e.target.value)}
+                                                    />
+                                                </div>
+                                            `
+                                          : ''}
+                                  </div>
+                              </div>
+                          `}
+                    <div class="edit-dialog-buttons">
+                        <button class="edit-button" @click=${this.toggleEditPropertiesDialog}>Cancel</button>
+                        <button class="edit-button edit-button-primary" @click=${this.saveProperties}>Save</button>
                     </div>
                 </div>
             </div>
@@ -1735,6 +1956,7 @@ class DatabaseElement extends LitElement {
     }
 
     toggleEditPropertiesDialog() {
+        this.openedProperty = null;
         this.showEditPropertiesDialog = !this.showEditPropertiesDialog;
         if (this.showEditPropertiesDialog) {
             this.editingProperties = JSON.parse(JSON.stringify(this.properties));
@@ -1827,6 +2049,7 @@ class DatabaseElement extends LitElement {
         this.requestUpdate();
     }
     saveProperties() {
+        this.openedProperty = null;
         // Filter out removed properties
         const newProperties = this.editingProperties.filter(prop => !prop.removed);
 
