@@ -1,4 +1,4 @@
-import { LitElement, html, css } from '/a7/cdn/lit-core-2.7.4.min.js';
+import { LitElement, html, css, styleMap } from '/a7/cdn/lit-all-2.7.4.min.js';
 
 class DatabaseElement extends LitElement {
     static styles = css`
@@ -712,6 +712,322 @@ class DatabaseElement extends LitElement {
         .board-item:active {
             cursor: grabbing;
         }
+
+        // Add new timeline-specific CSS
+        .timeline-wrapper {
+            width: 100%;
+            height: calc(100vh - 200px);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-1);
+            border-radius: var(--radius);
+        }
+
+        .timeline-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .timeline-sidebar {
+            width: 200px;
+            min-width: 200px;
+            background: var(--bg-1);
+            border-right: 1px solid var(--border-1);
+            overflow-y: auto;
+            z-index: 20;
+        }
+
+        .timeline-task-label {
+            padding: var(--padding-2);
+            height: 40px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-2);
+        }
+
+        .timeline-content {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .timeline-header {
+            display: flex;
+            position: sticky;
+            top: 0;
+            background: var(--bg-1);
+            z-index: 10;
+            min-height: 50px;
+            border-bottom: 1px solid var(--border-1);
+        }
+
+        .timeline-day {
+            min-width: 50px;
+            padding: var(--padding-2);
+            text-align: center;
+            border-right: 1px solid var(--border-2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-size: 0.9em;
+        }
+
+        .timeline-day-name {
+            font-weight: bold;
+        }
+
+        .timeline-day-date {
+            color: var(--fg-2);
+            font-size: 0.8em;
+        }
+
+        .timeline-body {
+            position: relative;
+            flex: 1;
+            min-height: min-content;
+        }
+
+        .timeline-row {
+            height: 40px;
+            border-bottom: 1px solid var(--border-2);
+            position: relative;
+        }
+
+        .timeline-task {
+            position: absolute;
+            height: 24px;
+            top: 8px;
+            background: var(--bg-blue);
+            border-radius: var(--radius);
+            padding: 0 var(--padding-2);
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-task:hover {
+            height: 28px;
+            top: 6px;
+            z-index: 2;
+        }
+
+        .timeline-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .timeline-grid-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--border-2);
+        }
+
+        .timeline-today {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--error-color);
+            z-index: 1;
+        }
+
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            padding: var(--padding-3);
+            max-width: 100vw;
+            overflow: clip;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            width: 100%;
+        }
+
+        .carousel-item {
+            width: 100%;
+            flex: 0 0 100%;
+            padding: var(--padding-4);
+            background: var(--bg-2);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-1);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .carousel-item.active {
+            opacity: 1;
+        }
+
+        .carousel-property {
+            margin-bottom: var(--gap-2);
+        }
+
+        .carousel-property-label {
+            font-weight: bold;
+            color: var(--fg-2);
+            margin-bottom: var(--gap-1);
+            font-size: 0.9em;
+        }
+
+        .carousel-property-value {
+            color: var(--fg-1);
+        }
+
+        .carousel-navigation {
+            display: flex;
+            justify-content: center;
+            gap: var(--gap-2);
+            margin-top: var(--gap-3);
+        }
+
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--bg-3);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: var(--fg-1);
+        }
+
+        .carousel-nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-2);
+            border: 1px solid var(--border-1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .carousel-nav-button.prev {
+            left: var(--padding-3);
+        }
+
+        .carousel-nav-button.next {
+            right: var(--padding-3);
+        }
+
+        .carousel-nav-button:hover {
+            background: var(--bg-3);
+        }
+
+        .carousel-nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .gallery-item-property {
+            margin-top: var(--gap-1);
+            font-size: 0.9em;
+        }
+
+        .property-label {
+            color: var(--fg-2);
+            margin-right: var(--gap-1);
+        }
+
+        .property-value {
+            color: var(--fg-1);
+        }
+
+        .matrix-container {
+            padding: var(--padding-3);
+            overflow: auto;
+            max-height: calc(100vh - 200px);
+        }
+
+        .matrix-grid {
+            display: grid;
+            gap: var(--gap-2);
+            min-width: min-content;
+        }
+
+        .matrix-header-cell {
+            padding: var(--padding-3);
+            background: var(--bg-2);
+            border-radius: var(--radius);
+            font-weight: bold;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .matrix-cell {
+            padding: var(--padding-2);
+            background: var(--bg-2);
+            border-radius: var(--radius);
+            min-height: 100px;
+            border: 1px dashed var(--border-1);
+            transition: background-color 0.3s ease;
+        }
+
+        .matrix-cell.drag-over {
+            background: var(--bg-3);
+            border-style: solid;
+        }
+
+        .matrix-item {
+            padding: var(--padding-2);
+            background: var(--bg-1);
+            border: 1px solid var(--border-1);
+            border-radius: var(--radius);
+            margin-bottom: var(--gap-1);
+            cursor: move;
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .matrix-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--drop-shadow);
+        }
+
+        .matrix-item.dragging {
+            opacity: 0.5;
+        }
+
+        .matrix-props-select {
+            display: flex;
+            gap: var(--gap-3);
+            margin-bottom: var(--gap-3);
+            align-items: center;
+        }
+
+        .matrix-axis-select {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+        }
     `;
 
     static properties = {
@@ -735,6 +1051,8 @@ class DatabaseElement extends LitElement {
 
         showEditPropertiesDialog: { type: Boolean },
         editingProperties: { type: Array },
+
+        currentSlide: { type: Number },
     };
 
     constructor() {
@@ -744,7 +1062,9 @@ class DatabaseElement extends LitElement {
                 id: 1,
                 title: 'Implement login system',
                 status: 'In Progress',
-                date: '2023-05-01',
+                date: '2025-04-01',
+                startDate: '2025-04-01',
+                endDate: '2025-04-15',
                 tags: ['important', 'frontend'],
                 completed: false,
                 url: 'https://github.com/project/issue/1',
@@ -755,7 +1075,9 @@ class DatabaseElement extends LitElement {
                 id: 2,
                 title: 'Design database schema',
                 status: 'Done',
-                date: '2023-04-28',
+                date: '2025-04-28',
+                startDate: '2025-04-10',
+                endDate: '2025-04-28',
                 tags: ['important', 'backend'],
                 completed: true,
                 url: 'https://github.com/project/issue/2',
@@ -766,7 +1088,9 @@ class DatabaseElement extends LitElement {
                 id: 3,
                 title: 'Implement user registration',
                 status: 'To Do',
-                date: '2023-05-05',
+                date: '2025-05-05',
+                startDate: '2025-05-05',
+                endDate: '2025-05-12',
                 tags: ['frontend'],
                 completed: false,
                 url: 'https://github.com/project/issue/3',
@@ -777,7 +1101,9 @@ class DatabaseElement extends LitElement {
                 id: 4,
                 title: 'Set up CI/CD pipeline',
                 status: 'In Progress',
-                date: '2023-05-02',
+                date: '2025-05-02',
+                startDate: '2025-04-20',
+                endDate: '2025-05-10',
                 tags: ['devops', 'important'],
                 completed: false,
                 url: 'https://github.com/project/issue/4',
@@ -788,7 +1114,9 @@ class DatabaseElement extends LitElement {
                 id: 5,
                 title: 'Write API documentation',
                 status: 'To Do',
-                date: '2023-05-10',
+                date: '2025-05-10',
+                startDate: '2025-05-10',
+                endDate: '2025-05-17',
                 tags: ['documentation'],
                 completed: false,
                 url: 'https://github.com/project/issue/5',
@@ -799,7 +1127,9 @@ class DatabaseElement extends LitElement {
                 id: 6,
                 title: 'Implement password reset',
                 status: 'Done',
-                date: '2023-04-30',
+                date: '2025-04-30',
+                startDate: '2025-04-15',
+                endDate: '2025-04-30',
                 tags: ['backend', 'security'],
                 completed: true,
                 url: 'https://github.com/project/issue/6',
@@ -820,13 +1150,40 @@ class DatabaseElement extends LitElement {
             { name: 'url', type: 'url' },
             { name: 'email', type: 'email' },
             { name: 'phone', type: 'phone' },
+            { name: 'startDate', type: 'date' },
+            { name: 'endDate', type: 'date' },
         ];
         this.views = [
             { id: 'default-table', name: 'Default Table', type: 'table', filters: [], sorts: [] },
             { id: 'default-board', name: 'Default Board', type: 'board', filters: [], sorts: [], groupBy: 'status' },
+            { id: 'default-matrix', name: 'Default Matrix', type: 'matrix', filters: [], sorts: [], xAxisProperty: 'status', yAxisProperty: 'tags' },
             { id: 'default-calendar', name: 'Default Calendar', type: 'calendar', filters: [], sorts: [], dateProperty: 'date' },
-            { id: 'default-gallery', name: 'Default Gallery', type: 'gallery', filters: [], sorts: [] },
+            {
+                id: 'default-carousel',
+                name: 'Default Carousel',
+                type: 'carousel',
+                filters: [],
+                sorts: [],
+                visibleProperties: ['title', 'status', 'date'],
+            },
+            {
+                id: 'default-gallery',
+                name: 'Default Gallery',
+                type: 'gallery',
+                filters: [],
+                sorts: [],
+                visibleProperties: ['title', 'status', 'date'],
+            },
             { id: 'default-list', name: 'Default List', type: 'list', filters: [], sorts: [], visibleProperties: ['title', 'status', 'date'] },
+            {
+                id: 'default-timeline',
+                name: 'Default Timeline',
+                type: 'timeline',
+                filters: [],
+                sorts: [],
+                startDateProperty: 'startDate',
+                endDateProperty: 'endDate',
+            },
         ];
         this.currentViewId = 'default-table';
         this.editingEntry = null;
@@ -851,6 +1208,8 @@ class DatabaseElement extends LitElement {
         this.touchStartY = 0;
         this.touchMoving = false;
         this.draggedElement = null;
+
+        this.currentSlide = 0;
     }
 
     toggleAddColumnForm() {
@@ -1172,6 +1531,22 @@ class DatabaseElement extends LitElement {
             }
         }
         this.draggedItem = null;
+    }
+
+    updated(changedProperties) {
+        super.updated(changedProperties);
+        if (changedProperties.has('currentView')) {
+            if (this.currentView?.type === 'carousel') {
+                this.startCarouselAutoplay();
+            } else {
+                this.stopCarouselAutoplay();
+            }
+        }
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        this.stopCarouselAutoplay();
     }
 
     renderAddColumnDialog() {
@@ -1609,6 +1984,12 @@ class DatabaseElement extends LitElement {
                                 if (e.target.value === 'list' && !this.editingView.visibleProperties) {
                                     this.editingView.visibleProperties = [this.properties[0].name];
                                 }
+                                if (e.target.value === 'carousel' && !this.editingView.visibleProperties) {
+                                    this.editingView.visibleProperties = [this.properties[0].name];
+                                }
+                                if (e.target.value === 'gallery' && !this.editingView.visibleProperties) {
+                                    this.editingView.visibleProperties = [this.properties[0].name];
+                                }
                                 this.requestUpdate();
                             }}
                         >
@@ -1617,8 +1998,40 @@ class DatabaseElement extends LitElement {
                             <option value="calendar">Calendar</option>
                             <option value="gallery">Gallery</option>
                             <option value="list">List</option>
+                            <option value="timeline">Timeline</option>
+                            <option value="carousel">Carousel</option>
+                            <option value="matrix">Matrix</option>
                         </select>
                     </label>
+
+                    ${this.editingView.type === 'matrix'
+                        ? html`
+                              <label>
+                                  X Axis Property:
+                                  <select .value=${this.editingView.xAxisProperty} @change=${e => (this.editingView.xAxisProperty = e.target.value)}>
+                                      ${this.properties.map(
+                                          prop => html`
+                                              <option value=${prop.name} ?selected=${this.editingView.xAxisProperty === prop.name}>
+                                                  ${prop.name}
+                                              </option>
+                                          `
+                                      )}
+                                  </select>
+                              </label>
+                              <label>
+                                  Y Axis Property:
+                                  <select .value=${this.editingView.yAxisProperty} @change=${e => (this.editingView.yAxisProperty = e.target.value)}>
+                                      ${this.properties.map(
+                                          prop => html`
+                                              <option value=${prop.name} ?selected=${this.editingView.yAxisProperty === prop.name}>
+                                                  ${prop.name}
+                                              </option>
+                                          `
+                                      )}
+                                  </select>
+                              </label>
+                          `
+                        : ''}
                     ${this.editingView.type === 'board'
                         ? html`
                               <label>
@@ -1633,7 +2046,7 @@ class DatabaseElement extends LitElement {
                               </label>
                           `
                         : ''}
-                    ${this.editingView.type === 'list'
+                    ${this.editingView.type === 'list' || this.editingView.type === 'carousel' || this.editingView.type === 'gallery'
                         ? html`
                               <label>
                                   Visible Properties:
@@ -2100,6 +2513,7 @@ class DatabaseElement extends LitElement {
     }
 
     renderGalleryView(entries) {
+        const visibleProperties = this.currentView.visibleProperties || ['title'];
         return html`
             <div class="gallery">
                 ${entries.map(
@@ -2111,12 +2525,319 @@ class DatabaseElement extends LitElement {
                                 style="width: 100%; height: auto; display: none"
                             />
                             <strong>${entry.title}</strong>
+                            ${visibleProperties.slice(1).map(propName => {
+                                const prop = this.properties.find(p => p.name === propName);
+                                return html`
+                                    <div class="gallery-item-property">
+                                        <span class="property-label">${propName}:</span>
+                                        <span class="property-value">${this.renderCellValue(entry[propName], prop)}</span>
+                                    </div>
+                                `;
+                            })}
                         </div>
                     `
                 )}
                 <div class="gallery-item new-entry" @click=${() => this.startAddingNewEntry()}>
                     <div class="new-entry-placeholder">+</div>
                     <strong>Add New Entry</strong>
+                </div>
+            </div>
+        `;
+    }
+
+    // Add new renderTimelineView method
+    renderTimelineView(entries) {
+        const startDateProp = this.currentView.startDateProperty || 'startDate';
+        const endDateProp = this.currentView.endDateProperty || 'endDate';
+
+        // Filter entries with valid dates
+        const validEntries = entries.filter(entry => entry[startDateProp] && entry[endDateProp]);
+
+        if (validEntries.length === 0) {
+            return html`<div>No entries with valid dates found</div>`;
+        }
+
+        // Calculate the full date range
+        const dates = validEntries.flatMap(entry => [new Date(entry[startDateProp]), new Date(entry[endDateProp])]);
+        const minDate = new Date(Math.min(...dates));
+        const maxDate = new Date(Math.max(...dates));
+
+        // Add buffer days
+        minDate.setDate(minDate.getDate() - 7);
+        maxDate.setDate(maxDate.getDate() + 7);
+
+        // Generate array of days
+        const days = [];
+        const currentDate = new Date(minDate);
+        while (currentDate <= maxDate) {
+            days.push(new Date(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        const dayWidth = 50; // Width in pixels for each day
+        const today = new Date();
+
+        // Calculate today's position
+        const todayOffset = ((today - minDate) / (1000 * 60 * 60 * 24)) * dayWidth;
+
+        return html`
+            <div class="timeline-wrapper">
+                <div class="timeline-container">
+                    <div class="timeline-sidebar">${validEntries.map(entry => html` <div class="timeline-task-label">${entry.title}</div> `)}</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            ${days.map(
+                                day => html`
+                                    <div class="timeline-day">
+                                        <div class="timeline-day-name">${day.toLocaleDateString(undefined, { weekday: 'short' })}</div>
+                                        <div class="timeline-day-date">${day.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
+                                    </div>
+                                `
+                            )}
+                        </div>
+                        <div class="timeline-body">
+                            ${validEntries.map((entry, index) => {
+                                const start = new Date(entry[startDateProp]);
+                                const end = new Date(entry[endDateProp]);
+                                const left = ((start - minDate) / (1000 * 60 * 60 * 24)) * dayWidth;
+                                const width = Math.max(((end - start) / (1000 * 60 * 60 * 24)) * dayWidth, dayWidth / 2);
+
+                                return html`
+                                    <div class="timeline-row">
+                                        <div
+                                            class="timeline-task"
+                                            style="left: ${left}px; width: ${width}px;"
+                                            @click=${() => this.startEditing(entry)}
+                                            title=${entry.title}
+                                        >
+                                            ${entry.title}
+                                        </div>
+                                    </div>
+                                `;
+                            })}
+                            <div class="timeline-grid">
+                                ${days.map((_, index) => html` <div class="timeline-grid-line" style="left: ${index * dayWidth}px"></div> `)}
+                            </div>
+                            ${todayOffset >= 0 ? html` <div class="timeline-today" style="left: ${todayOffset}px"></div> ` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    startCarouselAutoplay() {
+        if (this.autoplayInterval) {
+            clearInterval(this.autoplayInterval);
+        }
+        this.autoplayInterval = setInterval(() => {
+            if (this.currentView?.type === 'carousel') {
+                this.nextSlide();
+            } else {
+                clearInterval(this.autoplayInterval);
+            }
+        }, 5000); // Change slide every 5 seconds
+    }
+
+    stopCarouselAutoplay() {
+        if (this.autoplayInterval) {
+            clearInterval(this.autoplayInterval);
+            this.autoplayInterval = null;
+        }
+    }
+
+    nextSlide() {
+        const entries = this.entries.length;
+        this.currentSlide = (this.currentSlide + 1) % (entries + 1);
+        this.requestUpdate();
+    }
+
+    prevSlide() {
+        const entries = this.entries.length;
+        this.currentSlide = (this.currentSlide - 1 + entries + 1) % (entries + 1);
+        this.requestUpdate();
+    }
+
+    goToSlide(index) {
+        this.currentSlide = index;
+        this.requestUpdate();
+    }
+
+    renderCarouselView(entries) {
+        const visibleProperties = this.currentView.visibleProperties || ['title'];
+        const allEntries = [...entries, { isAddNew: true }];
+
+        return html`
+            <div class="carousel-container" @mouseenter=${this.stopCarouselAutoplay} @mouseleave=${this.startCarouselAutoplay}>
+                <button class="carousel-nav-button prev" @click=${this.prevSlide}>←</button>
+                <button class="carousel-nav-button next" @click=${this.nextSlide}>→</button>
+                <div class="carousel-track" style="transform: translateX(-${this.currentSlide * 100}%)">
+                    ${entries.map(
+                        (entry, index) => html`
+                            <div class="carousel-item ${index === this.currentSlide ? 'active' : ''}" @click=${() => this.startEditing(entry)}>
+                                ${visibleProperties.map(propName => {
+                                    const prop = this.properties.find(p => p.name === propName);
+                                    return html`
+                                        <div class="carousel-property">
+                                            <div class="carousel-property-label">${propName}</div>
+                                            <div class="carousel-property-value">${this.renderCellValue(entry[propName], prop)}</div>
+                                        </div>
+                                    `;
+                                })}
+                            </div>
+                        `
+                    )}
+                    <div class="carousel-item ${this.currentSlide === entries.length ? 'active' : ''}" @click=${() => this.startAddingNewEntry()}>
+                        <div
+                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 200px;"
+                        >
+                            <div style="font-size: 2em; margin-bottom: var(--gap-2);">+</div>
+                            <div>Add New Entry</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-navigation">
+                    ${allEntries.map(
+                        (_, index) => html`
+                            <div class="carousel-dot ${index === this.currentSlide ? 'active' : ''}" @click=${() => this.goToSlide(index)}></div>
+                        `
+                    )}
+                </div>
+            </div>
+        `;
+    }
+
+    handleMatrixDragStart(e, entry) {
+        this.draggedItem = entry;
+        e.dataTransfer.effectAllowed = 'move';
+        e.target.classList.add('dragging');
+    }
+
+    handleMatrixDragEnd(e) {
+        e.target.classList.remove('dragging');
+        const cells = this.shadowRoot.querySelectorAll('.matrix-cell');
+        cells.forEach(cell => cell.classList.remove('drag-over'));
+    }
+
+    handleMatrixDragOver(e, xValue, yValue) {
+        e.preventDefault();
+        e.currentTarget.classList.add('drag-over');
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    handleMatrixDragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+    }
+
+    handleMatrixDrop(e, xValue, yValue) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+
+        if (this.draggedItem) {
+            const xProp = this.currentView.xAxisProperty;
+            const yProp = this.currentView.yAxisProperty;
+
+            const updatedEntry = {
+                ...this.draggedItem,
+                [xProp]: xValue,
+                [yProp]: yValue,
+            };
+
+            const index = this.entries.findIndex(entry => entry.id === this.draggedItem.id);
+            if (index !== -1) {
+                this.entries = [...this.entries.slice(0, index), updatedEntry, ...this.entries.slice(index + 1)];
+                this.requestUpdate();
+                this.onUpdate();
+            }
+        }
+        this.draggedItem = null;
+    }
+
+    updateMatrixAxis(axis, propertyName) {
+        if (axis === 'x') {
+            this.currentView = {
+                ...this.currentView,
+                xAxisProperty: propertyName,
+            };
+        } else {
+            this.currentView = {
+                ...this.currentView,
+                yAxisProperty: propertyName,
+            };
+        }
+        this.requestUpdate();
+    }
+
+    renderMatrixView(entries) {
+        const xProp = this.currentView.xAxisProperty;
+        const yProp = this.currentView.yAxisProperty;
+
+        if (!xProp || !yProp) {
+            return html`<div>Please configure X and Y axes in the view settings</div>`;
+        }
+
+        const xProperty = this.properties.find(p => p.name === xProp);
+        const yProperty = this.properties.find(p => p.name === yProp);
+
+        if (!xProperty || !yProperty) {
+            return html`<div>Invalid properties selected</div>`;
+        }
+
+        // Get unique values for each axis
+        const xValues = xProperty.type === 'select' ? xProperty.options : [...new Set(entries.map(e => e[xProp]))].filter(Boolean);
+
+        const yValues = yProperty.type === 'select' ? yProperty.options : [...new Set(entries.map(e => e[yProp]))].filter(Boolean);
+
+        // Set grid template
+        const gridStyle = {
+            'grid-template-columns': `auto repeat(${xValues.length}, 1fr)`,
+            'grid-template-rows': `auto repeat(${yValues.length}, 1fr)`,
+        };
+
+        return html`
+            <div class="matrix-container">
+                <div class="matrix-grid" style=${styleMap(gridStyle)}>
+                    <!-- Empty top-left corner -->
+                    <div class="matrix-header-cell"></div>
+
+                    <!-- X-axis headers -->
+                    ${xValues.map(x => html` <div class="matrix-header-cell">${x}</div> `)}
+
+                    <!-- Y-axis headers and cells -->
+                    ${yValues.map(
+                        y => html`
+                            <!-- Y-axis header -->
+                            <div class="matrix-header-cell">${y}</div>
+
+                            <!-- Matrix cells -->
+                            ${xValues.map(x => {
+                                const cellEntries = entries.filter(entry => entry[xProp] === x && entry[yProp] === y);
+
+                                return html`
+                                    <div
+                                        class="matrix-cell"
+                                        @dragover=${e => this.handleMatrixDragOver(e, x, y)}
+                                        @dragleave=${this.handleMatrixDragLeave}
+                                        @drop=${e => this.handleMatrixDrop(e, x, y)}
+                                    >
+                                        ${cellEntries.map(
+                                            entry => html`
+                                                <div
+                                                    class="matrix-item"
+                                                    draggable="true"
+                                                    @dragstart=${e => this.handleMatrixDragStart(e, entry)}
+                                                    @dragend=${this.handleMatrixDragEnd}
+                                                    @click=${() => this.startEditing(entry)}
+                                                >
+                                                    ${entry.title}
+                                                </div>
+                                            `
+                                        )}
+                                    </div>
+                                `;
+                            })}
+                        `
+                    )}
                 </div>
             </div>
         `;
@@ -2136,7 +2857,13 @@ class DatabaseElement extends LitElement {
                       ? this.renderGalleryView(filteredEntries)
                       : this.currentView.type === 'list'
                         ? this.renderListView(filteredEntries)
-                        : html`<p>Unknown view type</p>`}
+                        : this.currentView.type === 'timeline'
+                          ? this.renderTimelineView(filteredEntries)
+                          : this.currentView.type === 'carousel'
+                            ? this.renderCarouselView(filteredEntries)
+                            : this.currentView.type === 'matrix'
+                              ? this.renderMatrixView(filteredEntries)
+                              : html`<p>Unknown view type</p>`}
             ${this.renderAddRowDialog()} ${this.renderAddColumnDialog()} ${this.renderEditDialog()} ${this.renderEditViewDialog()}
             ${this.renderEditPropertiesDialog()}
         `;

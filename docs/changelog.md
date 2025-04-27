@@ -1,3 +1,7 @@
+- Apr 25
+
+    - toolbar improvements for mobile
+
 - Apr 22
 
     - nested pages
