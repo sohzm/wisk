@@ -276,6 +276,7 @@ const CORE_ASSETS = [
     '/a7/plugins/toolbar/tone.svg',
     '/a7/plugins/toolbar/translate.svg',
     '/a7/plugins/toolbar/wand.svg',
+    '/a7/plugins/toolbar/mean.svg',
     '/a7/plugins/tweaks/pexels-codioful-7130469.jpg',
     '/a7/plugins/tweaks/pexels-fotios-photos-1414573.jpg',
     '/a7/screencap.png',

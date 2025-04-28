@@ -713,7 +713,6 @@ class DatabaseElement extends LitElement {
             cursor: grabbing;
         }
 
-        // Add new timeline-specific CSS
         .timeline-wrapper {
             width: 100%;
             height: calc(100vh - 200px);
@@ -1049,8 +1048,8 @@ class DatabaseElement extends LitElement {
             width: 90%;
             max-width: 600px;
             max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
         }
 
         .edit-dialog-title {
@@ -1063,6 +1062,7 @@ class DatabaseElement extends LitElement {
             display: flex;
             flex-direction: column;
             gap: 12px;
+            overflow: auto;
         }
 
         .property-list-item {
@@ -1380,7 +1380,6 @@ class DatabaseElement extends LitElement {
 
         this.currentSlide = 0;
     }
-
 
     toggleAddColumnForm() {
         this.showAddColumnForm = !this.showAddColumnForm;
@@ -1989,7 +1988,7 @@ class DatabaseElement extends LitElement {
         const dependencyMessage = this.checkPropertyDependencies(propertyName);
 
         if (dependencyMessage) {
-            wisk.showToast(`Cannot remove property: ${dependencyMessage}`);
+            wisk.utils.showToast(`Cannot remove property: ${dependencyMessage}`);
             return;
         }
 
@@ -2003,6 +2002,7 @@ class DatabaseElement extends LitElement {
         this.requestUpdate();
     }
 
+    // TODO improve this to check all views and props
     checkPropertyDependencies(propertyName) {
         for (let view of this.views) {
             // Check if the property is used in groupBy (for board views)
@@ -2048,6 +2048,7 @@ class DatabaseElement extends LitElement {
 
         this.requestUpdate();
     }
+
     saveProperties() {
         this.openedProperty = null;
         // Filter out removed properties
@@ -2059,7 +2060,7 @@ class DatabaseElement extends LitElement {
         for (let removedProp of removedProperties) {
             const dependencyMessage = this.checkPropertyDependencies(removedProp.name);
             if (dependencyMessage) {
-                wisk.showToast(`Cannot remove property "${removedProp.name}": ${dependencyMessage}`);
+                wisk.utils.showToast(`Cannot remove property "${removedProp.name}": ${dependencyMessage}`);
                 return;
             }
         }
@@ -2888,7 +2889,7 @@ class DatabaseElement extends LitElement {
 
     renderCarouselView(entries) {
         const visibleProperties = this.currentView.visibleProperties || ['title'];
-        const allEntries = [...entries, { isAddNew: true }];
+        const allEntries = [...entries];
 
         return html`
             <div class="carousel-container" @mouseenter=${this.stopCarouselAutoplay} @mouseleave=${this.startCarouselAutoplay}>
@@ -2910,14 +2911,6 @@ class DatabaseElement extends LitElement {
                             </div>
                         `
                     )}
-                    <div class="carousel-item ${this.currentSlide === entries.length ? 'active' : ''}" @click=${() => this.startAddingNewEntry()}>
-                        <div
-                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 200px;"
-                        >
-                            <div style="font-size: 2em; margin-bottom: var(--gap-2);">+</div>
-                            <div>Add New Entry</div>
-                        </div>
-                    </div>
                 </div>
                 <div class="carousel-navigation">
                     ${allEntries.map(
