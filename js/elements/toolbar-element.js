@@ -386,7 +386,7 @@ class ToolbarElement extends LitElement {
 
         .tone-menu {
             left: 90%;
-            top: 60%;
+            top: 70%;
         }
 
         input {
@@ -422,11 +422,11 @@ class ToolbarElement extends LitElement {
 
         .preview-buttons button.accept {
             background: var(--fg-accent);
-            border: 1px solid var(--border-1);
+            border: none;
         }
 
         .preview-buttons button.accept:hover {
-            background: var(--bg-3);
+            background: var(--fg-2);
         }
 
         .preview-buttons button.discard {
@@ -1332,7 +1332,13 @@ class ToolbarElement extends LitElement {
                                         <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-friendly')}>Friendly</button>
                                     </div>
                                 </div>
+                            </div>
 
+                            <div class="command-section">
+                                <h3>Research</h3>
+                                <button @click=${() => this.handleToolbarAction('ai-operation', 'define/explain')}>
+                                    <img src="/a7/plugins/toolbar/mean.svg" alt="check" style="height: 16px;" /> Define/Explain
+                                </button>
                                 <button @click=${() => this.handleToolbarAction('ai-operation', 'improve-writing')}>
                                     <img src="/a7/plugins/toolbar/edit.svg" alt="wand" style="height: 16px;" /> Write opposing argument
                                 </button>

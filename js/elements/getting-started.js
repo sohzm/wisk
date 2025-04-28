@@ -5,21 +5,21 @@ class GettingStarted extends LitElement {
         * {
             box-sizing: border-box;
             font-family: var(--font);
-            margin: 0px;
-            padding: 0px;
+            margin: 0;
+            padding: 0;
             user-select: none;
             outline: none;
             transition: all 0.3s ease;
         }
-        :host {
-        }
+
         #getting-started {
             width: 100%;
             display: flex;
             flex-direction: column;
             gap: var(--gap-3);
         }
-        .gs-button {
+
+        .button {
             padding: var(--padding-w2);
             border-radius: 100px;
             background-color: var(--bg-accent);
@@ -30,74 +30,54 @@ class GettingStarted extends LitElement {
             align-items: center;
             justify-content: center;
             gap: var(--gap-2);
-            outline: none;
             font-size: 15px;
         }
-        .gs-button img {
+
+        .button img {
             width: 20px;
             filter: var(--accent-svg);
         }
-        .gs-button:hover {
+
+        .button:hover {
             background-color: var(--bg-2);
         }
+
         #tip {
             color: var(--fg-2);
             pointer-events: none;
             font-size: 0.9rem;
         }
+
         .dialog-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: transparent;
+            background-color: var(--fg-2);
+            opacity: 0.3;
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 999;
         }
+
         .dialog-content {
             background: var(--bg-1);
-            padding: calc(var(--padding-4) * 2);
+            padding: var(--padding-4);
             border-radius: var(--radius-large);
-            border: 1px solid var(--border-1);
-            filter: var(--drop-shadow) var(--drop-shadow);
-            max-width: 1200px;
-            max-height: 700px;
-            height: 90%;
+            max-width: 669px; /* nice */
+            max-height: min(700px, 90%);
             width: 90%;
             position: absolute;
             z-index: 1000;
-        }
-        @media (max-width: 768px) {
-            .dialog-content {
-                padding: var(--padding-4);
-                height: 90%;
-                width: 100%;
-                border-radius: 0;
-                border-top-left-radius: var(--radius-large);
-                border-top-right-radius: var(--radius-large);
-                top: 10%;
-                max-height: none;
-            }
-            @starting-style {
-                .dialog-content {
-                    top: 30%;
-                    opacity: 0;
-                }
-            }
-        }
-        .thin-dialog-content {
-            max-width: 1000px;
-        }
-        .quick-link {
-            padding: var(--padding-w1);
-            background: var(--bg-accent);
-            color: var(--fg-accent);
-            border-radius: var(--radius);
-            cursor: pointer;
-            text-decoration: none;
+            opacity: 1;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
         }
 
         .dialog-close {
@@ -116,194 +96,98 @@ class GettingStarted extends LitElement {
             align-items: center;
             justify-content: center;
         }
+
         .dialog-close:hover {
             background: var(--bg-3);
         }
+
         .dialog-title {
             font-size: 1.5rem;
             margin-bottom: var(--gap-3);
             color: var(--fg-1);
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: var(--gap-2);
-            margin-bottom: var(--gap-3);
-        }
-
-        @starting-style {
-            .dialog-content {
-                opacity: 0;
-            }
-        }
-
-        .input-label {
-            color: var(--fg-1);
             font-weight: 500;
         }
 
-        .input-description {
-            color: var(--fg-2);
-            margin-top: var(--gap-1);
-        }
-
-        .text-input {
-            width: 100%;
-            padding: var(--padding-2);
-            border: 1px solid var(--border-1);
-            border-radius: var(--radius);
-            background: var(--bg-2);
+        .header {
+            display: flex;
+            flex-direction: row;
             color: var(--fg-1);
-        }
-
-        .text-input:focus {
-        }
-
-        .textarea {
-            min-height: 70px;
-            resize: vertical;
-        }
-
-        .generate-button {
-            background: var(--bg-accent);
-            color: var(--fg-accent);
-            padding: var(--padding-w2);
-            font-weight: 600;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
             gap: var(--gap-2);
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: calc(20px + var(--gap-3));
         }
 
-        .generate-button:hover {
-            background: var(--bg-3);
+        .header-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
         }
 
-        .warning-text {
-            color: var(--fg-2);
-            font-size: 0.8rem;
-            font-style: italic;
+        .header-controls {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 30px;
+            font-weight: 500;
+        }
+
+        .icon {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 22px;
         }
 
         .main-group {
             overflow-y: auto;
             height: inherit;
-        }
-
-        .brainstorm-container {
-            display: flex;
-            gap: var(--gap-3);
-            height: inherit;
-            overflow: auto;
-        }
-
-        @media (max-width: 768px) {
-            .brainstorm-container {
-                flex-direction: column-reverse;
-            }
-        }
-
-        .chat-section {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0; /* Prevent flex item from overflowing */
         }
 
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: var(--padding-3);
-            border-radius: var(--radius);
-            margin-bottom: var(--gap-3);
-            overflow: auto;
-        }
-
-        .message {
-            margin-bottom: var(--gap-3);
-            padding: var(--padding-3);
-            border-radius: var(--radius);
-        }
-
-        .message.user {
-            margin-left: 20%;
-        }
-
-        .message.assistant {
-            background: var(--bg-blue);
-            margin-right: 20%;
-        }
-
-        .chat-input {
-            display: flex;
-            gap: var(--gap-2);
-        }
-
-        .chat-input textarea {
-            flex: 1;
-            min-height: 50px;
-            resize: none;
-            padding: var(--padding-2);
-            border: 1px solid var(--border-1);
-            border-radius: var(--radius);
-            background: var(--bg-2);
-            color: var(--fg-1);
-        }
-
-        .bs-input {
-            flex: 1 1 0%;
-            min-height: 40px;
-            resize: none;
+        .generate-button {
+            background: var(--fg-1);
+            color: var(--bg-1);
             padding: var(--padding-w2);
-            border: 1px solid var(--border-1);
-            border-radius: 100px;
-            background: var(--bg-2);
-            color: var(--fg-1);
-        }
-
-        .visualization-section {
-            flex: 1;
-            min-width: 0;
-            border-radius: var(--radius);
-            padding: var(--padding-3);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .send-button {
-            padding: var(--padding-2) var(--padding-4);
-            background: var(--bg-accent);
-            color: var(--fg-accent);
+            font-weight: 600;
             border: none;
-            border-radius: var(--radius);
+            border-radius: calc(var(--radius-large) * 20);
+            border: 2px solid transparent;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: var(--gap-2);
+            margin-left: auto;
         }
 
-        .send-button:hover {
-            background: var(--bg-3);
+        .generate-button:hover {
+            background-color: transparent;
+            border: 2px solid var(--fg-1);
+            color: var(--fg-1);
         }
 
-        .mermaid-wrapper {
-            flex: 1;
-            overflow: auto;
+        .generate-button:disabled {
+            background-color: var(--bg-3);
+            color: var(--fg-2);
+            border: 2px solid transparent;
+            cursor: not-allowed;
         }
 
         .drop-zone {
-            border: 2px dashed var(--border-1);
             border-radius: var(--radius);
-            padding: var(--padding-w4);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            background: var(--bg-2);
-            min-height: 250px;
+            background: var(--bg-3);
+            min-height: 200px;
             transition: all 0.2s ease;
             cursor: pointer;
         }
@@ -323,20 +207,6 @@ class GettingStarted extends LitElement {
             color: var(--fg-2);
             font-size: 0.9rem;
             margin-bottom: var(--gap-3);
-        }
-
-        .browse-button {
-            padding: var(--padding-2) var(--padding-4);
-            background: var(--bg-3);
-            color: var(--fg-1);
-            border: 1px solid var(--border-1);
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .browse-button:hover {
-            background: var(--bg-4);
         }
 
         .selected-file {
@@ -394,6 +264,99 @@ class GettingStarted extends LitElement {
             white-space: nowrap;
         }
 
+        .warning-text {
+            color: var(--fg-red);
+            font-size: 0.8rem;
+        }
+
+        img[src*='/a7/forget/dialog-x.svg'] {
+            width: unset;
+            height: unset;
+            filter: var(--themed-svg);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-2);
+            margin-bottom: var(--gap-3);
+        }
+
+        .input-label {
+            color: var(--fg-1);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .input-field {
+            padding: var(--padding-3);
+            background: var(--bg-2);
+            border: 2px solid var(--border-1);
+            border-radius: var(--radius);
+            color: var(--fg-1);
+            font-size: 0.9rem;
+            resize: none;
+            min-height: 200px;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: var(--fg-1);
+        }
+
+        .preview-container {
+            margin-top: var(--gap-3);
+            border: 1px solid var(--border-1);
+            border-radius: var(--radius);
+            max-height: 200px;
+            overflow-y: auto;
+            padding: var(--padding-3);
+            background: var(--bg-2);
+            color: var(--fg-1);
+            font-size: 0.9rem;
+            user-select: text;
+            display: none;
+        }
+
+        .preview-container.shown {
+            display: block;
+        }
+
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--gap-2);
+            color: var(--fg-1);
+            font-size: 0.9rem;
+            margin: var(--gap-3) 0;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--fg-2);
+            border-top-color: var(--bg-accent);
+            border-radius: 50%;
+            animation: spinner 0.8s linear infinite;
+        }
+
+        .gen-div {
+            display: flex;
+            gap: var(--gap-2);
+            margin-top: var(--gap-3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         @media (hover: hover) {
             *::-webkit-scrollbar {
                 width: 15px;
@@ -410,14 +373,16 @@ class GettingStarted extends LitElement {
                 background-color: var(--fg-1);
             }
         }
-        select {
-            max-width: 300px;
-        }
     `;
 
     static properties = {
         activeDialog: { type: String },
         selectedFile: { type: Object },
+        reportQuery: { type: String },
+        reportFormat: { type: String },
+        reportContent: { type: String },
+        isGenerating: { type: Boolean },
+        previewVisible: { type: Boolean },
     };
 
     constructor() {
@@ -428,13 +393,19 @@ class GettingStarted extends LitElement {
             'You can create and use custom themes to personalize your editor',
             "When AI Chat gets too long, clear the chat by clicking the Clear Chat button, that'll improve the results",
             "You can autocite your content by selecting text and clicking on the 'Find Sources' button",
-        ];
+            "Generate complete reports with AI by clicking the 'Generate Report' button",
+        ].sort(() => Math.random() - 0.5)[0];
         this.activeDialog = null;
+        this.selectedFile = null;
+        this.reportQuery = '';
+        this.reportFormat = 'default';
+        this.reportContent = '';
+        this.isGenerating = false;
+        this.previewVisible = false;
     }
 
     updated() {
         if (wisk.editor.readonly) return;
-        this.shadowRoot.getElementById('tip').innerText = this.tips[Math.floor(Math.random() * this.tips.length)];
     }
 
     showDialog(type) {
@@ -444,7 +415,18 @@ class GettingStarted extends LitElement {
 
     closeDialog() {
         this.activeDialog = null;
+        this.reportQuery = '';
+        this.reportFormat = 'default';
+        this.reportContent = '';
+        this.previewVisible = false;
         this.requestUpdate();
+    }
+
+    handleBackdropClick(e) {
+        // Close the dialog if the click is on the backdrop (not on the dialog content)
+        if (e.target.classList.contains('dialog-overlay')) {
+            this.closeDialog();
+        }
     }
 
     formatFileSize(bytes) {
@@ -510,342 +492,64 @@ class GettingStarted extends LitElement {
         }
     }
 
-    async generateDraft(e) {
-        const whatInput = this.shadowRoot.getElementById('ol1').value;
-        const audienceInput = this.shadowRoot.getElementById('ol2').value;
-        const goalInput = this.shadowRoot.getElementById('ol3').value;
-        const categorySelect = this.shadowRoot.getElementById('ol4').value;
-        const onlyOutline = this.shadowRoot.getElementById('checkbox-outline').checked;
+    handleQueryChange(e) {
+        this.reportQuery = e.target.value;
+    }
 
-        if (!whatInput || !audienceInput || !goalInput || !categorySelect) {
-            wisk.utils.showToast('Please fill all fields', 5000);
+    async generateReport() {
+        if (!this.reportQuery.trim()) {
+            wisk.utils.showToast('Please enter a topic for your report', 5000);
             return;
         }
 
-        const user = await document.querySelector('auth-component').getUserInfo();
-        const token = user.token;
-
-        wisk.utils.showLoading('Generating draft...');
-
         try {
-            const response = await fetch(wisk.editor.backendUrl + '/v2/outline', {
+            this.isGenerating = true;
+            this.reportContent = '';
+            this.previewVisible = false;
+            this.requestUpdate();
+
+            const response = await fetch(wisk.editor.backendUrl + '/v1/report', {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
+                    Origin: window.location.origin,
                 },
                 body: JSON.stringify({
-                    whatAreYouWriting: whatInput,
-                    whoIsTheAudience: audienceInput,
-                    whatIsTheGoal: goalInput,
-                    category: categorySelect,
-                    generateOnlyOutline: onlyOutline,
+                    query: this.reportQuery,
+                    format: this.reportFormat,
                 }),
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to generate report');
             }
 
-            const data = await response.text(); // Get response as text
-
-            // Create text blocks with the returned content
-            var elements = wisk.editor.convertMarkdownToElements(data);
-            console.log('----- Elements:', elements);
-            for (let i = 0; i < elements.length; i++) {
-                if (elements[i].component != 'main-element') {
-                    wisk.editor.createBlockNoFocus('', elements[i].component, elements[i].value);
-                } else {
-                    document.getElementById('abcdxyz').setValue('', elements[i].value);
-                    document.getElementById('abcdxyz').sendUpdates();
-                }
-            }
-
-            this.closeDialog();
+            const data = await response.json();
+            this.reportContent = data.report;
+            this.previewVisible = true;
+            this.requestUpdate();
         } catch (error) {
-            console.error('Generation error:', error);
-            wisk.utils.showToast('Error generating draft', 5000);
+            console.error('Error generating report:', error);
+            wisk.utils.showToast('Error generating report: ' + error.message, 5000);
         } finally {
-            wisk.utils.hideLoading();
+            this.isGenerating = false;
+            this.requestUpdate();
         }
     }
 
-    renderDraftAnythingDialog() {
-        return html`
-            <div class="dialog-content thin-dialog-content">
-                <button class="dialog-close" @click=${this.closeDialog}>
-                    <img src="/a7/forget/x.svg" alt="Close" style="filter: var(--themed-svg)" />
-                </button>
-                <h2 class="dialog-title">Draft Anything</h2>
-
-                <div class="main-group">
-                    <div class="input-group">
-                        <label class="input-label">What are you writing?</label>
-                        <textarea
-                            id="ol1"
-                            class="text-input textarea"
-                            placeholder="For example, 'A blog post about gardening.' or 'A product description for a new app.'"
-                        ></textarea>
-                    </div>
-
-                    <div class="input-group">
-                        <label class="input-label">Who is the intended audience?</label>
-                        <textarea
-                            id="ol2"
-                            class="text-input textarea"
-                            placeholder="For example, 'People interested in gardening.' or 'Tech-savvy users.'"
-                        ></textarea>
-                    </div>
-
-                    <div class="input-group">
-                        <label class="input-label">What is your goal?</label>
-                        <textarea
-                            id="ol3"
-                            class="text-input textarea"
-                            placeholder="For example, 'To inform readers about the benefits of organic gardening.' or 'To persuade users to download the app.'"
-                        ></textarea>
-                    </div>
-
-                    <div class="input-group">
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--gap-2 gap: var(--gap-2))">
-                            <select class="text-input" id="ol4">
-                                <option value="" disabled selected>Select a category...</option>
-                                <option value="blog">Blog Post</option>
-                                <option value="article">Article</option>
-                                <option value="essay">Essay</option>
-                                <option value="report">Report</option>
-                                <option value="creative">Creative Writing</option>
-                                <option value="technical">Technical Document</option>
-                                <option value="marketing">Marketing Content</option>
-                                <option value="other">Other</option>
-                            </select>
-                            <div style="display: flex; align-items: center;">
-                                <label for="checkbox-outline">Only generate outline</label>
-                                <input
-                                    type="checkbox"
-                                    id="checkbox-outline"
-                                    name="checkbox-outline"
-                                    value="outline"
-                                    style="margin-left: 8px; width: 16px; height: 16px"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--gap-1)">
-                        <p class="warning-text">AI can make mistakes—please review carefully for accuracy!</p>
-
-                        <button class="generate-button" @click=${this.generateDraft}>
-                            <img src="/a7/forget/gs-ai.svg" alt="Generate" style="width: 22px; filter: var(--accent-svg)" />
-                            Generate
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    renderOutlineDialog() {
-        return html`
-            <div class="dialog-content thin-dialog-content">
-                <button class="dialog-close" @click=${this.closeDialog}>
-                    <img src="/a7/forget/x.svg" alt="Close" style="filter: var(--themed-svg)" />
-                </button>
-                <h2 class="dialog-title">Draft an Outline</h2>
-
-                <div class="main-group">
-                    <div class="input-group">
-                        <label class="input-label">What are you writing?</label>
-                        <textarea
-                            class="text-input textarea"
-                            placeholder="For example, 'A blog post about gardening.' or 'A product description for a new app.'"
-                        ></textarea>
-                    </div>
-
-                    <div class="input-group">
-                        <label class="input-label">Who is the intended audience?</label>
-                        <textarea
-                            class="text-input textarea"
-                            placeholder="For example, 'People interested in gardening.' or 'Tech-savvy users.'"
-                        ></textarea>
-                    </div>
-
-                    <div class="input-group">
-                        <label class="input-label">What is your goal?</label>
-                        <textarea
-                            class="text-input textarea"
-                            placeholder="For example, 'To inform readers about the benefits of organic gardening.' or 'To persuade users to download the app.'"
-                        ></textarea>
-                    </div>
-
-                    <div class="input-group">
-                        <label class="input-label">Category</label>
-                        <select class="text-input">
-                            <option value="" disabled selected>Select a category...</option>
-                            <option value="blog">Blog Post</option>
-                            <option value="article">Article</option>
-                            <option value="essay">Essay</option>
-                            <option value="report">Report</option>
-                            <option value="creative">Creative Writing</option>
-                            <option value="technical">Technical Document</option>
-                            <option value="marketing">Marketing Content</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--gap-1)">
-                        <button class="generate-button">
-                            <img src="/a7/forget/gs-ai.svg" alt="Generate" style="width: 22px; filter: var(--accent-svg)" />
-                            Generate Outline
-                        </button>
-
-                        <p class="warning-text">AI can make mistakes—please review carefully for accuracy!</p>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    renderBrainstormDialog() {
-        return html`
-            <div class="dialog-content">
-                <button class="dialog-close" @click=${this.closeDialog}>
-                    <img src="/a7/forget/x.svg" alt="Close" style="filter: var(--themed-svg)" />
-                </button>
-                <h2 class="dialog-title">Brainstorm Ideas</h2>
-
-                <div class="brainstorm-container">
-                    <div class="chat-section">
-                        <div class="chat-messages">
-                            <div class="message assistant">Let's brainstorm some ideas! What topic would you like to explore?</div>
-                            <div class="message user">I want to write about sustainable urban gardening.</div>
-                            <div class="message assistant">
-                                Great choice! I've created an initial mind map. Feel free to ask me to expand any branch or add new topics.
-                            </div>
-                        </div>
-                        <div class="chat-input">
-                            <input type="text" class="bs-input" placeholder="Type your message here..." />
-                        </div>
-                    </div>
-
-                    <div class="visualization-section">
-                        <div class="mermaid-wrapper">
-                            <mermaid-element read-only id="bs-mermaid"></mermaid-element>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    renderTopicsDialog() {
-        return html`
-            <div class="dialog-content thin-dialog-content">
-                <button class="dialog-close" @click=${this.closeDialog}>
-                    <img src="/a7/forget/x.svg" alt="Close" style="filter: var(--themed-svg)" />
-                </button>
-                <h2 class="dialog-title">Topics to Cover</h2>
-
-                <div class="main-group">
-                    <div class="input-group">
-                        <label class="input-label">What topics would you like to cover? (separate with commas)</label>
-                        <textarea
-                            class="text-input textarea"
-                            placeholder="For example, 'Benefits of organic gardening.' or 'How to start a community garden.'"
-                        ></textarea>
-                    </div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--gap-1)">
-                        <button class="generate-button">
-                            <img src="/a7/forget/gs-save.svg" alt="Generate" style="width: 22px; filter: var(--accent-svg)" />
-                            Save
-                        </button>
-
-                        <p class="warning-text">This will give AI a better understanding of your content</p>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    async convertFile() {
-        if (!this.selectedFile) return;
-
-        const user = await document.querySelector('auth-component').getUserInfo();
-        const token = user.token;
-
-        wisk.utils.showLoading('Converting file...');
-
-        // Create FormData and append the file
-        const formData = new FormData();
-        formData.append('fileContent', await this.fileToBase64(this.selectedFile));
-        formData.append('fileName', this.selectedFile.name);
-        formData.append('fileType', this.selectedFile.name.split('.').pop().toLowerCase());
-
-        try {
-            const response = await fetch(wisk.editor.backendUrl + '/v2/convert', {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    fileContent: await this.fileToBase64(this.selectedFile),
-                    fileName: this.selectedFile.name,
-                    fileType: this.selectedFile.name.split('.').pop().toLowerCase(),
-                }),
-            });
-
-            if (response.status !== 200) {
-                wisk.utils.showToast('Error converting file', 5000);
-                console.error('Conversion error:', response);
-            } else {
-                const data = await response.json();
-                console.log('Conversion response:', data);
-                // We'll handle the response later
-            }
-        } catch (error) {
-            console.error('Conversion error:', error);
-            wisk.utils.showToast('Error converting file', 5000);
-        } finally {
-            wisk.utils.hideLoading();
-        }
-    }
-
-    async fileToBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-                let encoded = reader.result.toString().replace(/^data:(.*,)?/, '');
-                resolve(encoded);
-            };
-            reader.onerror = error => reject(error);
-        });
-    }
-
-    async importMd() {
-        if (!this.selectedFile) {
-            wisk.utils.showToast('No file selected', 5000);
+    async importReport() {
+        if (!this.reportContent) {
+            wisk.utils.showToast('No report content to import', 5000);
             return;
         }
 
         try {
-            // Show loading state
-            wisk.utils.showLoading('Importing markdown...');
+            wisk.utils.showLoading('Importing report...');
 
-            // Read the file content
-            const fileContent = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = e => resolve(e.target.result);
-                reader.onerror = e => reject(e);
-                reader.readAsText(this.selectedFile);
-            });
-
-            // Convert markdown to elements
-            const elements = wisk.editor.convertMarkdownToElements(fileContent);
+            const elements = wisk.editor.convertMarkdownToElements(this.reportContent);
             console.log('----- Elements:', elements);
 
-            // Create blocks for each element
             for (let i = 0; i < elements.length; i++) {
                 if (elements[i].component !== 'main-element') {
                     wisk.editor.createBlockNoFocus('', elements[i].component, elements[i].value);
@@ -855,7 +559,44 @@ class GettingStarted extends LitElement {
                 }
             }
 
-            // Close the dialog and show success message
+            this.closeDialog();
+            wisk.utils.showToast('Report imported successfully', 5000);
+        } catch (error) {
+            console.error('Error importing report:', error);
+            wisk.utils.showToast('Error importing report', 5000);
+        } finally {
+            wisk.utils.hideLoading();
+        }
+    }
+
+    async importMd() {
+        if (!this.selectedFile) {
+            wisk.utils.showToast('No file selected', 5000);
+            return;
+        }
+
+        try {
+            wisk.utils.showLoading('Importing markdown...');
+
+            const fileContent = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = e => reject(e);
+                reader.readAsText(this.selectedFile);
+            });
+
+            const elements = wisk.editor.convertMarkdownToElements(fileContent);
+            console.log('----- Elements:', elements);
+
+            for (let i = 0; i < elements.length; i++) {
+                if (elements[i].component !== 'main-element') {
+                    wisk.editor.createBlockNoFocus('', elements[i].component, elements[i].value);
+                } else {
+                    document.getElementById('abcdxyz').setValue('', elements[i].value);
+                    document.getElementById('abcdxyz').sendUpdates();
+                }
+            }
+
             this.closeDialog();
             wisk.utils.showToast('File imported successfully', 5000);
         } catch (error) {
@@ -868,11 +609,22 @@ class GettingStarted extends LitElement {
 
     renderImportDialog() {
         return html`
-            <div class="dialog-content thin-dialog-content">
-                <button class="dialog-close" @click=${this.closeDialog}>
-                    <img src="/a7/forget/x.svg" alt="Close" style="filter: var(--themed-svg)" />
-                </button>
-                <h2 class="dialog-title">Import from File</h2>
+            <div class="dialog-content">
+                <div class="header">
+                    <div class="header-wrapper">
+                        <div class="header-controls">
+                            <label class="header-title">Import from File</label>
+                            <img
+                                src="/a7/forget/dialog-x.svg"
+                                alt="Close"
+                                @click="${this.closeDialog}"
+                                class="icon"
+                                draggable="false"
+                                style="padding: var(--padding-3);"
+                            />
+                        </div>
+                    </div>
+                </div>
 
                 <div class="main-group">
                     ${this.selectedFile
@@ -884,65 +636,101 @@ class GettingStarted extends LitElement {
                                       <span class="file-size">${this.formatFileSize(this.selectedFile.size)}</span>
                                   </div>
                                   <button class="remove-file" @click=${this.removeFile}>
-                                      <img src="/a7/forget/x.svg" alt="Remove" style="width: 16px; height: 16px; filter: var(--themed-svg)" />
+                                      <img src="/a7/forget/dialog-x.svg" alt="Remove" style="width: 16px; height: 16px; filter: var(--themed-svg)" />
                                   </button>
                               </div>
 
                               <div style="display: flex; gap: var(--gap-2); margin-top: var(--gap-3)">
-                                  <button class="generate-button" @click=${this.convertFile} style="display: none">
-                                      <img src="/a7/forget/gs-ai.svg" alt="Convert" style="width: 22px; filter: var(--accent-svg)" />
-                                      Convert to Markdown
-                                  </button>
-                                  <button class="generate-button" @click=${this.importMd}>
-                                      <img src="/a7/forget/gs-import.svg" alt="Import" style="width: 22px; filter: var(--accent-svg)" />
-                                      Import Raw
-                                  </button>
+                                  <button class="generate-button" @click=${this.importMd}>Import</button>
                               </div>
                           `
                         : html`
-                              <div class="drop-zone" @dragover=${this.handleDragOver} @drop=${this.handleDrop} @dragleave=${this.handleDragLeave}>
+                              <div
+                                  class="drop-zone"
+                                  @dragover=${this.handleDragOver}
+                                  @drop=${this.handleDrop}
+                                  @dragleave=${this.handleDragLeave}
+                                  @click=${this.triggerFileInput}
+                              >
                                   <img
                                       src="/a7/forget/gs-import.svg"
                                       alt="Upload"
                                       style="width: 48px; height: 48px; filter: var(--themed-svg); margin-bottom: var(--gap-3)"
                                   />
-                                  <p class="drop-text">Drag and drop your file here</p>
-                                  <p class="supported-formats">Supported formats: Markdown (pdf and docx support coming soon)</p>
+                                  <p class="drop-text">Drag and drop a markdown file here</p>
                                   <input type="file" id="fileInput" accept=".md,.markdown" style="display: none;" @change=${this.handleFileSelect} />
-                                  <button class="browse-button" @click=${this.triggerFileInput}>Browse Files</button>
                               </div>
                           `}
 
                     <div style="margin-top: var(--gap-3)">
-                        <p class="warning-text">Note: Format conversion may not be perfect</p>
+                        <p class="warning-text">Note: Experimental feature, might not work as expected.</p>
                     </div>
                 </div>
             </div>
         `;
     }
 
-    importFile() {
-        console.log('Importing file:', this.selectedFile);
-        var lines = [];
-        var reader = new FileReader();
-        reader.onload = e => {
-            const text = e.target.result;
-            lines = text.split('\n');
-            console.log('Lines:', lines);
-            for (let i = 0; i < lines.length; i++) {
-                console.log(i, '--', lines.length, 'Creating block:', lines[i]);
-                wisk.editor.createNewBlock(
-                    '',
-                    'text-element',
-                    {
-                        textContent: lines[i],
-                    },
-                    { x: 0 }
-                );
-            }
-        };
+    renderReportDialog() {
+        return html`
+            <div class="dialog-content">
+                <div class="header">
+                    <div class="header-wrapper">
+                        <div class="header-controls">
+                            <label class="header-title">Draft Anything</label>
+                            <img
+                                src="/a7/forget/dialog-x.svg"
+                                alt="Close"
+                                @click="${this.closeDialog}"
+                                class="icon"
+                                draggable="false"
+                                style="padding: var(--padding-3);"
+                            />
+                        </div>
+                    </div>
+                </div>
 
-        reader.readAsText(this.selectedFile);
+                <div class="main-group">
+                    <div class="input-group ${this.previewVisible ? 'hidden' : ''}">
+                        <textarea
+                            class="input-field"
+                            placeholder="${['Prepare an outline for ...', 'Yeah just paste that assignment here', 'Write 500 words report on ...'][
+                                Math.floor(Math.random() * 3)
+                            ]}"
+                            rows="3"
+                            .value=${this.reportQuery}
+                            @input=${this.handleQueryChange}
+                        ></textarea>
+                    </div>
+
+                    ${this.isGenerating
+                        ? html`
+                              <div class="loading-indicator">
+                                  <div class="spinner"></div>
+                                  <span>Neo is writing, just wait...</span>
+                              </div>
+                          `
+                        : html`
+                              <div class="gen-div ${this.previewVisible ? 'hidden' : ''}">
+                                  <button class="generate-button" @click=${this.generateReport} ?disabled=${!this.reportQuery.trim()}>
+                                      Generate
+                                  </button>
+                              </div>
+                          `}
+
+                    <div class="preview-container ${this.previewVisible ? 'shown' : ''}">
+                        <pre style="white-space: pre-wrap; font-family: var(--font);">${this.reportContent}</pre>
+                    </div>
+
+                    ${this.reportContent
+                        ? html`
+                              <div style="display: flex; gap: var(--gap-2); margin-top: var(--gap-3)">
+                                  <button class="generate-button" @click=${this.importReport}>Import</button>
+                              </div>
+                          `
+                        : ''}
+                </div>
+            </div>
+        `;
     }
 
     async pluginPacks(usecase) {
@@ -982,49 +770,40 @@ class GettingStarted extends LitElement {
                 <div style="display: flex; gap: var(--gap-3); flex-wrap: wrap; align-items: center;">
                     Get started with
                     <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap">
-                        <button class="gs-button" @click=${() => this.showDialog('draft')}>
-                            <img src="/a7/forget/gs-draft-anything.svg" alt="" /> Draft anything
-                        </button>
                         <button
-                            class="gs-button"
+                            class="button"
                             @click=${() => document.querySelector('template-dialog').show()}
                             style="display: ${localStorage.getItem('devMode') === 'true' ? 'flex' : 'none'};"
                         >
                             <img src="/a7/forget/gs-templates.svg" alt="" /> Start with Templates
                         </button>
-                        <button class="gs-button" @click=${() => this.showDialog('brainstorm')} style="display: none">
-                            <img src="/a7/forget/gs-brainstorm.svg" alt="" /> Brainstorm Ideas
+                        <button class="button" @click=${() => this.showDialog('report')}>
+                            <img src="/a7/forget/gs-draft-anything.svg" alt="" /> Draft anything
                         </button>
-                        <button class="gs-button" @click=${() => this.showDialog('topics')} style="display: none">
-                            <img src="/a7/forget/gs-cover.svg" alt="" /> Topics to cover
-                        </button>
-                        <button class="gs-button" @click=${() => this.showDialog('import')}>
+                        <button class="button" @click=${() => this.showDialog('import')}>
                             <img src="/a7/forget/gs-import.svg" alt="" /> Import from file
                         </button>
-                        <button class="gs-button" @click=${() => document.querySelector('help-dialog').show()}>
+                        <button class="button" @click=${() => document.querySelector('help-dialog').show()}>
                             <img src="/a7/forget/gs-help.svg" alt="" /> Help
                         </button>
                     </div>
                 </div>
 
-                <div style="display: flex; gap: var(--gap-3); flex-wrap: wrap; align-items: center;">
+                <div style="display: none; gap: var(--gap-3); flex-wrap: wrap; align-items: center;">
                     1 click install plugins for
                     <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap">
-                        <button class="gs-button" @click=${() => this.pluginPacks('student')}>Academic Assignment</button>
-                        <button class="gs-button" @click=${() => this.pluginPacks('student-but-cooler')}>Academic Assignment (Cool)</button>
-                        <button class="gs-button" @click=${() => this.pluginPacks('blog')}>Blogging</button>
+                        <button class="button" @click=${() => this.pluginPacks('student')}>Academic Assignment</button>
+                        <button class="button" @click=${() => this.pluginPacks('student-but-cooler')}>Academic Assignment (Cool)</button>
+                        <button class="button" @click=${() => this.pluginPacks('blog')}>Blogging</button>
                     </div>
                 </div>
                 <p style="display: flex; margin-top: 20px; align-items: center; gap: var(--gap-1);">
-                    <img src="/a7/forget/gs-info.svg" alt="Tip" style="height: 16px; filter: var(--accent-svg)" title="Tip" /> <span id="tip"></span>
+                    <img src="/a7/forget/gs-info.svg" alt="Tip" style="height: 16px; filter: var(--accent-svg)" title="Tip" />
+                    <span id="tip"> ${this.tips} </span>
                 </p>
 
-                <div class="dialog-overlay" style="display: ${this.activeDialog ? 'flex' : 'none'}">
-                    ${this.activeDialog === 'draft' ? this.renderDraftAnythingDialog() : ''}
-                    ${this.activeDialog === 'brainstorm' ? this.renderBrainstormDialog() : ''}
-                    ${this.activeDialog === 'topics' ? this.renderTopicsDialog() : ''}
-                    ${this.activeDialog === 'import' ? this.renderImportDialog() : ''}
-                </div>
+                <div class="dialog-overlay" style="display: ${this.activeDialog ? 'flex' : 'none'}" @click=${this.handleBackdropClick}></div>
+                ${this.activeDialog === 'import' ? this.renderImportDialog() : ''} ${this.activeDialog === 'report' ? this.renderReportDialog() : ''}
             </div>
         `;
     }

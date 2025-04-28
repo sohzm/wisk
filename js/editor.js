@@ -955,6 +955,7 @@ wisk.editor.justUpdates = async function (elementId) {
     }, elementSyncTimer); // should it be less? to voice your opinion, join our discord server: https://discord.gg/D8tQCvgDhu
 };
 
+// TODO remove??? idk
 function initKeyboardDetection() {
     // Use Visual Viewport API (better browser support)
     if (window.visualViewport) {

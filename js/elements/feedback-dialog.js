@@ -5,10 +5,9 @@ class FeedbackDialog extends LitElement {
         * {
             box-sizing: border-box;
             font-family: var(--font);
-            margin: 0px;
-            padding: 0px;
+            margin: 0;
+            padding: 0;
             transition: all 0.3s ease;
-            user-select: none;
             outline: none;
         }
 
@@ -18,25 +17,28 @@ class FeedbackDialog extends LitElement {
             left: 0;
             width: 100%;
             height: 100%;
-            background: transparent;
+            background-color: var(--fg-2);
+            opacity: 0.3;
             display: none;
-            justify-content: center;
-            align-items: center;
             z-index: 999;
         }
 
         .dialog-content {
             background: var(--bg-1);
-            padding: calc(var(--padding-4) * 2);
+            padding: var(--padding-4);
             border-radius: var(--radius-large);
-            border: 1px solid var(--border-1);
-            filter: var(--drop-shadow) var(--drop-shadow);
-            max-width: 800px;
-            max-height: 700px;
-            height: 90%;
+            max-width: 1010px;
+            max-height: 730px;
             width: 90%;
-            position: absolute;
+            height: 90%;
+            position: fixed;
             z-index: 1000;
+            opacity: 1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            flex-direction: column;
         }
 
         @media (max-width: 768px) {
@@ -49,6 +51,7 @@ class FeedbackDialog extends LitElement {
                 border-top-right-radius: var(--radius-large);
                 top: 10%;
                 left: 0;
+                transform: none;
                 max-height: none;
             }
 
@@ -66,31 +69,41 @@ class FeedbackDialog extends LitElement {
             }
         }
 
-        .dialog-close {
-            position: absolute;
-            top: var(--padding-3);
-            right: var(--padding-3);
+        .header {
             display: flex;
-            width: 24px;
-            height: 24px;
-            background: none;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
+            flex-direction: row;
             color: var(--fg-1);
-            font-size: 1.5rem;
+            gap: var(--gap-2);
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: calc(20px + var(--gap-3));
         }
 
-        .dialog-close:hover {
-            background: var(--bg-3);
+        .header-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
         }
 
-        .dialog-title {
-            font-size: 1.5rem;
-            margin-bottom: var(--gap-3);
-            color: var(--fg-1);
+        .header-controls {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 30px;
+            font-weight: 500;
+        }
+
+        .icon {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 22px;
         }
 
         .main-group {
@@ -99,6 +112,7 @@ class FeedbackDialog extends LitElement {
             display: flex;
             flex-direction: column;
             gap: calc(var(--gap-3) * 2);
+            flex: 1;
         }
 
         .input-group {
@@ -127,6 +141,7 @@ class FeedbackDialog extends LitElement {
             color: var(--fg-1);
             resize: vertical;
             font-size: 0.9rem;
+            user-select: text;
         }
 
         .rating-group {
@@ -151,18 +166,39 @@ class FeedbackDialog extends LitElement {
         }
 
         .submit-button {
-            padding: var(--padding-3) var(--padding-4);
-            background: var(--bg-accent);
-            color: var(--fg-accent);
-            border: none;
-            border-radius: var(--radius);
+            background: var(--fg-1);
+            color: var(--bg-1);
+            padding: var(--padding-w2);
+            font-weight: 600;
+            border-radius: calc(var(--radius-large) * 20);
+            border: 2px solid transparent;
             cursor: pointer;
-            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--gap-2);
+            margin-left: auto;
+        }
+
+        .submit-button:hover {
+            background-color: transparent;
+            border: 2px solid var(--fg-1);
+            color: var(--fg-1);
         }
 
         .submit-button:disabled {
-            opacity: 0.5;
+            background-color: var(--bg-3);
+            color: var(--fg-2);
+            border: 2px solid transparent;
             cursor: not-allowed;
+        }
+
+        input[type='email'] {
+            padding: var(--padding-3);
+            border-radius: var(--radius);
+            background: var(--bg-2);
+            color: var(--fg-1);
+            max-width: 300px;
+            user-select: text;
         }
 
         @media (hover: hover) {
@@ -182,13 +218,15 @@ class FeedbackDialog extends LitElement {
             }
         }
 
-        input[type='email'] {
-            padding: var(--padding-3);
-            border: 1px solid var(--border-1);
-            border-radius: var(--radius);
-            background: var(--bg-2);
-            color: var(--fg-1);
-            max-width: 300px;
+        textarea,
+        input {
+            border: 2px solid var(--bg-3);
+        }
+
+        textarea:focus,
+        input:focus {
+            border: 2px solid var(--fg-accent);
+            outline: none;
         }
     `;
 
@@ -213,6 +251,10 @@ class FeedbackDialog extends LitElement {
     hide() {
         this.visible = false;
         this.requestUpdate();
+    }
+
+    handleBackdropClick() {
+        this.hide();
     }
 
     handleRatingSelect(rating) {
@@ -261,57 +303,62 @@ class FeedbackDialog extends LitElement {
 
     render() {
         return html`
-            <div class="dialog-overlay" style="display: ${this.visible ? 'flex' : 'none'}">
-                <div class="dialog-content">
-                    <button class="dialog-close" @click=${this.hide}>
-                        <img src="/a7/forget/x.svg" alt="Close" style="filter: var(--themed-svg)" />
-                    </button>
-                    <h2 class="dialog-title">Send Feedback</h2>
-                    <div class="main-group">
-                        <div class="input-group">
-                            <label class="input-label">What's on your mind?</label>
-                            <p class="input-description">Your feedback helps us improve the editor for everyone.</p>
-                            <textarea
-                                placeholder="Share your thoughts, suggestions, or report issues..."
-                                .value=${this.feedback}
-                                @input=${this.handleFeedbackInput}
-                            ></textarea>
+            <div class="dialog-overlay" style="display: ${this.visible ? 'block' : 'none'}" @click=${this.handleBackdropClick}></div>
+            <div class="dialog-content" style="display: ${this.visible ? 'flex' : 'none'}">
+                <div class="header">
+                    <div class="header-wrapper">
+                        <div class="header-controls">
+                            <label class="header-title">Send Feedback</label>
+                            <img
+                                src="/a7/forget/dialog-x.svg"
+                                alt="Close"
+                                @click="${this.hide}"
+                                class="icon"
+                                draggable="false"
+                                style="padding: var(--padding-3); width: unset; filter: var(--themed-svg)"
+                            />
                         </div>
-
-                        <div class="input-group">
-                            <label class="input-label">How would you rate your experience?</label>
-                            <div class="rating-group">
-                                ${[1, 2, 3, 4, 5].map(
-                                    num => html`
-                                        <button
-                                            class="rating-button ${this.rating === num ? 'selected' : ''}"
-                                            @click=${() => this.handleRatingSelect(num)}
-                                        >
-                                            ${num}
-                                        </button>
-                                    `
-                                )}
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="input-label">Contact Information</label>
-                            <p class="input-description">We may need to follow up with you to get more details. (Optional)</p>
-                            <input type="email" placeholder="Email Address" />
-                        </div>
-
-                        <div class="input-group" style="display: none">
-                            <label class="input-label">Attach Logs</label>
-                            <div style="gap: var(--gap-2); display: flex; align-items: center;">
-                                <label class="input-description" for="attach-logs">Include logs to help us diagnose the issue.</label>
-                                <input type="checkbox" id="attach-logs" name="attach-logs" />
-                            </div>
-                        </div>
-
-                        <div style="flex: 1"></div>
-
-                        <button class="submit-button" @click=${this.handleSubmit} ?disabled=${!this.rating && !this.feedback}>Submit Feedback</button>
                     </div>
+                </div>
+
+                <div class="main-group">
+                    <div class="input-group">
+                        <label class="input-label">What's on your mind?</label>
+                        <textarea placeholder="So im having this issue..." .value=${this.feedback} @input=${this.handleFeedbackInput}></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">How would you rate your experience?</label>
+                        <div class="rating-group">
+                            ${[1, 2, 3, 4, 5].map(
+                                num => html`
+                                    <button
+                                        class="rating-button ${this.rating === num ? 'selected' : ''}"
+                                        @click=${() => this.handleRatingSelect(num)}
+                                    >
+                                        ${num}
+                                    </button>
+                                `
+                            )}
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Contact Information (Optional)</label>
+                        <input type="email" placeholder="Email Address" />
+                    </div>
+
+                    <div class="input-group" style="display: none">
+                        <label class="input-label">Attach Logs</label>
+                        <div style="gap: var(--gap-2); display: flex; align-items: center;">
+                            <label class="input-description" for="attach-logs">Include logs to help us diagnose the issue.</label>
+                            <input type="checkbox" id="attach-logs" name="attach-logs" />
+                        </div>
+                    </div>
+
+                    <div style="flex: 1"></div>
+
+                    <button class="submit-button" @click=${this.handleSubmit} ?disabled=${!this.rating && !this.feedback}>Submit</button>
                 </div>
             </div>
         `;

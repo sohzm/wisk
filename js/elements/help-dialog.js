@@ -5,8 +5,8 @@ class HelpDialog extends LitElement {
         * {
             box-sizing: border-box;
             font-family: var(--font);
-            margin: 0px;
-            padding: 0px;
+            margin: 0;
+            padding: 0;
             transition: all 0.3s ease;
         }
 
@@ -16,25 +16,28 @@ class HelpDialog extends LitElement {
             left: 0;
             width: 100%;
             height: 100%;
-            background: transparent;
+            background-color: var(--fg-2);
+            opacity: 0.3;
             display: none;
-            justify-content: center;
-            align-items: center;
             z-index: 999;
         }
 
         .dialog-content {
             background: var(--bg-1);
-            padding: calc(var(--padding-4) * 2);
+            padding: var(--padding-4);
             border-radius: var(--radius-large);
-            border: 1px solid var(--border-1);
-            filter: var(--drop-shadow) var(--drop-shadow);
-            max-width: 1400px;
-            max-height: 700px;
-            height: 90%;
+            max-width: 1010px;
+            max-height: 730px;
             width: 90%;
-            position: absolute;
+            height: 90%;
+            position: fixed;
             z-index: 1000;
+            opacity: 1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            flex-direction: column;
         }
 
         @media (max-width: 768px) {
@@ -47,6 +50,7 @@ class HelpDialog extends LitElement {
                 border-top-right-radius: var(--radius-large);
                 top: 10%;
                 left: 0;
+                transform: none;
                 max-height: none;
             }
 
@@ -85,15 +89,47 @@ class HelpDialog extends LitElement {
             background: var(--bg-3);
         }
 
-        .dialog-title {
-            font-size: 1.5rem;
-            margin-bottom: var(--gap-3);
+        .header {
+            display: flex;
+            flex-direction: row;
             color: var(--fg-1);
+            gap: var(--gap-2);
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: calc(20px + var(--gap-3));
+        }
+
+        .header-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .header-controls {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 30px;
+            font-weight: 500;
+        }
+
+        .icon {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 22px;
         }
 
         .main-group {
             overflow-y: auto;
             height: inherit;
+            flex: 1;
         }
 
         .quick-link {
@@ -108,23 +144,6 @@ class HelpDialog extends LitElement {
         .input-label {
             color: var(--fg-1);
             font-weight: 500;
-        }
-
-        @media (hover: hover) {
-            *::-webkit-scrollbar {
-                width: 15px;
-            }
-            *::-webkit-scrollbar-track {
-                background: var(--bg-1);
-            }
-            *::-webkit-scrollbar-thumb {
-                background-color: var(--bg-3);
-                border-radius: 20px;
-                border: 4px solid var(--bg-1);
-            }
-            *::-webkit-scrollbar-thumb:hover {
-                background-color: var(--fg-1);
-            }
         }
 
         .shortcut {
@@ -144,6 +163,23 @@ class HelpDialog extends LitElement {
             border-radius: var(--radius);
             font-size: 14px;
             border: 1px solid var(--border-1);
+        }
+
+        @media (hover: hover) {
+            *::-webkit-scrollbar {
+                width: 15px;
+            }
+            *::-webkit-scrollbar-track {
+                background: var(--bg-1);
+            }
+            *::-webkit-scrollbar-thumb {
+                background-color: var(--bg-3);
+                border-radius: 20px;
+                border: 4px solid var(--bg-1);
+            }
+            *::-webkit-scrollbar-thumb:hover {
+                background-color: var(--fg-1);
+            }
         }
     `;
 
@@ -166,49 +202,63 @@ class HelpDialog extends LitElement {
         this.requestUpdate();
     }
 
+    handleBackdropClick() {
+        this.hide();
+    }
+
     render() {
         return html`
-            <div class="dialog-overlay" style="display: ${this.visible ? 'flex' : 'none'}">
-                <div class="dialog-content">
-                    <button class="dialog-close" @click=${this.hide}>
-                        <img src="/a7/forget/x.svg" alt="Close" style="filter: var(--themed-svg)" />
-                    </button>
-                    <h2 class="dialog-title">Help</h2>
-                    <div class="main-group">
-                        <div style="display: flex; align-items: center; gap: var(--gap-3); font-size: 15px; flex-wrap: wrap">
-                            <label class="input-label">Quick Links</label>
-                            <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap">
-                                <a target="_blank" href="https://wisk.cc/faq" class="quick-link">FAQ</a>
-                                <a target="_blank" href="https://discord.gg/D8tQCvgDhu" class="quick-link">Discord</a>
-                                <a target="_blank" href="https://github.com/sohzm/wisk/blob/master/docs/docs.md" class="quick-link">Documentation</a>
-                                <a target="_blank" href="https://wisk.cc/contact" class="quick-link">Contact Support</a>
-                            </div>
+            <div class="dialog-overlay" style="display: ${this.visible ? 'block' : 'none'}" @click=${this.handleBackdropClick}></div>
+            <div class="dialog-content" style="display: ${this.visible ? 'flex' : 'none'}">
+                <div class="header">
+                    <div class="header-wrapper">
+                        <div class="header-controls">
+                            <label class="header-title">Help</label>
+                            <img
+                                src="/a7/forget/dialog-x.svg"
+                                alt="Close"
+                                @click="${this.hide}"
+                                class="icon"
+                                draggable="false"
+                                style="padding: var(--padding-3); width: unset; filter: var(--themed-svg)"
+                            />
                         </div>
-
-                        <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--gap-2); margin-top: var(--gap-3)">
-                            <h3>Shortcuts</h3>
-                            <div style="display: flex; gap: var(--gap-2); flex-direction: column; width: 100%;">
-                                <p class="shortcut">Command Palette <span class="shortcut-key">Ctrl + Shift + P</span></p>
-                                <p class="shortcut">Search <span class="shortcut-key">Ctrl + Shift + F</span></p>
-                            </div>
+                    </div>
+                </div>
+                <div class="main-group">
+                    <div style="display: flex; align-items: center; gap: var(--gap-3); font-size: 15px; flex-wrap: wrap">
+                        <label class="input-label">Quick Links</label>
+                        <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap">
+                            <a target="_blank" href="https://wisk.cc/faq" class="quick-link">FAQ</a>
+                            <a target="_blank" href="https://discord.gg/D8tQCvgDhu" class="quick-link">Discord</a>
+                            <a target="_blank" href="https://github.com/sohzm/wisk/blob/master/docs/docs.md" class="quick-link">Documentation</a>
+                            <a target="_blank" href="https://wisk.cc/contact" class="quick-link">Contact Support</a>
                         </div>
+                    </div>
 
-                        <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--gap-2); margin-top: var(--gap-3)">
-                            <h3>Tutorials</h3>
-                            <div style="display: flex; gap: var(--gap-2); overflow-x: auto; width: -webkit-fill-available;">
-                                <iframe
-                                    width="360"
-                                    height="200"
-                                    style="border-radius: var(--radius); border: 1px solid var(--border-1)"
-                                    src=""
-                                    title="YouTube video player"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                    referrerpolicy="strict-origin-when-cross-origin"
-                                    allowfullscreen
-                                >
-                                </iframe>
-                            </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--gap-2); margin-top: var(--gap-3)">
+                        <h3>Shortcuts</h3>
+                        <div style="display: flex; gap: var(--gap-2); flex-direction: column; width: 100%;">
+                            <p class="shortcut">Command Palette <span class="shortcut-key">Ctrl + Shift + P</span></p>
+                            <p class="shortcut">Search <span class="shortcut-key">Ctrl + Shift + F</span></p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--gap-2); margin-top: var(--gap-3)">
+                        <h3>Tutorials</h3>
+                        <div style="display: flex; gap: var(--gap-2); overflow-x: auto; width: -webkit-fill-available;">
+                            <iframe
+                                width="360"
+                                height="200"
+                                style="border-radius: var(--radius); border: 1px solid var(--border-1)"
+                                src=""
+                                title="YouTube video player"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen
+                            >
+                            </iframe>
                         </div>
                     </div>
                 </div>

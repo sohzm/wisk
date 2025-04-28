@@ -1,3 +1,12 @@
+- Apr 28
+
+    - getting started improvements
+    - small improvements
+
+- Apr 27
+
+    - database improvements, added martix and carousel views
+
 - Apr 25
 
     - toolbar improvements for mobile

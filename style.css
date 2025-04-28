@@ -238,20 +238,34 @@ nav {
     width: 100%;
 }
 
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bg-3) transparent;
+}
+
+@media (hover: hover) {
+    *:hover {
+        scrollbar-color: var(--fg-1) transparent;
+    }
+}
+
+/* WebKit (Chrome/Safari/Edge) */
 @media (hover: hover) {
     *::-webkit-scrollbar {
-        width: 15px;
+        width: 8px;
     }
     *::-webkit-scrollbar-track {
-        background: var(--bg-1);
+        background: transparent;
     }
     *::-webkit-scrollbar-thumb {
         background-color: var(--bg-3);
-        border-radius: 20px;
-        border: 4px solid var(--bg-1);
+        border-radius: 10px;
+        transition: all 0.3s;
     }
     *::-webkit-scrollbar-thumb:hover {
         background-color: var(--fg-1);
+        transform: scaleX(1.5);
     }
 }
 
