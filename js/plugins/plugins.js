@@ -94,6 +94,31 @@ async function loadPlugin(pluginName, inx) {
             await customElements.whenDefined(content.component);
         }
 
+        if (content.category != 'nav-mini' && content.nav == true) {
+            console.log(`Loading component: ` + content, content.component);
+            const componentElement = document.createElement(content.component);
+            if (content.identifier) {
+                componentElement.id = content.identifier;
+            }
+            componentElement.dataset.pluginComponent = 'true';
+
+            componentElement.style.display = 'none';
+            let containerSelector;
+            switch (content.category) {
+                case 'mini-dialog':
+                    containerSelector = '.mini-dialog-body';
+                    break;
+                case 'right-sidebar':
+                    containerSelector = '.right-sidebar-body';
+                    break;
+                case 'left-sidebar':
+                    containerSelector = '.left-sidebar-body';
+                    break;
+            }
+            const container = document.querySelector(containerSelector);
+            container.appendChild(componentElement);
+        }
+
         // Add to nav bar if necessary
         if (content.nav === true && !wisk.editor.readonly) {
             addToNavBar(content, inx);
@@ -161,33 +186,14 @@ function addToNavBar(content, inx) {
         button.classList.add('options-button');
     }
 
-    // Create the component container
-    const componentElement = document.createElement(content.component);
-    if (content.identifier) {
-        componentElement.id = content.identifier;
-    }
-    componentElement.dataset.pluginComponent = 'true';
-
     // Handle nav-mini category differently
     if (content.category === 'nav-mini') {
-        button.appendChild(componentElement);
-    } else {
-        // For other categories, add to appropriate container
-        componentElement.style.display = 'none';
-        let containerSelector;
-        switch (content.category) {
-            case 'mini-dialog':
-                containerSelector = '.mini-dialog-body';
-                break;
-            case 'right-sidebar':
-                containerSelector = '.right-sidebar-body';
-                break;
-            case 'left-sidebar':
-                containerSelector = '.left-sidebar-body';
-                break;
+        const componentElement = document.createElement(content.component);
+        if (content.identifier) {
+            componentElement.id = content.identifier;
         }
-        const container = document.querySelector(containerSelector);
-        container.appendChild(componentElement);
+        componentElement.dataset.pluginComponent = 'true';
+        button.appendChild(componentElement);
     }
 
     button.onclick = () => {

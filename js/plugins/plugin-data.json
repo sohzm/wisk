@@ -629,7 +629,7 @@
                     "textual": false,
                     "loadAsModule": true,
                     "experimental": true,
-                    "width": "max"
+                    "width": "mini"
                 }
             ]
         },

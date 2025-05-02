@@ -3,8 +3,9 @@ wisk.db = (function () {
     const dbName = 'WiskDatabase';
     const dataStoreName = 'WiskStore';
     const assetStoreName = 'WiskAssetStore';
-    const pluginStoreName = 'WiskPluginStore'; // New store for plugins
-    const dbVersion = 3; // Increased version number for new plugin store
+    const pluginStoreName = 'WiskPluginStore';
+    const databaseStoreName = 'WiskDatabaseStore'; // New store for database objects
+    const dbVersion = 3;
     let db;
 
     function openDB() {
@@ -26,6 +27,9 @@ wisk.db = (function () {
                 }
                 if (!db.objectStoreNames.contains(pluginStoreName)) {
                     db.createObjectStore(pluginStoreName);
+                }
+                if (!db.objectStoreNames.contains(databaseStoreName)) {
+                    db.createObjectStore(databaseStoreName); // Create the new store
                 }
             };
         });
@@ -145,6 +149,64 @@ wisk.db = (function () {
         });
     }
 
+    // New database store operations
+    async function getDB(key) {
+        return new Promise((resolve, reject) => {
+            openDB()
+                .then(db => {
+                    const transaction = db.transaction([databaseStoreName], 'readonly');
+                    const store = transaction.objectStore(databaseStoreName);
+                    const request = store.get(key);
+                    request.onerror = event => reject('Error fetching database object: ' + event.target.error);
+                    request.onsuccess = event => resolve(event.target.result);
+                })
+                .catch(reject);
+        });
+    }
+
+    async function setDB(key, value) {
+        return new Promise((resolve, reject) => {
+            openDB()
+                .then(db => {
+                    const transaction = db.transaction([databaseStoreName], 'readwrite');
+                    const store = transaction.objectStore(databaseStoreName);
+                    const request = store.put(value, key);
+                    request.onerror = event => reject('Error storing database object: ' + event.target.error);
+                    request.onsuccess = event => resolve();
+                })
+                .catch(reject);
+        });
+    }
+
+    async function removeDB(key) {
+        return new Promise((resolve, reject) => {
+            openDB()
+                .then(db => {
+                    const transaction = db.transaction([databaseStoreName], 'readwrite');
+                    const store = transaction.objectStore(databaseStoreName);
+                    const request = store.delete(key);
+                    request.onerror = event => reject('Error removing database object: ' + event.target.error);
+                    request.onsuccess = event => resolve();
+                })
+                .catch(reject);
+        });
+    }
+
+    async function getAllDB() {
+        // Note: This gets all *values* (objects), not just keys.
+        return new Promise((resolve, reject) => {
+            openDB()
+                .then(db => {
+                    const transaction = db.transaction([databaseStoreName], 'readonly');
+                    const store = transaction.objectStore(databaseStoreName);
+                    const request = store.getAll(); // Use getAll() to get values
+                    request.onerror = event => reject('Error fetching all database objects: ' + event.target.error);
+                    request.onsuccess = event => resolve(event.target.result);
+                })
+                .catch(reject);
+        });
+    }
+
     // New plugin store operations
     async function getPluginItem(key) {
         return new Promise((resolve, reject) => {
@@ -206,14 +268,17 @@ wisk.db = (function () {
         return new Promise((resolve, reject) => {
             openDB()
                 .then(db => {
-                    const transaction = db.transaction([dataStoreName, assetStoreName, pluginStoreName], 'readwrite');
+                    const storesToClear = [dataStoreName, assetStoreName, pluginStoreName, databaseStoreName];
+                    const transaction = db.transaction(storesToClear, 'readwrite');
                     const dataStore = transaction.objectStore(dataStoreName);
                     const assetStore = transaction.objectStore(assetStoreName);
                     const pluginStore = transaction.objectStore(pluginStoreName);
+                    const databaseStore = transaction.objectStore(databaseStoreName); // Get the new store
 
                     const clearDataRequest = dataStore.clear();
                     const clearAssetRequest = assetStore.clear();
                     const clearPluginRequest = pluginStore.clear();
+                    const clearDatabaseRequest = databaseStore.clear(); // Clear the new store
 
                     Promise.all([
                         new Promise((res, rej) => {
@@ -227,6 +292,11 @@ wisk.db = (function () {
                         new Promise((res, rej) => {
                             clearPluginRequest.onsuccess = () => res();
                             clearPluginRequest.onerror = () => rej('Error clearing plugin store: ' + clearPluginRequest.error);
+                        }),
+                        new Promise((res, rej) => {
+                            // Add promise for clearing the new store
+                            clearDatabaseRequest.onsuccess = () => res();
+                            clearDatabaseRequest.onerror = () => rej('Error clearing database store: ' + clearDatabaseRequest.error);
                         }),
                     ])
                         .then(() => resolve())
@@ -293,11 +363,41 @@ wisk.db = (function () {
                 pluginItems.push({ key, size });
             }
 
+            // Get all database items and their sizes
+            // Need to get keys first, then iterate to get individual items for size calculation
+            const databaseKeys = await new Promise((resolve, reject) => {
+                openDB()
+                    .then(db => {
+                        const transaction = db.transaction([databaseStoreName], 'readonly');
+                        const store = transaction.objectStore(databaseStoreName);
+                        const request = store.getAllKeys();
+                        request.onerror = event => reject('Error fetching database keys for stats: ' + event.target.error);
+                        request.onsuccess = event => resolve(event.target.result);
+                    })
+                    .catch(reject);
+            });
+
+            let databaseItems = [];
+            for (const key of databaseKeys) {
+                const value = await getDB(key); // Use the new getDB function
+                let size;
+
+                if (typeof value === 'string') {
+                    size = new Blob([value]).size;
+                } else if (value instanceof Blob) {
+                    size = value.size;
+                } else {
+                    size = new Blob([JSON.stringify(value)]).size;
+                }
+                databaseItems.push({ key, size });
+            }
+
             // Calculate totals
             const dataStorageSize = dataItems.reduce((total, item) => total + item.size, 0);
             const assetStorageSize = assetItems.reduce((total, item) => total + item.size, 0);
             const pluginStorageSize = pluginItems.reduce((total, item) => total + item.size, 0);
-            const totalStorageSize = dataStorageSize + assetStorageSize + pluginStorageSize;
+            const databaseStorageSize = databaseItems.reduce((total, item) => total + item.size, 0); // Calculate size for the new store
+            const totalStorageSize = dataStorageSize + assetStorageSize + pluginStorageSize + databaseStorageSize; // Add new store size to total
 
             return {
                 totalBytes: totalStorageSize,
@@ -325,6 +425,14 @@ wisk.db = (function () {
                         mb: (pluginStorageSize / (1024 * 1024)).toFixed(2),
                         items: pluginItems,
                     },
+                    databaseStore: {
+                        // Add stats details for the new store
+                        count: databaseItems.length,
+                        bytes: databaseStorageSize,
+                        kb: (databaseStorageSize / 1024).toFixed(2),
+                        mb: (databaseStorageSize / (1024 * 1024)).toFixed(2),
+                        items: databaseItems,
+                    },
                 },
             };
         } catch (error) {
@@ -350,6 +458,12 @@ wisk.db = (function () {
         setPluginItem,
         removePluginItem,
         getAllPluginKeys,
+
+        // Database store methods
+        getDB,
+        setDB,
+        removeDB,
+        getAllDB,
 
         // Utility methods
         clearAllData,

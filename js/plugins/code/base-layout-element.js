@@ -362,13 +362,18 @@ class BaseLayoutElement extends HTMLElement {
         }
     }
 
-    whenTrashClicked(elementId) {
-        // Check if we should delegate to a nested layout
-        const nestedLayout = this.getNextLevelLayout(elementId);
-        if (nestedLayout) {
-            return nestedLayout.whenTrashClicked(elementId);
+    async aboutToBeOoomfed() {
+        // loop through all elements and call aboutToBeOoomfed
+        for (const element of this.elements) {
+            const domElement = this.shadowRoot.getElementById(element.id);
+            if (domElement && domElement.aboutToBeOoomfed) {
+                await domElement.aboutToBeOoomfed();
+            }
         }
+    }
 
+    async whenTrashClicked(elementId) {
+        if (this.shadowRoot.getElementById(elementId).aboutToBeOoomfed) await this.shadowRoot.getElementById(elementId).aboutToBeOoomfed();
         this.editor.deleteBlock(elementId);
     }
 

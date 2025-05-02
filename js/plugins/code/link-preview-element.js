@@ -58,7 +58,7 @@ class LinkElement extends HTMLElement {
         if (metadata.favicon) {
             imageElement.src = metadata.favicon;
             imageElement.onerror = () => {
-                imageElement.src = 'https://via.placeholder.com/16';
+                imageElement.src = '';
             };
         }
 
@@ -127,7 +127,7 @@ class LinkElement extends HTMLElement {
 
         titleElement.textContent = 'Enter a URL to preview';
         descElement.style.display = 'none';
-        imageElement.src = 'https://via.placeholder.com/16';
+        imageElement.src = '';
         metaElement.style.display = 'none';
         this.metadata = null;
     }
@@ -140,7 +140,7 @@ class LinkElement extends HTMLElement {
 
         titleElement.textContent = 'Loading...';
         descElement.style.display = 'none';
-        imageElement.src = 'https://via.placeholder.com/16';
+        imageElement.src = '';
         metaElement.style.display = 'none';
     }
 
@@ -152,7 +152,7 @@ class LinkElement extends HTMLElement {
 
         titleElement.textContent = 'Unable to load preview';
         descElement.style.display = 'none';
-        imageElement.src = 'https://via.placeholder.com/16';
+        imageElement.src = '';
         metaElement.style.display = 'none';
     }
 
@@ -335,7 +335,7 @@ class LinkElement extends HTMLElement {
                     </div>
 
                     <div class="table-controls" style="font-size: 13px; width: 100%">
-                        <img class="link-preview-image" src="https://via.placeholder.com/16" alt="Site Icon">
+                        <img class="link-preview-image" src="" alt="Site Icon">
                         <div style="flex: 1; display: flex;">
                             <div class="link">https://</div>
                             <div class="link" id="editable" contenteditable="${!wisk.editor.readonly}" spellcheck="false">${this.link}</div>

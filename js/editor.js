@@ -350,7 +350,6 @@ async function initEditor(doc) {
     //
     console.log('INIT EDITOR', doc);
     wisk.editor.document = doc;
-    wisk.editor.document.data = doc.data;
     document.title = doc.data.config.name;
 
     // Load plugins
@@ -865,8 +864,9 @@ function whenPlusClicked(elementId) {
     }
 }
 
-function whenTrashClicked(elementId) {
+async function whenTrashClicked(elementId) {
     console.log('TRASH CLICKED', elementId);
+    if (document.getElementById(elementId).aboutToBeOoomfed) await document.getElementById(elementId).aboutToBeOoomfed();
     wisk.editor.deleteBlock(elementId);
 }
 

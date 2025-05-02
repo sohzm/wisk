@@ -16,7 +16,7 @@ class EmojiSelector extends LitElement {
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--fg-1);
+            background: var(--fg-2);
             opacity: 0.3;
             display: none;
             justify-content: center;

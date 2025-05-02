@@ -271,6 +271,24 @@ class LeftMenu extends LitElement {
                 background-color: var(--fg-1);
             }
         }
+        
+        /* New styles for folder toggle */
+        .toggle-folder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+        .toggle-folder img {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.2s ease;
+        }
+        .toggle-folder.expanded img {
+        }
     `;
 
     static properties = {
@@ -278,6 +296,7 @@ class LeftMenu extends LitElement {
         openDropdownId: { type: String },
         hoveredItemId: { type: String },
         hierarchicalList: { type: Array },
+        expandedFolders: { type: Object },
     };
 
     constructor() {
@@ -287,6 +306,7 @@ class LeftMenu extends LitElement {
         this.openDropdownId = null;
         this.hoveredItemId = null;
         this.hierarchicalList = [];
+        this.expandedFolders = {};
 
         // Add click event listener to close dropdown when clicking outside
         this.boundHandleClickOutside = this.handleClickOutside.bind(this);
@@ -331,6 +351,11 @@ class LeftMenu extends LitElement {
         return id.split('.').length - 1;
     }
 
+    // Helper to check if an item has children
+    hasChildren(id) {
+        return this.list.some(item => this.isChildOf(item.id, id));
+    }
+
     // Build hierarchical structure efficiently
     buildHierarchicalList() {
         // Step 1: Create a map of items by ID for quick access
@@ -342,6 +367,7 @@ class LeftMenu extends LitElement {
                 children: [],
                 level: this.getNestingLevel(item.id),
                 parentId: this.getParentId(item.id),
+                hasChildren: this.hasChildren(item.id),
             };
             itemsMap.set(item.id, enhancedItem);
         });
@@ -377,6 +403,37 @@ class LeftMenu extends LitElement {
         return flatList;
     }
 
+    // Create a filtered view of the hierarchical list based on expanded state
+    getFilteredHierarchicalList() {
+        // Start with just the root level items
+        const result = [];
+
+        // Helper function to determine if an item should be visible
+        const isVisible = item => {
+            if (item.level === 0) return true;
+
+            // Check if all parent folders are expanded
+            let currentId = item.parentId;
+            while (currentId) {
+                if (!this.expandedFolders[currentId]) {
+                    return false;
+                }
+                currentId = this.getParentId(currentId);
+            }
+
+            return true;
+        };
+
+        // Filter the hierarchical list based on expanded state
+        this.hierarchicalList.forEach(item => {
+            if (isVisible(item)) {
+                result.push(item);
+            }
+        });
+
+        return result;
+    }
+
     async setList() {
         try {
             var l = await wisk.db.getAllKeys();
@@ -401,7 +458,7 @@ class LeftMenu extends LitElement {
 
             // Build hierarchical structure
             this.hierarchicalList = this.buildHierarchicalList();
-            this.filteredList = [...this.hierarchicalList];
+            this.filteredList = this.getFilteredHierarchicalList();
             this.requestUpdate();
         } catch (error) {
             console.error('Error fetching documents:', error);
@@ -434,7 +491,7 @@ class LeftMenu extends LitElement {
             // Update the UI state
             this.list = this.list.filter(item => item.id !== id && !item.id.startsWith(id + '.'));
             this.hierarchicalList = this.buildHierarchicalList();
-            this.filteredList = [...this.hierarchicalList];
+            this.filteredList = this.getFilteredHierarchicalList();
             this.requestUpdate();
 
             // Close the dropdown
@@ -469,6 +526,21 @@ class LeftMenu extends LitElement {
         e.preventDefault();
         e.stopPropagation();
         this.openDropdownId = this.openDropdownId === id ? null : id;
+    }
+
+    // Toggle folder expanded/collapsed state
+    toggleFolder(id, e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        this.expandedFolders = {
+            ...this.expandedFolders,
+            [id]: !this.expandedFolders[id],
+        };
+
+        // Update the filtered list based on new expanded state
+        this.filteredList = this.getFilteredHierarchicalList();
+        this.requestUpdate();
     }
 
     render() {
@@ -517,6 +589,20 @@ class LeftMenu extends LitElement {
                                     }
                                 }}
                             >
+                                ${item.hasChildren
+                                    ? html`
+                                          <div
+                                              class="toggle-folder ${this.expandedFolders[item.id] ? 'expanded' : ''}"
+                                              @click=${e => this.toggleFolder(item.id, e)}
+                                          >
+                                              <img
+                                                  src=${this.expandedFolders[item.id] ? '/a7/forget/down-arrow.svg' : '/a7/forget/right-arrow.svg'}
+                                                  alt="Toggle folder"
+                                              />
+                                          </div>
+                                      `
+                                    : html` <div style="width: 24px;"></div> `}
+
                                 <a href="?id=${item.id}" style="display: flex; gap: var(--gap-2); align-items: center; font-size: 13px">
                                     ${item.emoji
                                         ? html`<span style="font-size: 16px; line-height: 1;">${item.emoji}</span>`

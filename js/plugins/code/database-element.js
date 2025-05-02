@@ -1,3 +1,4 @@
+// TODO clean up this mess
 import { LitElement, html, css, styleMap } from '/a7/cdn/lit-all-2.7.4.min.js';
 
 class DatabaseElement extends LitElement {
@@ -50,19 +51,17 @@ class DatabaseElement extends LitElement {
         }
         th {
             background-color: var(--bg-2);
-            font-family: var(--font-heading);
+            font-family: var(--font);
         }
-        .board {
+        .kanban {
             display: flex;
             overflow-x: auto;
             gap: var(--gap-2);
             padding-top: var(--gap-3);
             border-top: 1px solid var(--border-1);
         }
-        .board-column {
+        .kanban-column {
             min-width: 320px;
-            background-color: var(--bg-2);
-            padding: var(--padding-3);
             border-radius: var(--radius);
         }
         .calendar-container,
@@ -105,17 +104,17 @@ class DatabaseElement extends LitElement {
             border-radius: var(--radius);
             font-size: 0.9em;
         }
-        .board-item,
+        .kanban-item,
         .calendar-item,
         .gallery-item {
-            border: 1px solid var(--border-1);
+            border: 1px solid var(--bg-3);
             padding: var(--padding-2);
             margin-bottom: var(--gap-1);
             cursor: pointer;
             background-color: var(--bg-1);
             border-radius: var(--radius);
         }
-        .board-item:hover,
+        .kanban-item:hover,
         .calendar-item:hover,
         .gallery-item:hover {
             background-color: var(--bg-2);
@@ -142,11 +141,9 @@ class DatabaseElement extends LitElement {
             right: 0;
             bottom: 0;
             display: flex;
-            z-index: 20;
+            z-index: 90;
             justify-content: center;
             align-items: center;
-            filter: var(--drop-shadow);
-            backdrop-filter: contrast(0.5);
         }
         .dialog {
             background-color: var(--bg-1);
@@ -156,10 +153,14 @@ class DatabaseElement extends LitElement {
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
-            filter: var(--drop-shadow);
             display: flex;
             flex-direction: column;
             gap: var(--gap-1);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 91;
         }
         .dialog > div > label {
             width: 100%;
@@ -169,7 +170,7 @@ class DatabaseElement extends LitElement {
         }
         .dialog h2 {
             margin-top: 0;
-            font-family: var(--font-heading);
+            font-family: var(--font);
         }
         .dialog-buttons {
             margin-top: var(--gap-3);
@@ -181,15 +182,13 @@ class DatabaseElement extends LitElement {
         tr:hover {
             background-color: var(--bg-2);
         }
-        .board-column {
-            min-width: 320px;
+        .kanban-column {
+            min-width: 280px;
             margin-right: var(--gap-2);
-            background-color: var(--bg-2);
-            padding: var(--padding-4);
             border-radius: var(--radius);
         }
 
-        .board-item {
+        .kanban-item {
             background-color: var(--bg-1);
             margin-bottom: var(--gap-2);
             padding: var(--padding-3);
@@ -197,14 +196,13 @@ class DatabaseElement extends LitElement {
             box-shadow: var(--drop-shadow);
             cursor: move;
         }
-        .board-item:hover {
+        .kanban-item:hover {
             box-shadow: var(--drop-shadow);
         }
-        .board-item.dragging {
+        .kanban-item.dragging {
             opacity: 0.5;
         }
-        .board-column.drag-over {
-            background-color: var(--bg-3);
+        .kanban-column.drag-over {
         }
         .view-selector {
             display: flex;
@@ -232,7 +230,7 @@ class DatabaseElement extends LitElement {
             text-align: center;
             font-weight: bold;
             margin-bottom: var(--gap-1);
-            font-family: var(--font-heading);
+            font-family: var(--font);
         }
         .calendar-grid {
             display: flex;
@@ -243,7 +241,7 @@ class DatabaseElement extends LitElement {
             grid-template-columns: repeat(7, 1fr);
         }
         .calendar-day {
-            border: 1px solid var(--border-1);
+            border: 1px solid var(--bg-3);
             min-height: 100px;
             padding: var(--padding-2);
             position: relative;
@@ -274,14 +272,14 @@ class DatabaseElement extends LitElement {
             cursor: pointer;
             opacity: 0;
             transition: opacity 0.3s;
-            background-color: var(--bg-blue);
-            color: var(--fg-blue);
+            background-color: var(--bg-1);
+            color: var(--bg-1);
             width: 20px;
             height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
+            border-radius: 0;
         }
         .calendar-day:hover .add-entry-button {
             opacity: 1;
@@ -311,6 +309,21 @@ class DatabaseElement extends LitElement {
             border-radius: var(--radius);
             border: 1px solid var(--border-1);
         }
+
+        .edit-form-input,
+        .edit-form-select {
+            padding: var(--padding-2);
+            border: 2px solid transparent;
+            border-radius: var(--radius);
+            background-color: var(--bg-3);
+            color: var(--fg-1);
+        }
+
+        .edit-form-input:focus,
+        .edit-form-select:focus {
+            border-color: var(--fg-1);
+        }
+
         .calendar-container {
             display: flex;
             flex-direction: column;
@@ -332,6 +345,8 @@ class DatabaseElement extends LitElement {
         .calendar-grid {
             display: flex;
             flex-direction: column;
+            border-left: 1px solid var(--bg-3);
+            border-bottom: 1px solid var(--bg-3);
         }
         .calendar-week {
             display: grid;
@@ -341,6 +356,8 @@ class DatabaseElement extends LitElement {
             min-height: 100px;
             padding: 5px;
             position: relative;
+            border-left: none;
+            border-bottom: none;
         }
         .day-number {
             position: absolute;
@@ -394,15 +411,21 @@ class DatabaseElement extends LitElement {
             padding: var(--padding-3);
             background-color: var(--bg-1);
             border: none;
-            border-radius: var(--radius);
+            border-radius: 0;
             cursor: pointer;
             width: -fit-content;
             text-align: left;
+        }
+        .full-width-button:hover {
+            background-color: var(--bg-3);
         }
         .add-column-button {
             background: none;
             border: none;
             cursor: pointer;
+            height: 40px;
+            width: 40px;
+            border-radius: 0;
         }
         .dialog-overlay {
             position: fixed;
@@ -410,11 +433,11 @@ class DatabaseElement extends LitElement {
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: var(--fg-2);
+            opacity: 0.3;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
         }
         .view-tabs {
             display: flex;
@@ -423,7 +446,7 @@ class DatabaseElement extends LitElement {
         }
 
         .view-tab {
-            padding: var(--padding-2) var(--padding-3);
+            padding: var(--padding-2) var(--padding-4);
             border: none;
             background: none;
             cursor: pointer;
@@ -437,10 +460,14 @@ class DatabaseElement extends LitElement {
             display: flex;
             align-items: center;
             white-space: nowrap;
+            font-weight: 500;
+            padding-bottom: calc(var(--padding-2) - 3px);
+            border-bottom: 3px solid var(--bg-3);
         }
 
         .view-tab:hover {
-            background-color: var(--bg-2);
+            background-color: var(--bg-3);
+            color: var(--fg-1);
         }
 
         .view-tab.active {
@@ -501,7 +528,7 @@ class DatabaseElement extends LitElement {
         .property-item.removed select {
             pointer-events: none;
         }
-        .board-column-header {
+        .kanban-column-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -509,12 +536,10 @@ class DatabaseElement extends LitElement {
         }
 
         .add-entry-button {
-            background: none;
             border: none;
             font-size: 1.2em;
             cursor: pointer;
             padding: var(--padding-1);
-            border-radius: 50%;
             transition: background-color 0.3s;
         }
 
@@ -540,12 +565,12 @@ class DatabaseElement extends LitElement {
             font-size: 2em;
             margin-bottom: var(--gap-2);
         }
-        .board-column-header {
+        .kanban-column-header {
             position: relative;
             padding-right: 30px; /* Make room for the button */
         }
 
-        .board-column-header .add-entry-button {
+        .kanban-column-header .add-entry-button {
             position: absolute;
             top: 50%;
             right: 0;
@@ -554,7 +579,7 @@ class DatabaseElement extends LitElement {
             transition: opacity 0.3s;
         }
 
-        .board-column:hover .add-entry-button {
+        .kanban-column:hover .add-entry-button {
             opacity: 1;
         }
 
@@ -682,13 +707,14 @@ class DatabaseElement extends LitElement {
             border: none;
             cursor: pointer;
             padding: var(--padding-w1);
-            border-radius: var(--radius);
+            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-bottom: 3px solid var(--bg-3);
         }
         .plugin-icon-button:hover {
-            background-color: var(--bg-2);
+            background-color: var(--bg-3);
         }
 
         input,
@@ -700,7 +726,7 @@ class DatabaseElement extends LitElement {
             color: var(--fg-1);
         }
 
-        .board-item {
+        .kanban-item {
             transition:
                 opacity 0.3s,
                 transform 0.3s;
@@ -709,13 +735,12 @@ class DatabaseElement extends LitElement {
             user-select: none;
         }
 
-        .board-item:active {
+        .kanban-item:active {
             cursor: grabbing;
         }
 
         .timeline-wrapper {
             width: 100%;
-            height: calc(100vh - 200px);
             overflow: hidden;
             position: relative;
             border: 1px solid var(--border-1);
@@ -743,7 +768,6 @@ class DatabaseElement extends LitElement {
             height: 40px;
             display: flex;
             align-items: center;
-            border-bottom: 1px solid var(--border-2);
         }
 
         .timeline-content {
@@ -768,7 +792,6 @@ class DatabaseElement extends LitElement {
             min-width: 50px;
             padding: var(--padding-2);
             text-align: center;
-            border-right: 1px solid var(--border-2);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -792,7 +815,7 @@ class DatabaseElement extends LitElement {
 
         .timeline-row {
             height: 40px;
-            border-bottom: 1px solid var(--border-2);
+            border-bottom: transparent;
             position: relative;
         }
 
@@ -800,7 +823,7 @@ class DatabaseElement extends LitElement {
             position: absolute;
             height: 24px;
             top: 8px;
-            background: var(--bg-blue);
+            background: var(--fg-1);
             border-radius: var(--radius);
             padding: 0 var(--padding-2);
             cursor: pointer;
@@ -808,16 +831,14 @@ class DatabaseElement extends LitElement {
             overflow: hidden;
             text-overflow: ellipsis;
             transition: all 0.3s ease;
-            color: white;
+            color: var(--bg-1);
+            font-weight: 500;
             font-size: 0.9em;
             display: flex;
             align-items: center;
         }
 
         .timeline-task:hover {
-            height: 28px;
-            top: 6px;
-            z-index: 2;
         }
 
         .timeline-grid {
@@ -834,7 +855,7 @@ class DatabaseElement extends LitElement {
             top: 0;
             bottom: 0;
             width: 1px;
-            background: var(--border-2);
+            background: transparent;
         }
 
         .timeline-today {
@@ -915,8 +936,8 @@ class DatabaseElement extends LitElement {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: var(--bg-2);
-            border: 1px solid var(--border-1);
+            background: transparent;
+            border: none;
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -926,6 +947,12 @@ class DatabaseElement extends LitElement {
             align-items: center;
             justify-content: center;
             z-index: 10;
+            opacity: 0;
+            padding: 0;
+        }
+
+        .carousel-container:hover .carousel-nav-button {
+            opacity: 1;
         }
 
         .carousel-nav-button.prev {
@@ -937,7 +964,6 @@ class DatabaseElement extends LitElement {
         }
 
         .carousel-nav-button:hover {
-            background: var(--bg-3);
         }
 
         .carousel-nav-button:disabled {
@@ -957,12 +983,13 @@ class DatabaseElement extends LitElement {
 
         .property-value {
             color: var(--fg-1);
+            font-size: 12px;
+            font-weight: 500;
         }
 
         .matrix-container {
             padding: var(--padding-3);
             overflow: auto;
-            max-height: calc(100vh - 200px);
         }
 
         .matrix-grid {
@@ -980,12 +1007,15 @@ class DatabaseElement extends LitElement {
             min-width: 150px;
         }
 
+        .matrix-header-cell:first-child {
+            background: transparent;
+        }
+
         .matrix-cell {
             padding: var(--padding-2);
             background: var(--bg-2);
             border-radius: var(--radius);
             min-height: 100px;
-            border: 1px dashed var(--border-1);
             transition: background-color 0.3s ease;
         }
 
@@ -1034,54 +1064,60 @@ class DatabaseElement extends LitElement {
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: var(--fg-2);
+            opacity: 0.3;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 90;
         }
 
         .edit-dialog {
-            background: white;
+            background: var(--bg-1);
             border-radius: 8px;
             padding: 24px;
             width: 90%;
-            max-width: 600px;
+            max-width: 500px;
             max-height: 80vh;
             display: flex;
             flex-direction: column;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 91;
         }
 
         .edit-dialog-title {
-            margin: 0 0 24px 0;
+            margin: 0 0 var(--gap-3) 0;
             font-size: 20px;
             font-weight: 600;
+            font-family: var(--font);
         }
 
         .properties-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: var(--gap-2);
             overflow: auto;
         }
 
         .property-list-item {
             display: flex;
             align-items: center;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
+            border-radius: var(--radius);
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.3s;
+            gap: var(--gap-2);
         }
 
         .property-list-item:hover {
-            background-color: #f5f5f5;
+            background-color: var(--bg-2);
         }
 
         .property-list-item.removed {
             opacity: 0.5;
-            background-color: #f8f8f8;
+            background-color: var(--bg-2);
             cursor: default;
         }
 
@@ -1090,113 +1126,177 @@ class DatabaseElement extends LitElement {
         }
 
         .property-type {
-            color: #666;
-            font-size: 14px;
+            color: var(--fg-2);
+            font-size: 0.9em;
         }
 
         .property-edit-view {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: var(--gap-3);
         }
 
         .edit-back-button {
             background: none;
             border: none;
             padding: 0;
-            font-size: 16px;
-            color: #666;
+            font-size: 1em;
+            color: var(--fg-2);
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--gap-2);
         }
 
         .edit-back-button:hover {
-            color: #333;
+            color: var(--fg-1);
         }
 
         .property-edit-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: var(--gap-2);
         }
 
         .edit-form-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: var(--gap-1);
         }
 
         .edit-form-label {
             font-weight: 500;
-            color: #333;
+            color: var(--fg-1);
         }
 
-        .edit-form-input,
-        .edit-form-select {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+        .edit-form-emoji {
+            font-weight: 500;
+            color: var(--fg-1);
+            width: fit-content;
+            font-size: 40px;
+            border-radius: var(--radius);
+            padding: var(--padding-3);
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
-
-        .edit-form-input:focus,
-        .edit-form-select:focus {
-            outline: none;
-            border-color: #2196f3;
+        .edit-form-emoji:hover {
+            background-color: var(--bg-3);
         }
 
         .edit-dialog-buttons {
             display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid #eee;
+            justify-content: space-between;
+            gap: var(--gap-2);
+            margin-top: var(--gap-3);
+            padding-top: var(--gap-2);
         }
 
         .edit-button {
-            padding: 8px 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: white;
+            padding: var(--padding-w2);
+            border: none;
+            border-radius: var(--radius);
+            background: transparent;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .edit-button:hover {
-            background: #f5f5f5;
+            font-size: 0.9em;
+            transition: all 0.3s;
         }
 
         .edit-button-primary {
-            background: #2196f3;
-            color: white;
+            background: var(--fg-1);
+            color: var(--bg-1);
             border: none;
         }
 
+        .edit-button:hover {
+            background: var(--bg-3);
+        }
+
         .edit-button-primary:hover {
-            background: #1976d2;
+            background: var(--fg-accent);
         }
 
         .add-property-button {
-            margin-top: 12px;
+            margin-top: var(--gap-2);
             width: 100%;
-            padding: 12px;
-            background: #f5f5f5;
-            border: 1px dashed #ddd;
-            color: #666;
+            padding: var(--padding-3);
+            background: var(--bg-3);
+            border: none;
+            color: var(--fg-1);
+            border-radius: var(--radius);
         }
 
         .add-property-button:hover {
-            background: #eeeeee;
-            color: #333;
+            background: var(--bg-2);
+        }
+
+        .name-input {
+        }
+
+        .name-input input {
+            border: none;
+            width: 100%;
+            outline: none;
+            background-color: transparent;
+            padding: var(--padding-3) 0;
+            font-weight: 600;
+            font-size: 22px;
+        }
+
+        .emoji {
+            font-size: large;
+        }
+
+        .kanban-item-property,
+        .matrix-item-property,
+        .calendar-item-property {
+            margin-top: var(--gap-1);
+            font-size: 0.9em;
+        }
+
+        .property-emoji {
+            margin-right: var(--gap-1);
+        }
+
+        .property-value {
+            color: var(--fg-1);
+        }
+
+        /* To prevent calendar items from becoming too big */
+        .calendar-item {
+            max-height: 80px;
+            overflow-y: auto;
+        }
+
+        .view-management {
+            display: flex;
+            overflow-x: auto;
+        }
+
+        .calendar-day.drag-over {
+            background-color: var(--bg-3);
+            border: 2px dashed var(--fg-1);
+        }
+
+        .calendar-item.dragging {
+            opacity: 0.5;
+        }
+
+        .calendar-item {
+            transition:
+                opacity 0.3s,
+                transform 0.3s;
+            touch-action: none;
+            user-select: none;
+        }
+
+        .calendar-item:active {
+            cursor: grabbing;
         }
     `;
 
     // TODO add visibleProperties to most (all?) views
     static properties = {
+        title: { type: String },
         entries: { type: Array },
         properties: { type: Array },
         currentView: { type: String },
@@ -1224,136 +1324,11 @@ class DatabaseElement extends LitElement {
 
     constructor() {
         super();
-        this.entries = [
-            {
-                id: 1,
-                title: 'Implement login system',
-                status: 'In Progress',
-                date: '2025-04-01',
-                startDate: '2025-04-01',
-                endDate: '2025-04-15',
-                tags: ['important', 'frontend'],
-                completed: false,
-                url: 'https://github.com/project/issue/1',
-                email: 'john@example.com',
-                phone: '123-456-7890',
-            },
-            {
-                id: 2,
-                title: 'Design database schema',
-                status: 'Done',
-                date: '2025-04-28',
-                startDate: '2025-04-10',
-                endDate: '2025-04-28',
-                tags: ['important', 'backend'],
-                completed: true,
-                url: 'https://github.com/project/issue/2',
-                email: 'jane@example.com',
-                phone: '098-765-4321',
-            },
-            {
-                id: 3,
-                title: 'Implement user registration',
-                status: 'To Do',
-                date: '2025-05-05',
-                startDate: '2025-05-05',
-                endDate: '2025-05-12',
-                tags: ['frontend'],
-                completed: false,
-                url: 'https://github.com/project/issue/3',
-                email: 'alice@example.com',
-                phone: '111-222-3333',
-            },
-            {
-                id: 4,
-                title: 'Set up CI/CD pipeline',
-                status: 'In Progress',
-                date: '2025-05-02',
-                startDate: '2025-04-20',
-                endDate: '2025-05-10',
-                tags: ['devops', 'important'],
-                completed: false,
-                url: 'https://github.com/project/issue/4',
-                email: 'bob@example.com',
-                phone: '444-555-6666',
-            },
-            {
-                id: 5,
-                title: 'Write API documentation',
-                status: 'To Do',
-                date: '2025-05-10',
-                startDate: '2025-05-10',
-                endDate: '2025-05-17',
-                tags: ['documentation'],
-                completed: false,
-                url: 'https://github.com/project/issue/5',
-                email: 'charlie@example.com',
-                phone: '777-888-9999',
-            },
-            {
-                id: 6,
-                title: 'Implement password reset',
-                status: 'Done',
-                date: '2025-04-30',
-                startDate: '2025-04-15',
-                endDate: '2025-04-30',
-                tags: ['backend', 'security'],
-                completed: true,
-                url: 'https://github.com/project/issue/6',
-                email: 'dave@example.com',
-                phone: '000-111-2222',
-            },
-        ];
-        this.properties = [
-            { name: 'title', type: 'text', emoji: '📝' },
-            { name: 'status', type: 'select', options: ['To Do', 'In Progress', 'Done'], emoji: '🔄' },
-            { name: 'date', type: 'date', emoji: '📅' },
-            {
-                name: 'tags',
-                type: 'multi-select',
-                options: ['important', 'frontend', 'backend', 'devops', 'documentation', 'security', 'performance'],
-                emoji: '🏷️',
-            },
-            { name: 'completed', type: 'checkbox', emoji: '✅' },
-            { name: 'url', type: 'url', emoji: '🔗' },
-            { name: 'email', type: 'email', emoji: '📧' },
-            { name: 'phone', type: 'phone', emoji: '📱' },
-            { name: 'startDate', type: 'date', emoji: '🏁' },
-            { name: 'endDate', type: 'date', emoji: '🏁' },
-        ];
-        this.views = [
-            { id: 'default-table', name: 'Default Table', type: 'table', filters: [], sorts: [] },
-            { id: 'default-board', name: 'Default Board', type: 'board', filters: [], sorts: [], groupBy: 'status' },
-            { id: 'default-matrix', name: 'Default Matrix', type: 'matrix', filters: [], sorts: [], xAxisProperty: 'status', yAxisProperty: 'tags' },
-            { id: 'default-calendar', name: 'Default Calendar', type: 'calendar', filters: [], sorts: [], dateProperty: 'date' },
-            {
-                id: 'default-carousel',
-                name: 'Default Carousel',
-                type: 'carousel',
-                filters: [],
-                sorts: [],
-                visibleProperties: ['title', 'status', 'date'],
-            },
-            {
-                id: 'default-gallery',
-                name: 'Default Gallery',
-                type: 'gallery',
-                filters: [],
-                sorts: [],
-                visibleProperties: ['title', 'status', 'date'],
-            },
-            { id: 'default-list', name: 'Default List', type: 'list', filters: [], sorts: [], visibleProperties: ['title', 'status', 'date'] },
-            {
-                id: 'default-timeline',
-                name: 'Default Timeline',
-                type: 'timeline',
-                filters: [],
-                sorts: [],
-                startDateProperty: 'startDate',
-                endDateProperty: 'endDate',
-            },
-        ];
-        this.currentViewId = 'default-table';
+        this.title = '';
+        this.entries = [];
+        this.properties = [{ name: 'Name', type: 'text', emoji: '📝' }];
+        this.views = [{ id: 'table', name: 'Table', type: 'table', filters: [], sorts: [] }];
+        this.currentViewId = 'table';
         this.editingEntry = null;
         this.editingView = null;
         this.editingItem = null;
@@ -1379,6 +1354,39 @@ class DatabaseElement extends LitElement {
         this.draggedElement = null;
 
         this.currentSlide = 0;
+        this.dbIdentifier = '';
+
+        this.listenToEmojiSelector();
+    }
+
+    async aboutToBeOoomfed() {
+        // delete pages and db data
+        for (const entry of this.entries) {
+            if (entry.pageId) {
+                await wisk.db.removeItem(entry.pageId);
+            }
+        }
+        await wisk.db.removeDB(this.dbIdentifier);
+    }
+
+    listenToEmojiSelector() {
+        const emojiSelector = document.querySelector('emoji-selector');
+        if (emojiSelector) {
+            window.addEventListener('emoji-selector', event => {
+                if (this.openedProperty != null && event.detail.id == this.id) {
+                    const selectedEmoji = event.detail.emoji;
+                    // index == openedProperty
+                    this.editingProperties = this.editingProperties.map((prop, index) => {
+                        if (index === this.openedProperty) {
+                            return { ...prop, emoji: selectedEmoji };
+                        }
+                        return prop;
+                    });
+
+                    this.requestUpdate();
+                }
+            });
+        }
     }
 
     toggleAddColumnForm() {
@@ -1390,16 +1398,36 @@ class DatabaseElement extends LitElement {
     }
 
     setValue(identifier, value) {
-        if (value.entries) this.entries = [...value.entries];
-        if (value.properties) this.properties = [...value.properties];
-        if (value.views) this.views = [...value.views];
+        if (value.dbIdentifier) {
+            this.dbIdentifier = value.dbIdentifier;
+        } else {
+            this.dbIdentifier = 'db-' + Math.random().toString(36).substring(2, 15);
+        }
+
+        wisk.db.getDB(value.dbIdentifier).then(data => {
+            if (data) {
+                console.log('Data:', data);
+                if (data.title) this.title = data.title;
+                if (data.entries) this.entries = [...data.entries];
+                if (data.properties) this.properties = [...data.properties];
+                if (data.views) this.views = [...data.views];
+            } else {
+                this.onUpdate();
+            }
+        });
     }
 
     getValue() {
         return {
+            dbIdentifier: this.dbIdentifier,
+        };
+    }
+
+    getDBValue() {
+        return {
+            title: this.title,
             entries: this.entries,
             properties: this.properties,
-            currentView: this.currentView,
             views: this.views,
         };
     }
@@ -1475,6 +1503,7 @@ class DatabaseElement extends LitElement {
 
     onUpdate() {
         wisk.editor.justUpdates(this.id);
+        wisk.db.setDB(this.dbIdentifier, this.getDBValue());
     }
 
     startEditing(entry) {
@@ -1522,34 +1551,36 @@ class DatabaseElement extends LitElement {
         if (!this.editingEntry) return null;
 
         return html`
-            <div class="dialog-overlay">
-                <div class="dialog">
-                    <h2>Edit Entry</h2>
-                    ${this.properties.map(
-                        prop => html`
-                            <div>
-                                <label>
-                                    ${prop.name}:
-                                    ${this.renderEditableCell(this.editingEntry, prop, value => this.updateEditingEntry(prop.name, value))}
-                                </label>
-                            </div>
-                        `
-                    )}
-                    <div class="dialog-buttons">
-                        ${this.editingEntry.id.toString().startsWith('temp_')
-                            ? html``
-                            : html`<button class="delete-button" @click=${this.deleteEntry}>Delete Entry</button>`}
+            <div class="dialog-overlay"></div>
+
+            <div class="dialog">
+                <h2>Edit Entry</h2>
+                ${this.properties.map(
+                    prop => html`
                         <div>
-                            <button @click=${this.cancelEdit}>Cancel</button>
-                            <button @click=${this.saveEdit}>Save</button>
+                            <label>
+                                ${prop.name}: ${this.renderEditableCell(this.editingEntry, prop, value => this.updateEditingEntry(prop.name, value))}
+                            </label>
                         </div>
+                    `
+                )}
+                <div class="dialog-buttons">
+                    ${this.editingEntry.id.toString().startsWith('temp_')
+                        ? html``
+                        : html`<button class="delete-button" @click=${this.deleteEntry}>Delete Entry</button>`}
+                    <div>
+                        <button @click=${this.cancelEdit}>Cancel</button>
+                        <button @click=${this.saveEdit}>Save</button>
                     </div>
                 </div>
             </div>
         `;
     }
 
-    deleteEntry() {
+    async deleteEntry() {
+        // remove page
+        await wisk.db.removeItem(this.editingEntry.pageId);
+
         if (confirm('Are you sure you want to delete this entry?')) {
             this.entries = this.entries.filter(entry => entry.id !== this.editingEntry.id);
             this.editingEntry = null;
@@ -1576,8 +1607,46 @@ class DatabaseElement extends LitElement {
         this.editingItem = this.entries.find(entry => entry.id === entryId);
     }
 
-    addNewRow() {
-        const newId = Math.max(...this.entries.map(e => e.id), 0) + 1;
+    async addNewRow() {
+        // create page with config
+        var id = Math.random().toString(36).substring(2, 12).toUpperCase();
+        id = wisk.editor.pageId + '.' + id;
+        await wisk.db.setItem(id, {
+            id: id,
+            lastUpdated: Date.now(),
+            data: {
+                config: {
+                    plugins: [],
+                    theme: 'default',
+                    access: [],
+                    public: false,
+                    name: this.newEntry.Title || this.newEntry.Name || this.newEntry.title || this.newEntry.name || 'Empty Page',
+                    databaseProps: {
+                        identifier: this.dbIdentifier,
+                    },
+                },
+                elements: [
+                    {
+                        id: 'abcdxyz',
+                        component: 'main-element',
+                        value: {
+                            textContent: this.newEntry.Title || this.newEntry.Name || this.newEntry.title || this.newEntry.name || 'Empty Page',
+                        },
+                        lastUpdated: Date.now(),
+                    },
+                ],
+                deletedElements: [],
+                pluginData: {},
+                sync: {
+                    syncLogs: [],
+                    isPushed: false,
+                    lastSync: 0,
+                },
+            },
+        });
+
+        this.newEntry.pageId = id;
+        const newId = Math.random().toString(36).substring(2, 12).toUpperCase();
         this.entries = [...this.entries, { id: newId, ...this.newEntry }];
         this.toggleAddRowForm();
         this.requestUpdate();
@@ -1592,22 +1661,20 @@ class DatabaseElement extends LitElement {
         if (!this.showAddRowForm) return '';
 
         return html`
-            <div class="dialog-overlay">
-                <div class="dialog">
-                    <h2>Add New Row</h2>
-                    ${this.properties.map(
-                        prop => html`
-                            <label>
-                                ${prop.name}: ${this.renderEditableCell({ id: 'new' }, prop, value => this.updateNewEntry(prop.name, value))}
-                            </label>
-                        `
-                    )}
-                    <div class="dialog-buttons">
-                        <div></div>
-                        <div>
-                            <button @click=${this.toggleAddRowForm}>Cancel</button>
-                            <button @click=${this.addNewRow}>Save</button>
-                        </div>
+            <div class="dialog-overlay"></div>
+
+            <div class="dialog">
+                <h2>Add New Row</h2>
+                ${this.properties.map(
+                    prop => html`
+                        <label> ${prop.name}: ${this.renderEditableCell({ id: 'new' }, prop, value => this.updateNewEntry(prop.name, value))} </label>
+                    `
+                )}
+                <div class="dialog-buttons">
+                    <div></div>
+                    <div>
+                        <button @click=${this.toggleAddRowForm}>Cancel</button>
+                        <button @click=${this.addNewRow}>Save</button>
                     </div>
                 </div>
             </div>
@@ -1722,40 +1789,35 @@ class DatabaseElement extends LitElement {
         if (!this.showAddColumnForm) return '';
 
         return html`
-            <div class="dialog-overlay">
-                <div class="dialog">
-                    <h2>Add New Column</h2>
-                    <label>
-                        Column Name:
-                        <input
-                            id="newColumnName"
-                            type="text"
-                            .value=${this.newColumnName || ''}
-                            @input=${e => (this.newColumnName = e.target.value)}
-                        />
-                    </label>
-                    <label>
-                        Column Type:
-                        <select id="newColumnType" .value=${this.newColumnType || 'text'} @change=${this.handleNewColumnTypeChange}>
-                            <option value="text">Text</option>
-                            <option value="number">Number</option>
-                            <option value="select">Select</option>
-                            <option value="multi-select">Multi-select</option>
-                            <option value="date">Date</option>
-                            <option value="datetime-local">DateTime</option>
-                            <option value="checkbox">Checkbox</option>
-                            <option value="url">URL</option>
-                            <option value="email">Email</option>
-                            <option value="phone">Phone</option>
-                        </select>
-                    </label>
-                    ${this.renderColumnTypeSpecificFields()}
-                    <div class="dialog-buttons">
-                        <div></div>
-                        <div>
-                            <button @click=${this.toggleAddColumnForm}>Cancel</button>
-                            <button @click=${this.addNewColumn}>Add Column</button>
-                        </div>
+            <div class="dialog-overlay"></div>
+
+            <div class="dialog">
+                <h2>Add New Column</h2>
+                <label>
+                    Column Name:
+                    <input id="newColumnName" type="text" .value=${this.newColumnName || ''} @input=${e => (this.newColumnName = e.target.value)} />
+                </label>
+                <label>
+                    Column Type:
+                    <select id="newColumnType" .value=${this.newColumnType || 'text'} @change=${this.handleNewColumnTypeChange}>
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="select">Select</option>
+                        <option value="multi-select">Multi-select</option>
+                        <option value="date">Date</option>
+                        <option value="datetime-local">DateTime</option>
+                        <option value="checkbox">Checkbox</option>
+                        <option value="url">URL</option>
+                        <option value="email">Email</option>
+                        <option value="phone">Phone</option>
+                    </select>
+                </label>
+                ${this.renderColumnTypeSpecificFields()}
+                <div class="dialog-buttons">
+                    <div></div>
+                    <div>
+                        <button @click=${this.toggleAddColumnForm}>Cancel</button>
+                        <button @click=${this.addNewColumn}>Add Column</button>
                     </div>
                 </div>
             </div>
@@ -1842,6 +1904,19 @@ class DatabaseElement extends LitElement {
                     </button>
                 </div>
                 ${this.renderFilterSortPanel()}
+                <div style="flex: 1; border-bottom: 3px solid var(--bg-3);"></div>
+            </div>
+
+            <div class="name-input">
+                <input
+                    @input=${e => {
+                        this.title = e.target.value;
+                        this.onUpdate();
+                    }}
+                    type="text"
+                    placeholder="Database Title"
+                    .value=${this.title}
+                />
             </div>
         `;
     }
@@ -1850,105 +1925,117 @@ class DatabaseElement extends LitElement {
         if (!this.showEditPropertiesDialog) return '';
 
         return html`
-            <div class="edit-dialog-overlay">
-                <div class="edit-dialog">
-                    <h2 class="edit-dialog-title">Edit Properties</h2>
-                    ${this.openedProperty === null
-                        ? html`
-                              <div class="properties-list">
-                                  ${this.editingProperties.map(
-                                      (prop, index) => html`
-                                          <div
-                                              class="property-list-item ${prop.removed ? 'removed' : ''}"
-                                              @click=${() => !prop.removed && (this.openedProperty = index)}
-                                          >
-                                              <span class="property-name">${prop.name}</span>
-                                              <span class="property-type">${prop.type}</span>
-                                              ${prop.removed
-                                                  ? html`<button
-                                                        class="edit-button"
-                                                        @click=${e => {
-                                                            e.stopPropagation();
-                                                            this.restoreProperty(index);
-                                                        }}
-                                                    >
-                                                        Restore
-                                                    </button>`
-                                                  : html`<button
-                                                        class="edit-button"
-                                                        @click=${e => {
-                                                            e.stopPropagation();
-                                                            this.removeProperty(index);
-                                                        }}
-                                                    >
-                                                        Remove
-                                                    </button>`}
-                                          </div>
-                                      `
-                                  )}
-                                  <button class="add-property-button" @click=${this.addNewProperty}>Add New Property</button>
-                              </div>
-                          `
-                        : html`
-                              <div class="property-edit-view">
-                                  <button class="edit-back-button" @click=${() => (this.openedProperty = null)}>&larr; Back to List</button>
-                                  <div class="property-edit-form">
-                                      <div class="edit-form-group">
-                                          <label class="edit-form-label">Emoji</label>
-                                          <button class="emoji-button" @click=${() => document.querySelector('emoji-selector').show(this.id)}>
-                                              open emoji selector
-                                          </button>
-                                          <label class="edit-form-label">Name</label>
-                                          <input
-                                              class="edit-form-input"
-                                              type="text"
-                                              .value=${this.editingProperties[this.openedProperty].name}
-                                              @input=${e => this.updatePropertyName(this.openedProperty, e.target.value)}
-                                          />
+            <div class="edit-dialog-overlay"></div>
+
+            <div class="edit-dialog">
+                <h2 class="edit-dialog-title">Edit Properties</h2>
+                ${this.openedProperty === null
+                    ? html`
+                          <div class="properties-list">
+                              ${this.editingProperties.map(
+                                  (prop, index) => html`
+                                      <div
+                                          class="property-list-item ${prop.removed ? 'removed' : ''}"
+                                          @click=${() => !prop.removed && (this.openedProperty = index)}
+                                      >
+                                          <span class="emoji" style="${prop.emoji ? '' : 'display: none;'}">${prop.emoji}</span>
+                                          <span class="property-name">${prop.name}</span>
+                                          <span class="property-type">${prop.type}</span>
+                                          ${prop.removed
+                                              ? html`<button
+                                                    class="edit-button"
+                                                    @click=${e => {
+                                                        e.stopPropagation();
+                                                        this.restoreProperty(index);
+                                                    }}
+                                                >
+                                                    Restore
+                                                </button>`
+                                              : html`<button
+                                                    class="edit-button"
+                                                    @click=${e => {
+                                                        e.stopPropagation();
+                                                        if (this.properties.length <= 1) {
+                                                            wisk.utils.showToast('Cannot remove the last property');
+                                                            return;
+                                                        }
+                                                        this.removeProperty(index);
+                                                    }}
+                                                >
+                                                    Remove
+                                                </button>`}
                                       </div>
-                                      <div class="edit-form-group">
-                                          <label class="edit-form-label">Type</label>
-                                          <select
-                                              class="edit-form-select"
-                                              .value=${this.editingProperties[this.openedProperty].type}
-                                              @change=${e => this.updatePropertyType(this.openedProperty, e.target.value)}
-                                          >
-                                              <option value="text">Text</option>
-                                              <option value="number">Number</option>
-                                              <option value="select">Select</option>
-                                              <option value="multi-select">Multi-select</option>
-                                              <option value="date">Date</option>
-                                              <option value="datetime-local">DateTime</option>
-                                              <option value="checkbox">Checkbox</option>
-                                              <option value="url">URL</option>
-                                              <option value="email">Email</option>
-                                              <option value="phone">Phone</option>
-                                          </select>
-                                      </div>
-                                      ${this.editingProperties[this.openedProperty].type === 'select' ||
-                                      this.editingProperties[this.openedProperty].type === 'multi-select'
-                                          ? html`
-                                                <div class="edit-form-group">
-                                                    <label class="edit-form-label">Options</label>
-                                                    <input
-                                                        class="edit-form-input"
-                                                        type="text"
-                                                        placeholder="Options (comma-separated)"
-                                                        .value=${this.editingProperties[this.openedProperty].options
-                                                            ? this.editingProperties[this.openedProperty].options.join(', ')
-                                                            : ''}
-                                                        @input=${e => this.updatePropertyOptions(this.openedProperty, e.target.value)}
-                                                    />
-                                                </div>
-                                            `
-                                          : ''}
+                                  `
+                              )}
+                              <button class="add-property-button" @click=${this.addNewProperty}>Add New Property</button>
+                          </div>
+                      `
+                    : html`
+                          <div class="property-edit-view">
+                              <div class="property-edit-form">
+                                  <div class="edit-form-group" style="flex-direction: row; align-items: center;">
+                                      <label class="edit-form-emoji" @click=${() => document.querySelector('emoji-selector').show(this.id)}
+                                          >${!this.editingProperties[this.openedProperty].emoji ||
+                                          this.editingProperties[this.openedProperty].emoji == ''
+                                              ? ':3'
+                                              : this.editingProperties[this.openedProperty].emoji}</label
+                                      >
+                                      <input
+                                          class="edit-form-input"
+                                          style="border: 2px solid transparent; background-color: var(--bg-3);"
+                                          type="text"
+                                          placeholder="Property Name"
+                                          .value=${this.editingProperties[this.openedProperty].name}
+                                          @input=${e => this.updatePropertyName(this.openedProperty, e.target.value)}
+                                      />
                                   </div>
+                                  <div class="edit-form-group">
+                                      <label class="edit-form-label">Type</label>
+                                      <select
+                                          class="edit-form-select"
+                                          .value=${this.editingProperties[this.openedProperty].type}
+                                          @change=${e => this.updatePropertyType(this.openedProperty, e.target.value)}
+                                      >
+                                          <option value="text">Text</option>
+                                          <option value="number">Number</option>
+                                          <option value="select">Select</option>
+                                          <option value="multi-select">Multi-select</option>
+                                          <option value="date">Date</option>
+                                          <option value="datetime-local">DateTime</option>
+                                          <option value="checkbox">Checkbox</option>
+                                          <option value="url">URL</option>
+                                          <option value="email">Email</option>
+                                          <option value="phone">Phone</option>
+                                      </select>
+                                  </div>
+                                  ${this.editingProperties[this.openedProperty].type === 'select' ||
+                                  this.editingProperties[this.openedProperty].type === 'multi-select'
+                                      ? html`
+                                            <div class="edit-form-group">
+                                                <label class="edit-form-label">Options</label>
+                                                <input
+                                                    class="edit-form-input"
+                                                    type="text"
+                                                    style="border: 2px solid transparent; background-color: var(--bg-3);"
+                                                    placeholder="Options (comma-separated)"
+                                                    .value=${this.editingProperties[this.openedProperty].options
+                                                        ? this.editingProperties[this.openedProperty].options.join(', ')
+                                                        : ''}
+                                                    @input=${e => this.updatePropertyOptions(this.openedProperty, e.target.value)}
+                                                />
+                                            </div>
+                                        `
+                                      : ''}
                               </div>
+                          </div>
+                      `}
+                <div class="edit-dialog-buttons">
+                    ${this.openedProperty !== null
+                        ? html` <button class="edit-button" @click=${() => (this.openedProperty = null)}>Back to List</button> `
+                        : html`
+                              <button class="edit-button" @click=${this.toggleEditPropertiesDialog}>Cancel</button>
+                              <button class="edit-button edit-button-primary" @click=${this.saveProperties}>Save</button>
                           `}
-                    <div class="edit-dialog-buttons">
-                        <button class="edit-button" @click=${this.toggleEditPropertiesDialog}>Cancel</button>
-                        <button class="edit-button edit-button-primary" @click=${this.saveProperties}>Save</button>
-                    </div>
                 </div>
             </div>
         `;
@@ -2005,7 +2092,7 @@ class DatabaseElement extends LitElement {
     // TODO improve this to check all views and props
     checkPropertyDependencies(propertyName) {
         for (let view of this.views) {
-            // Check if the property is used in groupBy (for board views)
+            // Check if the property is used in groupBy (for kanban views)
             if (view.groupBy === propertyName) {
                 return `Property "${propertyName}" is used for grouping in view "${view.name}"`;
             }
@@ -2079,7 +2166,7 @@ class DatabaseElement extends LitElement {
             }
             // Remove properties that no longer exist
             Object.keys(newEntry).forEach(key => {
-                if (!this.properties.some(prop => prop.name === key) && key !== 'id') {
+                if (!this.properties.some(prop => prop.name === key) && key !== 'id' && key !== 'pageId') {
                     delete newEntry[key];
                 }
             });
@@ -2129,7 +2216,9 @@ class DatabaseElement extends LitElement {
             type: 'table',
             filters: [],
             sorts: [],
+            visibleProperties: [],
         };
+
         this.views = [...this.views, newView];
         this.currentViewId = newView.id;
         this.editingView = { ...newView };
@@ -2137,9 +2226,13 @@ class DatabaseElement extends LitElement {
     }
 
     deleteCurrentView() {
-        if (confirm('Are you sure you want to delete this view?') && this.editingView && this.editingView.id !== 'default-table') {
+        if (this.views.length <= 1) {
+            wisk.utils.showToast('You cannot delete the last view.');
+            return;
+        }
+        if (confirm('Are you sure you want to delete this view?') && this.editingView) {
             this.views = this.views.filter(view => view.id !== this.editingView.id);
-            this.currentViewId = 'default-table';
+            this.currentViewId = this.views.length > 0 ? this.views[0].id : 'default-table';
             this.editingView = null;
             this.requestUpdate();
             this.onUpdate();
@@ -2186,201 +2279,202 @@ class DatabaseElement extends LitElement {
     renderEditViewDialog() {
         if (!this.editingView) return '';
         return html`
-            <div class="dialog-overlay">
-                <div class="dialog">
-                    <h2>Edit View</h2>
-                    <label>
-                        View Name:
-                        <input type="text" .value=${this.editingView.name} @input=${e => (this.editingView.name = e.target.value)} />
-                    </label>
-                    <label>
-                        Type:
-                        <select
-                            .value=${this.editingView.type}
-                            @change=${e => {
-                                this.editingView.type = e.target.value;
-                                if (e.target.value === 'board' && !this.editingView.groupBy) {
-                                    this.editingView.groupBy = this.properties[0].name;
-                                }
-                                if (e.target.value === 'calendar' && !this.editingView.dateProperty) {
-                                    this.editingView.dateProperty = this.properties.find(p => p.type === 'date')?.name || this.properties[0].name;
-                                }
-                                if (e.target.value === 'list' && !this.editingView.visibleProperties) {
-                                    this.editingView.visibleProperties = [this.properties[0].name];
-                                }
-                                if (e.target.value === 'carousel' && !this.editingView.visibleProperties) {
-                                    this.editingView.visibleProperties = [this.properties[0].name];
-                                }
-                                if (e.target.value === 'gallery' && !this.editingView.visibleProperties) {
-                                    this.editingView.visibleProperties = [this.properties[0].name];
-                                }
-                                this.requestUpdate();
-                            }}
-                        >
-                            <option value="table">Table</option>
-                            <option value="board">Board</option>
-                            <option value="calendar">Calendar</option>
-                            <option value="gallery">Gallery</option>
-                            <option value="list">List</option>
-                            <option value="timeline">Timeline</option>
-                            <option value="carousel">Carousel</option>
-                            <option value="matrix">Matrix</option>
-                        </select>
-                    </label>
+            <div class="dialog-overlay"></div>
 
-                    ${this.editingView.type === 'matrix'
-                        ? html`
-                              <label>
-                                  X Axis Property:
-                                  <select .value=${this.editingView.xAxisProperty} @change=${e => (this.editingView.xAxisProperty = e.target.value)}>
-                                      ${this.properties.map(
+            <div class="dialog">
+                <h2>Edit View</h2>
+                <label>
+                    View Name:
+                    <input type="text" .value=${this.editingView.name} @input=${e => (this.editingView.name = e.target.value)} />
+                </label>
+                <label>
+                    Type:
+                    <select
+                        .value=${this.editingView.type}
+                        @change=${e => {
+                            this.editingView.type = e.target.value;
+                            if (e.target.value === 'kanban' && !this.editingView.groupBy) {
+                                this.editingView.groupBy = this.properties[0].name;
+                            }
+                            if (e.target.value === 'calendar' && !this.editingView.dateProperty) {
+                                this.editingView.dateProperty = this.properties.find(p => p.type === 'date')?.name || this.properties[0].name;
+                            }
+                            if (e.target.value === 'list' && !this.editingView.visibleProperties) {
+                                this.editingView.visibleProperties = [this.properties[0].name];
+                            }
+                            if (e.target.value === 'carousel' && !this.editingView.visibleProperties) {
+                                this.editingView.visibleProperties = [this.properties[0].name];
+                            }
+                            if (e.target.value === 'gallery' && !this.editingView.visibleProperties) {
+                                this.editingView.visibleProperties = [this.properties[0].name];
+                            }
+                            this.requestUpdate();
+                        }}
+                    >
+                        <option value="table">Table</option>
+                        <option value="kanban">Kanban</option>
+                        <option value="calendar">Calendar</option>
+                        <option value="gallery">Gallery</option>
+                        <option value="list">List</option>
+                        <option value="timeline">Timeline</option>
+                        <option value="carousel">Carousel</option>
+                        <option value="matrix">Matrix</option>
+                    </select>
+                </label>
+
+                ${this.editingView.type === 'matrix'
+                    ? html`
+                          <label>
+                              X Axis Property:
+                              <select .value=${this.editingView.xAxisProperty} @change=${e => (this.editingView.xAxisProperty = e.target.value)}>
+                                  ${this.properties.map(
+                                      prop => html`
+                                          <option value=${prop.name} ?selected=${this.editingView.xAxisProperty === prop.name}>${prop.name}</option>
+                                      `
+                                  )}
+                              </select>
+                          </label>
+                          <label>
+                              Y Axis Property:
+                              <select .value=${this.editingView.yAxisProperty} @change=${e => (this.editingView.yAxisProperty = e.target.value)}>
+                                  ${this.properties.map(
+                                      prop => html`
+                                          <option value=${prop.name} ?selected=${this.editingView.yAxisProperty === prop.name}>${prop.name}</option>
+                                      `
+                                  )}
+                              </select>
+                          </label>
+                      `
+                    : ''}
+                ${this.editingView.type === 'kanban'
+                    ? html`
+                          <label>
+                              Group By:
+                              <select .value=${this.editingView.groupBy} @change=${e => (this.editingView.groupBy = e.target.value)}>
+                                  ${this.properties.map(
+                                      prop => html`
+                                          <option value=${prop.name} ?selected=${this.editingView.groupBy === prop.name}>${prop.name}</option>
+                                      `
+                                  )}
+                              </select>
+                          </label>
+                      `
+                    : ''}
+                ${this.editingView.type === 'list' ||
+                this.editingView.type === 'carousel' ||
+                this.editingView.type === 'gallery' ||
+                this.editingView.type === 'kanban' ||
+                this.editingView.type === 'matrix' ||
+                this.editingView.type === 'calendar'
+                    ? html`
+                          <label>
+                              Visible Properties:
+                              <div class="property-checkboxes">
+                                  ${this.properties.map(
+                                      prop => html`
+                                          <label>
+                                              <input
+                                                  type="checkbox"
+                                                  .checked=${this.editingView.visibleProperties.includes(prop.name)}
+                                                  @change=${e => this.toggleVisibleProperty(prop.name, e.target.checked)}
+                                              />
+                                              ${prop.name}
+                                          </label>
+                                      `
+                                  )}
+                              </div>
+                          </label>
+                      `
+                    : ''}
+                ${this.editingView.type === 'calendar'
+                    ? html`
+                          <label>
+                              Date Property:
+                              <select .value=${this.editingView.dateProperty} @change=${e => (this.editingView.dateProperty = e.target.value)}>
+                                  ${this.properties
+                                      .filter(prop => prop.type === 'date' || prop.type === 'datetime-local')
+                                      .map(
                                           prop => html`
-                                              <option value=${prop.name} ?selected=${this.editingView.xAxisProperty === prop.name}>
+                                              <option value=${prop.name} ?selected=${this.editingView.dateProperty === prop.name}>
                                                   ${prop.name}
                                               </option>
                                           `
                                       )}
-                                  </select>
-                              </label>
-                              <label>
-                                  Y Axis Property:
-                                  <select .value=${this.editingView.yAxisProperty} @change=${e => (this.editingView.yAxisProperty = e.target.value)}>
-                                      ${this.properties.map(
-                                          prop => html`
-                                              <option value=${prop.name} ?selected=${this.editingView.yAxisProperty === prop.name}>
-                                                  ${prop.name}
-                                              </option>
-                                          `
-                                      )}
-                                  </select>
-                              </label>
-                          `
-                        : ''}
-                    ${this.editingView.type === 'board'
-                        ? html`
-                              <label>
-                                  Group By:
-                                  <select .value=${this.editingView.groupBy} @change=${e => (this.editingView.groupBy = e.target.value)}>
-                                      ${this.properties.map(
-                                          prop => html`
-                                              <option value=${prop.name} ?selected=${this.editingView.groupBy === prop.name}>${prop.name}</option>
-                                          `
-                                      )}
-                                  </select>
-                              </label>
-                          `
-                        : ''}
-                    ${this.editingView.type === 'list' || this.editingView.type === 'carousel' || this.editingView.type === 'gallery'
-                        ? html`
-                              <label>
-                                  Visible Properties:
-                                  <div class="property-checkboxes">
-                                      ${this.properties.map(
-                                          prop => html`
-                                              <label>
-                                                  <input
-                                                      type="checkbox"
-                                                      .checked=${this.editingView.visibleProperties.includes(prop.name)}
-                                                      @change=${e => this.toggleVisibleProperty(prop.name, e.target.checked)}
-                                                  />
-                                                  ${prop.name}
-                                              </label>
-                                          `
-                                      )}
-                                  </div>
-                              </label>
-                          `
-                        : ''}
-                    ${this.editingView.type === 'calendar'
-                        ? html`
-                              <label>
-                                  Date Property:
-                                  <select .value=${this.editingView.dateProperty} @change=${e => (this.editingView.dateProperty = e.target.value)}>
-                                      ${this.properties
-                                          .filter(prop => prop.type === 'date' || prop.type === 'datetime-local')
-                                          .map(
-                                              prop => html`
-                                                  <option value=${prop.name} ?selected=${this.editingView.dateProperty === prop.name}>
-                                                      ${prop.name}
-                                                  </option>
-                                              `
-                                          )}
-                                  </select>
-                              </label>
-                          `
-                        : ''}
-                    <h3>Filters</h3>
-                    ${this.editingView.filters.map(
-                        (filter, index) => html`
-                            <div>
-                                <select
-                                    .value=${filter.property}
-                                    @change=${e => {
-                                        filter.property = e.target.value;
-                                        filter.value = ''; // Reset value when property changes
-                                        this.requestUpdate();
-                                    }}
-                                >
-                                    ${this.properties.map(
-                                        prop => html` <option value=${prop.name} ?selected=${filter.property === prop.name}>${prop.name}</option> `
-                                    )}
-                                </select>
-                                <select
-                                    .value=${filter.operator}
-                                    @change=${e => {
-                                        filter.operator = e.target.value;
-                                        this.requestUpdate();
-                                    }}
-                                >
-                                    <option value="equals" ?selected=${filter.operator === 'equals'}>Equals</option>
-                                    <option value="contains" ?selected=${filter.operator === 'contains'}>Contains</option>
-                                    <option value="greater_than" ?selected=${filter.operator === 'greater_than'}>Greater Than</option>
-                                    <option value="less_than" ?selected=${filter.operator === 'less_than'}>Less Than</option>
-                                </select>
-                                ${this.renderFilterValueInput(filter, index)}
-                                <button @click=${() => this.removeFilter(index)}>Remove</button>
-                            </div>
-                        `
-                    )}
-                    <button @click=${this.addFilter}>Add Filter</button>
-                    <h3>Sorts</h3>
-                    ${this.editingView.sorts.map(
-                        (sort, index) => html`
-                            <div>
-                                <select
-                                    .value=${sort.property}
-                                    @change=${e => {
-                                        sort.property = e.target.value;
-                                        this.requestUpdate();
-                                    }}
-                                >
-                                    ${this.properties.map(
-                                        prop => html` <option value=${prop.name} ?selected=${sort.property === prop.name}>${prop.name}</option> `
-                                    )}
-                                </select>
-                                <select
-                                    .value=${sort.direction}
-                                    @change=${e => {
-                                        sort.direction = e.target.value;
-                                        this.requestUpdate();
-                                    }}
-                                >
-                                    <option value="asc" ?selected=${sort.direction === 'asc'}>Ascending</option>
-                                    <option value="desc" ?selected=${sort.direction === 'desc'}>Descending</option>
-                                </select>
-                                <button @click=${() => this.removeSort(index)}>Remove</button>
-                            </div>
-                        `
-                    )}
-                    <button @click=${this.addSort}>Add Sort</button>
-                    <div class="dialog-buttons">
-                        ${this.editingView.id !== 'default-table'
-                            ? html` <button class="delete-button" @click=${this.deleteCurrentView}>Delete View</button> `
-                            : ''}
+                              </select>
+                          </label>
+                      `
+                    : ''}
+                <h3>Filters</h3>
+                ${this.editingView.filters.map(
+                    (filter, index) => html`
                         <div>
-                            <button @click=${() => (this.editingView = null)}>Cancel</button>
-                            <button @click=${this.saveEditView}>Save</button>
+                            <select
+                                .value=${filter.property}
+                                @change=${e => {
+                                    filter.property = e.target.value;
+                                    filter.value = ''; // Reset value when property changes
+                                    this.requestUpdate();
+                                }}
+                            >
+                                ${this.properties.map(
+                                    prop => html` <option value=${prop.name} ?selected=${filter.property === prop.name}>${prop.name}</option> `
+                                )}
+                            </select>
+                            <select
+                                .value=${filter.operator}
+                                @change=${e => {
+                                    filter.operator = e.target.value;
+                                    this.requestUpdate();
+                                }}
+                            >
+                                <option value="equals" ?selected=${filter.operator === 'equals'}>Equals</option>
+                                <option value="contains" ?selected=${filter.operator === 'contains'}>Contains</option>
+                                <option value="greater_than" ?selected=${filter.operator === 'greater_than'}>Greater Than</option>
+                                <option value="less_than" ?selected=${filter.operator === 'less_than'}>Less Than</option>
+                            </select>
+                            ${this.renderFilterValueInput(filter, index)}
+                            <button @click=${() => this.removeFilter(index)}>Remove</button>
                         </div>
+                    `
+                )}
+                <button @click=${this.addFilter}>Add Filter</button>
+                <h3>Sorts</h3>
+                ${this.editingView.sorts.map(
+                    (sort, index) => html`
+                        <div>
+                            <select
+                                .value=${sort.property}
+                                @change=${e => {
+                                    sort.property = e.target.value;
+                                    this.requestUpdate();
+                                }}
+                            >
+                                ${this.properties.map(
+                                    prop => html` <option value=${prop.name} ?selected=${sort.property === prop.name}>${prop.name}</option> `
+                                )}
+                            </select>
+                            <select
+                                .value=${sort.direction}
+                                @change=${e => {
+                                    sort.direction = e.target.value;
+                                    this.requestUpdate();
+                                }}
+                            >
+                                <option value="asc" ?selected=${sort.direction === 'asc'}>Ascending</option>
+                                <option value="desc" ?selected=${sort.direction === 'desc'}>Descending</option>
+                            </select>
+                            <button @click=${() => this.removeSort(index)}>Remove</button>
+                        </div>
+                    `
+                )}
+                <button @click=${this.addSort}>Add Sort</button>
+                <div class="dialog-buttons">
+                    ${this.editingView.id !== 'default-table'
+                        ? html` <button class="delete-button" @click=${this.deleteCurrentView}>Delete View</button> `
+                        : ''}
+                    <div>
+                        <button @click=${() => (this.editingView = null)}>Cancel</button>
+                        <button @click=${this.saveEditView}>Save</button>
                     </div>
                 </div>
             </div>
@@ -2460,9 +2554,14 @@ class DatabaseElement extends LitElement {
             <table>
                 <thead>
                     <tr>
-                        ${this.properties.map(prop => html`<th>${prop.name}</th>`)}
-                        <th>
-                            <button @click=${this.toggleAddColumnForm} class="add-column-button">+</button>
+                        ${this.properties.map(
+                            prop =>
+                                html`<th style="padding: 0; line-height: 40px;">
+                                    ${prop.emoji ? html`&nbsp;&nbsp;${prop.emoji}` : ''} &nbsp;&nbsp;${prop.name}
+                                </th>`
+                        )}
+                        <th style="padding: 0">
+                            <button @click=${this.toggleAddColumnForm} class="add-column-button" style="border-radius: 0">+</button>
                         </th>
                     </tr>
                 </thead>
@@ -2503,18 +2602,19 @@ class DatabaseElement extends LitElement {
         }
     }
 
-    renderBoardView(entries) {
+    renderKanbanView(entries) {
         const groupByProperty = this.currentView.groupBy || 'status';
+        const visibleProperties = this.currentView.visibleProperties || ['title'];
         const allGroups = this.properties.find(p => p.name === groupByProperty)?.options || [];
         const groupsFromEntries = [...new Set(entries.map(entry => entry[groupByProperty]))];
         const groups = [...new Set([...allGroups, ...groupsFromEntries])];
 
         return html`
-            <div class="board">
+            <div class="kanban">
                 ${groups.map(
                     group => html`
-                        <div class="board-column" data-group="${group}" @dragover=${this.handleDragOver} @drop=${e => this.handleDrop(e, group)}>
-                            <div class="board-column-header">
+                        <div class="kanban-column" data-group="${group}" @dragover=${this.handleDragOver} @drop=${e => this.handleDrop(e, group)}>
+                            <div class="kanban-column-header">
                                 <h3>${group}</h3>
                                 <button class="add-entry-button" @click=${() => this.startAddingNewEntry(groupByProperty, group)}>+</button>
                             </div>
@@ -2523,7 +2623,7 @@ class DatabaseElement extends LitElement {
                                 .map(
                                     entry => html`
                                         <div
-                                            class="board-item"
+                                            class="kanban-item"
                                             draggable="true"
                                             @dragstart=${e => this.handleDragStart(e, entry)}
                                             @dragend=${this.handleDragEnd}
@@ -2535,8 +2635,15 @@ class DatabaseElement extends LitElement {
                                                 }
                                             }}
                                         >
-                                            <strong>${entry.title}</strong>
-                                            <p>${entry[groupByProperty]}</p>
+                                            ${visibleProperties.map(propName => {
+                                                const prop = this.properties.find(p => p.name === propName);
+                                                return html`
+                                                    <div class="kanban-item-property">
+                                                        ${prop.emoji ? html`<span class="property-emoji">${prop.emoji}</span>` : ''}
+                                                        <span class="property-value">${this.renderCellValue(entry[propName], prop)}</span>
+                                                    </div>
+                                                `;
+                                            })}
                                         </div>
                                     `
                                 )}
@@ -2552,7 +2659,7 @@ class DatabaseElement extends LitElement {
         this.touchStartY = e.touches[0].clientY;
         this.draggedItem = entry;
         this.touchMoving = false;
-        this.draggedElement = e.target.closest('.board-item');
+        this.draggedElement = e.target.closest('.kanban-item');
 
         if (this.draggedElement) {
             this.draggedElement.style.opacity = '0.5';
@@ -2592,7 +2699,7 @@ class DatabaseElement extends LitElement {
         // Get the element under the touch point
         const touch = e.changedTouches[0];
         const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
-        const newColumnElement = elementUnderTouch.closest('.board-column');
+        const newColumnElement = elementUnderTouch.closest('.kanban-column');
 
         // Reset draggedElement styles
         this.draggedElement.style.opacity = '1';
@@ -2623,6 +2730,140 @@ class DatabaseElement extends LitElement {
         // Remove document listeners
         document.removeEventListener('touchmove', this.handleTouchMove);
         document.removeEventListener('touchend', this.handleTouchEnd);
+    }
+
+    handleCalendarTouchStart(e, entry) {
+        this.touchStartX = e.touches[0].clientX;
+        this.touchStartY = e.touches[0].clientY;
+        this.draggedItem = entry;
+        this.touchMoving = false;
+        this.draggedElement = e.target.closest('.calendar-item');
+
+        if (this.draggedElement) {
+            this.draggedElement.style.opacity = '0.5';
+            this.draggedElement.style.transform = 'scale(1.05)';
+        }
+
+        document.addEventListener('touchmove', this.handleCalendarTouchMove.bind(this), { passive: false });
+        document.addEventListener('touchend', this.handleCalendarTouchEnd.bind(this));
+    }
+
+    handleCalendarTouchMove(e) {
+        if (!this.draggedItem || !this.draggedElement) return;
+
+        const touchX = e.touches[0].clientX;
+        const touchY = e.touches[0].clientY;
+        const deltaX = touchX - this.touchStartX;
+        const deltaY = touchY - this.touchStartY;
+
+        if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+            this.touchMoving = true;
+        }
+
+        if (this.touchMoving) {
+            this.draggedElement.style.position = 'fixed';
+            this.draggedElement.style.left = `${touchX - this.draggedElement.offsetWidth / 2}px`;
+            this.draggedElement.style.top = `${touchY - this.draggedElement.offsetHeight / 2}px`;
+            this.draggedElement.style.zIndex = '1000';
+        }
+
+        e.preventDefault(); // Prevent scrolling while dragging
+    }
+
+    handleCalendarTouchEnd(e) {
+        if (!this.draggedItem || !this.draggedElement) return;
+
+        // Get the element under the touch point
+        const touch = e.changedTouches[0];
+        const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+        const calendarDayElement = elementUnderTouch.closest('.calendar-day');
+
+        // Reset draggedElement styles
+        this.draggedElement.style.opacity = '1';
+        this.draggedElement.style.transform = 'scale(1)';
+        this.draggedElement.style.position = 'static';
+        this.draggedElement.style.zIndex = 'auto';
+
+        if (this.touchMoving && calendarDayElement && calendarDayElement.classList.contains('current-month')) {
+            // Extract date information from the day element
+            const dateProperty = this.currentView.dateProperty || 'date';
+            const year = this.calendarDate ? this.calendarDate.getFullYear() : new Date().getFullYear();
+            const month = this.calendarDate ? this.calendarDate.getMonth() : new Date().getMonth();
+
+            // Get the day number from the element
+            const dayNumberElement = calendarDayElement.querySelector('.day-number');
+            if (dayNumberElement) {
+                const day = parseInt(dayNumberElement.textContent, 10);
+
+                // Format the new date
+                const newDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+                // Update the entry
+                const updatedEntry = { ...this.draggedItem, [dateProperty]: newDate };
+                const index = this.entries.findIndex(entry => entry.id === this.draggedItem.id);
+                if (index !== -1) {
+                    this.entries = [...this.entries.slice(0, index), updatedEntry, ...this.entries.slice(index + 1)];
+                    this.requestUpdate();
+                    this.onUpdate();
+                }
+            }
+        }
+
+        // Clean up
+        this.draggedItem = null;
+        this.draggedElement = null;
+        this.touchMoving = false;
+
+        // Remove document listeners
+        document.removeEventListener('touchmove', this.handleCalendarTouchMove);
+        document.removeEventListener('touchend', this.handleCalendarTouchEnd);
+    }
+
+    handleCalendarDragStart(e, entry) {
+        this.draggedItem = entry;
+        e.dataTransfer.effectAllowed = 'move';
+        e.target.classList.add('dragging');
+    }
+
+    handleCalendarDragEnd(e) {
+        e.target.classList.remove('dragging');
+        const days = this.shadowRoot.querySelectorAll('.calendar-day');
+        days.forEach(day => day.classList.remove('drag-over'));
+    }
+
+    handleCalendarDragOver(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add('drag-over');
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    handleCalendarDragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+    }
+
+    handleCalendarDrop(e, year, month, day) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+
+        if (this.draggedItem) {
+            const dateProperty = this.currentView.dateProperty || 'date';
+
+            // Format the new date as YYYY-MM-DD
+            const newDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+            const updatedEntry = {
+                ...this.draggedItem,
+                [dateProperty]: newDate,
+            };
+
+            const index = this.entries.findIndex(entry => entry.id === this.draggedItem.id);
+            if (index !== -1) {
+                this.entries = [...this.entries.slice(0, index), updatedEntry, ...this.entries.slice(index + 1)];
+                this.requestUpdate();
+                this.onUpdate();
+            }
+        }
+        this.draggedItem = null;
     }
 
     startAddingNewEntry(groupByProperty = null, groupValue = null) {
@@ -2677,9 +2918,33 @@ class DatabaseElement extends LitElement {
         return html`
             <div class="calendar-container">
                 <div class="calendar-header">
-                    <button @click=${() => this.changeMonth(-1)}>&lt;</button>
+                    <button @click=${() => this.changeMonth(-1)} style="border: transparent; background: transparent;">
+                        <?xml version="1.0" encoding="UTF-8"?><svg
+                            width="25px"
+                            height="25px"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            color="currentColor"
+                        >
+                            <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
                     <h3>${monthNames[month]} ${year}</h3>
-                    <button @click=${() => this.changeMonth(1)}>&gt;</button>
+                    <button @click=${() => this.changeMonth(1)} style="border: transparent; background: transparent;">
+                        <?xml version="1.0" encoding="UTF-8"?><svg
+                            width="25px"
+                            height="25px"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            color="currentColor"
+                        >
+                            <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
                 </div>
                 <div class="calendar-weekdays">
                     ${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => html`<div class="weekday">${day}</div>`)}
@@ -2707,15 +2972,42 @@ class DatabaseElement extends LitElement {
                                             });
 
                                             return html`
-                                                <div class="calendar-day ${isCurrentMonth ? 'current-month' : 'other-month'}">
+                                                <div
+                                                    class="calendar-day ${isCurrentMonth ? 'current-month' : 'other-month'}"
+                                                    @dragover=${isCurrentMonth ? e => this.handleCalendarDragOver(e) : null}
+                                                    @dragleave=${isCurrentMonth ? this.handleCalendarDragLeave : null}
+                                                    @drop=${isCurrentMonth ? e => this.handleCalendarDrop(e, year, month, dayNumber) : null}
+                                                >
                                                     ${isCurrentMonth
                                                         ? html`
                                                               <div class="day-number">${dayNumber}</div>
                                                               <div class="day-content">
                                                                   ${dayEntries.map(
                                                                       entry => html`
-                                                                          <div class="calendar-item" @click=${() => this.startEditing(entry)}>
-                                                                              ${entry.title}
+                                                                          <div
+                                                                              class="calendar-item"
+                                                                              draggable="true"
+                                                                              @dragstart=${e => this.handleCalendarDragStart(e, entry)}
+                                                                              @dragend=${this.handleCalendarDragEnd}
+                                                                              @touchstart=${e => this.handleCalendarTouchStart(e, entry)}
+                                                                              @click=${() => this.startEditing(entry)}
+                                                                          >
+                                                                              ${(this.currentView.visibleProperties || ['title']).map(propName => {
+                                                                                  const prop = this.properties.find(p => p.name === propName);
+                                                                                  if (propName === this.currentView.dateProperty) return ''; // Skip the date property since it's already used for positioning
+                                                                                  return html`
+                                                                                      <div class="calendar-item-property">
+                                                                                          ${prop.emoji
+                                                                                              ? html`<span class="property-emoji"
+                                                                                                    >${prop.emoji}</span
+                                                                                                >`
+                                                                                              : ''}
+                                                                                          <span class="property-value"
+                                                                                              >${this.renderCellValue(entry[propName], prop)}</span
+                                                                                          >
+                                                                                      </div>
+                                                                                  `;
+                                                                              })}
                                                                           </div>
                                                                       `
                                                                   )}
@@ -2743,11 +3035,6 @@ class DatabaseElement extends LitElement {
                 ${entries.map(
                     entry => html`
                         <div class="gallery-item" @click=${() => this.startEditing(entry)}>
-                            <img
-                                src="${entry.image || '/placeholder-image.jpg'}"
-                                alt="${entry.title}"
-                                style="width: 100%; height: auto; display: none"
-                            />
                             <strong>${entry.title}</strong>
                             ${visibleProperties.slice(1).map(propName => {
                                 const prop = this.properties.find(p => p.name === propName);
@@ -2807,7 +3094,9 @@ class DatabaseElement extends LitElement {
         return html`
             <div class="timeline-wrapper">
                 <div class="timeline-container">
-                    <div class="timeline-sidebar">${validEntries.map(entry => html` <div class="timeline-task-label">${entry.title}</div> `)}</div>
+                    <div class="timeline-sidebar" style="display: none">
+                        ${validEntries.map(entry => html` <div class="timeline-task-label">${entry.title}</div> `)}
+                    </div>
                     <div class="timeline-content">
                         <div class="timeline-header">
                             ${days.map(
@@ -2872,13 +3161,13 @@ class DatabaseElement extends LitElement {
 
     nextSlide() {
         const entries = this.entries.length;
-        this.currentSlide = (this.currentSlide + 1) % (entries + 1);
+        this.currentSlide = (this.currentSlide + 1) % entries;
         this.requestUpdate();
     }
 
     prevSlide() {
         const entries = this.entries.length;
-        this.currentSlide = (this.currentSlide - 1 + entries + 1) % (entries + 1);
+        this.currentSlide = (this.currentSlide - 1 + entries) % entries;
         this.requestUpdate();
     }
 
@@ -2893,8 +3182,32 @@ class DatabaseElement extends LitElement {
 
         return html`
             <div class="carousel-container" @mouseenter=${this.stopCarouselAutoplay} @mouseleave=${this.startCarouselAutoplay}>
-                <button class="carousel-nav-button prev" @click=${this.prevSlide}>←</button>
-                <button class="carousel-nav-button next" @click=${this.nextSlide}>→</button>
+                <button class="carousel-nav-button prev" @click=${this.prevSlide}>
+                    <?xml version="1.0" encoding="UTF-8"?><svg
+                        width="25px"
+                        height="25px"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        color="currentColor"
+                    >
+                        <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+                <button class="carousel-nav-button next" @click=${this.nextSlide}>
+                    <?xml version="1.0" encoding="UTF-8"?><svg
+                        width="25px"
+                        height="25px"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        color="currentColor"
+                    >
+                        <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
                 <div class="carousel-track" style="transform: translateX(-${this.currentSlide * 100}%)">
                     ${entries.map(
                         (entry, index) => html`
@@ -3045,7 +3358,15 @@ class DatabaseElement extends LitElement {
                                                     @dragend=${this.handleMatrixDragEnd}
                                                     @click=${() => this.startEditing(entry)}
                                                 >
-                                                    ${entry.title}
+                                                    ${(this.currentView.visibleProperties || ['title']).map(propName => {
+                                                        const prop = this.properties.find(p => p.name === propName);
+                                                        return html`
+                                                            <div class="matrix-item-property">
+                                                                ${prop.emoji ? html`<span class="property-emoji">${prop.emoji}</span>` : ''}
+                                                                <span class="property-value">${this.renderCellValue(entry[propName], prop)}</span>
+                                                            </div>
+                                                        `;
+                                                    })}
                                                 </div>
                                             `
                                         )}
@@ -3062,26 +3383,30 @@ class DatabaseElement extends LitElement {
     render() {
         const filteredEntries = this.applyFiltersAndSorts([...this.entries]);
         return html`
-            ${this.renderViewManagement()}
-            ${this.currentView.type === 'table'
-                ? this.renderTableView(filteredEntries)
-                : this.currentView.type === 'board'
-                  ? this.renderBoardView(filteredEntries)
-                  : this.currentView.type === 'calendar'
-                    ? this.renderCalendarView(filteredEntries)
-                    : this.currentView.type === 'gallery'
-                      ? this.renderGalleryView(filteredEntries)
-                      : this.currentView.type === 'list'
-                        ? this.renderListView(filteredEntries)
-                        : this.currentView.type === 'timeline'
-                          ? this.renderTimelineView(filteredEntries)
-                          : this.currentView.type === 'carousel'
-                            ? this.renderCarouselView(filteredEntries)
-                            : this.currentView.type === 'matrix'
-                              ? this.renderMatrixView(filteredEntries)
-                              : html`<p>Unknown view type</p>`}
-            ${this.renderAddRowDialog()} ${this.renderAddColumnDialog()} ${this.renderEditDialog()} ${this.renderEditViewDialog()}
-            ${this.renderEditPropertiesDialog()}
+            <div style="max-width: var(--width); margin: 0 auto;">
+                ${this.renderViewManagement()}
+                <div style="margin: 0 auto; max-width: var(--width); overflow: auto;">
+                    ${this.currentView.type === 'table'
+                        ? this.renderTableView(filteredEntries)
+                        : this.currentView.type === 'kanban'
+                          ? this.renderKanbanView(filteredEntries)
+                          : this.currentView.type === 'calendar'
+                            ? this.renderCalendarView(filteredEntries)
+                            : this.currentView.type === 'gallery'
+                              ? this.renderGalleryView(filteredEntries)
+                              : this.currentView.type === 'list'
+                                ? this.renderListView(filteredEntries)
+                                : this.currentView.type === 'timeline'
+                                  ? this.renderTimelineView(filteredEntries)
+                                  : this.currentView.type === 'carousel'
+                                    ? this.renderCarouselView(filteredEntries)
+                                    : this.currentView.type === 'matrix'
+                                      ? this.renderMatrixView(filteredEntries)
+                                      : html`<p>Unknown view type</p>`}
+                </div>
+                ${this.renderAddRowDialog()} ${this.renderAddColumnDialog()} ${this.renderEditDialog()} ${this.renderEditViewDialog()}
+                ${this.renderEditPropertiesDialog()}
+            </div>
         `;
     }
 }

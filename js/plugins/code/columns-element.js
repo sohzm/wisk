@@ -345,17 +345,26 @@ class ColumnsElement extends HTMLElement {
         }
     }
 
-    whenTrashClicked(elementId) {
-        const columnId = this.findContainingColumn(elementId);
-        if (columnId) {
-            const columnElement = this.shadowRoot.getElementById(columnId);
-            if (columnElement) {
-                return columnElement.whenTrashClicked(elementId);
+    async aboutToBeOoomfed() {
+        for (const column of this.columns) {
+            const layoutElement = this.shadowRoot.getElementById(column.id);
+            if (layoutElement) {
+                await layoutElement.aboutToBeOoomfed();
             }
         }
-
-        this.editor.deleteBlock(elementId);
     }
+
+    // whenTrashClicked(elementId) {
+    //     const columnId = this.findContainingColumn(elementId);
+    //     if (columnId) {
+    //         const columnElement = this.shadowRoot.getElementById(columnId);
+    //         if (columnElement) {
+    //             return columnElement.whenTrashClicked(elementId);
+    //         }
+    //     }
+
+    //     this.editor.deleteBlock(elementId);
+    // }
 
     deleteColumn(index) {
         // Only allow deletion if we have more than one column

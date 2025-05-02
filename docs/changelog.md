@@ -1,3 +1,8 @@
+- Apr 30
+
+    - bug fixes
+    - database improvements (its almost there)
+
 - Apr 28
 
     - getting started improvements

@@ -44,6 +44,8 @@ async function init() {
             if (data) {
                 console.log('Data:', data);
                 initEditor(data);
+            } else {
+                window.location.href = '/';
             }
         });
     } catch (error) {

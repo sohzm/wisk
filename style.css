@@ -382,8 +382,7 @@ nav {
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--fg-1);
-    opacity: 0.3;
+    backdrop-filter: blur(10px) brightness(0.5);
 }
 
 .update-box-dialog {
@@ -392,40 +391,62 @@ nav {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: var(--bg-1);
+    background-image: url(/a7/forget/babe.png);
+    background-size: cover;
     padding: var(--padding-4);
     display: flex;
     flex-direction: column;
-    border-radius: var(--radius);
+    border-radius: var(--radius-large);
     gap: var(--gap-2);
     width: 90%;
-    max-width: 360px;
-}
-
-.update-box-title {
-    font-size: large;
-    font-weight: 500;
-    margin-bottom: var(--padding-4);
+    max-width: 600px;
+    aspect-ratio: 1280/720;
 }
 
 .update-box-confirm {
-    background: var(--fg-1);
-    color: var(--bg-1);
     border-radius: var(--radius);
     outline: none;
     border: none;
     padding: var(--padding-w3);
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
+    background: var(--fg-1);
+    color: var(--bg-1);
+    position: absolute;
+    right: 16%;
+    bottom: 21%;
+    user-select: none;
 }
 
 .update-box-cancel {
-    background: var(--bg-3);
-    color: var(--fg-1);
     border-radius: var(--radius);
+    background: var(--bg-1);
+    color: var(--fg-1);
     outline: none;
     border: none;
     padding: var(--padding-w3);
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
+    position: absolute;
+    right: 20%;
+    user-select: none;
+    bottom: 6%;
+}
+
+.update-box-confirm:hover {
+    background: var(--fg-2);
+}
+
+.update-box-cancel:hover {
+    background: var(--bg-2);
+}
+
+@media (max-width: 600px) {
+    .update-box-confirm {
+        right: 10%;
+    }
+    .update-box-cancel {
+        right: 15%;
+        bottom: 2%;
+    }
 }
