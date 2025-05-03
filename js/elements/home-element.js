@@ -202,7 +202,8 @@ class HomeElement extends LitElement {
             .file-content {
                 flex-direction: row;
             }
-            img[src='/a7/forget/page-1.svg'], emoji-display {
+            img[src='/a7/forget/page-1.svg'],
+            emoji-display {
                 width: 25px;
                 flex-shrink: 0;
                 margin: 0;
@@ -318,6 +319,8 @@ class HomeElement extends LitElement {
         templates: { type: Array },
         expandTemplates: { type: Boolean },
         message: { type: String },
+        searchText: { type: String },
+        inputFocused: { type: Boolean },
     };
 
     constructor() {
@@ -583,7 +586,9 @@ class HomeElement extends LitElement {
     }
 
     filterFiles(e) {
-        const searchTerm = e.target.value.toLowerCase();
+        this.searchText = e.target.value;
+        const searchTerm = this.searchText.toLowerCase();
+
         if (searchTerm === '') {
             this.filteredFiles = [...this.files];
         } else {
@@ -695,6 +700,12 @@ class HomeElement extends LitElement {
         }
     }
 
+    async ff() {
+        this.inputFocused = true;
+        await this.updateComplete;
+        this.shadowRoot.querySelector('.search-input').focus();
+    }
+
     render() {
         return html`
             <div class="container">
@@ -786,8 +797,16 @@ class HomeElement extends LitElement {
                     <div class="your-files-header">
                         <h2 class="section-title">Your Pages</h2>
                         <div class="search-div">
-                            <img src="/a7/forget/search.svg" alt="Search" style="width: 20px" />
-                            <input type="text" class="search-input" placeholder="Search files..." @input=${this.filterFiles} />
+                            <img src="/a7/forget/search.svg" alt="Search" style="width: 20px; cursor: pointer" @click=${() => this.ff()} />
+                            <input
+                                type="text"
+                                class="search-input"
+                                placeholder="Search files..."
+                                @input=${this.filterFiles}
+                                style=${this.searchText || this.inputFocused ? '' : 'display: none;'}
+                                @focus=${() => (this.inputFocused = true)}
+                                @blur=${() => (this.inputFocused = false)}
+                            />
                         </div>
                     </div>
                     <div class="files-grid">
