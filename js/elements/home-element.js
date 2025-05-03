@@ -34,6 +34,12 @@ class HomeElement extends LitElement {
             color: var(--fg-1);
         }
 
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 1.2rem;
+            }
+        }
+
         .search-div {
             padding: var(--padding-3);
             border-radius: calc(var(--radius-large) * 10);
@@ -71,6 +77,12 @@ class HomeElement extends LitElement {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: var(--gap-3);
+        }
+
+        @media (max-width: 768px) {
+            .files-grid {
+                gap: 1px;
+            }
         }
 
         .templates-grid {
@@ -162,12 +174,39 @@ class HomeElement extends LitElement {
             position: relative;
         }
 
+        @media (max-width: 768px) {
+            .file-card {
+                border-radius: 0;
+            }
+            .file-card:first-child {
+                border-radius: var(--radius-large) var(--radius-large) 0 0;
+            }
+            .file-card:last-child {
+                border-radius: 0 0 var(--radius-large) var(--radius-large);
+            }
+        }
+
         .file-content {
             display: flex;
             align-items: flex-start;
             gap: var(--gap-2);
             flex-grow: 1;
             flex-direction: column;
+        }
+
+        img[src='/a7/forget/page-1.svg'] {
+            width: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .file-content {
+                flex-direction: row;
+            }
+            img[src='/a7/forget/page-1.svg'], emoji-display {
+                width: 25px;
+                flex-shrink: 0;
+                margin: 0;
+            }
         }
 
         .more-options {
@@ -207,7 +246,6 @@ class HomeElement extends LitElement {
         }
 
         .file-card:hover img {
-            filter: var(--accent-svg);
         }
 
         .emoji-display {
@@ -226,6 +264,17 @@ class HomeElement extends LitElement {
             color: transparent;
             background-clip: text;
             font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .this-greet {
+                font-size: 22px;
+                text-align: left;
+                width: 100%;
+            }
+            .section-greet {
+                display: none;
+            }
         }
 
         ::placeholder {
@@ -649,11 +698,11 @@ class HomeElement extends LitElement {
     render() {
         return html`
             <div class="container">
-                <div class="section" style="margin-top: 60px; align-items: center;">
+                <div class="section section-greet" style="margin-top: 60px; margin-bottom: 60px; align-items: center;">
                     <h1 class="this-greet">${this.greet}</h1>
                 </div>
 
-                <div class="section">
+                <div class="section" style="display: none">
                     <h2 class="section-title">Create New</h2>
                     <div class="templates-grid">
                         <div class="template-card" @click=${() => (window.location.href = '/')}>
@@ -735,13 +784,19 @@ class HomeElement extends LitElement {
 
                 <div class="section" style="gap: calc(2*var(--gap-3)); min-height: 100svh">
                     <div class="your-files-header">
-                        <h2 class="section-title">Your Files</h2>
+                        <h2 class="section-title">Your Pages</h2>
                         <div class="search-div">
                             <img src="/a7/forget/search.svg" alt="Search" style="width: 20px" />
                             <input type="text" class="search-input" placeholder="Search files..." @input=${this.filterFiles} />
                         </div>
                     </div>
                     <div class="files-grid">
+                        <a href="/" class="file-card">
+                            <div class="file-content" style="width: 100%">
+                                <img src="/a7/forget/plus.svg" alt="File" width="25px" />
+                                <span>New Page</span>
+                            </div>
+                        </a>
                         ${this.filteredFiles.length === 0 ? html` <p>${this.message}</p> ` : ''}
                         ${this.filteredFiles.map(file => {
                             const fileInfo = this.getFileDisplayInfo(file.name);
@@ -752,7 +807,7 @@ class HomeElement extends LitElement {
                                             ? html`<span class="emoji-display">${file.emoji}</span>`
                                             : fileInfo.hasEmoji
                                               ? html`<span class="emoji-display">${fileInfo.emoji}</span>`
-                                              : html`<img src="/a7/forget/page-1.svg" alt="File" style="width: 18px" />`}
+                                              : html`<img src="/a7/forget/page-1.svg" alt="File" />`}
                                         <span>${fileInfo.hasEmoji ? fileInfo.displayName : file.name}</span>
                                     </div>
                                     <div class="more-options" @click=${e => this.removeFile(file.id, e)}>
