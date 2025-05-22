@@ -10,12 +10,7 @@ wisk.plugins = {
     loadPlugin: function (plugin) {},
 };
 
-wisk.db = {
-    getItem: function (pageId) {},
-    setItem: function (pageId, value) {},
-    removeItem: function (pageId) {},
-    getAllItems: function () {},
-};
+wisk.db = {};
 
 wisk.theme = {
     themeObject: { themes: [] },

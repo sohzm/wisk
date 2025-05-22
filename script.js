@@ -40,7 +40,7 @@ async function init() {
         await loadAllPlugins();
         // await sync();
         //
-        await wisk.db.getItem(wisk.editor.pageId).then(data => {
+        await wisk.db.getPage(wisk.editor.pageId).then(data => {
             if (data) {
                 console.log('Data:', data);
                 initEditor(data);
@@ -88,7 +88,7 @@ async function initScript() {
         //        var data = await response.json();
         //
         //
-        await wisk.db.setItem(id, {
+        await wisk.db.setPage(id, {
             id: id,
             lastUpdated: Date.now(),
             data: {

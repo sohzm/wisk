@@ -135,7 +135,7 @@ class VideoElement extends BaseTextElement {
             const uniqueUrl = 'video-' + Date.now() + '.' + this.getFileExtension(file.name);
 
             // Save the blob to IndexedDB asset store
-            await wisk.db.saveAsset(uniqueUrl, file);
+            await wisk.db.setAsset(uniqueUrl, file);
 
             this.videoUrl = uniqueUrl;
             this.updateVideo();

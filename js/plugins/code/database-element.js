@@ -1363,10 +1363,10 @@ class DatabaseElement extends LitElement {
         // delete pages and db data
         for (const entry of this.entries) {
             if (entry.pageId) {
-                await wisk.db.removeItem(entry.pageId);
+                await wisk.db.removePage(entry.pageId);
             }
         }
-        await wisk.db.removeDB(this.dbIdentifier);
+        await wisk.db.removeDatabase(this.dbIdentifier);
     }
 
     listenToEmojiSelector() {
@@ -1404,7 +1404,7 @@ class DatabaseElement extends LitElement {
             this.dbIdentifier = 'db-' + Math.random().toString(36).substring(2, 15);
         }
 
-        wisk.db.getDB(value.dbIdentifier).then(data => {
+        wisk.db.getDatabase(value.dbIdentifier).then(data => {
             if (data) {
                 console.log('Data:', data);
                 if (data.title) this.title = data.title;
@@ -1503,7 +1503,7 @@ class DatabaseElement extends LitElement {
 
     onUpdate() {
         wisk.editor.justUpdates(this.id);
-        wisk.db.setDB(this.dbIdentifier, this.getDBValue());
+        wisk.db.setDatabase(this.dbIdentifier, this.getDBValue());
     }
 
     startEditing(entry) {
@@ -1579,7 +1579,7 @@ class DatabaseElement extends LitElement {
 
     async deleteEntry() {
         // remove page
-        await wisk.db.removeItem(this.editingEntry.pageId);
+        await wisk.db.removePage(this.editingEntry.pageId);
 
         if (confirm('Are you sure you want to delete this entry?')) {
             this.entries = this.entries.filter(entry => entry.id !== this.editingEntry.id);
@@ -1611,7 +1611,7 @@ class DatabaseElement extends LitElement {
         // create page with config
         var id = Math.random().toString(36).substring(2, 12).toUpperCase();
         id = wisk.editor.pageId + '.' + id;
-        await wisk.db.setItem(id, {
+        await wisk.db.setPage(id, {
             id: id,
             lastUpdated: Date.now(),
             data: {

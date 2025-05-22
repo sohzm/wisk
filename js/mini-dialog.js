@@ -64,7 +64,7 @@ function pushMiniDialogHistory() {
 function handleMiniDialogPopstate(event) {
     const dialog = byQuery('.mini-dialog');
     if (!dialog.classList.contains('hidden')) {
-        // Mark as closing via popstate to prevent recursive history changes
+        // TODO make it use the handleBack() function from the components
         dialog.dataset.closingViaPopstate = 'true';
         hideMiniDialog();
         setTimeout(() => {

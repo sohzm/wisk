@@ -570,6 +570,21 @@ class OptionsComponent extends LitElement {
         this.currentView = 'themes';
     }
 
+    handleBack() {
+        if (this.currentView === 'main') {
+            return false;
+        } else if (this.currentView === 'plugin-details') {
+            this.currentView = 'plugins';
+            return true;
+        } else if (['developer', 'account', 'about', 'changelog'].includes(this.currentView)) {
+            this.showSettingsView();
+            return true;
+        } else {
+            this.showMainView();
+            return true;
+        }
+    }
+
     loadPlugins() {
         if (wisk.plugins.pluginData && wisk.plugins.pluginData.list) {
             this.plugins = Object.values(wisk.plugins.pluginData.list).filter(plugin => !wisk.plugins.defaultPlugins.includes(plugin.name));
@@ -760,6 +775,7 @@ class OptionsComponent extends LitElement {
     opened() {
         this.currentView = 'main';
         wisk.db.getStorageStats().then(stats => {
+            console.log('STORAGE STATS', stats);
             this.storageUsed = stats.totalMB;
         });
         this.shadowRoot.querySelector('.search-input').value = '';
@@ -1483,6 +1499,7 @@ class OptionsComponent extends LitElement {
                     </div>
 
                     <div style="flex: 1; overflow-y: auto">
+                        <p style="color: var(--fg-2); font-size: 14px; padding: var(--padding-3) 0;">(more like my devlog)</p>
                         <div class="content-section content-section--column" style="white-space: break-spaces; font-family: var(--font-mono); user-select: text;">${this.changelog}</div>
                     </div>
                 </div>

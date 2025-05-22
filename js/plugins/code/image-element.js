@@ -83,7 +83,7 @@ class ImageElement extends BaseTextElement {
                     const uniqueUrl = 'image-' + Date.now() + '.' + extension;
 
                     // Save to asset store
-                    await wisk.db.saveAsset(uniqueUrl, blob);
+                    await wisk.db.setAsset(uniqueUrl, blob);
 
                     // Update the component with the new image
                     this.imageUrl = uniqueUrl;
@@ -211,7 +211,7 @@ class ImageElement extends BaseTextElement {
                     const uniqueUrl = 'gif-' + Date.now() + '.gif';
 
                     // Save to asset store
-                    await wisk.db.saveAsset(uniqueUrl, blob);
+                    await wisk.db.setAsset(uniqueUrl, blob);
 
                     this.imageUrl = uniqueUrl;
                     this.updateImage();
@@ -269,7 +269,7 @@ class ImageElement extends BaseTextElement {
             if (this.imageUrl) {
                 try {
                     // Retrieve the actual blob from the asset store
-                    const blob = await wisk.db.getAsset(this.imageUrl);
+                    const blob = await wisk.db.setAsset(this.imageUrl);
                     if (blob) {
                         const objectUrl = URL.createObjectURL(blob);
                         window.open(objectUrl, '_blank');
@@ -385,7 +385,7 @@ class ImageElement extends BaseTextElement {
             const uniqueUrl = 'image-' + Date.now() + '.' + this.getFileExtension(file.name);
 
             // Save the blob to IndexedDB asset store
-            await wisk.db.saveAsset(uniqueUrl, finalBlob);
+            await wisk.db.setAsset(uniqueUrl, finalBlob);
 
             this.imageUrl = uniqueUrl;
             this.updateImage();
@@ -1119,7 +1119,7 @@ class ImageElement extends BaseTextElement {
             const localUrl = 'image-' + Date.now() + '.' + extension;
 
             // Save to IndexedDB
-            await wisk.db.saveAsset(localUrl, blob);
+            await wisk.db.setAsset(localUrl, blob);
 
             // Set the new URL
             this.imageUrl = localUrl;

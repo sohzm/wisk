@@ -436,11 +436,11 @@ class LeftMenu extends LitElement {
 
     async setList() {
         try {
-            var l = await wisk.db.getAllKeys();
+            var l = await wisk.db.getAllPages();
             console.log(l);
             this.list = [];
             for (var i = 0; i < l.length; i++) {
-                var item = await wisk.db.getItem(l[i]);
+                var item = await wisk.db.getPage(l[i]);
                 console.log(item);
 
                 // Get emoji from first element if available
@@ -481,11 +481,11 @@ class LeftMenu extends LitElement {
             const childPages = this.list.filter(item => item.id !== id && item.id.startsWith(id + '.')).map(item => item.id);
 
             // Delete the main page
-            await wisk.db.removeItem(id);
+            await wisk.db.removePage(id);
 
             // Delete all child pages
             for (const childId of childPages) {
-                await wisk.db.removeItem(childId);
+                await wisk.db.removePage(childId);
             }
 
             // Update the UI state

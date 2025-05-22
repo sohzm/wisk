@@ -363,12 +363,12 @@ class SearchElement extends LitElement {
         }
 
         query = query.toLowerCase();
-        const allKeys = await wisk.db.getAllKeys();
+        const allKeys = await wisk.db.getAllPages();
         const results = [];
 
         for (const key of allKeys) {
             try {
-                const item = await wisk.db.getItem(key);
+                const item = await wisk.db.getPage(key);
 
                 if (item && item.data && item.data.elements) {
                     // Create a record with the page name if available

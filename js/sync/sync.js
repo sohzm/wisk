@@ -6,12 +6,12 @@ async function sync() {
     wisk.utils.showLoading('Syncing with server...');
     console.log('PAGE', wisk.editor.pageId);
 
-    var pages = await wisk.db.getAllKeys();
+    var pages = await wisk.db.getAllPages();
     // upload all offline pages and update their IDs
     var offlinePages = [];
     for (var i = 0; i < pages.length; i++) {
         if (pages[i].startsWith('of-')) {
-            var offlinePage = await wisk.db.getItem(pages[i]);
+            var offlinePage = await wisk.db.getPage(pages[i]);
             offlinePages.push(offlinePage);
         }
     }
@@ -111,7 +111,7 @@ async function live() {
 
 function saveUpdates() {
     console.log('Saving updates:', wisk.editor.document);
-    wisk.db.setItem(wisk.editor.pageId, wisk.editor.document);
+    wisk.db.setPage(wisk.editor.pageId, wisk.editor.document);
 
     //// send to server
     //sendMessage(

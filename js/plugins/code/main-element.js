@@ -197,7 +197,7 @@ class MainElement extends BaseTextElement {
             const uniqueUrl = 'bg-' + Date.now() + '.' + this.getFileExtension(file.name);
 
             // Save to IndexedDB asset store
-            await wisk.db.saveAsset(uniqueUrl, resizedBlob);
+            await wisk.db.setAsset(uniqueUrl, resizedBlob);
 
             this.backgroundUrl = uniqueUrl;
             this.updateBackground();

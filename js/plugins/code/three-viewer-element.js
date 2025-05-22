@@ -159,7 +159,7 @@ class ThreeViewerElement extends LitElement {
             const uniqueUrl = 'model-' + Date.now() + '.' + fileExt;
 
             // Save to IndexedDB asset store
-            await wisk.db.saveAsset(uniqueUrl, file);
+            await wisk.db.setAsset(uniqueUrl, file);
 
             return uniqueUrl;
         } catch (error) {

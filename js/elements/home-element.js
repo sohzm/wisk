@@ -490,13 +490,13 @@ class HomeElement extends LitElement {
     async fetchFiles() {
         try {
             // Get all keys from wisk.db
-            const keys = await wisk.db.getAllKeys();
+            const keys = await wisk.db.getAllPages();
             console.log('Fetched keys:', keys);
 
             this.files = [];
             // Iterate through keys and get each item
             for (let i = 0; i < keys.length; i++) {
-                const item = await wisk.db.getItem(keys[i]);
+                const item = await wisk.db.getPage(keys[i]);
                 console.log('Fetched item:', item);
 
                 // Get emoji from first element if available (similar to left-menu)
@@ -534,7 +534,7 @@ class HomeElement extends LitElement {
 
         try {
             // Use wisk.db to remove the item
-            await wisk.db.removeItem(id);
+            await wisk.db.removePage(id);
 
             // Update the UI state
             this.files = this.files.filter(item => item.id !== id);

@@ -335,7 +335,7 @@ class TweaksElement extends LitElement {
     async loadSavedBackgrounds() {
         try {
             // Load saved background settings
-            const savedData = (await wisk.db.getPluginItem(this.identifier)) || {};
+            const savedData = (await wisk.db.getPlugin(this.identifier)) || {};
 
             // Initialize structure if not exists
             if (!savedData.assets) {
@@ -373,7 +373,7 @@ class TweaksElement extends LitElement {
     async saveSettings() {
         try {
             // Get current settings
-            const savedData = (await wisk.db.getPluginItem(this.identifier)) || {};
+            const savedData = (await wisk.db.getPlugin(this.identifier)) || {};
 
             // Initialize structure if not exists
             if (!savedData.assets) {
@@ -423,7 +423,7 @@ class TweaksElement extends LitElement {
             }
 
             // Save to database
-            await wisk.db.setPluginItem(this.identifier, savedData);
+            await wisk.db.setPlugin(this.identifier, savedData);
         } catch (error) {
             console.error('Error saving background settings:', error);
         }
@@ -444,7 +444,7 @@ class TweaksElement extends LitElement {
                     const imageId = `user_bg_${Date.now()}_${file.name.replace(/[^a-z0-9]/gi, '_')}`;
 
                     // Store the image in the asset store
-                    await wisk.db.saveAsset(imageId, blob);
+                    await wisk.db.setAsset(imageId, blob);
 
                     // Create a blob URL for display
                     const blobUrl = URL.createObjectURL(blob);
@@ -490,7 +490,7 @@ class TweaksElement extends LitElement {
             this.uploadedImages = [...this.uploadedImages];
 
             // Get saved data to update
-            const savedData = (await wisk.db.getPluginItem(this.identifier)) || {};
+            const savedData = (await wisk.db.getPlugin(this.identifier)) || {};
 
             // If this was the current background for any page, reset it
             if (savedData.selectedAssets) {
@@ -506,7 +506,7 @@ class TweaksElement extends LitElement {
             savedData.assets = this.uploadedImages;
 
             // Save changes
-            await wisk.db.setPluginItem(this.identifier, savedData);
+            await wisk.db.setPlugin(this.identifier, savedData);
 
             // If the removed image was the current background, reset background
             if (this.currentBackground === image.id) {
