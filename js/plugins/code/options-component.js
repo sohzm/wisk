@@ -124,7 +124,8 @@ class OptionsComponent extends LitElement {
             flex-wrap: wrap;
             padding: var(--padding-3);
         }
-        .content-section {
+        .content-section,
+        .snapshot-section {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
@@ -134,8 +135,17 @@ class OptionsComponent extends LitElement {
             border-bottom: solid 1px var(--bg-2);
             border-radius: 0;
         }
-        .content-section:last-child {
+        .snapshot-section {
+            padding: var(--padding-3) var(--padding-4);
+            border-bottom: 1px solid var(--bg-3);
+        }
+        .snapshot-section:first-child {
+            padding-top: 0;
+        }
+        .content-section:last-child,
+        .snapshot-section:last-child {
             border-bottom: none;
+            padding-bottom: 0;
         }
         .content-section--column {
             flex-direction: column;
@@ -223,7 +233,8 @@ class OptionsComponent extends LitElement {
             cursor: not-allowed;
         }
         .btn-secondary {
-            background-color: var(--bg-2);
+            background-color: var(--bg-1);
+            border: 2px solid var(--bg-3);
             color: var(--fg-1);
             font-weight: 600;
         }
@@ -410,6 +421,7 @@ class OptionsComponent extends LitElement {
             padding: var(--padding-4);
             background: var(--bg-2);
             border-radius: var(--radius-large);
+            margin-bottom: var(--padding-4);
         }
         @media (hover: hover) {
             *::-webkit-scrollbar {
@@ -459,6 +471,7 @@ class OptionsComponent extends LitElement {
         @media (max-width: 768px) {
             .menu-item,
             .content-section,
+            .snapshot-section,
             .toggle-group {
                 padding: var(--padding-3) 0;
             }
@@ -475,6 +488,15 @@ class OptionsComponent extends LitElement {
 
         .dev-jalebi {
             padding: 0 var(--padding-3);
+        }
+
+        .snapshot-list-outer {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--padding-4) 0;
+            margin-top: var(--padding-4);
+            border-radius: var(--radius-large);
+            border: 1px solid var(--bg-3);
         }
 
         @media (max-width: 900px) {
@@ -839,6 +861,11 @@ class OptionsComponent extends LitElement {
     }
 
     async restoreSnapshot(s) {
+        // ask for alert
+        if (!confirm('Are you sure you want to restore this snapshot? This will overwrite your current document.')) {
+            return;
+        }
+
         wisk.editor.document = s.data;
         await wisk.sync.saveUpdates();
         // reload page
@@ -972,6 +999,10 @@ class OptionsComponent extends LitElement {
     createCurrentSnapshot() {
         // get title from prompt
         var title = prompt('Enter a name for the snapshot', 'Snapshot ' + new Date().toISOString());
+        if (!title) {
+            return;
+        }
+
         var name = 'id-' + wisk.editor.pageId + '-' + new Date().toISOString();
         var data = {
             id: name,
@@ -1587,32 +1618,31 @@ class OptionsComponent extends LitElement {
                         </div>
                     </div>
 
-                    <div style="flex: 1; overflow-y: auto">
+                    <div class="content-section" style="border-bottom: none">
+                        <label style="display: flex; gap: 10px; align-items: center;">
+                            Create Snapshot
+                            <img src="/a7/plugins/options-element/info.svg" alt="Info" class="icon" draggable="false" @click="${() => {
+                                this.showSnapshotInfo = !this.showSnapshotInfo;
+                                this.requestUpdate();
+                            }}" style="width: unset" />
+                        </label>
 
-                        <div class="content-section" style="border-bottom: none">
-                            <label style="display: flex; gap: 10px; align-items: center;">
-                                Create Snapshot
-                                <img src="/a7/plugins/options-element/info.svg" alt="Info" class="icon" draggable="false" @click="${() => {
-                                    this.showSnapshotInfo = !this.showSnapshotInfo;
-                                    this.requestUpdate();
-                                }}" style="width: unset" />
-                            </label>
+                        <button class="btn btn-primary" @click="${() => {
+                            this.createCurrentSnapshot();
+                        }}">Create</button>
+                    </div>
 
-                            <button class="btn btn-primary" @click="${() => {
-                                this.createCurrentSnapshot();
-                            }}">Create</button>
-                        </div>
+                    <div class="snapshot-info" style="display: ${this.showSnapshotInfo ? 'block' : 'none'};">
+                        <p>• You can create snapshots of your document to save your work at any point and restore it later.</p>
+                        <p>• You can create as many as you want.</p>
+                        <p>• Snapshots are not included in the document.</p>
+                    </div>
 
-                        <div class="snapshot-info" style="display: ${this.showSnapshotInfo ? 'block' : 'none'};">
-                            <p>• You can create snapshots of your document to save your work at any point and restore it later.</p>
-                            <p>• You can create as many as you want.</p>
-                            <p>• Snapshots are not included in the document.</p>
-                        </div>
-
+                    <div class="snapshot-list-outer">
                         <div class="snapshot-list">
                             ${this.snapshots.map(
                                 snapshot => html`
-                                    <div class="content-section">
+                                    <div class="snapshot-section">
                                         <div class="">
                                             <p>
                                                 ${snapshot.title}
@@ -1632,7 +1662,6 @@ class OptionsComponent extends LitElement {
                                 `
                             )}
                         </div>
-
                     </div>
                 </div>
 
