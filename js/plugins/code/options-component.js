@@ -222,6 +222,15 @@ class OptionsComponent extends LitElement {
             opacity: 0.7;
             cursor: not-allowed;
         }
+        .btn-secondary {
+            background-color: var(--bg-2);
+            color: var(--fg-1);
+            font-weight: 600;
+        }
+        .btn-secondary:hover {
+            background-color: var(--bg-3);
+            color: var(--fg-1);
+        }
         .btn-danger {
             background-color: var(--fg-red);
             color: var(--bg-red);
@@ -397,6 +406,11 @@ class OptionsComponent extends LitElement {
             height: 26px;
             width: 26px;
         }
+        .snapshot-info {
+            padding: var(--padding-4);
+            background: var(--bg-2);
+            border-radius: var(--radius-large);
+        }
         @media (hover: hover) {
             *::-webkit-scrollbar {
                 width: 15px;
@@ -498,6 +512,8 @@ class OptionsComponent extends LitElement {
         showPluginSearch: { type: Boolean },
         notificationsEnabled: { type: Boolean },
         changelog: { type: String },
+        showSnapshotInfo: { type: Boolean },
+        snapshots: { type: Array },
     };
 
     constructor() {
@@ -509,7 +525,12 @@ class OptionsComponent extends LitElement {
         this.selectedPlugin = null;
         this.showUsernameEdit = false;
         this.notificationsEnabled = Notification.permission === 'granted';
-        this.storageUsed = null;
+        this.showSnapshotInfo = false;
+        this.snapshots = [];
+        this.storageStats = {
+            totalMB: 0,
+            quotaGB: 0,
+        };
         this.initEmojiTracker();
         this.changelog = '';
         this.fetchChangelog();
@@ -568,6 +589,10 @@ class OptionsComponent extends LitElement {
 
     showThemesView() {
         this.currentView = 'themes';
+    }
+
+    showSnapshotsView() {
+        this.currentView = 'snapshots';
     }
 
     handleBack() {
@@ -776,10 +801,33 @@ class OptionsComponent extends LitElement {
         this.currentView = 'main';
         wisk.db.getStorageStats().then(stats => {
             console.log('STORAGE STATS', stats);
-            this.storageUsed = stats.totalMB;
+            this.storageStats = stats;
         });
         this.shadowRoot.querySelector('.search-input').value = '';
         this.handleSearch({ target: { value: '' } });
+
+        this.refreshSnapshots();
+        this.requestUpdate();
+    }
+
+    async refreshSnapshots() {
+        // get all snapshots, filter all that have the id of current document (wisk.editor.pageId) and a dash
+        var snapshotKeys = await wisk.db.getAllSnapshots();
+        var search = 'id-' + wisk.editor.pageId + '-';
+        snapshotKeys = Object.values(snapshotKeys).filter(snapshot => {
+            return snapshot.includes(search);
+        });
+
+        // fetch snapshots one by one and add to the snapshots array
+        this.snapshots = [];
+        for (var i = 0; i < snapshotKeys.length; i++) {
+            var data = await wisk.db.getSnapshot(snapshotKeys[i]);
+            if (data) {
+                this.snapshots.push(data);
+            }
+        }
+
+        console.log('SNAPSHOTS', this.snapshots);
         this.requestUpdate();
     }
 
@@ -788,6 +836,13 @@ class OptionsComponent extends LitElement {
         wisk.theme.setTheme(theme);
         await wisk.editor.addConfigChange('document.config.theme', theme);
         this.requestUpdate();
+    }
+
+    async restoreSnapshot(s) {
+        wisk.editor.document = s.data;
+        await wisk.sync.saveUpdates();
+        // reload page
+        window.location.reload();
     }
 
     setTheme(theme) {
@@ -914,6 +969,23 @@ class OptionsComponent extends LitElement {
         });
     }
 
+    createCurrentSnapshot() {
+        // get title from prompt
+        var title = prompt('Enter a name for the snapshot', 'Snapshot ' + new Date().toISOString());
+        var name = 'id-' + wisk.editor.pageId + '-' + new Date().toISOString();
+        var data = {
+            id: name,
+            title: title,
+            pageId: wisk.editor.pageId,
+            timestamp: new Date().toISOString(),
+            data: wisk.editor.document,
+        };
+        wisk.db.setSnapshot(name, data).then(() => {
+            wisk.utils.showToast('Snapshot created successfully', 3000);
+            this.refreshSnapshots();
+        });
+    }
+
     render() {
         var filteredPlugins = this.plugins.filter(
             plugin =>
@@ -974,6 +1046,11 @@ class OptionsComponent extends LitElement {
 
                     <div class="menu-item" @click="${this.showPluginsManager}">
                         <label> <img src="/a7/plugins/options-element/plug.svg" alt="Plugins" class="icon" draggable="false"/> Plugins</label>
+                        <img src="/a7/iconoir/right.svg" alt="Plugins" class="icon" draggable="false"/>
+                    </div>
+
+                    <div class="menu-item" @click="${this.showSnapshotsView}">
+                        <label> <img src="/a7/plugins/options-element/snapshots.svg" alt="Plugins" class="icon" draggable="false"/> Snapshots</label>
                         <img src="/a7/iconoir/right.svg" alt="Plugins" class="icon" draggable="false"/>
                     </div>
 
@@ -1252,9 +1329,21 @@ class OptionsComponent extends LitElement {
 
                     <div style="flex: 1; display: ${localStorage.getItem('devMode') === 'true' ? 'block' : 'none'}">
 
+                        <div class="menu-item-static content-section" style="border-bottom: none;">
+                            <div class="usage-bar" style="width: 100%; background-color: var(--bg-2); border-radius: var(--radius); height: 10px; position: relative; overflow: hidden;" title="remaining storage">
+                                <div class="usage-bar-fill" style="width: ${(this.storageStats.totalMB / (this.storageStats.quotaGB * 1000)) * 100}%; background-color: var(--fg-red); height: 100%;" title="used storage"></div>
+                            </div>
+
+                        </div>
+
                         <div class="menu-item-static content-section">
                             <label>Storage Stats</label>
-                            <p style="font-size: 14px; color: var(--fg-2);">used ${this.storageUsed} MB</p>
+                            <p style="font-size: 14px; color: var(--fg-2);">used ${this.storageStats.totalMB} MB</p>
+                        </div>
+
+                        <div class="menu-item-static content-section">
+                            <label>Storage Quota (maximum allowed storage to wisk)</label>
+                            <p style="font-size: 14px; color: var(--fg-2);">${this.storageStats.quotaGB} GB</p>
                         </div>
 
                         <div class="menu-item-static content-section">
@@ -1481,6 +1570,69 @@ class OptionsComponent extends LitElement {
                                 </div>
                             `
                         )}
+                    </div>
+                </div>
+
+                <!-- Snapshots View -->
+                <div class="view ${this.currentView === 'snapshots' ? 'active' : ''}">
+                    <div class="header">
+                        <div class="header-wrapper">
+                            <div class="header-controls">
+                                <img src="/a7/forget/dialog-back.svg" alt="Back" @click="${this.showMainView}" class="icon" draggable="false"/>
+                                <img src="/a7/forget/dialog-x.svg" alt="Close" @click="${() => {
+                                    wisk.editor.hideMiniDialog();
+                                }}" class="icon" draggable="false" style="padding: var(--padding-3);"/>
+                            </div>
+                            <label class="header-title">Snapshots</label>
+                        </div>
+                    </div>
+
+                    <div style="flex: 1; overflow-y: auto">
+
+                        <div class="content-section" style="border-bottom: none">
+                            <label style="display: flex; gap: 10px; align-items: center;">
+                                Create Snapshot
+                                <img src="/a7/plugins/options-element/info.svg" alt="Info" class="icon" draggable="false" @click="${() => {
+                                    this.showSnapshotInfo = !this.showSnapshotInfo;
+                                    this.requestUpdate();
+                                }}" style="width: unset" />
+                            </label>
+
+                            <button class="btn btn-primary" @click="${() => {
+                                this.createCurrentSnapshot();
+                            }}">Create</button>
+                        </div>
+
+                        <div class="snapshot-info" style="display: ${this.showSnapshotInfo ? 'block' : 'none'};">
+                            <p>• You can create snapshots of your document to save your work at any point and restore it later.</p>
+                            <p>• You can create as many as you want.</p>
+                            <p>• Snapshots are not included in the document.</p>
+                        </div>
+
+                        <div class="snapshot-list">
+                            ${this.snapshots.map(
+                                snapshot => html`
+                                    <div class="content-section">
+                                        <div class="">
+                                            <p>
+                                                ${snapshot.title}
+                                                <span style="color: var(--fg-2);"
+                                                    >${new Date(snapshot.timestamp).toLocaleString('en-US', {
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                        hour: 'numeric',
+                                                        minute: '2-digit',
+                                                        hour12: true,
+                                                    })}</span
+                                                >
+                                            </p>
+                                        </div>
+                                        <button class="btn btn-secondary" @click="${() => this.restoreSnapshot(snapshot)}">Restore</button>
+                                    </div>
+                                `
+                            )}
+                        </div>
+
                     </div>
                 </div>
 

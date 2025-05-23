@@ -1,6 +1,7 @@
 - May 23
 
-    - new database api 
+    - new database api
+    - added snapshots support
 
 - May 1 - 20
 

@@ -256,6 +256,8 @@ const CORE_ASSETS = [
     '/a7/plugins/options-element/pin.svg',
     '/a7/plugins/options-element/pin-tack.svg',
     '/a7/plugins/options-element/plug.svg',
+    '/a7/plugins/options-element/snapshots.svg',
+    '/a7/plugins/options-element/info.svg',
     '/a7/plugins/options-element/puzzled.svg',
     '/a7/plugins/options-element/settings.svg',
     '/a7/plugins/options-element/shield.svg',

@@ -2,12 +2,13 @@
 wisk.db = (function () {
     const dbName = 'WiskDatabase';
     const dbVersion = 3;
-    const stores = ['WiskStore', 'WiskAssetStore', 'WiskPluginStore', 'WiskDatabaseStore'];
+    const stores = ['WiskStore', 'WiskAssetStore', 'WiskPluginStore', 'WiskDatabaseStore', 'WiskSnapshots'];
     const functionNames = {
         WiskStore: { get: 'getPage', set: 'setPage', remove: 'removePage', getAll: 'getAllPages' },
         WiskAssetStore: { get: 'getAsset', set: 'setAsset', remove: 'removeAsset', getAll: 'getAllAssets' },
         WiskPluginStore: { get: 'getPlugin', set: 'setPlugin', remove: 'removePlugin', getAll: 'getAllPlugins' },
         WiskDatabaseStore: { get: 'getDatabase', set: 'setDatabase', remove: 'removeDatabase', getAll: 'getAllDatabases' },
+        WiskSnapshots: { get: 'getSnapshot', set: 'setSnapshot', remove: 'removeSnapshot', getAll: 'getAllSnapshots' },
     };
 
     let db;
