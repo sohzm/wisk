@@ -1557,22 +1557,22 @@ class OptionsComponent extends LitElement {
                     </div>
 
                     <div class="menu-item" @click="${this.showAccountsView}">
-                        <label>Account</label>
+                        <label> <img src="/a7/plugins/options-element/account.svg" alt="Plugins" class="icon" draggable="false"/> Account</label>
                         <img src="/a7/iconoir/right.svg" alt="Account" class="icon" draggable="false"/>
                     </div>
 
                     <div class="menu-item" @click="${this.showAboutView}">
-                        <label>About</label>
+                        <label> <img src="/a7/plugins/options-element/about.svg" alt="Plugins" class="icon" draggable="false"/> About</label>
                         <img src="/a7/iconoir/right.svg" alt="About" class="icon" draggable="false"/>
                     </div>
 
                     <div class="menu-item" @click="${this.showChangelogView}">
-                        <label>Changelog</label>
+                        <label> <img src="/a7/plugins/options-element/changelog.svg" alt="Plugins" class="icon" draggable="false"/> Changelog</label>
                         <img src="/a7/iconoir/right.svg" alt="Changelog" class="icon" draggable="false"/>
                     </div>
 
                     <div class="menu-item" @click="${this.showDeveloperView}">
-                        <label>Developer Options</label>
+                        <label> <img src="/a7/plugins/options-element/developer.svg" alt="Plugins" class="icon" draggable="false"/> Developer Options</label>
                         <img src="/a7/iconoir/right.svg" alt="Developer" class="icon" draggable="false"/>
                     </div>
                 </div>
