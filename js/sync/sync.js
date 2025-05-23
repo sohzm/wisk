@@ -109,9 +109,9 @@ async function live() {
     }
 }
 
-function saveUpdates() {
+async function saveUpdates() {
     console.log('Saving updates:', wisk.editor.document);
-    wisk.db.setPage(wisk.editor.pageId, wisk.editor.document);
+    await wisk.db.setPage(wisk.editor.pageId, wisk.editor.document);
 
     //// send to server
     //sendMessage(
