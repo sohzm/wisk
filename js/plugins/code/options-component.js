@@ -1633,9 +1633,9 @@ class OptionsComponent extends LitElement {
                     </div>
 
                     <div class="snapshot-info" style="display: ${this.showSnapshotInfo ? 'block' : 'none'};">
-                        <p>• You can create snapshots of your document to save your work at any point and restore it later.</p>
-                        <p>• You can create as many as you want.</p>
-                        <p>• Snapshots are not included in the document.</p>
+                        <p>• You can create snapshots of your document at any time to save your progress and restore it later.</p>
+                        <p>• There’s no limit to the number of snapshots you can create.</p>
+                        <p>• <strong>Snapshots do not include databases.</strong></p>
                     </div>
 
                     <div class="snapshot-list-outer">
