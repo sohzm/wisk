@@ -201,6 +201,27 @@ class OptionsComponent extends LitElement {
             font-weight: 500;
             min-width: 200px;
         }
+        .search-integrations {
+            padding: var(--padding-w2);
+            color: var(--fg-1);
+            background-color: var(--bg-3);
+            border-radius: calc(var(--radius-large) * 2);
+            outline: none;
+            border: none;
+            transition: 0.2s;
+            width: 100%;
+            display: flex;
+            max-width: 300px;
+            align-items: center;
+            gap: var(--gap-2);
+            border: 2px solid transparent;
+        }
+
+        .search-integrations:has(.integrations-input:focus) {
+            border: 2px solid var(--fg-1);
+            background-color: var(--bg-1);
+        }
+
         .search-input:focus {
             background-color: var(--fg-1);
             color: var(--bg-1);
@@ -471,7 +492,6 @@ class OptionsComponent extends LitElement {
         @media (max-width: 768px) {
             .menu-item,
             .content-section,
-            .snapshot-section,
             .toggle-group {
                 padding: var(--padding-3) 0;
             }
@@ -491,12 +511,22 @@ class OptionsComponent extends LitElement {
         }
 
         .snapshot-list-outer {
-            flex: 1;
             overflow-y: auto;
             padding: var(--padding-4) 0;
             margin-top: var(--padding-4);
             border-radius: var(--radius-large);
             border: 1px solid var(--bg-3);
+        }
+
+        .integrations-input {
+            background: transparent;
+            border: none;
+            color: var(--fg-1);
+            outline: none;
+        }
+
+        .integrations-input::placeholder {
+            color: var(--fg-2);
         }
 
         @media (max-width: 900px) {
@@ -1080,6 +1110,11 @@ class OptionsComponent extends LitElement {
                         <img src="/a7/iconoir/right.svg" alt="Plugins" class="icon" draggable="false"/>
                     </div>
 
+                    <div class="menu-item" @click="${this.showIntegrationsManager}" style="display: none">
+                        <label> <img src="/a7/plugins/options-element/integrations.svg" alt="Plugins" class="icon" draggable="false"/> Integrations</label>
+                        <img src="/a7/iconoir/right.svg" alt="Plugins" class="icon" draggable="false"/>
+                    </div>
+
                     <div class="menu-item" @click="${this.showSnapshotsView}">
                         <label> <img src="/a7/plugins/options-element/snapshots.svg" alt="Plugins" class="icon" draggable="false"/> Snapshots</label>
                         <img src="/a7/iconoir/right.svg" alt="Plugins" class="icon" draggable="false"/>
@@ -1188,7 +1223,11 @@ class OptionsComponent extends LitElement {
                         </div>
                     </div>
 
-                    <input type="text" placeholder="Search Integrations" class="search-input" @input="${this.handleIntegrationSearch}" style="flex: 1; margin-bottom: 10px;"/>
+
+                    <div class="search-integrations">
+                        <img src="/a7/forget/search-thicc.svg" alt="Search" style="width: 17px;"/> 
+                        <input type="text" placeholder="Search Integrations" @input="${this.handleIntegrationSearch}" class="integrations-input"/>
+                    </div>
 
                     <div style="flex: 1; overflow-y: auto; display: flex; align-items: center; justify-content: center;">
                         <p>Integrations coming soon...</p>
@@ -1635,17 +1674,24 @@ class OptionsComponent extends LitElement {
                     <div class="snapshot-info" style="display: ${this.showSnapshotInfo ? 'block' : 'none'};">
                         <p>• You can create snapshots of your document at any time to save your progress and restore it later.</p>
                         <p>• There’s no limit to the number of snapshots you can create.</p>
-                        <p>• <strong>Snapshots do not include databases.</strong></p>
+                        <p>• <strong>Note:</strong> Snapshots do <strong>not</strong> include databases, as these may change independently of the page content.</p>
                     </div>
 
                     <div class="snapshot-list-outer">
+                        ${
+                            this.snapshots.length === 0
+                                ? html`<p style="height: 100%; display: flex ; align-items: center; justify-content: center">
+                                      No saved snapshots for this page, create one now!
+                                  </p>`
+                                : ''
+                        }
                         <div class="snapshot-list">
                             ${this.snapshots.map(
                                 snapshot => html`
                                     <div class="snapshot-section">
                                         <div class="">
                                             <p>
-                                                ${snapshot.title}
+                                                ${snapshot.title}<br />
                                                 <span style="color: var(--fg-2);"
                                                     >${new Date(snapshot.timestamp).toLocaleString('en-US', {
                                                         month: 'short',
