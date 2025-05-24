@@ -1,6 +1,7 @@
+// db.js
 wisk.db = (function () {
     const dbName = 'WiskDatabase';
-    const dbVersion = 3;
+    const dbVersion = 5;
     const stores = ['WiskStore', 'WiskAssetStore', 'WiskPluginStore', 'WiskDatabaseStore', 'WiskSnapshots'];
     const functionNames = {
         WiskStore: { get: 'getPage', set: 'setPage', remove: 'removePage', getAll: 'getAllPages' },
@@ -16,13 +17,9 @@ wisk.db = (function () {
         return new Promise((res, rej) => {
             const req = indexedDB.open(dbName, dbVersion);
             req.onerror = e => rej(e.target.error);
-            req.onsuccess = e => {
-                db = e.target.result;
-                res(db);
-            };
+            req.onsuccess = e => ((db = e.target.result), res(db));
             req.onupgradeneeded = e => {
                 db = e.target.result;
-                // Create any missing stores
                 stores.forEach(name => {
                     if (!db.objectStoreNames.contains(name)) {
                         db.createObjectStore(name);
@@ -36,10 +33,6 @@ wisk.db = (function () {
     function makeMethod(storeName, op) {
         return function (key, value) {
             return openDB().then(db => {
-                // Verify store exists before transaction
-                if (!db.objectStoreNames.contains(storeName)) {
-                    throw new Error(`Object store ${storeName} does not exist`);
-                }
                 const mode = op === 'set' || op === 'remove' ? 'readwrite' : 'readonly';
                 const tx = db.transaction(storeName, mode);
                 const st = tx.objectStore(storeName);
@@ -56,6 +49,7 @@ wisk.db = (function () {
                         req = st.delete(key);
                         break;
                     case 'getAll':
+                        // By default return all value id as string array
                         req = st.getAllKeys();
                         break;
                 }
@@ -80,11 +74,7 @@ wisk.db = (function () {
     api.clearAllData = async function () {
         const db = await openDB();
         const tx = db.transaction(stores, 'readwrite');
-        stores.forEach(name => {
-            if (db.objectStoreNames.contains(name)) {
-                tx.objectStore(name).clear();
-            }
-        });
+        stores.forEach(name => tx.objectStore(name).clear());
         return new Promise((res, rej) => {
             tx.oncomplete = () => res();
             tx.onerror = () => rej(tx.error);
@@ -97,16 +87,18 @@ wisk.db = (function () {
         }
 
         try {
+            // Ask the browser for usage & quota
             const { usage = 0, quota = 0 } = await navigator.storage.estimate();
+
             const totalBytes = usage;
             const totalKB = (totalBytes / 1024).toFixed(2);
             const totalMB = (totalBytes / 1024 / 1024).toFixed(2);
 
             return {
-                totalBytes,
-                totalKB,
-                totalMB,
-                quotaBytes: quota,
+                totalBytes, // bytes actually used
+                totalKB, // in KB, string with 2 dp
+                totalMB, // in MB, string with 2 dp
+                quotaBytes: quota, // maximum bytes available to your origin
                 quotaGB: (quota / 1024 / 1024 / 1024).toFixed(2),
             };
         } catch (err) {
