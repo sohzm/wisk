@@ -1,3 +1,9 @@
+- May 24
+
+    - database works decently well now, maybe a day or two more
+    - add floating database view
+    - added jalebi elements for interactivity
+
 - May 23
 
     - new database api

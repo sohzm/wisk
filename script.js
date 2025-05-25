@@ -24,9 +24,15 @@ function getURLParam(str) {
 }
 
 function setURLParam(id) {
+    // TODO this is bad, fix this, we should not be erasing other params
     // get template param from url
     var template = getURLParam('template');
+    var zen = getURLParam('zen');
     window.history.replaceState({}, '', window.location.pathname + '?id=' + id);
+    // if zen == true then add zen=true to url
+    if (zen === 'true') {
+        window.history.replaceState({}, '', window.location.pathname + '?id=' + id + '&zen=true');
+    }
 
     if (template != null && template != '') {
         wisk.editor.template = template;
@@ -153,4 +159,11 @@ if (window.location.href.includes('55557')) {
     document.querySelector('html').style.overflow = 'hidden';
     document.querySelector('body').style.overflow = 'hidden';
     document.querySelector('html').style.backgroundColor = 'transparent';
+}
+
+// check if zen mode is enabled in the URL
+if (new URLSearchParams(window.location.search).get('zen') === 'true') {
+    document.querySelector('#nav').style.display = 'none';
+    document.querySelector('bottom-bar').style.display = 'none';
+    document.querySelector('getting-started').style.display = 'none';
 }

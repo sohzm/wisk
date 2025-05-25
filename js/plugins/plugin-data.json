@@ -630,6 +630,16 @@
                     "loadAsModule": true,
                     "experimental": true,
                     "width": "mini"
+                },
+                {
+                    "title": "Database Page",
+                    "icon": "database.svg",
+                    "category": "auto",
+                    "component": "database-page",
+                    "nav": false,
+                    "textual": false,
+                    "loadAsModule": true,
+                    "experimental": true
                 }
             ]
         },

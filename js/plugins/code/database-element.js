@@ -9,6 +9,7 @@ class DatabaseElement extends LitElement {
             margin: 0;
             padding: 0;
             font-size: 14px;
+            user-select: none;
         }
         h1,
         h2,
@@ -1292,6 +1293,24 @@ class DatabaseElement extends LitElement {
         .calendar-item:active {
             cursor: grabbing;
         }
+
+        .db-prop {
+            display: flex;
+        }
+
+        .edit-dialog-btns {
+            border: none;
+            background: transparent;
+            padding: var(--padding-3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 1;
+        }
+
+        .edit-dialog-btns img {
+            filter: var(--themed-svg);
+        }
     `;
 
     // TODO add visibleProperties to most (all?) views
@@ -1547,23 +1566,131 @@ class DatabaseElement extends LitElement {
         this.editingEntry = { ...this.editingEntry, [propertyName]: value };
     }
 
+    openDatabasePage() {
+        if (this.editingEntry && this.editingEntry.pageId) {
+            document.querySelector('database-page').show(`/?id=${this.editingEntry.pageId}&zen=true`);
+        }
+    }
+
+    openPage() {
+        if (this.editingEntry && this.editingEntry.pageId) {
+            // open in new tab
+            const url = `/?id=${this.editingEntry.pageId}`;
+            window.open(url, '_blank');
+        }
+    }
+
     renderEditDialog() {
         if (!this.editingEntry) return null;
 
         return html`
             <div class="dialog-overlay"></div>
-
             <div class="dialog">
-                <h2>Edit Entry</h2>
-                ${this.properties.map(
-                    prop => html`
-                        <div>
-                            <label>
-                                ${prop.name}: ${this.renderEditableCell(this.editingEntry, prop, value => this.updateEditingEntry(prop.name, value))}
-                            </label>
+                <div style="display: flex; justify-content: space-between; align-items: center">
+                    <h2>Edit Entry</h2>
+                    <div style="display: flex; gap: var(--gap-2); align-items: center">
+                        <button @click="${this.openDatabasePage}" class="edit-dialog-btns">
+                            <img src="/a7/forget/expand.svg" alt="Open Page" />
+                        </button>
+
+                        <button @click="${this.openPage}" class="edit-dialog-btns">
+                            <img src="/a7/forget/open-3.svg" alt="Open Page" />
+                        </button>
+                    </div>
+                </div>
+
+                ${this.properties.map(prop => {
+                    const id = `edit-prop-${prop.name.replace(/\s+/g, '-').toLowerCase()}`;
+                    let control;
+
+                    switch (prop.type) {
+                        case 'text':
+                        case 'number':
+                        case 'url':
+                        case 'email':
+                        case 'phone':
+                            control = html`
+                                <jalebi-input
+                                    id="${id}"
+                                    type="${prop.type === 'phone' ? 'tel' : prop.type}"
+                                    placeholder="${prop.name}"
+                                    .value="${this.editingEntry[prop.name] || ''}"
+                                    @input="${e =>
+                                        this.updateEditingEntry(
+                                            prop.name,
+                                            prop.type === 'number' ? (e.target.value === '' ? null : parseFloat(e.target.value)) : e.target.value
+                                        )}"
+                                ></jalebi-input>
+                            `;
+                            break;
+
+                        case 'select':
+                            control = html`
+                                <jalebi-select
+                                    id="${id}"
+                                    @change="${e => this.updateEditingEntry(prop.name, e.target.value)}"
+                                    value="${this.editingEntry[prop.name] || ''}"
+                                >
+                                    <option value="" ?selected="${!this.editingEntry[prop.name]}">Select an option</option>
+                                    ${prop.options.map(option => html` <option value="${option}">${option}</option> `)}
+                                </jalebi-select>
+                            `;
+                            break;
+
+                        case 'multi-select':
+                            control = html`
+                                <jalebi-multiselect
+                                    id="${id}"
+                                    value="${(this.editingEntry[prop.name] || []).join(',')}"
+                                    @change="${e => this.updateEditingEntry(prop.name, e.target.values)}"
+                                >
+                                    ${prop.options.map(option => html` <option value="${option}">${option}</option> `)}
+                                </jalebi-multiselect>
+                            `;
+                            break;
+
+                        case 'checkbox':
+                            control = html`
+                                <jalebi-checkbox
+                                    id="${id}"
+                                    ?checked="${this.editingEntry[prop.name] || false}"
+                                    @change="${e => this.updateEditingEntry(prop.name, e.target.checked)}"
+                                ></jalebi-checkbox>
+                            `;
+                            break;
+
+                        case 'date':
+                            control = html`
+                                <jalebi-datepicker
+                                    id="${id}"
+                                    placeholder="YYYY-MM-DD"
+                                    .value="${this.editingEntry[prop.name] || ''}"
+                                    @change="${e => this.updateEditingEntry(prop.name, e.detail.value || null)}"
+                                ></jalebi-datepicker>
+                            `;
+                            break;
+
+                        case 'datetime-local':
+                            control = html`
+                                <jalebi-datetimepicker
+                                    id="${id}"
+                                    .value="${this.editingEntry[prop.name] || ''}"
+                                    @change="${e => this.updateEditingEntry(prop.name, e.detail.value || null)}"
+                                ></jalebi-datetimepicker>
+                            `;
+                            break;
+
+                        default:
+                            control = html` <span>${this.editingEntry[prop.name] || ''}</span> `;
+                    }
+
+                    return html`
+                        <div class="db-prop">
+                            <label for="${id}"> ${prop.emoji ? html`${prop.emoji} ` : ''}${prop.name} </label>
+                            ${control}
                         </div>
-                    `
-                )}
+                    `;
+                })}
                 <div class="dialog-buttons">
                     ${this.editingEntry.id.toString().startsWith('temp_')
                         ? html``

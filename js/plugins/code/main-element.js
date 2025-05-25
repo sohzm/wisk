@@ -24,6 +24,7 @@ class MainElement extends BaseTextElement {
         // Add event listener for emoji selection
         window.addEventListener('emoji-selector', this.handleEmojiSelection);
         this.setValue('', { textContent: '' });
+        this.renderDatabaseProps();
     }
 
     disconnectedCallback() {
@@ -308,7 +309,7 @@ class MainElement extends BaseTextElement {
             }
             @media (max-width: 1150px) {
                 .header-container {
-                    margin-top: 59px;
+                    margin-top: ${new URLSearchParams(window.location.search).get('zen') === 'true' ? 'var(--padding-4)' : '59px'};
                     padding-top: 29px;
                     padding-left: 0;
                     padding-right: 0;
@@ -522,12 +523,6 @@ class MainElement extends BaseTextElement {
                 *::-webkit-scrollbar-thumb { background-color: var(--bg-3); border-radius: 20px; border: 4px solid var(--bg-1); }
                 *::-webkit-scrollbar-thumb:hover { background-color: var(--fg-1); }
             }
-            @media (max-width: 1150px) {
-               #editable {
-                        padding-left: 0;
-                        padding-right: 0;
-                }
-            }
             .suggestion-text {
                 opacity: 0.8;
                 color: var(--fg-accent);
@@ -564,6 +559,30 @@ class MainElement extends BaseTextElement {
                 color: var(--fg-accent);
                 font-weight: bold;
             }
+            * {
+                user-select: none;
+            }
+            .database-props {
+                padding: 0 max(calc((100% - var(--width)) / 2), var(--padding-4));
+            }
+            @media (max-width: 1150px) {
+               #editable, .database-props {
+                        padding-left: 0;
+                        padding-right: 0;
+                }
+            }
+            .db-prop {
+                display: flex;
+                align-items: center;
+                width: fit-content;
+                min-width: 500px;
+                padding-bottom: var(--padding-2);
+            }
+            .db-prop label {
+                flex-basis: 160px;
+                flex-grow: 0;
+                flex-shrink: 0;
+            }
             </style>
         `;
         const content = `
@@ -576,7 +595,11 @@ class MainElement extends BaseTextElement {
                         : ''
                 }
                 <div class="header-content">
-                    <div id="emoji">${this.emoji && this.emoji.trim() ? this.emoji : '<span class="add-emoji-text"><svg xmlns="http://www.w3.org/2000/svg" width=20 height=20 viewBox="0 0 20 20" fill="currentColor" class="size-5"> <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.536-4.464a.75.75 0 1 0-1.061-1.061 3.5 3.5 0 0 1-4.95 0 .75.75 0 0 0-1.06 1.06 5 5 0 0 0 7.07 0ZM9 8.5c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S7.448 7 8 7s1 .672 1 1.5Zm3 1.5c.552 0 1-.672 1-1.5S12.552 7 12 7s-1 .672-1 1.5.448 1.5 1 1.5Z" clip-rule="evenodd" /> </svg>Add emoji</span>'}</div>
+                    <div id="emoji">${
+                        this.emoji && this.emoji.trim()
+                            ? this.emoji
+                            : '<span class="add-emoji-text"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5"> <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.536-4.464a.75.75 0 1 0-1.061-1.061 3.5 3.5 0 0 1-4.95 0 .75.75 0 0 0-1.06 1.06 5 5 0 0 0 7.07 0ZM9 8.5c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S7.448 7 8 7s1 .672 1 1.5Zm3 1.5c.552 0 1-.672 1-1.5S12.552 7 12 7s-1 .672-1 1.5.448 1.5 1 1.5Z" clip-rule="evenodd" /> </svg>Add emoji</span>'
+                    }</div>
                     ${
                         !wisk.editor.readonly
                             ? `
@@ -594,8 +617,159 @@ class MainElement extends BaseTextElement {
                     <button class="suggestion-button discard-button">Discard</button>
                 </div>
             </div>
-            <div class="emoji-suggestions"></div>`;
+            <div class="emoji-suggestions"></div>
+            <div class="database-props"></div>`;
         this.shadowRoot.innerHTML = style + content;
+    }
+
+    async renderDatabaseProps() {
+        const cfg = wisk.editor.document.data.config.databaseProps;
+        if (!cfg?.identifier) return;
+
+        // fetch database + entry
+        const db = await wisk.db.getDatabase(cfg.identifier);
+        let entry = db.entries.find(e => e.pageId === wisk.editor.pageId) || {};
+
+        const container = this.shadowRoot.querySelector('.database-props');
+        container.innerHTML = '';
+
+        db.properties.forEach(prop => {
+            // wrapper & label (unchanged)
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('db-prop');
+            const id = `db-prop-${prop.name.replace(/\s+/g, '-').toLowerCase()}`;
+            const label = document.createElement('label');
+            label.htmlFor = id;
+            label.textContent = (prop.emoji ? prop.emoji + ' ' : '') + prop.name;
+            wrapper.appendChild(label);
+
+            // pick the right control
+            let control;
+            const currentValue = entry[prop.name];
+
+            switch (prop.type) {
+                case 'select':
+                    control = document.createElement('jalebi-select');
+                    control.id = id;
+                    prop.options.forEach(opt => {
+                        const o = document.createElement('option');
+                        o.value = opt;
+                        o.textContent = opt;
+                        if (currentValue === opt) o.selected = true;
+                        control.appendChild(o);
+                    });
+                    break;
+
+                case 'multi-select':
+                    control = document.createElement('jalebi-multiselect');
+                    control.id = id;
+                    prop.options.forEach(opt => {
+                        const o = document.createElement('option');
+                        o.value = opt;
+                        o.textContent = opt;
+                        control.appendChild(o);
+                    });
+
+                    control.setAttribute('value', currentValue.join(','));
+                    break;
+
+                case 'checkbox':
+                    control = document.createElement('jalebi-checkbox');
+                    control.id = id;
+                    control.checked = Boolean(currentValue);
+                    break;
+
+                case 'date':
+                    // ← NEW: use jalebi-datepicker + setAttribute('value',…)
+                    control = document.createElement('jalebi-datepicker');
+                    control.id = id;
+                    control.setAttribute('placeholder', 'YYYY-MM-DD');
+                    if (currentValue) {
+                        const d = new Date(currentValue);
+                        if (!isNaN(d)) {
+                            control.setAttribute('value', d.toISOString().slice(0, 10));
+                        }
+                    }
+                    break;
+
+                case 'datetime-local':
+                    // ← NEW: use jalebi-datetimepicker + setAttribute('value',…)
+                    control = document.createElement('jalebi-datetimepicker');
+                    control.id = id;
+                    // optional: override format or time-format here if you like
+                    // e.g. control.setAttribute('format','yyyy-mm-dd hh:mm');
+                    if (currentValue) {
+                        const d2 = new Date(currentValue);
+                        if (!isNaN(d2)) {
+                            // full ISO string always works
+                            control.setAttribute('value', d2.toISOString());
+                        }
+                    }
+                    break;
+
+                default:
+                    control = document.createElement('jalebi-input');
+                    control.id = id;
+                    // map prop.type → input.type
+                    const typeMap = {
+                        text: 'text',
+                        number: 'number',
+                        url: 'url',
+                        email: 'email',
+                        phone: 'tel',
+                    };
+                    control.type = typeMap[prop.type] || 'text';
+                    control.setAttribute('placeholder', prop.name);
+                    if (currentValue != null) control.value = currentValue;
+                    break;
+            }
+
+            // hook the right event
+            const eventName = ['input', 'change'].find(e => e === (/^(text|number|url|email|phone)$/.test(prop.type) ? 'input' : 'change'));
+
+            control.addEventListener(eventName, e => {
+                let newValue;
+                console.log('eventName', eventName, 'prop.type', prop.type, 'newValue', e.target);
+                if (prop.type === 'checkbox') {
+                    newValue = e.target.checked;
+                } else if (prop.type === 'multi-select') {
+                    newValue = e.target.values;
+                } else if (prop.type === 'number') {
+                    newValue = e.target.value === '' ? null : parseFloat(e.target.value);
+                } else if (prop.type === 'date' || prop.type === 'datetime-local') {
+                    // use the string the picker just emitted
+                    newValue = e.detail.value || null;
+                } else {
+                    newValue = e.target.value;
+                }
+                this.updateDatabaseProp(prop.name, newValue);
+            });
+
+            wrapper.appendChild(control);
+            container.appendChild(wrapper);
+        });
+    }
+
+    async updateDatabaseProp(propName, value) {
+        const cfg = wisk.editor.document.data.config.databaseProps;
+        if (!cfg?.identifier) return;
+
+        // 1) fetch
+        const db = await wisk.db.getDatabase(cfg.identifier);
+
+        // 2) find or create entry for this page
+        let entry = db.entries.find(e => e.pageId === wisk.editor.pageId);
+        if (!entry) {
+            entry = { id: 'entry-' + Date.now(), pageId: wisk.editor.pageId };
+            db.entries.push(entry);
+        }
+
+        // 3) update the field
+        entry[propName] = value;
+
+        // 4) write back
+        await wisk.db.setDatabase(cfg.identifier, db);
+        console.log(`⤷ Saved ${propName} =`, value);
     }
 
     getTextContent() {

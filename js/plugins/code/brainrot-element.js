@@ -237,6 +237,6 @@ class BrainrotElement extends LitElement {
 }
 
 customElements.define('brainrot-element', BrainrotElement);
-document.body.appendChild(document.createElement('brainrot-element'));
 
+document.body.appendChild(document.createElement('brainrot-element'));
 document.querySelector('brainrot-element').style.zIndex = 99;
