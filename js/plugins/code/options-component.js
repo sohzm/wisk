@@ -544,7 +544,7 @@ class OptionsComponent extends LitElement {
         .signin-banner {
             border-radius: var(--radius);
             padding: var(--padding-4);
-            background: linear-gradient(45deg, var(--fg-accent), var(--fg-1));
+            background: linear-gradient(45deg, var(--fg-1), var(--fg-accent));
             align-items: flex-start;
             gap: var(--gap-3);
             flex-direction: column;
