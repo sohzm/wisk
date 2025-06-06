@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Object Visualizer Demo</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Creepster&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Mono:wght@400;500;700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Satisfy&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=VT323&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Varela+Round&family=Sarpanch:wght@400;500;600;700;800;900&Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+            rel="stylesheet"
+        />
+
+        <style>:root {
+            --bg-1: #ffffff;
+            --bg-2: #f7f7f7;
+            --bg-3: #e0e0e0;
+            --fg-1: #333333;
+            --fg-2: #666666;
+            --border-1: #cccccc;
+            --fg-red: #ff126d;
+            --bg-red: #ffebf1;
+            --fg-green: #2ecc71;
+            --bg-green: #e8f8f1;
+            --fg-blue: #487cff;
+            --bg-blue: #ebf1ff;
+            --fg-yellow: #f1c40f;
+            --bg-yellow: #fef9e7;
+            --fg-purple: #9b59b6;
+            --bg-purple: #f5eef8;
+            --fg-cyan: #00bcd4;
+            --bg-cyan: #e0f7fa;
+            --fg-orange: #e67e22;
+            --bg-orange: #fdf2e9;
+            --fg-white: #ffffff;
+            --bg-white: #ffffff;
+            --fg-black: #000000;
+            --bg-black: #000000;
+            --font: 'Inter', sans-serif;
+            --font-cursive: 'Satisfy', cursive;
+            --font-heading: 'Inter', sans-serif;
+            --font-mono: 'Fira Mono', monospace;
+            --radius: 4px;
+            --radius-large: 12px;
+            --padding-1: 2px;
+            --padding-2: 4px;
+            --padding-3: 8px;
+            --padding-4: 16px;
+            --padding-w1: 4px 8px;
+            --padding-w2: 8px 16px;
+            --padding-w3: 10px 20px;
+            --gap-1: 5px;
+            --gap-2: 10px;
+            --gap-3: 20px;
+            --drop-shadow: drop-shadow(0 0 20px rgba(0, 0, 0, 0.1));
+            --accent-svg: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(4354%) hue-rotate(242deg) brightness(92%) contrast(93%);
+            --fg-accent: #5c35d9;
+            --bg-accent: #f2eeff;
+            --themed-svg: none;
+        
+            --width: 950px;
+        }
+        
+            body {
+                line-height: 1.6;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                background: #f5f5f5;
+            }
+            .demo-section {
+                margin: 30px 0;
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .demo-section h2 {
+                margin-top: 0;
+                color: #333;
+                border-bottom: 2px solid #007acc;
+                padding-bottom: 10px;
+            }
+            .demo-section h3 {
+                color: #555;
+                margin: 20px 0 10px 0;
+            }
+            .demo-description {
+                color: #666;
+                margin-bottom: 15px;
+                font-style: italic;
+            }
+            .example-container {
+                margin: 20px 0;
+            }
+            .interactive-demo {
+                display: flex;
+                gap: 20px;
+                margin-top: 20px;
+            }
+            .input-section {
+                flex: 1;
+            }
+            .output-section {
+                flex: 1;
+            }
+            textarea {
+                width: 100%;
+                height: 200px;
+                font-family: monospace;
+                font-size: 14px;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                resize: vertical;
+            }
+            button {
+                background: #007acc;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+                margin-top: 10px;
+            }
+            button:hover {
+                background: #005a9e;
+            }
+            .error {
+                color: #d32f2f;
+                background: #ffebee;
+                padding: 10px;
+                border-radius: 4px;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Object Visualizer Element Demo</h1>
+        <p>This demo showcases the <code>&lt;obj-visualizer-element&gt;</code> component that can display any JavaScript value in an expandable tree format.</p>
+
+        <div class="demo-section">
+            <h2>Simple Object</h2>
+            <div class="demo-description">A basic object with different value types</div>
+            <div class="example-container">
+                <obj-visualizer-element object='{"name": "John Doe", "age": 30, "isActive": true, "email": null}'></obj-visualizer-element>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Array Examples</h2>
+            
+            <h3>Simple Array</h3>
+            <div class="demo-description">Array with mixed primitive types</div>
+            <div class="example-container">
+                <obj-visualizer-element object='[1, "hello", true, null, 42.5]'></obj-visualizer-element>
+            </div>
+
+            <h3>Array of Objects</h3>
+            <div class="demo-description">Common data structure with user records</div>
+            <div class="example-container">
+                <obj-visualizer-element object='[{"id": 1, "name": "Alice", "role": "admin"}, {"id": 2, "name": "Bob", "role": "user"}, {"id": 3, "name": "Charlie", "role": "moderator"}]'></obj-visualizer-element>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Nested Objects</h2>
+            <div class="demo-description">Complex nested structure with deep hierarchy</div>
+            <div class="example-container">
+                <obj-visualizer-element object='{"company": {"name": "Tech Corp", "employees": [{"name": "Alice", "department": {"name": "Engineering", "budget": 50000}}, {"name": "Bob", "department": {"name": "Marketing", "budget": 30000}}], "metadata": {"founded": 2010, "locations": ["NYC", "SF", "LA"]}}}'></obj-visualizer-element>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Primitive Values</h2>
+            <div class="demo-description">Individual primitive values</div>
+            
+            <h3>String</h3>
+            <div class="example-container">
+                <obj-visualizer-element object='"Hello, World!"'></obj-visualizer-element>
+            </div>
+
+            <h3>Number</h3>
+            <div class="example-container">
+                <obj-visualizer-element object='42'></obj-visualizer-element>
+            </div>
+
+            <h3>Boolean</h3>
+            <div class="example-container">
+                <obj-visualizer-element object='true'></obj-visualizer-element>
+            </div>
+
+            <h3>Null</h3>
+            <div class="example-container">
+                <obj-visualizer-element object='null'></obj-visualizer-element>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>API Response Example</h2>
+            <div class="demo-description">Typical API response structure</div>
+            <div class="example-container">
+                <obj-visualizer-element object='{"status": "success", "data": {"users": [{"id": 1, "username": "alice123", "profile": {"firstName": "Alice", "lastName": "Johnson", "avatar": "https://example.com/alice.jpg", "preferences": {"theme": "dark", "notifications": true, "language": "en"}}}, {"id": 2, "username": "bob456", "profile": {"firstName": "Bob", "lastName": "Smith", "avatar": "https://example.com/bob.jpg", "preferences": {"theme": "light", "notifications": false, "language": "es"}}}], "pagination": {"page": 1, "limit": 10, "total": 2, "totalPages": 1}}, "timestamp": "2024-01-15T10:30:00Z"}'></obj-visualizer-element>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Interactive Demo</h2>
+            <div class="demo-description">Enter your own JSON or JavaScript object to visualize</div>
+            <div class="interactive-demo">
+                <div class="input-section">
+                    <h3>Input</h3>
+                    <textarea id="input-textarea" placeholder="Enter JSON or JavaScript object here...">
+{
+  "name": "Interactive Example",
+  "features": ["expandable", "type-aware", "beautiful"],
+  "config": {
+    "theme": "auto",
+    "maxDepth": 10,
+    "showTypes": true
+  },
+  "data": [
+    { "id": 1, "value": "First item" },
+    { "id": 2, "value": "Second item" }
+  ]
+}</textarea>
+                    <button onclick="updateVisualizer()">Update Visualizer</button>
+                </div>
+                <div class="output-section">
+                    <h3>Output</h3>
+                    <obj-visualizer-element id="interactive-visualizer" object='{"name": "Interactive Example", "features": ["expandable", "type-aware", "beautiful"], "config": {"theme": "auto", "maxDepth": 10, "showTypes": true}, "data": [{"id": 1, "value": "First item"}, {"id": 2, "value": "Second item"}]}'></obj-visualizer-element>
+                    <div id="error-display"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Edge Cases</h2>
+            
+            <h3>Empty Objects and Arrays</h3>
+            <div class="example-container">
+                <obj-visualizer-element object='{"empty_object": {}, "empty_array": [], "mixed": [1, {}, [], "text"]}'></obj-visualizer-element>
+            </div>
+
+            <h3>Large Numbers and Special Values</h3>
+            <div class="example-container">
+                <obj-visualizer-element object='{"bigNumber": 9007199254740991, "float": 3.14159, "negative": -42, "infinity": "Cannot represent Infinity in JSON"}'></obj-visualizer-element>
+            </div>
+        </div>
+
+        <script type="module" src="/js/elements/obj-visualizer-element.js"></script>
+        <script>
+            function updateVisualizer() {
+                const textarea = document.getElementById('input-textarea');
+                const visualizer = document.getElementById('interactive-visualizer');
+                const errorDisplay = document.getElementById('error-display');
+                
+                try {
+                    // Clear any previous error
+                    errorDisplay.innerHTML = '';
+                    
+                    // Update the visualizer
+                    visualizer.setAttribute('object', textarea.value);
+                } catch (error) {
+                    errorDisplay.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                }
+            }
+
+            // Preset examples
+            const presets = {
+                simple: '{"name": "John", "age": 30}',
+                array: '[1, 2, 3, "hello", true]',
+                nested: '{"level1": {"level2": {"level3": "deep value"}}}',
+                complex: '{"users": [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}], "meta": {"total": 2}}'
+            };
+
+            // Add preset buttons
+            const inputSection = document.querySelector('.input-section');
+            const presetContainer = document.createElement('div');
+            presetContainer.innerHTML = `
+                <p>Quick presets:</p>
+                <button onclick="loadPreset('simple')">Simple Object</button>
+                <button onclick="loadPreset('array')">Array</button>
+                <button onclick="loadPreset('nested')">Nested</button>
+                <button onclick="loadPreset('complex')">Complex</button>
+            `;
+            inputSection.appendChild(presetContainer);
+
+            function loadPreset(type) {
+                const textarea = document.getElementById('input-textarea');
+                textarea.value = presets[type];
+                updateVisualizer();
+            }
+        </script>
+    </body>
+</html> 

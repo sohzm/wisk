@@ -355,6 +355,7 @@ const CORE_ASSETS = [
     '/js/elements/template-dialog.js',
     '/js/elements/template.js',
     '/js/elements/toolbar-element.js',
+    '/js/elements/obj-visualizer-element.js',
     '/js/left-sidebar.js',
     '/js/mini-dialog.js',
     '/js/paste-handler.js',
