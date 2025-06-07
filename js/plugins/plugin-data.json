@@ -1145,7 +1145,7 @@
             "contact": "https://wisk.cc",
             "icon": "wisk-terminal.svg",
             "tags": ["terminal", "shell", "command", "developer", "programming"],
-            "description": "A terminal for the Wisk editor, allowing you to run commands and scripts.",
+            "description": "A terminal for the Wisk editor, allowing you to run commands and scripts. To use press <ctrl> + <backtick>",
             "contents": [
                 {
                     "title": "Wisk Terminal",
