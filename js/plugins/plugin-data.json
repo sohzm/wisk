@@ -1138,6 +1138,27 @@
             ]
         },
 
+        "wisk-terminal": {
+            "name": "wisk-terminal",
+            "title": "Wisk Terminal",
+            "author": "Wisk Team",
+            "contact": "https://wisk.cc",
+            "icon": "wisk-terminal.svg",
+            "tags": ["terminal", "shell", "command", "developer", "programming"],
+            "description": "A terminal for the Wisk editor, allowing you to run commands and scripts.",
+            "contents": [
+                {
+                    "title": "Wisk Terminal",
+                    "icon": "wisk-terminal.svg",
+                    "category": "auto",
+                    "component": "wisk-terminal",
+                    "nav": false,
+                    "loadAsModule": true,
+                    "experimental": true
+                }
+            ]
+        },
+
         "keystroke-sound": {
             "name": "keystroke-sound",
             "title": "Keystroke Sound",

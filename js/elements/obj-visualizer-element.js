@@ -13,11 +13,8 @@ class ObjVisualizerElement extends LitElement {
             font-family: var(--font-mono);
             line-height: 1.4;
             background: var(--bg-1);
-            border: 1px solid var(--border-1);
             border-radius: 6px;
-            padding: var(--padding-w2);
-            max-height: 400px;
-            overflow-y: auto;
+            white-space: normal;
         }
 
         .obj-container {
@@ -117,7 +114,7 @@ class ObjVisualizerElement extends LitElement {
     static properties = {
         object: { type: String, reflect: true },
         _parsedObject: { type: Object, state: true },
-        _expandedItems: { type: Object, state: true }
+        _expandedItems: { type: Object, state: true },
     };
 
     constructor() {
@@ -161,9 +158,7 @@ class ObjVisualizerElement extends LitElement {
     }
 
     _isExpandable(value) {
-        return value !== null && 
-               typeof value === 'object' && 
-               (Array.isArray(value) || Object.keys(value).length > 0);
+        return value !== null && typeof value === 'object' && (Array.isArray(value) || Object.keys(value).length > 0);
     }
 
     _getValueType(value) {
@@ -194,25 +189,24 @@ class ObjVisualizerElement extends LitElement {
                     ${key ? html`<span class="obj-key">${key}</span><span class="obj-colon">:</span>` : ''}
                     <span class="obj-value">
                         <span class="obj-bracket">${isArray ? '[' : '{'}</span>
-                        ${!isExpanded ? html`
-                            <span class="obj-summary">...</span>
-                            <span class="obj-length">(${length})</span>
-                        ` : ''}
+                        ${!isExpanded
+                            ? html`
+                                  <span class="obj-summary">...</span>
+                                  <span class="obj-length">(${length})</span>
+                              `
+                            : ''}
                         <span class="obj-bracket">${isArray ? ']' : '}'}</span>
                     </span>
                 </div>
-                ${isExpanded ? html`
-                    <div class="obj-nested">
-                        ${isArray 
-                            ? value.map((item, index) => 
-                                this._renderValue(item, index.toString(), `${path}.${index}`, level + 1)
-                              )
-                            : Object.entries(value).map(([k, v]) => 
-                                this._renderValue(v, k, `${path}.${k}`, level + 1)
-                              )
-                        }
-                    </div>
-                ` : ''}
+                ${isExpanded
+                    ? html`
+                          <div class="obj-nested">
+                              ${isArray
+                                  ? value.map((item, index) => this._renderValue(item, index.toString(), `${path}.${index}`, level + 1))
+                                  : Object.entries(value).map(([k, v]) => this._renderValue(v, k, `${path}.${k}`, level + 1))}
+                          </div>
+                      `
+                    : ''}
             `;
         }
 
@@ -221,9 +215,7 @@ class ObjVisualizerElement extends LitElement {
             <div class="obj-item">
                 <span class="expand-text hidden"></span>
                 ${key ? html`<span class="obj-key">${key}</span><span class="obj-colon">:</span>` : ''}
-                <span class="obj-value obj-type-${valueType}">
-                    ${this._renderPrimitiveValue(value, valueType)}
-                </span>
+                <span class="obj-value obj-type-${valueType}"> ${this._renderPrimitiveValue(value, valueType)} </span>
             </div>
         `;
     }
@@ -252,12 +244,8 @@ class ObjVisualizerElement extends LitElement {
             return html`<div class="obj-item"><span class="obj-value obj-type-null">No object to display</span></div>`;
         }
 
-        return html`
-            <div class="obj-container">
-                ${this._renderValue(this._parsedObject, '', 'root', 0)}
-            </div>
-        `;
+        return html` <div class="obj-container">${this._renderValue(this._parsedObject, '', 'root', 0)}</div> `;
     }
 }
 
-customElements.define('obj-visualizer-element', ObjVisualizerElement); 
+customElements.define('obj-visualizer-element', ObjVisualizerElement);

@@ -11,56 +11,57 @@
             rel="stylesheet"
         />
 
-        <style>:root {
-            --bg-1: #ffffff;
-            --bg-2: #f7f7f7;
-            --bg-3: #e0e0e0;
-            --fg-1: #333333;
-            --fg-2: #666666;
-            --border-1: #cccccc;
-            --fg-red: #ff126d;
-            --bg-red: #ffebf1;
-            --fg-green: #2ecc71;
-            --bg-green: #e8f8f1;
-            --fg-blue: #487cff;
-            --bg-blue: #ebf1ff;
-            --fg-yellow: #f1c40f;
-            --bg-yellow: #fef9e7;
-            --fg-purple: #9b59b6;
-            --bg-purple: #f5eef8;
-            --fg-cyan: #00bcd4;
-            --bg-cyan: #e0f7fa;
-            --fg-orange: #e67e22;
-            --bg-orange: #fdf2e9;
-            --fg-white: #ffffff;
-            --bg-white: #ffffff;
-            --fg-black: #000000;
-            --bg-black: #000000;
-            --font: 'Inter', sans-serif;
-            --font-cursive: 'Satisfy', cursive;
-            --font-heading: 'Inter', sans-serif;
-            --font-mono: 'Fira Mono', monospace;
-            --radius: 4px;
-            --radius-large: 12px;
-            --padding-1: 2px;
-            --padding-2: 4px;
-            --padding-3: 8px;
-            --padding-4: 16px;
-            --padding-w1: 4px 8px;
-            --padding-w2: 8px 16px;
-            --padding-w3: 10px 20px;
-            --gap-1: 5px;
-            --gap-2: 10px;
-            --gap-3: 20px;
-            --drop-shadow: drop-shadow(0 0 20px rgba(0, 0, 0, 0.1));
-            --accent-svg: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(4354%) hue-rotate(242deg) brightness(92%) contrast(93%);
-            --fg-accent: #5c35d9;
-            --bg-accent: #f2eeff;
-            --themed-svg: none;
-        
-            --width: 950px;
-        }
-        
+        <style>
+            :root {
+                --bg-1: #ffffff;
+                --bg-2: #f7f7f7;
+                --bg-3: #e0e0e0;
+                --fg-1: #333333;
+                --fg-2: #666666;
+                --border-1: #cccccc;
+                --fg-red: #ff126d;
+                --bg-red: #ffebf1;
+                --fg-green: #2ecc71;
+                --bg-green: #e8f8f1;
+                --fg-blue: #487cff;
+                --bg-blue: #ebf1ff;
+                --fg-yellow: #f1c40f;
+                --bg-yellow: #fef9e7;
+                --fg-purple: #9b59b6;
+                --bg-purple: #f5eef8;
+                --fg-cyan: #00bcd4;
+                --bg-cyan: #e0f7fa;
+                --fg-orange: #e67e22;
+                --bg-orange: #fdf2e9;
+                --fg-white: #ffffff;
+                --bg-white: #ffffff;
+                --fg-black: #000000;
+                --bg-black: #000000;
+                --font: 'Inter', sans-serif;
+                --font-cursive: 'Satisfy', cursive;
+                --font-heading: 'Inter', sans-serif;
+                --font-mono: 'Fira Mono', monospace;
+                --radius: 4px;
+                --radius-large: 12px;
+                --padding-1: 2px;
+                --padding-2: 4px;
+                --padding-3: 8px;
+                --padding-4: 16px;
+                --padding-w1: 4px 8px;
+                --padding-w2: 8px 16px;
+                --padding-w3: 10px 20px;
+                --gap-1: 5px;
+                --gap-2: 10px;
+                --gap-3: 20px;
+                --drop-shadow: drop-shadow(0 0 20px rgba(0, 0, 0, 0.1));
+                --accent-svg: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(4354%) hue-rotate(242deg) brightness(92%) contrast(93%);
+                --fg-accent: #5c35d9;
+                --bg-accent: #f2eeff;
+                --themed-svg: none;
+
+                --width: 950px;
+            }
+
             body {
                 line-height: 1.6;
                 max-width: 1200px;
@@ -73,7 +74,7 @@
                 background: white;
                 padding: 20px;
                 border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
             .demo-section h2 {
                 margin-top: 0;
@@ -138,7 +139,10 @@
     </head>
     <body>
         <h1>Object Visualizer Element Demo</h1>
-        <p>This demo showcases the <code>&lt;obj-visualizer-element&gt;</code> component that can display any JavaScript value in an expandable tree format.</p>
+        <p>
+            This demo showcases the <code>&lt;obj-visualizer-element&gt;</code> component that can display any JavaScript value in an expandable tree
+            format.
+        </p>
 
         <div class="demo-section">
             <h2>Simple Object</h2>
@@ -150,7 +154,7 @@
 
         <div class="demo-section">
             <h2>Array Examples</h2>
-            
+
             <h3>Simple Array</h3>
             <div class="demo-description">Array with mixed primitive types</div>
             <div class="example-container">
@@ -160,7 +164,9 @@
             <h3>Array of Objects</h3>
             <div class="demo-description">Common data structure with user records</div>
             <div class="example-container">
-                <obj-visualizer-element object='[{"id": 1, "name": "Alice", "role": "admin"}, {"id": 2, "name": "Bob", "role": "user"}, {"id": 3, "name": "Charlie", "role": "moderator"}]'></obj-visualizer-element>
+                <obj-visualizer-element
+                    object='[{"id": 1, "name": "Alice", "role": "admin"}, {"id": 2, "name": "Bob", "role": "user"}, {"id": 3, "name": "Charlie", "role": "moderator"}]'
+                ></obj-visualizer-element>
             </div>
         </div>
 
@@ -168,14 +174,16 @@
             <h2>Nested Objects</h2>
             <div class="demo-description">Complex nested structure with deep hierarchy</div>
             <div class="example-container">
-                <obj-visualizer-element object='{"company": {"name": "Tech Corp", "employees": [{"name": "Alice", "department": {"name": "Engineering", "budget": 50000}}, {"name": "Bob", "department": {"name": "Marketing", "budget": 30000}}], "metadata": {"founded": 2010, "locations": ["NYC", "SF", "LA"]}}}'></obj-visualizer-element>
+                <obj-visualizer-element
+                    object='{"company": {"name": "Tech Corp", "employees": [{"name": "Alice", "department": {"name": "Engineering", "budget": 50000}}, {"name": "Bob", "department": {"name": "Marketing", "budget": 30000}}], "metadata": {"founded": 2010, "locations": ["NYC", "SF", "LA"]}}}'
+                ></obj-visualizer-element>
             </div>
         </div>
 
         <div class="demo-section">
             <h2>Primitive Values</h2>
             <div class="demo-description">Individual primitive values</div>
-            
+
             <h3>String</h3>
             <div class="example-container">
                 <obj-visualizer-element object='"Hello, World!"'></obj-visualizer-element>
@@ -183,17 +191,17 @@
 
             <h3>Number</h3>
             <div class="example-container">
-                <obj-visualizer-element object='42'></obj-visualizer-element>
+                <obj-visualizer-element object="42"></obj-visualizer-element>
             </div>
 
             <h3>Boolean</h3>
             <div class="example-container">
-                <obj-visualizer-element object='true'></obj-visualizer-element>
+                <obj-visualizer-element object="true"></obj-visualizer-element>
             </div>
 
             <h3>Null</h3>
             <div class="example-container">
-                <obj-visualizer-element object='null'></obj-visualizer-element>
+                <obj-visualizer-element object="null"></obj-visualizer-element>
             </div>
         </div>
 
@@ -201,7 +209,9 @@
             <h2>API Response Example</h2>
             <div class="demo-description">Typical API response structure</div>
             <div class="example-container">
-                <obj-visualizer-element object='{"status": "success", "data": {"users": [{"id": 1, "username": "alice123", "profile": {"firstName": "Alice", "lastName": "Johnson", "avatar": "https://example.com/alice.jpg", "preferences": {"theme": "dark", "notifications": true, "language": "en"}}}, {"id": 2, "username": "bob456", "profile": {"firstName": "Bob", "lastName": "Smith", "avatar": "https://example.com/bob.jpg", "preferences": {"theme": "light", "notifications": false, "language": "es"}}}], "pagination": {"page": 1, "limit": 10, "total": 2, "totalPages": 1}}, "timestamp": "2024-01-15T10:30:00Z"}'></obj-visualizer-element>
+                <obj-visualizer-element
+                    object='{"status": "success", "data": {"users": [{"id": 1, "username": "alice123", "profile": {"firstName": "Alice", "lastName": "Johnson", "avatar": "https://example.com/alice.jpg", "preferences": {"theme": "dark", "notifications": true, "language": "en"}}}, {"id": 2, "username": "bob456", "profile": {"firstName": "Bob", "lastName": "Smith", "avatar": "https://example.com/bob.jpg", "preferences": {"theme": "light", "notifications": false, "language": "es"}}}], "pagination": {"page": 1, "limit": 10, "total": 2, "totalPages": 1}}, "timestamp": "2024-01-15T10:30:00Z"}'
+                ></obj-visualizer-element>
             </div>
         </div>
 
@@ -224,12 +234,16 @@
     { "id": 1, "value": "First item" },
     { "id": 2, "value": "Second item" }
   ]
-}</textarea>
+}</textarea
+                    >
                     <button onclick="updateVisualizer()">Update Visualizer</button>
                 </div>
                 <div class="output-section">
                     <h3>Output</h3>
-                    <obj-visualizer-element id="interactive-visualizer" object='{"name": "Interactive Example", "features": ["expandable", "type-aware", "beautiful"], "config": {"theme": "auto", "maxDepth": 10, "showTypes": true}, "data": [{"id": 1, "value": "First item"}, {"id": 2, "value": "Second item"}]}'></obj-visualizer-element>
+                    <obj-visualizer-element
+                        id="interactive-visualizer"
+                        object='{"name": "Interactive Example", "features": ["expandable", "type-aware", "beautiful"], "config": {"theme": "auto", "maxDepth": 10, "showTypes": true}, "data": [{"id": 1, "value": "First item"}, {"id": 2, "value": "Second item"}]}'
+                    ></obj-visualizer-element>
                     <div id="error-display"></div>
                 </div>
             </div>
@@ -237,7 +251,7 @@
 
         <div class="demo-section">
             <h2>Edge Cases</h2>
-            
+
             <h3>Empty Objects and Arrays</h3>
             <div class="example-container">
                 <obj-visualizer-element object='{"empty_object": {}, "empty_array": [], "mixed": [1, {}, [], "text"]}'></obj-visualizer-element>
@@ -245,7 +259,9 @@
 
             <h3>Large Numbers and Special Values</h3>
             <div class="example-container">
-                <obj-visualizer-element object='{"bigNumber": 9007199254740991, "float": 3.14159, "negative": -42, "infinity": "Cannot represent Infinity in JSON"}'></obj-visualizer-element>
+                <obj-visualizer-element
+                    object='{"bigNumber": 9007199254740991, "float": 3.14159, "negative": -42, "infinity": "Cannot represent Infinity in JSON"}'
+                ></obj-visualizer-element>
             </div>
         </div>
 
@@ -255,11 +271,11 @@
                 const textarea = document.getElementById('input-textarea');
                 const visualizer = document.getElementById('interactive-visualizer');
                 const errorDisplay = document.getElementById('error-display');
-                
+
                 try {
                     // Clear any previous error
                     errorDisplay.innerHTML = '';
-                    
+
                     // Update the visualizer
                     visualizer.setAttribute('object', textarea.value);
                 } catch (error) {
@@ -272,7 +288,7 @@
                 simple: '{"name": "John", "age": 30}',
                 array: '[1, 2, 3, "hello", true]',
                 nested: '{"level1": {"level2": {"level3": "deep value"}}}',
-                complex: '{"users": [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}], "meta": {"total": 2}}'
+                complex: '{"users": [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}], "meta": {"total": 2}}',
             };
 
             // Add preset buttons
@@ -294,4 +310,4 @@
             }
         </script>
     </body>
-</html> 
+</html>
