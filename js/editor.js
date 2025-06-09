@@ -345,6 +345,134 @@ const smartReorderElements = allElements => {
     wisk.editor.document.data.elements.sort((a, b) => allElements.indexOf(a.id) - allElements.indexOf(b.id));
 };
 
+wisk.editor.moveBlock = function (elementId, afterElementId) {
+    if (elementId.includes('-')) {
+        eid = elementId.split('-')[0];
+        document.getElementById(eid).editor.moveBlock(elementId, afterElementId);
+        return;
+    }
+
+    // Find the element to move
+    const elementIndex = wisk.editor.document.data.elements.findIndex(e => e.id === elementId);
+    if (elementIndex === -1) return;
+
+    const elementToMove = wisk.editor.document.data.elements[elementIndex];
+
+    // Find the target position
+    let targetIndex;
+    if (afterElementId === '' || afterElementId === null) {
+        // Move to beginning
+        targetIndex = 0;
+    } else {
+        const afterIndex = wisk.editor.document.data.elements.findIndex(e => e.id === afterElementId);
+        if (afterIndex === -1) return;
+        targetIndex = afterIndex + 1;
+    }
+
+    // Remove element from current position
+    wisk.editor.document.data.elements.splice(elementIndex, 1);
+
+    // Adjust target index if needed (element was removed from before target)
+    if (elementIndex < targetIndex) {
+        targetIndex--;
+    }
+
+    // Insert element at new position
+    wisk.editor.document.data.elements.splice(targetIndex, 0, elementToMove);
+
+    // Update DOM order
+    const elementDiv = document.getElementById(`div-${elementId}`);
+    if (!elementDiv) return;
+
+    const editorElement = document.getElementById('editor');
+    if (targetIndex === 0) {
+        // Move to beginning
+        editorElement.insertBefore(elementDiv, editorElement.firstChild);
+    } else {
+        // Move after the target element
+        const afterElementDiv = document.getElementById(`div-${afterElementId}`);
+        if (afterElementDiv && afterElementDiv.nextSibling) {
+            editorElement.insertBefore(elementDiv, afterElementDiv.nextSibling);
+        } else if (afterElementDiv) {
+            editorElement.appendChild(elementDiv);
+        }
+    }
+
+    // Trigger sync updates
+    wisk.editor.justUpdates();
+
+    window.dispatchEvent(
+        new CustomEvent('block-moved', {
+            detail: {
+                id: elementId,
+                afterId: afterElementId,
+                newIndex: targetIndex,
+            },
+        })
+    );
+};
+
+wisk.editor.refreshEditor = function () {
+    const editorElement = document.getElementById('editor');
+    if (!editorElement) return;
+
+    // Store current focus information
+    const activeElement = document.activeElement;
+    const focusedId = activeElement?.id;
+    let focusOffset = 0;
+
+    if (activeElement && typeof activeElement.getCaretPosition === 'function') {
+        try {
+            focusOffset = activeElement.getCaretPosition();
+        } catch (e) {
+            // Ignore errors getting caret position
+        }
+    }
+
+    // Clear all current block elements from DOM
+    const blockElements = editorElement.querySelectorAll('.rndr');
+    blockElements.forEach(element => element.remove());
+
+    // Recreate all elements from data array
+    for (let i = 0; i < wisk.editor.document.data.elements.length; i++) {
+        const element = wisk.editor.document.data.elements[i];
+
+        const container = createBlockContainer(element.id, element.component);
+        const block = createBlockElement(element.id, element.component);
+        const imageContainer = createHoverImageContainer(element.id);
+
+        const fullWidthWrapper = createFullWidthWrapper(element.id, block, imageContainer);
+        container.appendChild(fullWidthWrapper);
+        editorElement.appendChild(container);
+
+        window.dispatchEvent(new CustomEvent('block-created', { detail: { id: element.id } }));
+
+        // Set element value
+        setTimeout(() => {
+            const domElement = document.getElementById(element.id);
+            if (domElement) {
+                domElement.setValue('', element.value);
+            }
+        }, 0);
+    }
+
+    // Restore focus if possible
+    if (focusedId) {
+        setTimeout(() => {
+            const elementToFocus = document.getElementById(focusedId);
+            if (elementToFocus) {
+                if (typeof elementToFocus.focus === 'function') {
+                    elementToFocus.focus({ x: focusOffset });
+                } else {
+                    elementToFocus.focus();
+                }
+            }
+        }, 10);
+    }
+
+    window.dispatchEvent(new CustomEvent('editor-refreshed'));
+};
+
 async function initEditor(doc) {
     // wait for a second before initializing the editor
     //
@@ -383,6 +511,11 @@ async function initEditor(doc) {
     }
 
     await initializeElements();
+
+    // Refresh editor to ensure proper order and state
+    setTimeout(() => {
+        wisk.editor.refreshEditor();
+    }, 50);
 
     wisk.utils.hideLoading();
 }

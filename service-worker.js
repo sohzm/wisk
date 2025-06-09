@@ -100,6 +100,7 @@ const CORE_ASSETS = [
     '/a7/forget/plugins.png',
     '/a7/forget/plus1.svg',
     '/a7/forget/plus-hover.svg',
+    '/a7/forget/more-hover.svg',
     '/a7/forget/plus.svg',
     '/a7/forget/project.png',
     '/a7/forget/README.md',
