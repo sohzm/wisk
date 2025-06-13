@@ -89,10 +89,12 @@ class PinElement extends HTMLElement {
                 border-radius: var(--radius);
                 overflow: hidden;
                 font-family: var(--font);
+                opacity: 0.7;
             }
             
             :host(:hover) {
                 filter: var(--drop-shadow);
+                opacity: 1;
             }
             
             :host([dragging]) {
@@ -113,21 +115,16 @@ class PinElement extends HTMLElement {
             
             .pin-header {
                 display: flex;
-                justify-content: space-between;
+                justify-content: flex-end;
                 align-items: center;
-                padding: 8px 12px;
+                padding: 4px;
                 cursor: grab;
                 user-select: none;
+                height: 24px;
             }
 
             .pin-header:active {
                 cursor: grabbing;
-            }
-            
-            .pin-title {
-                font-size: 14px;
-                font-weight: 500;
-                opacity: 0.7;
             }
             
             .pin-actions {
@@ -144,12 +141,16 @@ class PinElement extends HTMLElement {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                opacity: 0.7;
+                opacity: 0;
                 transition: all 0.2s ease;
             }
             
+            .pin-container:hover .pin-action-button {
+                opacity: 0.7;
+            }
+            
             .pin-action-button:hover {
-                opacity: 1;
+                opacity: 1 !important;
                 background-color: rgba(0, 0, 0, 0.05);
             }
             
@@ -193,8 +194,6 @@ class PinElement extends HTMLElement {
         </style>
         <div class="pin-container">
             <div class="pin-header">
-                <div class="pin-title">Pinned Note</div>
-                <div class="divider"></div>
                 <div class="pin-actions">
                     <button class="pin-action-button pin-close" title="Unpin">
                         <img src="/a7/forget/dialog-x.svg" alt="Close" />

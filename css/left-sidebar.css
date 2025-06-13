@@ -107,6 +107,6 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    padding: var(--padding-w2);
+    padding: var(--padding-2);
     font-weight: 400;
 }

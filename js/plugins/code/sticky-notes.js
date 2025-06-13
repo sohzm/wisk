@@ -109,7 +109,7 @@ class StickyNotes extends LitElement {
             font-size: 1rem;
             line-height: 1.5;
             overflow-y: auto;
-            padding: var(--padding-2);
+            padding: var(--padding-2) 0;
             user-select: text;
             min-height: 60px;
         }

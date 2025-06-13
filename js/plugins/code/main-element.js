@@ -2,7 +2,7 @@ class MainElement extends BaseTextElement {
     constructor() {
         super();
         this.placeholder = this.getAttribute('placeholder') || wisk.editor.readonly ? '' : 'edit me';
-        this.bannerSize = 'small'; // Can be 'smallest', 'small', 'big', 'bigger', 'biggest'
+        this.bannerSize = 'big'; // Can be 'smallest', 'small', 'big', 'bigger', 'biggest'
         this.emoji = this.getAttribute('emoji') || '';
         this.backgroundUrl = null;
         this.MAX_WIDTH = 1920;
@@ -283,6 +283,7 @@ class MainElement extends BaseTextElement {
 
                     this.headerContainer.style.backgroundImage = `url(${objectUrl})`;
                     this.headerContainer.classList.add('has-background');
+                    this.updateBannerSize();
                 }
             } catch (error) {
                 console.error('Error retrieving background from storage:', error);

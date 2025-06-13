@@ -40,8 +40,8 @@ class LeftMenu extends LitElement {
             align-items: center;
             gap: var(--gap-2);
             padding: var(--padding-w1);
-            color: var(--fg-1);
-            background-color: var(--bg-1);
+            color: var(--fg-2);
+            background-color: transparent;
             text-decoration: none;
             cursor: pointer;
             outline: none;
@@ -51,10 +51,10 @@ class LeftMenu extends LitElement {
             font-weight: 500;
         }
         .vert-nav-button img {
-            width: 18px;
+            width: 16px;
         }
         .vert-nav-button:hover {
-            background-color: var(--bg-2);
+            background-color: var(--bg-3);
         }
         .vert-nav-button:active {
             background-color: var(--bg-3);
@@ -67,7 +67,7 @@ class LeftMenu extends LitElement {
             background-color: var(--bg-3);
         }
         .outer {
-            padding: 0 var(--padding-4);
+            padding: 0 var(--padding-2);
             display: flex;, 
             flex-direction: column;
             height: 100%;
@@ -211,6 +211,7 @@ class LeftMenu extends LitElement {
         img {
             width: 22px;
             filter: var(--themed-svg);
+            opacity: 0.8;
         }
         ::placeholder {
             color: var(--fg-2);
@@ -235,13 +236,13 @@ class LeftMenu extends LitElement {
             transition: opacity 0.2s;
             height: 24px;
             width: 24px;
-            margin-right: 4px;
         }
         .item:hover .add-child {
             opacity: 1;
         }
         .add-child:hover {
             background-color: var(--bg-2);
+            color: var(--fg-1);
         }
         .add-child:active {
             background-color: var(--bg-3);
@@ -280,7 +281,6 @@ class LeftMenu extends LitElement {
             width: 24px;
             height: 24px;
             cursor: pointer;
-            margin-right: 4px;
         }
         .toggle-folder img {
             width: 14px;
@@ -606,7 +606,7 @@ class LeftMenu extends LitElement {
                                 <a href="?id=${item.id}" style="display: flex; gap: var(--gap-2); align-items: center; font-size: 13px">
                                     ${item.emoji
                                         ? html`<span style="font-size: 16px; line-height: 1;">${item.emoji}</span>`
-                                        : html`<img src="/a7/forget/page-1.svg" alt="File" style="width: 18px; height: 18px; opacity: 0.8" />`}
+                                        : html`<img src="/a7/forget/page-1.svg" alt="File" style="width: 16px; height: 16px; opacity: 0.8" />`}
                                     ${item.name}
                                 </a>
                                 <div class="add-child" @click=${e => this.createChildPage(item.id, e)}>

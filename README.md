@@ -41,7 +41,7 @@ The frontend is open source and fully functional standalone, but requires Wisk b
 ```bash
 git clone https://github.com/sohzm/wisk.git
 cd wisk
-python -m http.server 8788
+bun x wrangler pages dev .
 # Visit http://localhost:8788
 ```
 

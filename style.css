@@ -45,6 +45,7 @@ nav {
     width: 100%;
     transition: opacity 0.5s;
     z-index: 69; /* nice */
+    background-color: var(--bg-1);
 }
 .nav-plugins {
     display: flex;
@@ -53,7 +54,6 @@ nav {
     gap: var(--gap-2);
     background: var(--bg-1);
     padding: var(--padding-2);
-    margin: var(--padding-3);
     border-radius: var(--radius);
 }
 .nav-button {
@@ -89,7 +89,6 @@ nav {
     border-radius: var(--radius);
     background: var(--bg-1);
     padding: var(--padding-2);
-    margin: var(--padding-3);
 }
 
 .left-sidebar-title,
