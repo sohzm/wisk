@@ -67,12 +67,28 @@ class LeftMenu extends LitElement {
             background-color: var(--bg-3);
         }
         .outer {
-            padding: 0 var(--padding-2);
-            display: flex;, 
+            display: flex;
             flex-direction: column;
             height: 100%;
-            gap: var(--gap-1);
+            gap: 0;
             flex-direction: column;
+        }
+        
+        /* Top section styles */
+        .top-section {
+            padding: var(--padding-2);
+        }
+        
+        /* Pages section styles */
+        .pages-section {
+            flex: 1;
+            overflow: auto;
+            padding: var(--padding-3);
+        }
+        
+        /* Bottom section styles */
+        .bottom-section {
+            padding: var(--padding-2);
         }
         .new {
             display: flex;
@@ -248,7 +264,7 @@ class LeftMenu extends LitElement {
             background-color: var(--bg-3);
         }
         .child-item {
-            padding-left: 20px;
+            padding-left: 12px;
         }
         @media (max-width: 900px) {
             .more-options, .add-child {
@@ -274,20 +290,36 @@ class LeftMenu extends LitElement {
         }
         
         /* New styles for folder toggle */
-        .toggle-folder {
+        .folder-icon {
             display: flex;
             align-items: center;
             justify-content: center;
             width: 24px;
             height: 24px;
             cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
         }
-        .toggle-folder img {
+        .folder-icon:hover {
+            background-color: var(--bg-2);
+        }
+        .folder-icon img {
+            width: 16px;
+            height: 16px;
+        }
+        .folder-icon .arrow {
             width: 14px;
             height: 14px;
             transition: transform 0.2s ease;
         }
-        .toggle-folder.expanded img {
+        .folder-icon .emoji {
+            font-size: 16px;
+            line-height: 1;
+        }
+        .folder-icon .page-icon {
+            width: 16px;
+            height: 16px;
+            opacity: 0.8;
         }
     `;
 
@@ -554,88 +586,94 @@ class LeftMenu extends LitElement {
 
         return html`
             <div class="outer">
-                <div class="vert-nav">
-                    <button class="vert-nav-button" @click=${() => (window.location.href = '/')}>
-                        <img src="/a7/forget/new-3.svg" class="new-img" /> New Page
-                    </button>
-                    <button class="vert-nav-button" @click=${() => document.querySelector('search-element').show()}>
-                        <img src="/a7/forget/search-3.svg" class="new-img" /> Search
-                    </button>
-                    <button class="vert-nav-button" @click=${() => (window.location.href = '/?id=home')}>
-                        <img src="/a7/forget/home-2.svg" class="new-img" /> Home
-                    </button>
-                    <button
-                        class="vert-nav-button"
-                        @click=${() => document.querySelector('template-dialog').show()}
-                        style="display: ${localStorage.getItem('devMode') === 'true' ? 'flex' : 'none'};"
-                    >
-                        <img src="/a7/forget/layout-2.svg" class="new-img" /> Templates
-                    </button>
-                    <p class="title">My Pages</p>
+                <div class="top-section">
+                    <div class="vert-nav">
+                        <button class="vert-nav-button" @click=${() => (window.location.href = '/')}>
+                            <img src="/a7/forget/page-plus-outline.svg" class="new-img" /> New Page
+                        </button>
+                        <button class="vert-nav-button" @click=${() => document.querySelector('search-element').show()}>
+                            <img src="/a7/forget/search-outline.svg" class="new-img" /> Search
+                        </button>
+                        <button class="vert-nav-button" @click=${() => (window.location.href = '/?id=home')}>
+                            <img src="/a7/forget/home-outline.svg" class="new-img" /> Home
+                        </button>
+                        <button
+                            class="vert-nav-button"
+                            @click=${() => document.querySelector('template-dialog').show()}
+                            style="display: ${localStorage.getItem('devMode') === 'true' ? 'flex' : 'none'};"
+                        >
+                            <img src="/a7/forget/templates-outline.svg" class="new-img" /> Templates
+                        </button>
+                    </div>
                 </div>
 
-                <ul style="flex: 1; overflow: auto;">
-                    ${this.filteredList.map(
-                        item => html`
-                            <li
-                                class="item ${item.level > 0 ? 'child-item' : ''}"
-                                style="padding-left: ${item.level * 20}px;"
-                                @mouseenter=${() => (this.hoveredItemId = item.id)}
-                                @mouseleave=${() => {
-                                    this.hoveredItemId = null;
-                                    // Close dropdown when mouse leaves the item
-                                    if (this.openDropdownId === item.id) {
-                                        this.openDropdownId = null;
-                                    }
-                                }}
-                            >
-                                ${item.hasChildren
-                                    ? html`
-                                          <div
-                                              class="toggle-folder ${this.expandedFolders[item.id] ? 'expanded' : ''}"
-                                              @click=${e => this.toggleFolder(item.id, e)}
-                                          >
-                                              <img
-                                                  src=${this.expandedFolders[item.id] ? '/a7/forget/down-arrow.svg' : '/a7/forget/right-arrow.svg'}
-                                                  alt="Toggle folder"
-                                              />
-                                          </div>
-                                      `
-                                    : html` <div style="width: 24px;"></div> `}
+                <div class="pages-section">
+                    <ul>
+                        ${this.filteredList.map(
+                            item => html`
+                                <li
+                                    class="item ${item.level > 0 ? 'child-item' : ''}"
+                                    style="padding-left: ${item.level * 12}px;"
+                                    @mouseenter=${() => (this.hoveredItemId = item.id)}
+                                    @mouseleave=${() => {
+                                        this.hoveredItemId = null;
+                                        // Close dropdown when mouse leaves the item
+                                        if (this.openDropdownId === item.id) {
+                                            this.openDropdownId = null;
+                                        }
+                                    }}
+                                >
+                                    <div
+                                        class="folder-icon"
+                                        @click=${item.hasChildren ? e => this.toggleFolder(item.id, e) : e => { e.preventDefault(); window.location.href = `?id=${item.id}`; }}
+                                    >
+                                        ${item.hasChildren && this.hoveredItemId === item.id
+                                            ? html`
+                                                  <img
+                                                      class="arrow"
+                                                      src=${this.expandedFolders[item.id] ? '/a7/forget/down-arrow.svg' : '/a7/forget/right-arrow.svg'}
+                                                      alt="Toggle folder"
+                                                  />
+                                              `
+                                            : item.emoji
+                                            ? html`<span class="emoji">${item.emoji}</span>`
+                                            : html`<img class="page-icon" src="${!item.name || item.name === 'Untitled' ? '/a7/forget/page-2.svg' : '/a7/forget/page-content-outline.svg'}" alt="File" />`}
+                                    </div>
 
-                                <a href="?id=${item.id}" style="display: flex; gap: var(--gap-2); align-items: center; font-size: 13px">
-                                    ${item.emoji
-                                        ? html`<span style="font-size: 16px; line-height: 1;">${item.emoji}</span>`
-                                        : html`<img src="/a7/forget/page-1.svg" alt="File" style="width: 16px; height: 16px; opacity: 0.8" />`}
-                                    ${item.name}
-                                </a>
-                                <div class="add-child" @click=${e => this.createChildPage(item.id, e)}>
-                                    <img src="/a7/forget/plus.svg" alt="Add child" style="width: 16px; height: 16px;" />
-                                </div>
-                                <div class="more-options" @click=${e => this.toggleDropdown(item.id, e)}>
-                                    <img src="/a7/forget/morex.svg" alt="More options" style="width: 16px; height: 16px;" />
-                                    ${this.openDropdownId === item.id
-                                        ? html`
-                                              <div class="dropdown">
-                                                  <div class="dropdown-item delete-item" @click=${e => this.removeItem(item.id, e)}>
-                                                      <img src="/a7/forget/trash.svg" alt="Delete" style="width: 16px; height: 16px;" />
-                                                      Delete
+                                    <a href="?id=${item.id}" style="display: flex; align-items: center; font-size: 13px; flex: 1;">
+                                        ${item.name}
+                                    </a>
+                                    <div class="add-child" @click=${e => this.createChildPage(item.id, e)}>
+                                        <img src="/a7/forget/plus.svg" alt="Add child" style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div class="more-options" @click=${e => this.toggleDropdown(item.id, e)}>
+                                        <img src="/a7/forget/morex.svg" alt="More options" style="width: 16px; height: 16px;" />
+                                        ${this.openDropdownId === item.id
+                                            ? html`
+                                                  <div class="dropdown">
+                                                      <div class="dropdown-item delete-item" @click=${e => this.removeItem(item.id, e)}>
+                                                          <img src="/a7/forget/trash.svg" alt="Delete" style="width: 16px; height: 16px;" />
+                                                          Delete
+                                                      </div>
                                                   </div>
-                                              </div>
-                                          `
-                                        : ''}
-                                </div>
-                            </li>
-                        `
-                    )}
-                </ul>
-                <div style="padding: var(--padding-4) 0;">
-                    <button class="vert-nav-button" @click=${() => document.querySelector('help-dialog').show()}>
-                        <img src="/a7/forget/help-3.svg" class="new-img" /> Help
-                    </button>
-                    <button class="vert-nav-button" @click=${() => document.querySelector('feedback-dialog').show()}>
-                        <img src="/a7/forget/feedback.svg" class="new-img" /> Feedback
-                    </button>
+                                              `
+                                            : ''}
+                                    </div>
+                                </li>
+                            `
+                        )}
+                    </ul>
+                </div>
+                
+                <div class="bottom-section">
+                    <div class="vert-nav">
+                        <button class="vert-nav-button" @click=${() => document.querySelector('help-dialog').show()}>
+                            <img src="/a7/forget/help-3.svg" class="new-img" /> Help
+                        </button>
+                        <button class="vert-nav-button" @click=${() => document.querySelector('feedback-dialog').show()}>
+                            <img src="/a7/forget/feedback.svg" class="new-img" /> Feedback
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
