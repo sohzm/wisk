@@ -151,7 +151,7 @@ class SymbolsElement extends LitElement {
     constructor() {
         super();
         this.searchTerm = '';
-        (this.symbols = {
+        ((this.symbols = {
             doubleQuote: '"',
             ampersand: '&',
             singleQuote: "'",
@@ -956,7 +956,7 @@ class SymbolsElement extends LitElement {
             whiteCornerBracketLeft: '『',
             whiteCornerBracketRight: '』',
         }),
-            (this.filteredSymbols = this.getFilteredSymbols());
+            (this.filteredSymbols = this.getFilteredSymbols()));
     }
 
     handleInput(e) {

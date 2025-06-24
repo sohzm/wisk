@@ -73,19 +73,19 @@ class LeftMenu extends LitElement {
             gap: 0;
             flex-direction: column;
         }
-        
+
         /* Top section styles */
         .top-section {
             padding: var(--padding-2);
         }
-        
+
         /* Pages section styles */
         .pages-section {
             flex: 1;
             overflow: auto;
             padding: var(--padding-3);
         }
-        
+
         /* Bottom section styles */
         .bottom-section {
             padding: var(--padding-2);
@@ -154,9 +154,7 @@ class LeftMenu extends LitElement {
             color: var(--fg-1);
         }
         .od:has(.srch:focus) {
-            border-color: var(--border-2);
             background-color: var(--bg-1);
-            box-shadow: 0 0 0 2px var(--bg-3);
         }
         .item {
             display: flex;
@@ -192,13 +190,18 @@ class LeftMenu extends LitElement {
             border-radius: var(--radius);
             padding: var(--padding-1);
             z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             min-width: 120px;
             animation: fadeIn 0.15s ease;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-4px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .dropdown-item {
             display: flex;
@@ -267,7 +270,8 @@ class LeftMenu extends LitElement {
             padding-left: 12px;
         }
         @media (max-width: 900px) {
-            .more-options, .add-child {
+            .more-options,
+            .add-child {
                 opacity: 1;
             }
         }
@@ -288,7 +292,7 @@ class LeftMenu extends LitElement {
                 background-color: var(--fg-1);
             }
         }
-        
+
         /* New styles for folder toggle */
         .folder-icon {
             display: flex;
@@ -321,6 +325,227 @@ class LeftMenu extends LitElement {
             height: 16px;
             opacity: 0.8;
         }
+
+        /* Workspace styles */
+        .workspace-header {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+            padding: var(--padding-w1);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .workspace-header:hover {
+            background-color: var(--bg-2);
+            border-color: var(--border-1);
+        }
+        .workspace-emoji {
+            font-size: 18px;
+        }
+        .workspace-name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .workspace-arrow {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s ease;
+        }
+        .workspace-arrow.rotated {
+            transform: rotate(180deg);
+        }
+        .workspace-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-1);
+            border: 1px solid var(--border-1);
+            border-radius: var(--radius);
+            padding: var(--padding-3);
+            z-index: 1000;
+            animation: fadeIn 0.15s ease;
+            margin-top: var(--padding-2);
+            filter: var(--drop-shadow);
+        }
+        .workspace-item {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+            padding: var(--padding-w1);
+            cursor: pointer;
+            border-radius: var(--radius);
+            color: var(--fg-1);
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.15s ease;
+        }
+        .workspace-item-divider {
+            border-bottom: 1px solid transparent;
+            margin-bottom: var(--padding-4);
+        }
+        .workspace-item:hover {
+            background-color: var(--bg-2);
+        }
+        .workspace-item.active {
+            background-color: var(--bg-accent);
+            color: var(--fg-accent);
+        }
+        .workspace-item-emoji {
+            font-size: 16px;
+        }
+        .workspace-item-name {
+            flex: 1;
+        }
+        .new-workspace-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+            padding: var(--padding-w1);
+            cursor: pointer;
+            border-radius: var(--radius);
+            color: var(--fg-accent);
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.15s ease;
+        }
+        .new-workspace-btn:hover {
+            background-color: var(--bg-accent);
+            color: var(--fg-accent);
+        }
+        .workspace-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.2s ease;
+        }
+        .workspace-dialog-content {
+            background-color: var(--bg-1);
+            border-radius: var(--radius-large);
+            padding: var(--padding-4);
+            max-width: 400px;
+            width: 90%;
+            filter: var(--drop-shadow);
+        }
+        .workspace-dialog-header {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+            margin-bottom: var(--padding-4);
+        }
+        .workspace-dialog-title {
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+        }
+        .workspace-dialog-close {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius);
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .workspace-dialog-close:hover {
+            background-color: var(--bg-2);
+        }
+        .workspace-form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-3);
+        }
+        .workspace-emoji-section {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+        }
+        .workspace-emoji-display {
+            font-size: 32px;
+            border-radius: var(--radius);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid var(--border-1);
+            transition: all 0.15s ease;
+        }
+        .workspace-emoji-display:hover {
+            background-color: var(--bg-2);
+            border-color: var(--fg-accent);
+        }
+        .workspace-name-input {
+            flex: 1;
+            padding: var(--padding-w1);
+            border: 1px solid var(--border-1);
+            border-radius: var(--radius);
+            background-color: var(--bg-2);
+            color: var(--fg-1);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.15s ease;
+        }
+        .workspace-name-input:focus {
+            background-color: var(--bg-1);
+            border-color: var(--fg-accent);
+        }
+        .workspace-name-input.valid {
+            border-color: var(--fg-green);
+        }
+        .workspace-name-input.invalid {
+            border-color: var(--fg-red);
+        }
+        .workspace-name-input.empty {
+            border-color: var(--fg-red);
+        }
+        .workspace-dialog-actions {
+            display: flex;
+            gap: var(--gap-2);
+            justify-content: flex-end;
+            margin-top: var(--padding-4);
+        }
+        .workspace-btn {
+            padding: var(--padding-w2);
+            border-radius: var(--radius);
+            border: none;
+            background-color: var(--bg-1);
+            color: var(--fg-1);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.15s ease;
+        }
+        .workspace-btn:hover {
+            background-color: var(--bg-3);
+            border-color: var(--border-1);
+        }
+        .workspace-btn.primary {
+            background-color: var(--fg-accent);
+            color: var(--bg-1);
+            border-color: var(--fg-accent);
+        }
+        .workspace-btn.primary:hover {
+            background-color: var(--fg-accent);
+            opacity: 0.9;
+        }
     `;
 
     static properties = {
@@ -329,6 +554,11 @@ class LeftMenu extends LitElement {
         hoveredItemId: { type: String },
         hierarchicalList: { type: Array },
         expandedFolders: { type: Object },
+        showWorkspaceDropdown: { type: Boolean },
+        isNewWorkspaceDialogOpen: { type: Boolean },
+        newWorkspaceName: { type: String },
+        newWorkspaceEmoji: { type: String },
+        workspaceValidationState: { type: String }, // 'valid', 'invalid', 'empty'
     };
 
     constructor() {
@@ -339,9 +569,17 @@ class LeftMenu extends LitElement {
         this.hoveredItemId = null;
         this.hierarchicalList = [];
         this.expandedFolders = {};
+        this.showWorkspaceDropdown = false;
+        this.isNewWorkspaceDialogOpen = false;
+        this.newWorkspaceName = '';
+        this.newWorkspaceEmoji = '';
+        this.workspaceValidationState = 'empty';
 
         // Add click event listener to close dropdown when clicking outside
         this.boundHandleClickOutside = this.handleClickOutside.bind(this);
+
+        // Initialize workspace
+        this.initializeWorkspace();
     }
 
     connectedCallback() {
@@ -358,6 +596,17 @@ class LeftMenu extends LitElement {
         // Close dropdown if the click was outside of any dropdown
         if (this.openDropdownId && !event.composedPath().some(el => el.classList && el.classList.contains('more-options'))) {
             this.openDropdownId = null;
+            this.requestUpdate();
+        }
+
+        // Close workspace dropdown if clicking outside
+        if (
+            this.showWorkspaceDropdown &&
+            !event
+                .composedPath()
+                .some(el => el.classList && (el.classList.contains('workspace-header') || el.classList.contains('workspace-dropdown')))
+        ) {
+            this.showWorkspaceDropdown = false;
             this.requestUpdate();
         }
     }
@@ -575,6 +824,178 @@ class LeftMenu extends LitElement {
         this.requestUpdate();
     }
 
+    // Workspace management methods
+    initializeWorkspace() {
+        const currentWorkspace = localStorage.getItem('currentWorkspace');
+
+        if (!currentWorkspace) {
+            this.createDefaultWorkspace();
+        }
+    }
+
+    getCurrentWorkspaceName() {
+        const currentWorkspace = localStorage.getItem('currentWorkspace');
+        return currentWorkspace || 'Default Workspace';
+    }
+
+    getWorkspaces() {
+        const workspaces = localStorage.getItem('workspaces');
+        return workspaces ? JSON.parse(workspaces) : [];
+    }
+
+    saveWorkspaces(workspaces) {
+        localStorage.setItem('workspaces', JSON.stringify(workspaces));
+    }
+
+    createDefaultWorkspace() {
+        const workspaces = this.getWorkspaces();
+        const defaultWorkspace = {
+            name: '',
+            emoji: '🍎',
+        };
+
+        // Add to workspaces if not already there
+        if (!workspaces.find(w => w.name === defaultWorkspace.name)) {
+            workspaces.push(defaultWorkspace);
+            this.saveWorkspaces(workspaces);
+        }
+    }
+
+    getCurrentWorkspaceEmoji() {
+        const workspaces = this.getWorkspaces();
+        const currentWorkspace = localStorage.getItem('currentWorkspace') || '';
+        const workspace = workspaces.find(w => w.name === currentWorkspace);
+        return workspace ? workspace.emoji : '🍎';
+    }
+
+    getRandomEmoji() {
+        const emojiSelector = document.querySelector('emoji-selector');
+        return emojiSelector.randomEmoji();
+    }
+
+    toggleWorkspaceDropdown(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.showWorkspaceDropdown = !this.showWorkspaceDropdown;
+        this.requestUpdate();
+    }
+
+    switchWorkspace(workspaceName, e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        localStorage.setItem('currentWorkspace', workspaceName);
+        this.showWorkspaceDropdown = false;
+
+        // Refresh to home to load the new workspace
+        window.location.href = '/?id=home';
+    }
+
+    showNewWorkspaceDialog(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        this.newWorkspaceName = '';
+        this.newWorkspaceEmoji = this.getRandomEmoji();
+        this.workspaceValidationState = 'empty';
+        this.isNewWorkspaceDialogOpen = true;
+        this.showWorkspaceDropdown = false;
+        this.requestUpdate();
+
+        // Focus on the input field after render
+        setTimeout(() => {
+            const input = this.shadowRoot.querySelector('.workspace-name-input');
+            if (input) {
+                input.focus();
+            }
+        }, 100);
+    }
+
+    closeNewWorkspaceDialog(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        this.isNewWorkspaceDialogOpen = false;
+        this.newWorkspaceName = '';
+        this.newWorkspaceEmoji = '';
+        this.workspaceValidationState = 'empty';
+        this.requestUpdate();
+    }
+
+    changeWorkspaceEmoji(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        this.newWorkspaceEmoji = this.getRandomEmoji();
+        this.requestUpdate();
+    }
+
+    updateNewWorkspaceName(e) {
+        this.newWorkspaceName = e.target.value;
+        this.validateWorkspaceName();
+    }
+
+    validateWorkspaceName() {
+        const name = this.newWorkspaceName.trim();
+
+        if (!name) {
+            this.workspaceValidationState = 'empty';
+            return;
+        }
+
+        // Generate the database name that would be created
+        const sanitizedName = name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+        const dbName = `WiskDatabase-${sanitizedName}`;
+
+        // Check if workspace name already exists
+        const workspaces = this.getWorkspaces();
+        const nameExists = workspaces.some(w => w.name === name);
+
+        if (nameExists) {
+            this.workspaceValidationState = 'invalid';
+        } else {
+            this.workspaceValidationState = 'valid';
+        }
+    }
+
+    saveNewWorkspace(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Check validation state
+        if (this.workspaceValidationState === 'empty') {
+            wisk.utils.showToast('Please enter a workspace name', 3000);
+            return;
+        }
+
+        if (this.workspaceValidationState === 'invalid') {
+            wisk.utils.showToast('A workspace with this name already exists', 3000);
+            return;
+        }
+
+        const name = this.newWorkspaceName.trim();
+        const workspaces = this.getWorkspaces();
+
+        const newWorkspace = {
+            name: name,
+            emoji: this.newWorkspaceEmoji,
+        };
+
+        // Add to workspaces
+        workspaces.push(newWorkspace);
+        this.saveWorkspaces(workspaces);
+
+        // Switch to the new workspace
+        localStorage.setItem('currentWorkspace', name);
+
+        this.closeNewWorkspaceDialog();
+
+        // Refresh to home to load the new workspace
+        window.location.href = '/?id=home';
+    }
+
     render() {
         if (wisk.editor.readonly) {
             return html`
@@ -587,6 +1008,44 @@ class LeftMenu extends LitElement {
         return html`
             <div class="outer">
                 <div class="top-section">
+                    <!-- Workspace Header -->
+                    <div class="workspace-header" @click=${this.toggleWorkspaceDropdown}>
+                        <span class="workspace-emoji">${this.getCurrentWorkspaceEmoji()}</span>
+                        <span class="workspace-name">${this.getCurrentWorkspaceName()}</span>
+                        <img
+                            src="/a7/forget/down-arrow.svg"
+                            class="workspace-arrow ${this.showWorkspaceDropdown ? 'rotated' : ''}"
+                            alt="Toggle workspace dropdown"
+                        />
+
+                        ${this.showWorkspaceDropdown
+                            ? html`
+                                  <div class="workspace-dropdown">
+                                      ${this.getWorkspaces().map(
+                                          workspace => html`
+                                              <div
+                                                  class="workspace-item ${workspace.name === (localStorage.getItem('currentWorkspace') || '')
+                                                      ? 'active'
+                                                      : ''}"
+                                                  @click=${e => this.switchWorkspace(workspace.name, e)}
+                                              >
+                                                  <span class="workspace-item-emoji">${workspace.emoji}</span>
+                                                  <span class="workspace-item-name">${workspace.name || 'Default Workspace'}</span>
+                                              </div>
+                                          `
+                                      )}
+
+                                      <div class="workspace-item-divider"></div>
+
+                                      <div class="new-workspace-btn" @click=${this.showNewWorkspaceDialog}>
+                                          <img src="/a7/forget/plus.svg" alt="New workspace" style="width: 16px; height: 16px;" />
+                                          New Workspace
+                                      </div>
+                                  </div>
+                              `
+                            : ''}
+                    </div>
+
                     <div class="vert-nav">
                         <button class="vert-nav-button" @click=${() => (window.location.href = '/')}>
                             <img src="/a7/forget/page-plus-outline.svg" class="new-img" /> New Page
@@ -625,24 +1084,35 @@ class LeftMenu extends LitElement {
                                 >
                                     <div
                                         class="folder-icon"
-                                        @click=${item.hasChildren ? e => this.toggleFolder(item.id, e) : e => { e.preventDefault(); window.location.href = `?id=${item.id}`; }}
+                                        @click=${item.hasChildren
+                                            ? e => this.toggleFolder(item.id, e)
+                                            : e => {
+                                                  e.preventDefault();
+                                                  window.location.href = `?id=${item.id}`;
+                                              }}
                                     >
                                         ${item.hasChildren && this.hoveredItemId === item.id
                                             ? html`
                                                   <img
                                                       class="arrow"
-                                                      src=${this.expandedFolders[item.id] ? '/a7/forget/down-arrow.svg' : '/a7/forget/right-arrow.svg'}
+                                                      src=${this.expandedFolders[item.id]
+                                                          ? '/a7/forget/down-arrow.svg'
+                                                          : '/a7/forget/right-arrow.svg'}
                                                       alt="Toggle folder"
                                                   />
                                               `
                                             : item.emoji
-                                            ? html`<span class="emoji">${item.emoji}</span>`
-                                            : html`<img class="page-icon" src="${!item.name || item.name === 'Untitled' ? '/a7/forget/page-2.svg' : '/a7/forget/page-content-outline.svg'}" alt="File" />`}
+                                              ? html`<span class="emoji">${item.emoji}</span>`
+                                              : html`<img
+                                                    class="page-icon"
+                                                    src="${!item.name || item.name === 'Untitled'
+                                                        ? '/a7/forget/page-2.svg'
+                                                        : '/a7/forget/page-content-outline.svg'}"
+                                                    alt="File"
+                                                />`}
                                     </div>
 
-                                    <a href="?id=${item.id}" style="display: flex; align-items: center; font-size: 13px; flex: 1;">
-                                        ${item.name}
-                                    </a>
+                                    <a href="?id=${item.id}" style="display: flex; align-items: center; font-size: 13px; flex: 1;"> ${item.name} </a>
                                     <div class="add-child" @click=${e => this.createChildPage(item.id, e)}>
                                         <img src="/a7/forget/plus.svg" alt="Add child" style="width: 16px; height: 16px;" />
                                     </div>
@@ -664,7 +1134,7 @@ class LeftMenu extends LitElement {
                         )}
                     </ul>
                 </div>
-                
+
                 <div class="bottom-section">
                     <div class="vert-nav">
                         <button class="vert-nav-button" @click=${() => document.querySelector('help-dialog').show()}>
@@ -675,6 +1145,54 @@ class LeftMenu extends LitElement {
                         </button>
                     </div>
                 </div>
+
+                <!-- New Workspace Dialog -->
+                ${this.isNewWorkspaceDialogOpen
+                    ? html`
+                          <div
+                              class="workspace-dialog"
+                              @click=${e => {
+                                  if (e.target === e.currentTarget) {
+                                      this.closeNewWorkspaceDialog();
+                                  }
+                              }}
+                          >
+                              <div class="workspace-dialog-content">
+                                  <div class="workspace-dialog-header">
+                                      <span class="workspace-dialog-title">Create New Workspace</span>
+                                      <button class="workspace-dialog-close" @click=${this.closeNewWorkspaceDialog}>
+                                          <img src="/a7/forget/dialog-x.svg" alt="Close" style=";" />
+                                      </button>
+                                  </div>
+
+                                  <div class="workspace-form">
+                                      <div class="workspace-emoji-section">
+                                          <div class="workspace-emoji-display" @click=${this.changeWorkspaceEmoji}>${this.newWorkspaceEmoji}</div>
+                                          <input
+                                              type="text"
+                                              class="workspace-name-input ${this.workspaceValidationState}"
+                                              placeholder="Workspace name"
+                                              .value=${this.newWorkspaceName}
+                                              @input=${this.updateNewWorkspaceName}
+                                              @keydown=${e => {
+                                                  if (e.key === 'Enter') {
+                                                      this.saveNewWorkspace(e);
+                                                  } else if (e.key === 'Escape') {
+                                                      this.closeNewWorkspaceDialog();
+                                                  }
+                                              }}
+                                          />
+                                      </div>
+
+                                      <div class="workspace-dialog-actions">
+                                          <button class="workspace-btn" @click=${this.closeNewWorkspaceDialog}>Cancel</button>
+                                          <button class="workspace-btn primary" @click=${this.saveNewWorkspace}>Create Workspace</button>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      `
+                    : ''}
             </div>
         `;
     }

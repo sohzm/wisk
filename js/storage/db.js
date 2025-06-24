@@ -1,6 +1,9 @@
 // db.js
 wisk.db = (function () {
-    const dbName = 'WiskDatabase';
+    const dbName = (() => {
+        const name = localStorage.getItem('currentWorkspace');
+        return name ? `WiskDatabase-${name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}` : 'WiskDatabase';
+    })();
     const dbVersion = 5;
     const stores = ['WiskStore', 'WiskAssetStore', 'WiskPluginStore', 'WiskDatabaseStore', 'WiskSnapshots'];
     const functionNames = {
