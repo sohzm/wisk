@@ -76,7 +76,7 @@ class LeftMenu extends LitElement {
 
         /* Top section styles */
         .top-section {
-            padding: var(--padding-2);
+            padding: var(--padding-3);
         }
 
         /* Pages section styles */
@@ -88,7 +88,7 @@ class LeftMenu extends LitElement {
 
         /* Bottom section styles */
         .bottom-section {
-            padding: var(--padding-2);
+            padding: var(--padding-3);
         }
         .new {
             display: flex;
@@ -267,7 +267,7 @@ class LeftMenu extends LitElement {
             background-color: var(--bg-3);
         }
         .child-item {
-            padding-left: 12px;
+            padding-left: 16px;
         }
         @media (max-width: 900px) {
             .more-options,
@@ -298,7 +298,7 @@ class LeftMenu extends LitElement {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 24px;
+            width: 16px;
             height: 24px;
             cursor: pointer;
             border-radius: 4px;
@@ -341,8 +341,7 @@ class LeftMenu extends LitElement {
             position: relative;
         }
         .workspace-header:hover {
-            background-color: var(--bg-2);
-            border-color: var(--border-1);
+            background-color: var(--bg-3);
         }
         .workspace-emoji {
             font-size: 18px;
@@ -367,13 +366,12 @@ class LeftMenu extends LitElement {
             left: 0;
             right: 0;
             background-color: var(--bg-1);
-            border: 1px solid var(--border-1);
+            border: 1px solid var(--bg-3);
             border-radius: var(--radius);
             padding: var(--padding-3);
             z-index: 1000;
             animation: fadeIn 0.15s ease;
             margin-top: var(--padding-2);
-            filter: var(--drop-shadow);
         }
         .workspace-item {
             display: flex;
@@ -1067,12 +1065,12 @@ class LeftMenu extends LitElement {
                 </div>
 
                 <div class="pages-section">
-                    <ul>
+                    <ul style="padding: var(--padding-w1);">
                         ${this.filteredList.map(
                             item => html`
                                 <li
                                     class="item ${item.level > 0 ? 'child-item' : ''}"
-                                    style="padding-left: ${item.level * 12}px;"
+                                    style="padding-left: ${item.level * 16}px;"
                                     @mouseenter=${() => (this.hoveredItemId = item.id)}
                                     @mouseleave=${() => {
                                         this.hoveredItemId = null;
