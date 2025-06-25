@@ -240,3 +240,38 @@ async function loadAllPlugins() {
         // wisk.utils.hideLoading();
     }
 }
+
+// TODO add these sometime maybe?
+function addSidebarButtons() {
+    const leftSidebarButton = document.createElement('button');
+    leftSidebarButton.classList.add('nav-button');
+    leftSidebarButton.title = 'Left Sidebar';
+    leftSidebarButton.onclick = () => {
+        wisk.editor.toggleLeftSidebar();
+    };
+    const leftSidebarIcon = document.createElement('img');
+    leftSidebarIcon.src = '/a7/forget/max-sidebar.svg';
+    leftSidebarIcon.classList.add('plugin-icon');
+    leftSidebarIcon.draggable = false;
+    leftSidebarButton.appendChild(leftSidebarIcon);
+    leftSidebarButton.style.order = 998;
+    leftSidebarButton.classList.add('options-button');
+
+    const rightSidebarButton = document.createElement('button');
+    rightSidebarButton.classList.add('nav-button');
+    rightSidebarButton.title = 'Right Sidebar';
+    rightSidebarButton.onclick = () => {
+        wisk.editor.toggleRightSidebar();
+    };
+    const rightSidebarIcon = document.createElement('img');
+    rightSidebarIcon.src = '/a7/forget/hide-sidebar.svg';
+    rightSidebarIcon.classList.add('plugin-icon');
+    rightSidebarIcon.draggable = false;
+    rightSidebarButton.appendChild(rightSidebarIcon);
+    rightSidebarButton.style.order = 999;
+    rightSidebarButton.classList.add('options-button');
+
+    const nav1 = document.querySelector('.nav-plugins');
+    nav1.appendChild(leftSidebarButton);
+    nav1.appendChild(rightSidebarButton);
+}

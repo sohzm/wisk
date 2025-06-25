@@ -483,7 +483,7 @@ class LeftMenu extends LitElement {
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            border: 1px solid var(--border-1);
+            border: none;
             transition: all 0.15s ease;
         }
         .workspace-emoji-display:hover {
@@ -492,8 +492,8 @@ class LeftMenu extends LitElement {
         }
         .workspace-name-input {
             flex: 1;
-            padding: var(--padding-w1);
-            border: 1px solid var(--border-1);
+            padding: var(--padding-w2);
+            border: 2px solid var(--bg-3);
             border-radius: var(--radius);
             background-color: var(--bg-2);
             color: var(--fg-1);
@@ -512,7 +512,7 @@ class LeftMenu extends LitElement {
             border-color: var(--fg-red);
         }
         .workspace-name-input.empty {
-            border-color: var(--fg-red);
+            border-color: var(--bg-3);
         }
         .workspace-dialog-actions {
             display: flex;
@@ -537,7 +537,7 @@ class LeftMenu extends LitElement {
         }
         .workspace-btn.primary {
             background-color: var(--fg-accent);
-            color: var(--bg-1);
+            color: var(--bg-accent);
             border-color: var(--fg-accent);
         }
         .workspace-btn.primary:hover {

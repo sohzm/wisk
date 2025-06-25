@@ -1,9 +1,15 @@
 // Initialize width management - only for desktop
-const DEFAULT_LEFT_WIDTH = 420;
+const DEFAULT_LEFT_WIDTH = 320;
 const MIN_LEFT_WIDTH = 200;
 const MAX_LEFT_WIDTH = 1000;
 
 let leftSidebarWidth = parseInt(localStorage.getItem('leftSidebarWidth')) || DEFAULT_LEFT_WIDTH;
+
+// Track last opened component for easy reopening
+let leftLastOpened = {
+    component: null,
+    title: null,
+};
 
 function initializeLeftSidebarResize() {
     const sidebar = byQuery('.left-sidebar');
@@ -87,6 +93,31 @@ function toggleLeftSidebarNew(component, title) {
     const titleElement = byQuery('.left-sidebar-title');
     const allComponents = byQuery('.left-sidebar-body').querySelectorAll('[data-plugin-component]');
 
+    // If no arguments provided
+    if (!component && !title) {
+        if (sidebar.classList.contains('left-sidebar-hidden')) {
+            // Sidebar is hidden, try to reopen with lastOpened
+            if (leftLastOpened.component && leftLastOpened.title) {
+                component = leftLastOpened.component;
+                title = leftLastOpened.title;
+            } else {
+                // No lastOpened data, nothing to reopen
+                return;
+            }
+        } else {
+            // Sidebar is visible, hide it
+            sidebar.classList.add('left-sidebar-hidden');
+            if (window.innerWidth >= 900) {
+                sidebar.style.removeProperty('width');
+            }
+            window.dispatchEvent(new Event('resize'));
+            return;
+        }
+    }
+
+    // If still no component available, return early
+    if (!component || !title) return;
+
     if (sidebar.classList.contains('left-sidebar-hidden')) {
         if (byQuery(component).opened) byQuery(component).opened();
         titleElement.innerText = title;
@@ -94,6 +125,10 @@ function toggleLeftSidebarNew(component, title) {
             comp.style.display = comp.tagName.toLowerCase() === component.toLowerCase() ? 'block' : 'none';
         });
         sidebar.classList.remove('left-sidebar-hidden');
+
+        // Update leftLastOpened tracker
+        leftLastOpened.component = component;
+        leftLastOpened.title = title;
 
         if (window.innerWidth >= 900) {
             sidebar.style.width = `${leftSidebarWidth}px`;
@@ -115,6 +150,10 @@ function toggleLeftSidebarNew(component, title) {
             allComponents.forEach(comp => {
                 comp.style.display = comp.tagName.toLowerCase() === component.toLowerCase() ? 'block' : 'none';
             });
+
+            // Update leftLastOpened tracker
+            leftLastOpened.component = component;
+            leftLastOpened.title = title;
         }
     }
     window.dispatchEvent(new Event('resize'));

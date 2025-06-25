@@ -5,6 +5,12 @@ const MAX_RIGHT_WIDTH = 1000;
 
 let rightSidebarWidth = parseInt(localStorage.getItem('rightSidebarWidth')) || DEFAULT_RIGHT_WIDTH;
 
+// Track last opened component for easy reopening
+let rightLastOpened = {
+    component: null,
+    title: null,
+};
+
 function initializeRightSidebarResize() {
     const sidebar = byQuery('.right-sidebar');
     if (!sidebar || window.innerWidth < 900) return;
@@ -87,6 +93,31 @@ function toggleRightSidebarNew(component, title) {
     const titleElement = byQuery('.right-sidebar-title');
     const allComponents = byQuery('.right-sidebar-body').querySelectorAll('[data-plugin-component]');
 
+    // If no arguments provided
+    if (!component && !title) {
+        if (sidebar.classList.contains('right-sidebar-hidden')) {
+            // Sidebar is hidden, try to reopen with lastOpened
+            if (rightLastOpened.component && rightLastOpened.title) {
+                component = rightLastOpened.component;
+                title = rightLastOpened.title;
+            } else {
+                // No lastOpened data, nothing to reopen
+                return;
+            }
+        } else {
+            // Sidebar is visible, hide it
+            sidebar.classList.add('right-sidebar-hidden');
+            if (window.innerWidth >= 900) {
+                sidebar.style.removeProperty('width');
+            }
+            window.dispatchEvent(new Event('resize'));
+            return;
+        }
+    }
+
+    // If still no component available, return early
+    if (!component || !title) return;
+
     if (sidebar.classList.contains('right-sidebar-hidden')) {
         if (byQuery(component).opened) byQuery(component).opened();
         titleElement.innerText = title;
@@ -94,6 +125,10 @@ function toggleRightSidebarNew(component, title) {
             comp.style.display = comp.tagName.toLowerCase() === component.toLowerCase() ? '' : 'none';
         });
         sidebar.classList.remove('right-sidebar-hidden');
+
+        // Update rightLastOpened tracker
+        rightLastOpened.component = component;
+        rightLastOpened.title = title;
 
         if (window.innerWidth >= 900) {
             sidebar.style.width = `${rightSidebarWidth}px`;
@@ -115,6 +150,10 @@ function toggleRightSidebarNew(component, title) {
             allComponents.forEach(comp => {
                 comp.style.display = comp.tagName.toLowerCase() === component.toLowerCase() ? '' : 'none';
             });
+
+            // Update rightLastOpened tracker
+            rightLastOpened.component = component;
+            rightLastOpened.title = title;
         }
     }
     window.dispatchEvent(new Event('resize'));
