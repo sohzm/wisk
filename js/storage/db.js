@@ -109,5 +109,179 @@ wisk.db = (function () {
         }
     };
 
+    // Helper function to get MIME type from filename
+    function getMimeTypeFromFilename(filename) {
+        const ext = filename.toLowerCase().split('.').pop();
+        const mimeTypes = {
+            jpg: 'image/jpeg',
+            jpeg: 'image/jpeg',
+            png: 'image/png',
+            gif: 'image/gif',
+            webp: 'image/webp',
+            svg: 'image/svg+xml',
+            bmp: 'image/bmp',
+            ico: 'image/x-icon',
+            tiff: 'image/tiff',
+            tif: 'image/tiff',
+            pdf: 'application/pdf',
+            txt: 'text/plain',
+            json: 'application/json',
+            xml: 'text/xml',
+            html: 'text/html',
+            css: 'text/css',
+            js: 'text/javascript',
+            mp3: 'audio/mpeg',
+            mp4: 'video/mp4',
+            wav: 'audio/wav',
+            ogg: 'audio/ogg',
+            webm: 'video/webm',
+            zip: 'application/zip',
+            rar: 'application/x-rar-compressed',
+            '7z': 'application/x-7z-compressed',
+        };
+        return mimeTypes[ext] || 'application/octet-stream';
+    }
+
+    // Import data from uploaded zip file
+    api.importData = async function (zipFileBuffer) {
+        try {
+            // Unpack the zip file
+            const files = fflate.unzipSync(new Uint8Array(zipFileBuffer));
+
+            // Extract workspace metadata if exists
+            let workspacesToImport = [];
+            if (files['workspaces.json']) {
+                workspacesToImport = JSON.parse(new TextDecoder().decode(files['workspaces.json']));
+            }
+
+            // Check for database name clashes before importing
+            const existingWorkspaces = JSON.parse(localStorage.getItem('workspaces') || '[]');
+            const existingDbNames = new Set();
+
+            // Get existing database names
+            for (const workspace of existingWorkspaces) {
+                const dbName = workspace.name === '' ? 'WiskDatabase' : `WiskDatabase-${workspace.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+                existingDbNames.add(dbName);
+            }
+
+            // Check for clashes with workspaces to import
+            const clashingWorkspaces = [];
+            for (const workspace of workspacesToImport) {
+                const dbName = workspace.name === '' ? 'WiskDatabase' : `WiskDatabase-${workspace.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+                if (existingDbNames.has(dbName)) {
+                    clashingWorkspaces.push(workspace.name || 'Default');
+                }
+            }
+
+            // Reject import if there are clashes
+            if (clashingWorkspaces.length > 0) {
+                throw new Error(
+                    `Workspace names clash with existing workspaces: ${clashingWorkspaces.join(', ')}. Please rename these workspaces in the export file or remove existing ones.`
+                );
+            }
+
+            // No clashes, proceed with import
+            if (files['workspaces.json']) {
+                // Merge with existing workspaces
+                const updatedWorkspaces = [...existingWorkspaces, ...workspacesToImport];
+                localStorage.setItem('workspaces', JSON.stringify(updatedWorkspaces));
+                console.log(`Imported ${workspacesToImport.length} new workspaces`);
+            }
+
+            // First pass: collect asset metadata for each workspace
+            const workspaceAssetMetadata = {};
+            for (const fileName in files) {
+                if (fileName === 'workspaces.json') continue;
+
+                const parts = fileName.split('/');
+                if (parts.length === 2 && parts[1] === 'assets.json') {
+                    const workspaceName = parts[0];
+                    const metadata = JSON.parse(new TextDecoder().decode(files[fileName]));
+                    workspaceAssetMetadata[workspaceName] = metadata;
+                    console.log(`Found asset metadata for workspace "${workspaceName}":`, metadata);
+                }
+            }
+
+            // Process each workspace folder
+            for (const fileName in files) {
+                if (fileName === 'workspaces.json') continue;
+
+                const parts = fileName.split('/');
+                if (parts.length < 2) continue;
+
+                const workspaceName = parts[0];
+                const fileInWorkspace = parts[1];
+
+                // Skip asset metadata files as they're processed above
+                if (fileInWorkspace === 'assets.json') continue;
+
+                // Create database name for this workspace
+                const workspaceDbName =
+                    workspaceName === '' ? 'WiskDatabase' : `WiskDatabase-${workspaceName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+
+                // Open the workspace database
+                const workspaceDb = await new Promise((resolve, reject) => {
+                    const req = indexedDB.open(workspaceDbName, dbVersion);
+                    req.onerror = e => reject(e.target.error);
+                    req.onsuccess = e => resolve(e.target.result);
+                    req.onupgradeneeded = e => {
+                        const db = e.target.result;
+                        stores.forEach(storeName => {
+                            if (!db.objectStoreNames.contains(storeName)) {
+                                db.createObjectStore(storeName);
+                            }
+                        });
+                    };
+                });
+
+                if (parts.length === 2) {
+                    // This is a JSON store file
+                    if (fileInWorkspace.endsWith('.json')) {
+                        const storeName = fileInWorkspace.replace('.json', '');
+                        if (stores.includes(storeName)) {
+                            const data = JSON.parse(new TextDecoder().decode(files[fileName]));
+
+                            // Import all data for this store
+                            const tx = workspaceDb.transaction(storeName, 'readwrite');
+                            const store = tx.objectStore(storeName);
+
+                            for (const [key, value] of Object.entries(data)) {
+                                store.put(value, key);
+                            }
+                        }
+                    }
+                } else if (parts.length === 3 && parts[1] === 'assets') {
+                    // This is an asset file
+                    const assetKey = parts[2];
+                    const assetData = files[fileName];
+
+                    // Get MIME type from metadata if available, otherwise fallback
+                    let mimeType = 'application/octet-stream';
+                    const metadata = workspaceAssetMetadata[workspaceName];
+                    if (metadata && metadata[assetKey] && metadata[assetKey].mimeType) {
+                        mimeType = metadata[assetKey].mimeType;
+                        console.log(`Using metadata MIME type for ${assetKey}: ${mimeType}`);
+                    } else {
+                        mimeType = getMimeTypeFromFilename(assetKey);
+                        console.log(`Using filename-based MIME type for ${assetKey}: ${mimeType}`);
+                    }
+
+                    // Convert Uint8Array back to Blob with proper MIME type
+                    const blob = new Blob([assetData], { type: mimeType });
+
+                    // Import to WiskAssetStore
+                    const tx = workspaceDb.transaction('WiskAssetStore', 'readwrite');
+                    const store = tx.objectStore('WiskAssetStore');
+                    store.put(blob, assetKey);
+                }
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Import failed:', error);
+            throw error;
+        }
+    };
+
     return api;
 })();

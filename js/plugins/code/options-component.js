@@ -268,6 +268,7 @@ class OptionsComponent extends LitElement {
             color: var(--bg-red);
             font-weight: 600;
             padding: var(--padding-w2);
+            border: 2px solid var(--fg-red);
         }
         .btn-danger:hover {
             background-color: var(--bg-red);
@@ -653,7 +654,7 @@ class OptionsComponent extends LitElement {
         } else if (this.currentView === 'plugin-details') {
             this.currentView = 'plugins';
             return true;
-        } else if (['developer', 'account', 'about', 'changelog'].includes(this.currentView)) {
+        } else if (['developer', 'account', 'about', 'changelog', 'data-controls'].includes(this.currentView)) {
             this.showSettingsView();
             return true;
         } else {
@@ -910,6 +911,10 @@ class OptionsComponent extends LitElement {
         this.currentView = 'developer';
     }
 
+    showDataControlsView() {
+        this.currentView = 'data-controls';
+    }
+
     async showChangelogView() {
         this.currentView = 'changelog';
     }
@@ -1045,6 +1050,225 @@ class OptionsComponent extends LitElement {
             wisk.utils.showToast('Snapshot created successfully', 3000);
             this.refreshSnapshots();
         });
+    }
+
+    async exportWorkspaces() {
+        try {
+            wisk.utils.showToast('Exporting workspaces...', 3000);
+
+            // Get workspaces from localStorage
+            const workspacesStr = localStorage.getItem('workspaces');
+            const originalWorkspaces = workspacesStr ? JSON.parse(workspacesStr) : [{ name: '', emoji: '🍎' }];
+
+            const filesToZip = {};
+
+            // Create modified workspaces with generated names for export
+            const workspacesForExport = originalWorkspaces.map(workspace => {
+                if (!workspace.name || workspace.name === '') {
+                    const randomChars = Math.random().toString(36).substring(2, 6).toUpperCase();
+                    const generatedName = `Default-${randomChars}`;
+                    console.log(`Generated name for default workspace: ${generatedName}`);
+                    return { ...workspace, name: generatedName };
+                }
+                return workspace;
+            });
+
+            // Add workspace metadata with updated names
+            filesToZip['workspaces.json'] = new TextEncoder().encode(JSON.stringify(workspacesForExport, null, 2));
+
+            // Export each workspace using the updated names
+            for (let i = 0; i < originalWorkspaces.length; i++) {
+                const originalWorkspace = originalWorkspaces[i];
+                const exportWorkspace = workspacesForExport[i];
+
+                const workspaceName = exportWorkspace.name;
+                const workspaceFolder = workspaceName;
+
+                // Create database name for this workspace (using original name since that's what exists)
+                const originalWorkspaceName = originalWorkspace.name;
+                const dbName =
+                    originalWorkspaceName === ''
+                        ? 'WiskDatabase'
+                        : `WiskDatabase-${originalWorkspaceName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+
+                try {
+                    // Open the workspace database
+                    const db = await new Promise((resolve, reject) => {
+                        const req = indexedDB.open(dbName);
+                        req.onerror = e => reject(e.target.error);
+                        req.onsuccess = e => resolve(e.target.result);
+                    });
+
+                    // Export each store
+                    const stores = ['WiskStore', 'WiskAssetStore', 'WiskPluginStore', 'WiskDatabaseStore', 'WiskSnapshots'];
+
+                    for (const storeName of stores) {
+                        if (!db.objectStoreNames.contains(storeName)) continue;
+
+                        const tx = db.transaction(storeName, 'readonly');
+                        const store = tx.objectStore(storeName);
+
+                        if (storeName === 'WiskAssetStore') {
+                            // Export assets as files
+                            // First, collect all data from the transaction synchronously
+                            const assetData = {};
+                            const keys = await new Promise((resolve, reject) => {
+                                const req = store.getAllKeys();
+                                req.onsuccess = () => resolve(req.result);
+                                req.onerror = () => reject(req.error);
+                            });
+
+                            console.log(`Found ${keys.length} assets to export:`, keys);
+
+                            // Collect all data synchronously within the transaction
+                            for (const key of keys) {
+                                const data = await new Promise((resolve, reject) => {
+                                    const req = store.get(key);
+                                    req.onsuccess = () => resolve(req.result);
+                                    req.onerror = () => reject(req.error);
+                                });
+
+                                if (data) {
+                                    assetData[key] = data;
+                                    console.log(`Collected asset ${key}:`, typeof data, data instanceof Blob, data instanceof ArrayBuffer);
+                                }
+                            }
+
+                            // Create metadata for MIME types
+                            const assetMetadata = {};
+
+                            // Now process all collected data asynchronously (outside transaction)
+                            for (const [key, data] of Object.entries(assetData)) {
+                                try {
+                                    let binaryData = null;
+                                    let mimeType = 'application/octet-stream'; // default
+
+                                    if (data instanceof Blob) {
+                                        // Direct Blob object - preserve original MIME type
+                                        mimeType = data.type || 'application/octet-stream';
+                                        const arrayBuffer = await data.arrayBuffer();
+                                        binaryData = new Uint8Array(arrayBuffer);
+                                        console.log(`Converted Blob to binary: ${key} (${binaryData.length} bytes, ${mimeType})`);
+                                    } else if (data instanceof ArrayBuffer) {
+                                        // Direct ArrayBuffer
+                                        binaryData = new Uint8Array(data);
+                                        console.log(`Used ArrayBuffer directly: ${key} (${binaryData.length} bytes)`);
+                                    } else if (typeof data === 'string') {
+                                        // String - could be blob URL or data URL
+                                        console.log(`Fetching string data for ${key}: ${data.substring(0, 50)}...`);
+                                        const response = await fetch(data);
+                                        if (response.ok) {
+                                            mimeType = response.headers.get('content-type') || 'application/octet-stream';
+                                            const arrayBuffer = await response.arrayBuffer();
+                                            binaryData = new Uint8Array(arrayBuffer);
+                                            console.log(`Fetched string data: ${key} (${binaryData.length} bytes, ${mimeType})`);
+                                        } else {
+                                            console.error(`Failed to fetch asset ${key}: ${response.status}`);
+                                            continue;
+                                        }
+                                    } else {
+                                        console.error(`Unknown data type for asset ${key}:`, typeof data);
+                                        continue;
+                                    }
+
+                                    if (binaryData && binaryData.length > 0) {
+                                        const assetPath = `${workspaceFolder}/assets/${key}`;
+                                        filesToZip[assetPath] = binaryData;
+                                        assetMetadata[key] = { mimeType, size: binaryData.length };
+                                        console.log(`✓ Successfully exported asset: ${key} (${binaryData.length} bytes, ${mimeType})`);
+                                    } else {
+                                        console.warn(`Asset ${key} has no binary data`);
+                                    }
+                                } catch (fetchError) {
+                                    console.error(`Error processing asset ${key}:`, fetchError);
+                                }
+                            }
+
+                            // Add asset metadata file if we have assets
+                            if (Object.keys(assetMetadata).length > 0) {
+                                const metadataPath = `${workspaceFolder}/assets.json`;
+                                filesToZip[metadataPath] = new TextEncoder().encode(JSON.stringify(assetMetadata, null, 2));
+                                console.log(`Added asset metadata for ${Object.keys(assetMetadata).length} assets`);
+                            }
+                        } else {
+                            // Export other stores as JSON
+                            const allData = {};
+                            const keys = await new Promise((resolve, reject) => {
+                                const req = store.getAllKeys();
+                                req.onsuccess = () => resolve(req.result);
+                                req.onerror = () => reject(req.error);
+                            });
+
+                            for (const key of keys) {
+                                const data = await new Promise((resolve, reject) => {
+                                    const req = store.get(key);
+                                    req.onsuccess = () => resolve(req.result);
+                                    req.onerror = () => reject(req.error);
+                                });
+
+                                if (data !== undefined) {
+                                    allData[key] = data;
+                                }
+                            }
+
+                            if (Object.keys(allData).length > 0) {
+                                const jsonPath = `${workspaceFolder}/${storeName}.json`;
+                                filesToZip[jsonPath] = new TextEncoder().encode(JSON.stringify(allData, null, 2));
+                            }
+                        }
+                    }
+
+                    db.close();
+                } catch (dbError) {
+                    console.warn(`Failed to export workspace "${workspaceName}":`, dbError);
+                    // Continue with other workspaces
+                }
+            }
+
+            // Create the zip file
+            const zipBuffer = fflate.zipSync(filesToZip);
+
+            // Download the file
+            const blob = new Blob([zipBuffer], { type: 'application/zip' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `wisk-workspaces-${new Date().toISOString().split('T')[0]}.wisk`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            wisk.utils.showToast('Workspaces exported successfully', 3000);
+        } catch (error) {
+            console.error('Export failed:', error);
+            wisk.utils.showToast('Export failed: ' + error.message, 5000);
+        }
+    }
+
+    async handleImportFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            wisk.utils.showToast('Importing workspaces...', 3000);
+
+            const arrayBuffer = await file.arrayBuffer();
+            await wisk.db.importData(arrayBuffer);
+
+            wisk.utils.showToast('Workspaces imported successfully! Reloading page...', 3000);
+
+            // Reload page to refresh with new data
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } catch (error) {
+            console.error('Import failed:', error);
+            wisk.utils.showToast('Import failed: ' + error.message, 5000);
+        }
+
+        // Reset file input
+        event.target.value = '';
     }
 
     render() {
@@ -1398,29 +1622,6 @@ class OptionsComponent extends LitElement {
                     </div>
 
                     <div style="flex: 1; display: ${localStorage.getItem('devMode') === 'true' ? 'block' : 'none'}">
-
-                        <div class="menu-item-static content-section" style="border-bottom: none;">
-                            <div class="usage-bar" style="width: 100%; background-color: var(--bg-2); border-radius: var(--radius); height: 10px; position: relative; overflow: hidden;" title="remaining storage">
-                                <div class="usage-bar-fill" style="width: ${(this.storageStats.totalMB / (this.storageStats.quotaGB * 1000)) * 100}%; background-color: var(--fg-red); height: 100%;" title="used storage"></div>
-                            </div>
-
-                        </div>
-
-                        <div class="menu-item-static content-section">
-                            <label>Storage Stats</label>
-                            <p style="font-size: 14px; color: var(--fg-2);">used ${this.storageStats.totalMB} MB</p>
-                        </div>
-
-                        <div class="menu-item-static content-section">
-                            <label>Storage Quota (maximum allowed storage to wisk)</label>
-                            <p style="font-size: 14px; color: var(--fg-2);">${this.storageStats.quotaGB} GB</p>
-                        </div>
-
-                        <div class="menu-item-static content-section">
-                            <label>Clear all local data</label>
-                            <button class="btn btn-developer" @click="${() => this.clearAllData()}">Clear</button>
-                        </div>
-
                         <div class="menu-item-static content-section">
                             <label>Clear all service worker cache (for pwa)</label>
                             <button class="btn btn-developer" @click="${() => window.clearWiskPWA()}">Clear</button>
@@ -1561,6 +1762,11 @@ class OptionsComponent extends LitElement {
                         <img src="/a7/iconoir/right.svg" alt="Account" class="icon" draggable="false"/>
                     </div>
 
+                    <div class="menu-item" @click="${this.showDataControlsView}">
+                        <label> <img src="/a7/plugins/options-element/data-controls.svg" alt="Data Controls" class="icon" draggable="false"/> Data Controls</label>
+                        <img src="/a7/iconoir/right.svg" alt="Data Controls" class="icon" draggable="false"/>
+                    </div>
+
                     <div class="menu-item" @click="${this.showAboutView}">
                         <label> <img src="/a7/plugins/options-element/about.svg" alt="Plugins" class="icon" draggable="false"/> About</label>
                         <img src="/a7/iconoir/right.svg" alt="About" class="icon" draggable="false"/>
@@ -1574,6 +1780,53 @@ class OptionsComponent extends LitElement {
                     <div class="menu-item" @click="${this.showDeveloperView}">
                         <label> <img src="/a7/plugins/options-element/developer.svg" alt="Plugins" class="icon" draggable="false"/> Developer Options</label>
                         <img src="/a7/iconoir/right.svg" alt="Developer" class="icon" draggable="false"/>
+                    </div>
+                </div>
+
+                <!-- Data Controls View -->
+                <div class="view ${this.currentView === 'data-controls' ? 'active' : ''}">
+                    <div class="header">
+                        <div class="header-wrapper">
+                            <div class="header-controls">
+                                <img src="/a7/forget/dialog-back.svg" alt="Back" @click="${this.showSettingsView}" class="icon" draggable="false"/>
+                                <img src="/a7/forget/dialog-x.svg" alt="Close" @click="${() => {
+                                    wisk.editor.hideMiniDialog();
+                                }}" class="icon" draggable="false" style="padding: var(--padding-3);"/>
+                            </div>
+                            <label class="header-title">Data Controls</label>
+                        </div>
+                    </div>
+
+                    <div class="menu-item-static content-section" style="border-bottom: none;">
+                        <div class="usage-bar" style="width: 100%; background-color: var(--bg-2); border-radius: var(--radius); height: 10px; position: relative; overflow: hidden;" title="remaining storage">
+                            <div class="usage-bar-fill" style="width: ${(this.storageStats.totalMB / (this.storageStats.quotaGB * 1000)) * 100}%; background-color: var(--fg-red); height: 100%;" title="used storage"></div>
+                        </div>
+                    </div>
+
+                    <div class="menu-item-static content-section">
+                        <label>Storage Stats</label>
+                        <p style="font-size: 14px; color: var(--fg-2);">used ${this.storageStats.totalMB} MB</p>
+                    </div>
+
+                    <div class="menu-item-static content-section">
+                        <label>Storage Quota (maximum allowed storage to wisk)</label>
+                        <p style="font-size: 14px; color: var(--fg-2);">${this.storageStats.quotaGB} GB</p>
+                    </div>
+
+                    <div class="menu-item-static content-section">
+                        <label>Export Workspaces</label>
+                        <button class="btn btn-primary" @click="${() => this.exportWorkspaces()}">Export</button>
+                    </div>
+
+                    <div class="menu-item-static content-section">
+                        <label>Import Workspaces</label>
+                        <input type="file" accept=".zip,.wisk" style="display: none;" id="import-file-input" @change="${this.handleImportFile}">
+                        <button class="btn btn-secondary" @click="${() => this.shadowRoot.querySelector('#import-file-input').click()}">Import</button>
+                    </div>
+
+                    <div class="menu-item-static content-section">
+                        <label>Clear all local data</label>
+                        <button class="btn btn-danger" @click="${() => this.clearAllData()}">Clear</button>
                     </div>
                 </div>
 

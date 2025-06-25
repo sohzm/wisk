@@ -687,6 +687,8 @@ wisk.editor.showSelector = function (elementId, focusIdentifier) {
 };
 
 wisk.editor.deleteBlock = function (elementId, rec) {
+    if (elementId === 'abcdxyz') return;
+
     if (elementId.includes('-')) {
         eid = elementId.split('-')[0];
         document.getElementById(eid).editor.deleteBlock(elementId, rec);

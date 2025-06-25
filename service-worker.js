@@ -545,6 +545,8 @@ const CORE_ASSETS = [
     'https://jalebi.soham.sh/src/jalebi-datetimepicker.js',
     'https://jalebi.soham.sh/src/jalebi-checkbox.js',
     'https://jalebi.soham.sh/src/jalebi-input.js',
+    '/a7/cdn/fflate-0.8.2.min.js',
+    '/a7/plugins/options-element/data-controls.svg',
 ];
 
 // Install event - don't wait for caching to complete

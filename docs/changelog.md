@@ -1,5 +1,6 @@
 - Jun 25
     - added workspaces
+    - added ways to import/export all your data
 
 - May 24
     - database works decently well now, maybe a day or two more
