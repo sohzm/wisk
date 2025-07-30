@@ -50,6 +50,14 @@ class ToolbarElement extends LitElement {
             }
         }
 
+        @media (max-width: 500px) {
+            .toolbar{
+                position: fixed;
+                width: 60vw;
+                height: 400px;
+            }
+        }
+
         .toolbar.visible {
             display: flex;
         }
