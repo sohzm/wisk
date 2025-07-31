@@ -1,9 +1,13 @@
 // db.js
 wisk.db = (function () {
-    const dbName = (() => {
+    const currentDB = (() => {
         const name = localStorage.getItem('currentWorkspace');
         return name ? `WiskDatabase-${name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}` : 'WiskDatabase';
     })();
+    const Workspaces = localStorage.getItem('workspaces') || '[]';
+    const dbNames = JSON.parse(Workspaces).map(w => {
+        return w.name === '' ? 'WiskDatabase' : `WiskDatabase-${w.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+    });
     const dbVersion = 5;
     const stores = ['WiskStore', 'WiskAssetStore', 'WiskPluginStore', 'WiskDatabaseStore', 'WiskSnapshots'];
     const functionNames = {
@@ -14,15 +18,18 @@ wisk.db = (function () {
         WiskSnapshots: { get: 'getSnapshot', set: 'setSnapshot', remove: 'removeSnapshot', getAll: 'getAllSnapshots' },
     };
 
-    let db;
+    // Ensure 'WiskDatabase' is always present
+    if(!dbNames.includes('WiskDatabase')) {
+        dbNames.unshift('WiskDatabase');
+    }
 
-    function openDB() {
+    function openDB(dbName) {
         return new Promise((res, rej) => {
             const req = indexedDB.open(dbName, dbVersion);
             req.onerror = e => rej(e.target.error);
-            req.onsuccess = e => ((db = e.target.result), res(db));
+            req.onsuccess = e => res(e.target.result);
             req.onupgradeneeded = e => {
-                db = e.target.result;
+                const db = e.target.result;
                 stores.forEach(name => {
                     if (!db.objectStoreNames.contains(name)) {
                         db.createObjectStore(name);
@@ -35,7 +42,7 @@ wisk.db = (function () {
     // generic factory
     function makeMethod(storeName, op) {
         return function (key, value) {
-            return openDB().then(db => {
+            return openDB(currentDB).then(db => {
                 const mode = op === 'set' || op === 'remove' ? 'readwrite' : 'readonly';
                 const tx = db.transaction(storeName, mode);
                 const st = tx.objectStore(storeName);
@@ -75,13 +82,15 @@ wisk.db = (function () {
     });
 
     api.clearAllData = async function () {
-        const db = await openDB();
-        const tx = db.transaction(stores, 'readwrite');
-        stores.forEach(name => tx.objectStore(name).clear());
-        return new Promise((res, rej) => {
-            tx.oncomplete = () => res();
-            tx.onerror = () => rej(tx.error);
-        });
+        for(const dbName of dbNames) {
+            const db = await openDB(dbName);
+            const tx = db.transaction(stores, 'readwrite');
+            stores.forEach(name => tx.objectStore(name).clear());
+            await new Promise((res, rej) => {
+                tx.oncomplete = () => res();
+                tx.onerror = () => rej(tx.error);
+            });
+        }
     };
 
     api.getStorageStats = async function () {
