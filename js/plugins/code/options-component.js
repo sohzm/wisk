@@ -554,6 +554,109 @@ class OptionsComponent extends LitElement {
         img[src*='/a7/forget/dialog-x.svg'] {
             width: unset;
         }
+
+        .markdown-plugin-description {
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .markdown-plugin-description h1,
+        .markdown-plugin-description h2,
+        .markdown-plugin-description h3,
+        .markdown-plugin-description h4 {
+            margin: 15px 0 10px 0;
+            color: var(--fg-1);
+        }
+
+        .markdown-plugin-description h1 { font-size: 1.5em; font-weight: bold; }
+        .markdown-plugin-description h2 { font-size: 1.3em; font-weight: bold; }
+        .markdown-plugin-description h3 { font-size: 1.1em; font-weight: bold; }
+
+        .markdown-plugin-description p {
+            margin: 10px 0;
+        }
+
+        .markdown-plugin-description ul,
+        .markdown-plugin-description ol {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+
+        .markdown-plugin-description li {
+            margin: 5px 0;
+        }
+
+        .markdown-plugin-description blockquote {
+            border-left: 3px solid var(--fg-1);
+            margin: 15px 0;
+            padding-left: 15px;
+            color: var(--fg-1);
+        }
+
+        .markdown-plugin-description code {
+            background-color: var(--bg-3);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .markdown-plugin-description pre {
+            background-color: var(--bg-3);
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .markdown-plugin-description pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .markdown-plugin-description table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .markdown-plugin-description th,
+        .markdown-plugin-description td {
+            border: 1px solid var(--bg-3);
+            padding: 8px;
+            text-align: left;
+        }
+
+        .markdown-plugin-description th {
+            background-color: var(--bg-2);
+            font-weight: bold;
+        }
+
+        .markdown-plugin-description img {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+            filter: none !important;
+        }
+
+        .markdown-plugin-description hr {
+            border: none;
+            border-top: 1px solid var(--bg-3);
+            margin: 20px 0;
+        }
+
+        .markdown-plugin-description a {
+            color: var(--fg-blue);
+            text-decoration: none;
+        }
+
+        .markdown-plugin-description a:hover {
+            text-decoration: underline;
+        }
+
+        .markdown-plugin-description li::marker {
+            color: var(--fg-1);
+        }
+
     `;
 
     static properties = {
@@ -1271,6 +1374,17 @@ class OptionsComponent extends LitElement {
         event.target.value = '';
     }
 
+    mdtoText(md) {
+        const html = marked.parse(md);
+        const newDiv = document.createElement('div');
+        newDiv.innerHTML = html;
+
+        // get the first paragraph of the plugin description
+        const para = newDiv.querySelector('p');
+
+        return para ? para.textContent.trim() : "";
+    }
+
     render() {
         var filteredPlugins = this.plugins.filter(
             plugin =>
@@ -1283,12 +1397,6 @@ class OptionsComponent extends LitElement {
 
         // if plugin.hide is true, don't show it
         filteredPlugins = filteredPlugins.filter(plugin => !plugin.hide);
-
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        var parts = [];
-        if (this.currentView === 'plugin-details') {
-            parts = this.selectedPlugin.description.split(urlRegex);
-        }
 
         return html`
             <div class="container" data-view="${this.currentView}">
@@ -1405,7 +1513,7 @@ class OptionsComponent extends LitElement {
                                         />
                                         <div class="card-info">
                                             <span class="card-title">${plugin.title}</span>
-                                            <span class="card-description">${plugin.description}</span>
+                                            <span class="card-description">${this.mdtoText(plugin.description)}</span>
                                         </div>
                                     </div>
                                 `
@@ -1575,17 +1683,12 @@ class OptionsComponent extends LitElement {
                                               tag => html`<span class="tag tag-blue" @click="${() => this.tagClicked(tag)}">#${tag}</span>`
                                           )}
                                       </div>
+                                    <div class="detail-section">
+                                        <div class="markdown-plugin-description" 
+                                            .innerHTML=${marked.parse(this.selectedPlugin.description)}>
+                                        </div>
+                                    </div>
 
-                                      <p>
-                                          ${parts.map((part, index) => {
-                                              if (part.match(urlRegex)) {
-                                                  return html`<a href="${part}" class="link-blue" target="_blank"
-                                                      >${part.replace(/(^\w+:|^)\/\//, '')}</a
-                                                  >`;
-                                              }
-                                              return part;
-                                          })}
-                                      </p>
                                   </div>
                               `
                             : ''
