@@ -369,7 +369,7 @@ nav {
         padding: var(--padding-w1);
         gap: var(--gap-2);
         border-radius: 30px;
-        background: var(--bg-3);
+        /* background: var(--bg-3); */
         border: none;
         width: fit-content;
     }
