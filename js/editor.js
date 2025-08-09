@@ -18,10 +18,10 @@ const createHoverImageContainer = elementId => {
     imageContainer.classList.add('hover-images');
 
     const addButton = createHoverButton('/a7/forget/plus-hover.svg', () => whenPlusClicked(elementId));
-    const deleteButton = createHoverButton('/a7/forget/trash-hover.svg', () => whenTrashClicked(elementId));
+    const selectButton = createHoverButton('/a7/forget/dots-grid3x3.svg', () => whenSelectClicked(elementId));
 
     imageContainer.appendChild(addButton);
-    imageContainer.appendChild(deleteButton);
+    imageContainer.appendChild(selectButton);
 
     return imageContainer;
 };
@@ -1020,6 +1020,199 @@ function handleEditorClick(event) {
         wisk.editor.createNewBlock(lastElement.id, 'text-element', { textContent: '' }, { x: 0 });
     }
 }
+
+function createMenuItem(label, onClick, itemClass = '', icon = null) {
+    const item = document.createElement('div');
+    item.className = `context-menuItem ${itemClass}`;
+
+    if (icon) {
+        const iconElement = document.createElement('span');
+        iconElement.className = 'cm-icon mask';
+        iconElement.style.setProperty('--icon-url', `url(${icon})`)
+        item.appendChild(iconElement);
+    }
+
+    const labelElement = document.createElement('span');
+    labelElement.className = 'cm-label'
+    labelElement.textContent = label;
+    item.appendChild(labelElement);
+
+    item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onClick();
+        const existingMenu = document.querySelector('.context-menu');
+        if (existingMenu) {
+            existingMenu.remove();
+        }
+    });
+
+    return item;
+}
+
+function duplicateItem(elementId) {
+    if (wisk?.editor?.duplicateMenu) {
+        wisk.editor.duplicateMenu(elementId);
+    } else {
+        const el = wisk.editor.getElement(elementId);
+        if (!el) return;
+        const valueClone = JSON.parse(JSON.stringify(el.value || {}));
+        wisk.editor.createNewBlock(elementId, el.component, valueClone, { x: 0 });
+    }
+};
+
+async function deleteItem(elementId) {
+    const inst = document.getElementById(elementId);
+    if (inst && inst.aboutToBeOoomfed) {
+        try { await inst.aboutToBeOoomfed(); } catch { }
+    }
+    wisk.editor.deleteBlock(elementId);
+};
+
+async function downloadItem(elementId) {
+    console.log('DOWNLOAD CLICKED', elementId);
+    const url = document.getElementById(elementId).getValue().imageUrl;
+    if (url) {
+        try {
+            wisk.utils.showToast('Downloading image...', 3000);
+
+            // Get the blob from IndexedDB
+            const blob = await wisk.db.getAsset(url);
+            if (!blob) {
+                throw new Error('Image not found in storage');
+            }
+
+            const blobUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+
+            // Create a filename from the stored key
+            const filename = url;
+            a.download = filename;
+
+            document.body.appendChild(a);
+            a.click();
+
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            console.error('Error downloading image:', error);
+            wisk.utils.showToast('Failed to download image', 3000);
+        }
+    } else {
+        wisk.utils.showToast('No image found', 3000);
+    }
+}
+
+function whenSelectClicked(elementId) {
+    console.log('SELECT CLICKED', elementId);
+
+    if (elementId.includes('-')) {
+        const eid = elementId.split('-')[0];
+        const rt = document.getElementById(eid);
+        if (rt && rt.editor && typeof rt.editor.whenSelectClicked === 'function') {
+            rt.editor.whenSelectClicked(elementId);
+            return;
+        }
+    }
+
+    const blockDiv = document.getElementById(`div-${elementId}`);
+    const element = document.getElementById(elementId);
+    if (!blockDiv || !element) return;
+
+    // Close any existing menu
+    const existingMenu = document.querySelector('.context-menu');
+    if (existingMenu) existingMenu.remove();
+
+    // Build menu
+    const contextMenu = document.createElement('div');
+    contextMenu.classList.add('context-menu');
+
+    // Mandatory items
+    contextMenu.appendChild(createMenuItem('Duplicate', () => menuActions.duplicateItem(elementId), 'duplicate', '/a7/forget/duplicate.svg'));
+    contextMenu.appendChild(createMenuItem('Delete', () => menuActions.deleteItem(elementId), 'delete', '/a7/forget/cm_trash.svg'));
+
+    // Plugin-specific items
+    const elType = element.tagName.toLowerCase();
+    const elActions = wisk.plugins.getPluginDetail(elType)['context-menu-options'];
+    if (Array.isArray(elActions)) {
+        for (const action of elActions) {
+            contextMenu.appendChild(createMenuItem(action.label, () => menuActions[action.action](elementId), '', action.icon || ''));
+        }
+    }
+
+    document.body.appendChild(contextMenu);
+
+    // positioning
+    const hover = blockDiv.querySelector('.hover-images') || blockDiv;
+    const selectIcon = hover.querySelector('img[src$="dots-grid3x3.svg"]') || hover;
+    const rect = selectIcon.getBoundingClientRect();
+
+    contextMenu.style.position = 'fixed';
+    contextMenu.style.visibility = 'hidden';
+    contextMenu.style.top = '0px';
+    contextMenu.style.left = '0px';
+
+    requestAnimationFrame(() => {
+        const GAP = 10;
+        const MARGIN = 8;
+
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        const { top: t, bottom: b, left: l, right: r } = rect;
+        const triggerMidY = (t + b) / 2;
+
+        const { width: mw, height: mh } = contextMenu.getBoundingClientRect();
+
+        let left = l - GAP - mw;
+        let top = triggerMidY - mh / 2;
+
+        if (left < MARGIN) {
+            left = r + GAP;
+            contextMenu.style.transformOrigin = 'center left';
+        } else {
+            contextMenu.style.transformOrigin = 'center right';
+        }
+
+        top = Math.max(MARGIN, Math.min(top, vh - MARGIN - mh));
+
+        left = Math.max(MARGIN, Math.min(left, vw - MARGIN - mw));
+
+        contextMenu.style.top = `${top}px`;
+        contextMenu.style.left = `${left}px`;
+        contextMenu.style.visibility = 'visible';
+    });
+
+
+    const scrollerEl = document.querySelector('.editor')
+
+    function cleanup() {
+        if (contextMenu && contextMenu.parentNode) contextMenu.remove();
+        if (scrollerEl && scrollerEl.removeEventListener) {
+            scrollerEl.removeEventListener('scroll', onScroll);
+        }
+        window.removeEventListener('click', onClickOutside, true);
+    }
+
+    function onScroll() {
+        cleanup();
+    }
+
+    function onClickOutside(e) {
+        if (!contextMenu.contains(e.target) && !hover.contains(e.target)) {
+            cleanup();
+        }
+    }
+
+    scrollerEl.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('click', onClickOutside, true);
+}
+
+const menuActions = {
+    downloadItem: (elementId) => downloadItem(elementId),
+    duplicateItem: (elementId) => duplicateItem(elementId),
+    deleteItem: (elementId) => deleteItem(elementId),
+};
 
 wisk.editor.justUpdates = async function (elementId) {
     console.log('JUST UPDATES', elementId);

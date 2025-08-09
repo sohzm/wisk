@@ -407,7 +407,14 @@
                     "nav": false,
                     "textual": true,
                     "loadAsModule": false,
-                    "width": "mini"
+                    "width": "mini",
+                    "context-menu-options": [
+                        {
+                            "label": "Download",
+                            "action": "downloadItem",
+                            "icon": "/a7/forget/download.svg"
+                        }
+                    ]
                 }
             ]
         },

@@ -449,3 +449,87 @@ nav {
         bottom: 2%;
     }
 }
+
+.context-menu {
+  position: absolute;
+  width: 200px;
+  background: var(--surface, #000);
+  color: var(--text, #fff);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  padding: 4px;
+  z-index: 1000;
+  transform-origin: top right;
+  animation: contextMenuPop 120ms cubic-bezier(0.2, 0.9, 0.35, 1) forwards;
+}
+
+@keyframes contextMenuPop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.context-menuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    transform 120ms ease;
+}
+
+.context-menuItem,
+.context-menu {
+  font-size: 12.5px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.context-menuItem:hover,
+.context-menuItem:focus {
+  background: rgba(255,255,255,0.08);
+}
+
+.context-menuItem:active {
+  transform: translateY(0.5px);
+}
+
+.context-menuItem.delete:hover {
+  color: #EB5757;
+}
+
+.context-menuItem > .cm-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+}
+
+.context-menuItem > .cm-icon img,
+.context-menuItem > .cm-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.cm-icon.mask {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  background-color: currentColor;
+  mask: var(--icon-url) no-repeat center / contain;
+}
