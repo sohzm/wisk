@@ -1027,8 +1027,11 @@ function createMenuItem(label, onClick, itemClass = '', icon = null) {
 
     if (icon) {
         const iconElement = document.createElement('span');
-        iconElement.className = 'cm-icon mask';
-        iconElement.style.setProperty('--icon-url', `url(${icon})`)
+        iconElement.className = 'cm-icon';
+        iconImage = document.createElement('img');
+        iconImage.src = icon;
+        iconElement.appendChild(iconImage);
+        item.appendChild(iconElement);
         item.appendChild(iconElement);
     }
 
@@ -1068,41 +1071,6 @@ async function deleteItem(elementId) {
     wisk.editor.deleteBlock(elementId);
 };
 
-async function downloadItem(elementId) {
-    console.log('DOWNLOAD CLICKED', elementId);
-    const url = document.getElementById(elementId).getValue().imageUrl;
-    if (url) {
-        try {
-            wisk.utils.showToast('Downloading image...', 3000);
-
-            // Get the blob from IndexedDB
-            const blob = await wisk.db.getAsset(url);
-            if (!blob) {
-                throw new Error('Image not found in storage');
-            }
-
-            const blobUrl = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = blobUrl;
-
-            // Create a filename from the stored key
-            const filename = url;
-            a.download = filename;
-
-            document.body.appendChild(a);
-            a.click();
-
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(blobUrl);
-        } catch (error) {
-            console.error('Error downloading image:', error);
-            wisk.utils.showToast('Failed to download image', 3000);
-        }
-    } else {
-        wisk.utils.showToast('No image found', 3000);
-    }
-}
-
 function whenSelectClicked(elementId) {
     console.log('SELECT CLICKED', elementId);
 
@@ -1128,15 +1096,21 @@ function whenSelectClicked(elementId) {
     contextMenu.classList.add('context-menu');
 
     // Mandatory items
-    contextMenu.appendChild(createMenuItem('Duplicate', () => menuActions.duplicateItem(elementId), 'duplicate', '/a7/forget/duplicate.svg'));
-    contextMenu.appendChild(createMenuItem('Delete', () => menuActions.deleteItem(elementId), 'delete', '/a7/forget/cm_trash.svg'));
+    contextMenu.appendChild(createMenuItem('Duplicate', () => menuActions.duplicateItem(elementId), 'duplicate', '/a7/iconoir/copy.svg'));
+    contextMenu.appendChild(createMenuItem('Delete', () => menuActions.deleteItem(elementId), 'delete', '/a7/forget/trash.svg'));
 
     // Plugin-specific items
     const elType = element.tagName.toLowerCase();
     const elActions = wisk.plugins.getPluginDetail(elType)['context-menu-options'];
     if (Array.isArray(elActions)) {
         for (const action of elActions) {
-            contextMenu.appendChild(createMenuItem(action.label, () => menuActions[action.action](elementId), '', action.icon || ''));
+            contextMenu.appendChild(createMenuItem(
+            action.label, 
+            () => {
+                const element = document.getElementById(elementId);
+                element.runArg(action.action);
+            }, '',
+            action.icon || ''));
         }
     }
 
@@ -1209,7 +1183,6 @@ function whenSelectClicked(elementId) {
 }
 
 const menuActions = {
-    downloadItem: (elementId) => downloadItem(elementId),
     duplicateItem: (elementId) => duplicateItem(elementId),
     deleteItem: (elementId) => deleteItem(elementId),
 };

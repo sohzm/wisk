@@ -411,8 +411,8 @@
                     "context-menu-options": [
                         {
                             "label": "Download",
-                            "action": "downloadItem",
-                            "icon": "/a7/forget/download.svg"
+                            "action": "download",
+                            "icon": "/a7/iconoir/download-circle.svg"
                         }
                     ]
                 }
