@@ -375,6 +375,123 @@ class ColumnsElement extends HTMLElement {
         }
     }
 
+    createMenuItem(label, onClick, itemClass = '', icon = null) {
+        const item = document.createElement('div');
+        item.className = `context-menuItem ${itemClass}`;
+        if (icon) {
+            const iconElement = document.createElement('span');
+            iconElement.className = 'cm-icon';
+            const iconImage = document.createElement('img');
+            iconImage.src = icon;
+            iconElement.appendChild(iconImage);
+            item.appendChild(iconElement);
+        }
+        const labelElement = document.createElement('span');
+        labelElement.className = 'cm-label';
+        labelElement.textContent = label;
+        item.appendChild(labelElement);
+
+        item.addEventListener('click', e => {
+            e.stopPropagation();
+            onClick();
+            this.closeAnyColumnMenu();
+        });
+        return item;
+    }
+
+    closeAnyColumnMenu() {
+        const existingMenu = this.shadowRoot.querySelector('.context-menu');
+        if (existingMenu && existingMenu.parentNode) existingMenu.remove();
+        if (this._menuCleanup) {
+            const { scrollerEl, onScroll, onClickOutside, onResize } = this._menuCleanup;
+            scrollerEl?.removeEventListener?.('scroll', onScroll);
+            window.removeEventListener('click', onClickOutside, true);
+            window.removeEventListener('resize', onResize);
+            this._menuCleanup = null;
+        }
+    }
+    
+    whenSelectClicked(btn, index) {
+        const column = this.columns[index];
+        // Show options for the column - duplicate and delete
+        // Close any existing menu
+        const existingMenu = this.shadowRoot.querySelector('.context-menu');
+        if (existingMenu) existingMenu.remove();
+
+        // Build menu
+        const contextMenu = document.createElement('div');
+        contextMenu.classList.add('context-menu');
+        
+        // Mandatory Items
+        contextMenu.appendChild(this.createMenuItem('Duplicate column', () => {
+            if (!column) return;
+            const newColId = wisk.editor.generateNewId(this.id);
+            const cloned = {
+            id: newColId,
+            elements: (column.elements || []).map(el => ({
+                id: wisk.editor.generateNewId(newColId),
+                component: el.component,
+                value: JSON.parse(JSON.stringify(el.value || {})),
+            }))
+            };
+            this.columns.splice(index + 1, 0, cloned);
+            this.sendUpdates();
+            this.render();
+        }, 'duplicate', '/a7/iconoir/copy.svg'));
+
+        
+        contextMenu.appendChild(this.createMenuItem('Delete column', () => {
+        this.deleteColumn(index);
+        }, 'delete', '/a7/forget/trash.svg'));
+        
+
+        this.shadowRoot.appendChild(contextMenu);
+
+        const rect = btn.getBoundingClientRect();
+        const GAP = 10;
+        const MARGIN = 8;
+
+        contextMenu.style.visibility = 'hidden';
+        contextMenu.style.display = 'inline-block';
+        contextMenu.style.top = '0px';
+        contextMenu.style.left = '0px';
+
+        requestAnimationFrame(() => {
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const { top: t, bottom: b, left: l, right: r } = rect;
+            const { width: mw, height: mh } = contextMenu.getBoundingClientRect();
+
+            let left = r + GAP;
+            let top = (t + b) / 2 - mh / 2;
+            contextMenu.style.transformOrigin = 'center left';
+
+            if (left + mw > vw - MARGIN) {
+            left = l - GAP - mw;
+            contextMenu.style.transformOrigin = 'center right';
+            }
+            top = Math.max(MARGIN, Math.min(top, vh - MARGIN - mh));
+
+            contextMenu.style.left = `${Math.max(MARGIN, Math.min(left, vw - MARGIN - mw))}px`;
+            contextMenu.style.top = `${top}px`;
+            contextMenu.style.visibility = 'visible';
+        });
+
+        const scrollerEl = document.querySelector('.editor');
+        const onScroll = () => this.closeAnyColumnMenu();
+        const onResize = () => this.closeAnyColumnMenu();
+        const onClickOutside = e => {
+            const path = e.composedPath?.() || [];
+            if (!path.includes(contextMenu) && !path.includes(btn)) {
+            this.closeAnyColumnMenu();
+            }
+        };
+        scrollerEl?.addEventListener?.('scroll', onScroll, { passive: true });
+        window.addEventListener('click', onClickOutside, true);
+        window.addEventListener('resize', onResize);
+        this._menuCleanup = { scrollerEl, onScroll, onClickOutside, onResize };
+    }
+
     render() {
         var style = `
             <style>
@@ -408,7 +525,7 @@ class ColumnsElement extends HTMLElement {
                     width: 16px;
                     filter: var(--themed-svg);
                 }
-                .delete-column-btn {
+                .column-options-btn {
                     position: absolute;
                     top: -10px;
                     left: 50%;
@@ -423,13 +540,76 @@ class ColumnsElement extends HTMLElement {
                     font-size: 12px;
                     border-radius: var(--radius);
                 }
-                .delete-column-btn img {
+                .column-options-btn img {
                     height: 14px;
-                    margin-left: 5px;
                     filter: var(--themed-svg);
                 }
-                .column:hover .delete-column-btn {
+                .column:hover .column-options-btn {
                     display: flex;
+                }
+                .context-menu {
+                    position: fixed;
+                    width: 200px;
+                    background: var(--bg-1);
+                    border: 1px solid var(--bg-3);
+                    border-radius: calc(var(--radius) * 2);
+                    padding: var(--padding-2);
+                    z-index: 1000;
+                    transform-origin: top right;
+                    animation: contextMenuPop 120ms cubic-bezier(0.2, 0.9, 0.35, 1) forwards;
+                    visibility: hidden;
+                }
+                @keyframes contextMenuPop {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-4px) scale(0.98);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                }
+                .context-menuItem {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--gap-2);
+                    padding: 8px 10px;
+                    cursor: pointer;
+                    outline: none;
+                    transition:
+                        background-color 150ms ease,
+                        color 150ms ease,
+                        transform 120ms ease;
+                }
+                .context-menuItem,
+                .context-menu {
+                    font-size: 12.5px;
+                    line-height: 1.4;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                }
+                .context-menuItem:hover,
+                .context-menuItem:focus {
+                    background-color: var(--bg-2);
+                }
+                .context-menuItem:active {
+                    transform: translateY(0.5px);
+                }
+                .context-menuItem > .cm-icon {
+                    width: 16px;
+                    height: 16px;
+                    flex: 0 0 16px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    opacity: 0.9;
+                }
+                .context-menuItem > .cm-icon img,
+                .context-menuItem > .cm-icon svg {
+                    width: 16px;
+                    height: 16px;
+                    filter: var(--themed-svg);
+                    display: block;
                 }
             </style>
         `;
@@ -441,7 +621,7 @@ class ColumnsElement extends HTMLElement {
                         var id = column.id;
                         return `
                             <div class="column" data-column-index="${index}">
-                                ${this.editor.readonly ? '' : `<div class="delete-column-btn" data-index="${index}">Delete<img src="/a7/forget/trash-mini.svg" alt="Delete column"/></div>`}
+                                ${this.editor.readonly ? '' : `<div class="column-options-btn" data-index="${index}"><img src="/a7/forget/dots-grid3x3.svg" alt="Context Menu"/></div>`}
                                 <base-layout-element id="${id}" data-column-parent="${this.id}"></base-layout-element>
                             </div>`;
                     })
@@ -480,6 +660,16 @@ class ColumnsElement extends HTMLElement {
                 });
             });
         }
+
+        // Event listeners for options button
+        const optionButtons = this.shadowRoot.querySelectorAll('.column-options-btn');
+            optionButtons.forEach(button => {
+                button.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const index = parseInt(button.getAttribute('data-index'));
+                    this.whenSelectClicked(button, index);
+                });
+        });
 
         // Set values to base layout elements
         for (let i = 0; i < this.columns.length; i++) {

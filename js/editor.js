@@ -1032,7 +1032,6 @@ function createMenuItem(label, onClick, itemClass = '', icon = null) {
         iconImage.src = icon;
         iconElement.appendChild(iconImage);
         item.appendChild(iconElement);
-        item.appendChild(iconElement);
     }
 
     const labelElement = document.createElement('span');
@@ -1053,14 +1052,10 @@ function createMenuItem(label, onClick, itemClass = '', icon = null) {
 }
 
 function duplicateItem(elementId) {
-    if (wisk?.editor?.duplicateMenu) {
-        wisk.editor.duplicateMenu(elementId);
-    } else {
         const el = wisk.editor.getElement(elementId);
         if (!el) return;
         const valueClone = JSON.parse(JSON.stringify(el.value || {}));
         wisk.editor.createNewBlock(elementId, el.component, valueClone, { x: 0 });
-    }
 };
 
 async function deleteItem(elementId) {
