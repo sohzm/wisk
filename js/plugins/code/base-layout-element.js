@@ -305,10 +305,10 @@ class BaseLayoutElement extends HTMLElement {
         imageContainer.classList.add('hover-images');
 
         const addButton = this.createHoverButton('/a7/forget/plus-hover.svg', () => this.whenPlusClicked(elementId));
-        const deleteButton = this.createHoverButton('/a7/forget/trash-hover.svg', () => this.whenTrashClicked(elementId));
+        const selectButton = this.createHoverButton('/a7/forget/dots-grid3x3.svg', () => this.whenSelectClicked(elementId));
 
         imageContainer.appendChild(addButton);
-        imageContainer.appendChild(deleteButton);
+        imageContainer.appendChild(selectButton);
 
         return imageContainer;
     }
@@ -375,6 +375,156 @@ class BaseLayoutElement extends HTMLElement {
     async whenTrashClicked(elementId) {
         if (this.shadowRoot.getElementById(elementId).aboutToBeOoomfed) await this.shadowRoot.getElementById(elementId).aboutToBeOoomfed();
         this.editor.deleteBlock(elementId);
+    }
+
+    createMenuItem(label, onClick, itemClass = '', icon=null) {
+        const item = document.createElement('div');
+        item.className = `context-menuItem ${itemClass}`;
+
+        if(icon) {
+            const iconElement = document.createElement('span');
+            iconElement.className = 'cm-icon';
+            const iconImage = document.createElement('img');
+            iconImage.src = icon;
+            iconElement.appendChild(iconImage);
+            item.appendChild(iconElement);
+        }
+
+        const labelElement = document.createElement('span');
+        labelElement.className = 'cm-label';
+        labelElement.textContent = label;
+        item.appendChild(labelElement);
+
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onClick();
+            const existingMenu = document.querySelector('.context-menu');
+            if(existingMenu) {
+                existingMenu.remove();
+            }
+        });
+
+        return item;
+    }
+
+    duplicateItem(elementId) {
+        const el = this.shadowRoot.getElementById(elementId);
+        const componentType = el.tagName.toLowerCase();
+        if (!el) return;
+        const valueClone = JSON.parse(JSON.stringify(el.getValue() || {}));
+        this.editor.createNewBlock(elementId, componentType, valueClone, { x: 0 });
+    };
+
+    async deleteItem(elementId) {
+        const inst = this.shadowRoot.getElementById(elementId);
+        if (inst && inst.aboutToBeOoomfed) {
+            try { await inst.aboutToBeOoomfed(); } catch { }
+        }
+        this.editor.deleteBlock(elementId);
+    };
+
+    whenSelectClicked(elementId) {
+        console.log('SELECT CLICKED <base layout element>', elementId);
+
+        const nestedLayout = this.getNextLevelLayout(elementId);
+        if (nestedLayout) {
+            return nestedLayout.whenSelectClicked(elementId);
+        }
+
+        // Close any existing menu
+        const blockDiv = this.shadowRoot.getElementById(`div-${elementId}`);
+        const element = this.shadowRoot.getElementById(elementId);
+        const existingMenu = this.shadowRoot.querySelector('.context-menu');
+        if(existingMenu) existingMenu.remove();
+
+        // Build Menu
+        const contextMenu = document.createElement('div');
+        contextMenu.classList.add('context-menu');
+
+        // Some default menu items
+        contextMenu.appendChild(this.createMenuItem('Duplicate', () => this.duplicateItem(elementId), 'duplicate', '/a7/iconoir/copy.svg'));
+        contextMenu.appendChild(this.createMenuItem('Delete', () => this.deleteItem(elementId), 'delete', '/a7/iconoir/trash.svg'));
+
+        const elType = element.tagName.toLowerCase();
+        const elActions = wisk.plugins.getPluginDetail(elType)['context-menu-options'];
+        if (Array.isArray(elActions)) {
+            for (const action of elActions) {
+                contextMenu.appendChild(createMenuItem(
+                action.label, 
+                () => {
+                    const element = this.shadowRoot.getElementById(elementId);
+                    element.runArg(action.action);
+                }, '',
+                action.icon || ''));
+            }
+        }
+
+        document.body.appendChild(contextMenu);
+
+        // positioning
+        const hover = blockDiv.querySelector('.hover-images') || blockDiv;
+        const selectIcon = hover.querySelector('img[src$="dots-grid3x3.svg"]') || hover;
+        const rect = selectIcon.getBoundingClientRect();
+
+        contextMenu.style.position = 'fixed';
+        contextMenu.style.visibility = 'hidden';
+        contextMenu.style.top = '0px';
+        contextMenu.style.left = '0px';
+
+        requestAnimationFrame(() => {
+            const GAP = 10;
+            const MARGIN = 8;
+
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+
+            const { top: t, bottom: b, left: l, right: r } = rect;
+            const triggerMidY = (t + b) / 2;
+
+            const { width: mw, height: mh } = contextMenu.getBoundingClientRect();
+
+            let left = l - GAP - mw;
+            let top = triggerMidY - mh / 2;
+
+            if (left < MARGIN) {
+                left = r + GAP;
+                contextMenu.style.transformOrigin = 'center left';
+            } else {
+                contextMenu.style.transformOrigin = 'center right';
+            }
+
+            top = Math.max(MARGIN, Math.min(top, vh - MARGIN - mh));
+
+            left = Math.max(MARGIN, Math.min(left, vw - MARGIN - mw));
+
+            contextMenu.style.top = `${top}px`;
+            contextMenu.style.left = `${left}px`;
+            contextMenu.style.visibility = 'visible';
+        });
+
+
+        const scrollerEl = document.querySelector('.editor')
+
+        function cleanup() {
+            if (contextMenu && contextMenu.parentNode) contextMenu.remove();
+            if (scrollerEl && scrollerEl.removeEventListener) {
+                scrollerEl.removeEventListener('scroll', onScroll);
+            }
+            window.removeEventListener('click', onClickOutside, true);
+        }
+
+        function onScroll() {
+            cleanup();
+        }
+
+        function onClickOutside(e) {
+            if (!contextMenu.contains(e.target) && !hover.contains(e.target)) {
+                cleanup();
+            }
+        }
+
+        scrollerEl.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('click', onClickOutside, true);
     }
 
     setValue(path, value) {
@@ -559,6 +709,48 @@ class BaseLayoutElement extends HTMLElement {
             }
             .hover-image:hover {
                 scale: 1.1;
+            }
+            .context-menuItem {
+                display: flex;
+                align-items: center;
+                gap: var(--gap-2);
+                padding: 8px 10px;
+                cursor: pointer;
+                outline: none;
+                transition:
+                    background-color 150ms ease,
+                    color 150ms ease,
+                    transform 120ms ease;
+            }
+            .context-menuItem,
+            .context-menu {
+                font-size: 12.5px;
+                line-height: 1.4;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+            .context-menuItem:hover,
+            .context-menuItem:focus {
+                background-color: var(--bg-2);
+            }
+            .context-menuItem:active {
+                transform: translateY(0.5px);
+            }
+            .context-menuItem > .cm-icon {
+                width: 16px;
+                height: 16px;
+                flex: 0 0 16px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0.9;
+            }
+            .context-menuItem > .cm-icon img,
+            .context-menuItem > .cm-icon svg {
+                width: 16px;
+                height: 16px;
+                filter: var(--themed-svg);
+                display: block;
             }
             .rndr {
                 margin: 0.25rem 0;

@@ -407,7 +407,14 @@
                     "nav": false,
                     "textual": true,
                     "loadAsModule": false,
-                    "width": "mini"
+                    "width": "mini",
+                    "context-menu-options": [
+                        {
+                            "label": "Download",
+                            "action": "download",
+                            "icon": "/a7/iconoir/download-circle.svg"
+                        }
+                    ]
                 }
             ]
         },
