@@ -82,10 +82,10 @@ class BaseTextElement extends HTMLElement {
         var before = '';
         var after = '';
         for (const elm of bef) {
-            before += document.getElementById(elm.id).getTextContent().text + '\n';
+            before += wisk.editor.getElement(elm.id).value.textContent + '\n';
         }
         for (const elm of aft) {
-            after += document.getElementById(elm.id).getTextContent().text + '\n';
+            after += wisk.editor.getElement(elm.id).value.textContent + '\n';
         }
 
         return {
@@ -676,7 +676,7 @@ class BaseTextElement extends HTMLElement {
             }
 
             wisk.editor.changeBlockType(this.id, val, newType);
-
+            
             const elementToFocus = document.getElementById(this.id);
             if (elementToFocus) {
                 elementToFocus.focus();
@@ -1180,12 +1180,12 @@ class BaseTextElement extends HTMLElement {
         if (this.getFocus() === 0) {
             event.preventDefault();
             const prevElement = wisk.editor.prevElement(this.id);
-            const prevDomElement = document.getElementById(prevElement.id);
+            const prevDomElement = wisk.editor.getElement(prevElement.id);
             if (!prevElement) return;
 
             const prevComponentDetail = wisk.plugins.getPluginDetail(prevElement.component);
             if (prevComponentDetail.textual) {
-                const len = prevDomElement.getTextContent().text.length;
+                const len = prevDomElement.value.textContent.length;
                 wisk.editor.updateBlock(prevElement.id, 'value.append', { textContent: this.editable.innerHTML });
                 wisk.editor.focusBlock(prevElement.id, { x: len });
             }

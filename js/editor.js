@@ -1052,6 +1052,7 @@ function createMenuItem(label, onClick, itemClass = '', icon = null) {
 }
 
 function duplicateItem(elementId) {
+        if (elementId === 'abcdxyz') return;
         const el = wisk.editor.getElement(elementId);
         if (!el) return;
         const valueClone = JSON.parse(JSON.stringify(el.value || {}));
