@@ -13,12 +13,19 @@ wisk.editor.syncBuffer = {
 
 var elementSyncTimer = 0;
 
+let dragState = null;
+let dropIndicator = null;
+
 const createHoverImageContainer = elementId => {
     const imageContainer = document.createElement('div');
     imageContainer.classList.add('hover-images');
 
     const addButton = createHoverButton('/a7/forget/plus-hover.svg', () => whenPlusClicked(elementId));
     const selectButton = createHoverButton('/a7/forget/dots-grid3x3.svg', () => whenSelectClicked(elementId));
+
+    selectButton.addEventListener('mousedown', (event) => {
+        onDragStart(event, elementId);
+    });
 
     imageContainer.appendChild(addButton);
     imageContainer.appendChild(selectButton);
@@ -1176,6 +1183,123 @@ function whenSelectClicked(elementId) {
 
     scrollerEl.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('click', onClickOutside, true);
+}
+
+function createDropIndicator() {
+    if (dropIndicator) return dropIndicator;
+    
+    dropIndicator = document.createElement('div');
+    dropIndicator.className = 'drop-indicator';
+    document.body.appendChild(dropIndicator);
+    return dropIndicator;
+}
+
+function showDropIndicator(targetElement) {
+    const indicator = createDropIndicator();
+    if (!targetElement) {
+        indicator.classList.remove('show');
+        indicator.classList.add('hide');
+        return;
+    }
+    
+    const rect = targetElement.getBoundingClientRect();
+    
+    const computedStyle = window.getComputedStyle(targetElement);
+    const paddingLeft = parseFloat(computedStyle.paddingLeft);
+    const paddingRight = parseFloat(computedStyle.paddingRight);
+    
+    // Positioning indicator to match the content area
+    indicator.style.width = (rect.width - paddingLeft - paddingRight) + 'px';
+    indicator.style.left = (rect.left + paddingLeft) + 'px';
+    indicator.style.top = (rect.bottom + 1) + 'px';
+    
+    // Show with animation
+    indicator.classList.remove('hide');
+    indicator.classList.add('show');
+}
+
+function hideDropIndicator() {
+    if (!dropIndicator) return;
+    
+    dropIndicator.classList.remove('show');
+    dropIndicator.classList.add('hide');
+}
+
+function getElementAbove(x, y) {
+    const clone = document.querySelector('.clone');
+    if(clone) clone.style.display = 'none';
+
+    const element = document.elementFromPoint(x, y);
+    if(clone) clone.style.display = 'block';
+    return element;
+}
+
+function onDragStart(event, elementId) {
+    event.preventDefault();
+    event.stopPropagation();
+    // clone the element
+    const original = document.getElementById(elementId);
+    const block = wisk.editor.getElement(elementId);
+    if(!original) return;
+    const clone = document.createElement('div');
+    clone.className = 'clone';
+    clone.style.position = 'absolute';
+    clone.style.height = original.getBoundingClientRect().height + 'px';
+    clone.style.width = original.getBoundingClientRect().width + 'px';
+    document.body.appendChild(clone);
+    // update dragState
+    dragState = {
+        elementId: elementId,
+        original: original,
+        clone: clone,
+        originalValue: JSON.parse(JSON.stringify(original.getValue())),
+        originalComponent: block.component
+    }
+    window.addEventListener('mousemove', handleDrag);
+    window.addEventListener('mouseup', handleDrop);
+}
+
+function handleDrag(e) {
+    if(!dragState) return;
+    const { clone } = dragState;
+    clone.style.left = e.clientX + 'px';
+    clone.style.top = e.clientY + 'px';
+    const elementAbove = getElementAbove(e.clientX, e.clientY);
+    const targetContainer = elementAbove ? elementAbove.closest('.rndr') : null;
+    if (targetContainer) {
+        showDropIndicator(targetContainer);
+    } else {
+        hideDropIndicator();
+    }
+}
+
+function handleDrop(e) {
+    if(!dragState) return;
+    hideDropIndicator();
+    const {
+        elementId, original, clone, originalValue, originalComponent
+    } = dragState;
+    
+    document.body.removeChild(clone);
+    
+    window.removeEventListener('mousemove', handleDrag);
+    window.removeEventListener('mouseup', handleDrop);
+    
+    // get the above element of the clone and put the clone below it after which delete the original
+    const elementAbove = getElementAbove(e.clientX, e.clientY);
+    const targetContainer = elementAbove ? elementAbove.closest('.rndr') : null;
+
+    if(targetContainer) {
+        const targetId = targetContainer.id.replace('div-', '');
+        console.log("moving element to below: ", targetId);
+
+        if(targetId != elementId) {
+            wisk.editor.deleteBlock(elementId);
+            wisk.editor.createNewBlock(targetId, originalComponent, originalValue, {x: 0});
+        }
+    }
+
+    dragState = null;
 }
 
 const menuActions = {
