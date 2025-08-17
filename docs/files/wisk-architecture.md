@@ -1,8 +1,3 @@
----
-description: 
-globs: 
-alwaysApply: true
----
 # Wisk Project Architecture Guide
 
 ## Overview
