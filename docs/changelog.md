@@ -1,3 +1,9 @@
+- Aug 10
+    - context menu added
+
+- July 30
+    - bug fixes
+
 - Jun 25
     - added workspaces
     - added ways to import/export all your data
