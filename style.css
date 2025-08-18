@@ -529,13 +529,12 @@ nav {
 .drop-indicator {
   position: absolute;
   height: 2px;
-  background-color: #0066ff;
+  background-color: var(--fg-blue);
   border-radius: 1px;
   z-index: 1000;
   opacity: 0.8;
   transition: all 0.1s ease;
   pointer-events: none;
-  box-shadow: 0 0 4px rgba(0, 102, 255, 0.3);
 }
 
 .drop-indicator.show {
