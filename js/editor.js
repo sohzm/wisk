@@ -12,9 +12,16 @@ wisk.editor.syncBuffer = {
 };
 
 var elementSyncTimer = 0;
-
+// drag n drop vars
 let dragState = null;
 let dropIndicator = null;
+let dragHoldTimer = null;
+// scroll vars
+let autoScroll = null;
+const SCROLL_ZONE_SIZE = 40;
+const SCROLL_SPEED = 10;
+const SCROLL_INTERVAL = 16;
+
 
 const createHoverImageContainer = elementId => {
     const imageContainer = document.createElement('div');
@@ -24,7 +31,17 @@ const createHoverImageContainer = elementId => {
     const selectButton = createHoverButton('/a7/forget/dots-grid3x3.svg', () => whenSelectClicked(elementId));
 
     selectButton.addEventListener('mousedown', (event) => {
-        onDragStart(event, elementId);
+        dragHoldTimer = setTimeout(() => {
+            onDragStart(event, elementId);
+        }, 300);
+    });
+
+    selectButton.addEventListener('mouseup', () => {
+        clearTimeout(dragHoldTimer);
+    });
+
+    selectButton.addEventListener('mouseleave', () => {
+        clearTimeout(dragHoldTimer);
     });
 
     imageContainer.appendChild(addButton);
@@ -1235,6 +1252,7 @@ function getElementAbove(x, y) {
 }
 
 function onDragStart(event, elementId) {
+    if(elementId == 'abcdxyz') return;
     event.preventDefault();
     event.stopPropagation();
     // clone the element
@@ -1271,10 +1289,54 @@ function handleDrag(e) {
     } else {
         hideDropIndicator();
     }
+    handleScroll(e.clientY);
+}
+
+function handleScroll(y) {
+    const scrollContainer = document.querySelector('.editor');
+    if (!scrollContainer) return;
+
+    const containerRect = scrollContainer.getBoundingClientRect();
+
+    // clear existing scroll
+    if (autoScroll) {
+        clearInterval(autoScroll);
+        autoScroll = null;
+    }
+
+    let scrollDir = 0;
+    let distance = 0;
+
+    if (y < containerRect.top + SCROLL_ZONE_SIZE) {
+        scrollDir = -1; // up
+        distance = (containerRect.top + SCROLL_ZONE_SIZE) - y;
+    } else if (y > containerRect.bottom - SCROLL_ZONE_SIZE) {
+        scrollDir = 1; // down
+        distance = y - (containerRect.bottom - SCROLL_ZONE_SIZE);
+    }
+
+    if (scrollDir !== 0) {
+        autoScroll = setInterval(() => {
+            const currentScroll = scrollContainer.scrollTop;
+            const maxScroll = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+
+            // scale speed based on proximity (closer to edge = faster)
+            const intensity = Math.min(1, distance / SCROLL_ZONE_SIZE);
+            const delta = scrollDir * (SCROLL_SPEED * (0.5 + intensity * 2));
+
+            const newScroll = currentScroll + delta;
+            scrollContainer.scrollTop = Math.max(0, Math.min(newScroll, maxScroll));
+        }, SCROLL_INTERVAL);
+    }
 }
 
 function handleDrop(e) {
     if(!dragState) return;
+    // Clear auto-scroll when dropping
+    if (autoScroll) {
+        clearInterval(autoScroll);
+        autoScroll = null;
+    }
     hideDropIndicator();
     const {
         elementId, original, clone, originalValue, originalComponent

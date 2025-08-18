@@ -3,6 +3,9 @@ class ColumnsElement extends HTMLElement {
         super();
         this.columns = [];
         this.editor = null;
+        this.dragState = null;
+        this.dropIndicator = null;
+        this.dragHoldTimer = null;
         this.attachShadow({ mode: 'open' });
         this.setupEditor();
     }
@@ -492,6 +495,137 @@ class ColumnsElement extends HTMLElement {
         this._menuCleanup = { scrollerEl, onScroll, onClickOutside, onResize };
     }
 
+    createDropIndicator() {
+        if (this.dropIndicator) return this.dropIndicator;
+        this.dropIndicator = document.createElement('div');
+        this.dropIndicator.className = 'drop-indicator';
+        document.body.appendChild(this.dropIndicator);
+        return this.dropIndicator;
+    }
+
+    showDropIndicator(targetElement) {
+        const indicator = this.createDropIndicator();
+        if (!targetElement) {
+            indicator.classList.remove('show');
+            indicator.classList.add('hide');
+            return;
+        }
+
+        const rect = targetElement.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(targetElement);
+        const paddingLeft = parseFloat(computedStyle.paddingLeft);
+        const paddingRight = parseFloat(computedStyle.paddingRight);
+
+        indicator.style.width = (rect.width - paddingLeft - paddingRight) + 'px';
+        indicator.style.left = (rect.left + paddingLeft) + 'px';
+        indicator.style.top = (rect.bottom + 1) + 'px';
+
+        indicator.classList.remove('hide');
+        indicator.classList.add('show');
+    }
+
+    hideDropIndicator() {
+        if (!this.dropIndicator) return;
+        this.dropIndicator.classList.remove('show');
+        this.dropIndicator.classList.add('hide');
+    }
+
+    getElementAbove(x, y) {
+        // get the column
+        const clone = document.querySelector('.clone');
+        if(clone) clone.style.display = 'none';
+        const table = this.shadowRoot.querySelector(".columns");
+        const target = this.shadowRoot.elementFromPoint(x, y);
+        if(clone) clone.style.display = 'block';
+        if(table.contains(target)) return target;
+        return null;
+    }
+
+    onDragStart(event, index) {
+        const column = this.columns[index];
+        event.preventDefault();
+        event.stopPropagation();
+        console.log('drag start, column: ', column);
+        const original = this.shadowRoot.getElementById(column.id);
+        const block = column;
+        if(!original) return;
+        console.log('original: ', original);
+        console.log('block: ', block);
+        const clone = document.createElement('div');
+        clone.className = 'clone';
+        clone.style.position = 'absolute';
+        clone.style.height = original.getBoundingClientRect().height + 'px';
+        clone.style.width = original.getBoundingClientRect().width + 'px';
+        clone.style.zIndex = '9999';
+        clone.style.pointerEvents = 'none';
+        document.body.appendChild(clone);
+
+        this.dragState = {
+            elementId: column.id,
+            original: original,
+            clone: clone,
+            originalValue: JSON.parse(JSON.stringify(original.getValue())),
+            originalComponent: block.component
+        };
+
+        this.boundHandleDrag = this.handleDrag.bind(this);
+        this.boundHandleDrop = this.handleDrop.bind(this);
+        
+        window.addEventListener('mousemove', this.boundHandleDrag);
+        window.addEventListener('mouseup', this.boundHandleDrop);
+    }
+
+    handleDrag(e) {
+        if(!this.dragState) return;
+        
+        const { clone } = this.dragState;
+        clone.style.left = e.clientX + 'px';
+        clone.style.top = e.clientY + 'px';
+        
+        const targetColumn = this.getElementAbove(e.clientX, e.clientY);
+        const targetContainer = targetColumn ? targetColumn.closest(".column") : null;
+        if (targetContainer) {
+            this.showDropIndicator(targetContainer);
+        } else {
+            this.hideDropIndicator();
+        }
+    }
+
+    handleDrop(e) {
+        if (!this.dragState) return;
+
+        this.hideDropIndicator();
+
+        const { elementId, clone } = this.dragState;
+
+        if (clone && clone.parentNode) {
+            document.body.removeChild(clone);
+        }
+
+        window.removeEventListener('mousemove', this.boundHandleDrag);
+        window.removeEventListener('mouseup', this.boundHandleDrop);
+
+        const targetElement = this.getElementAbove(e.clientX, e.clientY);
+        
+        if (targetElement) {
+            const targetColumn = targetElement.closest('.column');
+            if (targetColumn) {
+                const targetColumnIndex = parseInt(targetColumn.getAttribute('data-column-index'));
+                const sourceColumnIndex = this.columns.findIndex(col => col.id === elementId);
+                if (sourceColumnIndex !== -1 && 
+                    targetColumnIndex !== -1 && 
+                    sourceColumnIndex !== targetColumnIndex) {
+                    const [draggedColumn] = this.columns.splice(sourceColumnIndex, 1);
+                    this.columns.splice(targetColumnIndex, 0, draggedColumn);
+                    this.sendUpdates();
+                    this.render();
+                }
+            }
+        }
+        this.dragState = null;
+    }
+
+
     render() {
         var style = `
             <style>
@@ -621,7 +755,7 @@ class ColumnsElement extends HTMLElement {
                         var id = column.id;
                         return `
                             <div class="column" data-column-index="${index}">
-                                ${this.editor.readonly ? '' : `<div class="column-options-btn" data-index="${index}"><img src="/a7/forget/dots-grid3x3.svg" alt="Context Menu"/></div>`}
+                                ${this.editor.readonly ? '' : `<div class="column-options-btn" data-index="${index}"><img src="/a7/forget/dots-grid3x3.svg" alt="Context Menu" draggable="false"/></div>`}
                                 <base-layout-element id="${id}" data-column-parent="${this.id}"></base-layout-element>
                             </div>`;
                     })
@@ -668,6 +802,21 @@ class ColumnsElement extends HTMLElement {
                     e.stopPropagation();
                     const index = parseInt(button.getAttribute('data-index'));
                     this.whenSelectClicked(button, index);
+                });
+
+                button.addEventListener('mousedown', (event) => {
+                    this.dragHoldTimer = setTimeout(() => {
+                        const index = parseInt(button.getAttribute('data-index'));
+                        this.onDragStart(event, index);
+                    }, 300);
+                });
+
+                button.addEventListener('mouseup', () => {
+                    clearTimeout(this.dragHoldTimer);
+                });
+
+                button.addEventListener('mouseleave', () => {
+                    clearTimeout(this.dragHoldTimer);
                 });
         });
 
