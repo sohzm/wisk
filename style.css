@@ -478,6 +478,7 @@ nav {
     align-items: center;
     gap: var(--gap-2);
     padding: 8px 10px;
+    border-radius: var(--radius);
     cursor: pointer;
     outline: none;
     transition:

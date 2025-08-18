@@ -377,7 +377,7 @@ class BaseLayoutElement extends HTMLElement {
         this.editor.deleteBlock(elementId);
     }
 
-    createMenuItem(label, onClick, itemClass = '', icon=null) {
+    createMenuItem(label, onClick, itemClass = '', icon = '/a7/forget/null.svg') {
         const item = document.createElement('div');
         item.className = `context-menuItem ${itemClass}`;
 

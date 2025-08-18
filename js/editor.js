@@ -1021,18 +1021,17 @@ function handleEditorClick(event) {
     }
 }
 
-function createMenuItem(label, onClick, itemClass = '', icon = null) {
+function createMenuItem(label, onClick, itemClass = '', icon = '/a7/forget/null.svg') {
     const item = document.createElement('div');
     item.className = `context-menuItem ${itemClass}`;
 
-    if (icon) {
-        const iconElement = document.createElement('span');
-        iconElement.className = 'cm-icon';
-        iconImage = document.createElement('img');
-        iconImage.src = icon;
-        iconElement.appendChild(iconImage);
-        item.appendChild(iconElement);
-    }
+    const iconElement = document.createElement('span');
+    iconElement.className = 'cm-icon';
+    iconImage = document.createElement('img');
+    iconImage.src = icon;
+    iconElement.appendChild(iconImage);
+    iconElement.draggable = false;
+    item.appendChild(iconElement);
 
     const labelElement = document.createElement('span');
     labelElement.className = 'cm-label'

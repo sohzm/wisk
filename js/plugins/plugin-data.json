@@ -739,6 +739,35 @@
             ]
         },
 
+        "http-element": {
+            "name": "http-element",
+            "title": "HTTP Request",
+            "author": "Wisk Team",
+            "contact": "https://wisk.cc",
+            "icon": "internet.svg",
+            "tags": ["internet", "http", "request", "api"],
+            "description": "HTTP request element is a postman like element that allows you to make HTTP requests and see the response in the document. You can use it to test APIs or fetch data from the internet.",
+            "contents": [
+                {
+                    "title": "HTTP Request",
+                    "icon": "internet.svg",
+                    "category": "component",
+                    "component": "http-element",
+                    "nav": false,
+                    "textual": false,
+                    "loadAsModule": true,
+                    "experimental": true,
+                    "width": "mini",
+                    "context-menu-options": [
+                        {
+                            "label": "Paste cURL",
+                            "action": "paste-curl"
+                        }
+                    ]
+                }
+            ]
+        },
+
         "chart-element": {
             "name": "chart-element",
             "title": "Chart Element",
@@ -812,7 +841,7 @@
             "contact": "https://wisk.cc",
             "icon": "py-interpreter.svg",
             "tags": ["execute", "programming"],
-            "description": "Python interpreter on the browser, no server required. You can use the `from js import window, document` to call editor apis and checkout the https://wisk.cc/docs to see how you can interact with the editor apis. This element auto runs on page load.",
+            "description": "Python interpreter on the browser, no server required. \n\n You can use the `from js import window, document` to call editor apis and checkout the https://wisk.cc/docs to see how you can interact with the editor apis. This element auto runs on page load.",
             "contents": [
                 {
                     "title": "Python Interpreter",
@@ -834,7 +863,7 @@
             "contact": "https://wisk.cc",
             "icon": "javascript.svg",
             "tags": ["execute", "programming"],
-            "description": "JavaScript code block, execute your javascript code, it auto runs on page load and the javascript code is executed in the browser. Checkout the https://wisk.cc/docs to see how you can interact with the editor apis",
+            "description": "JavaScript code block, execute your javascript code, it auto runs on page load and the javascript code is executed in the browser. \n\n Checkout the https://wisk.cc/docs to see how you can interact with the editor apis",
             "contents": [
                 {
                     "title": "Execute JavaScript",
@@ -1152,7 +1181,7 @@
             "contact": "https://wisk.cc",
             "icon": "wisk-terminal.svg",
             "tags": ["terminal", "shell", "command", "developer", "programming"],
-            "description": "A terminal for the Wisk editor, allowing you to run commands and scripts. To use press <ctrl> + <backtick>",
+            "description": "A terminal for the Wisk editor, allowing you to run commands and scripts. To use press ctrl + backticks",
             "contents": [
                 {
                     "title": "Wisk Terminal",
