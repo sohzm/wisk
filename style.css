@@ -521,3 +521,29 @@ nav {
     filter: var(--themed-svg);
     display: block;
 }
+
+.clone {
+    background-color: var(--bg-3);
+    opacity: 0.25;
+}
+
+.drop-indicator {
+  position: absolute;
+  height: 2px;
+  background-color: var(--fg-blue);
+  border-radius: 1px;
+  z-index: 1000;
+  opacity: 0.8;
+  transition: all 0.1s ease;
+  pointer-events: none;
+}
+
+.drop-indicator.show {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.drop-indicator.hide {
+  opacity: 0;
+  transform: scaleY(0);
+}

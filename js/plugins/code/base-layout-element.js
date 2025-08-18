@@ -2,6 +2,9 @@ class BaseLayoutElement extends HTMLElement {
     constructor() {
         super();
         this.elements = [];
+        this.dragState = null;
+        this.dropIndicator = null;
+        this.dragHoldTimer = null;
         this.setupEditor();
         this.attachShadow({ mode: 'open' });
         this.render();
@@ -303,13 +306,26 @@ class BaseLayoutElement extends HTMLElement {
     createHoverImageContainer(elementId) {
         const imageContainer = document.createElement('div');
         imageContainer.classList.add('hover-images');
-
+        
         const addButton = this.createHoverButton('/a7/forget/plus-hover.svg', () => this.whenPlusClicked(elementId));
         const selectButton = this.createHoverButton('/a7/forget/dots-grid3x3.svg', () => this.whenSelectClicked(elementId));
+        
+        selectButton.addEventListener('mousedown', (event) => {
+            this.dragHoldTimer = setTimeout(() => {
+                this.onDragStart(event, elementId);
+            }, 150);
+        });
+
+        selectButton.addEventListener('mouseup', () => {
+            clearTimeout(this.dragHoldTimer);
+        });
+
+        selectButton.addEventListener('mouseleave', () => {
+            clearTimeout(this.dragHoldTimer);
+        });
 
         imageContainer.appendChild(addButton);
         imageContainer.appendChild(selectButton);
-
         return imageContainer;
     }
 
@@ -525,6 +541,127 @@ class BaseLayoutElement extends HTMLElement {
 
         scrollerEl.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('click', onClickOutside, true);
+    }
+
+    createDropIndicator() {
+        if (this.dropIndicator) return this.dropIndicator;
+        this.dropIndicator = document.createElement('div');
+        this.dropIndicator.className = 'drop-indicator';
+        document.body.appendChild(this.dropIndicator);
+        return this.dropIndicator;
+    }
+
+    showDropIndicator(targetElement) {
+        const indicator = this.createDropIndicator();
+        if (!targetElement) {
+            indicator.classList.remove('show');
+            indicator.classList.add('hide');
+            return;
+        }
+
+        const rect = targetElement.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(targetElement);
+        const paddingLeft = parseFloat(computedStyle.paddingLeft);
+        const paddingRight = parseFloat(computedStyle.paddingRight);
+
+        indicator.style.width = (rect.width - paddingLeft - paddingRight) + 'px';
+        indicator.style.left = (rect.left + paddingLeft) + 'px';
+        indicator.style.top = (rect.bottom + 1) + 'px';
+
+        indicator.classList.remove('hide');
+        indicator.classList.add('show');
+    }
+
+    hideDropIndicator() {
+        if (!this.dropIndicator) return;
+        this.dropIndicator.classList.remove('show');
+        this.dropIndicator.classList.add('hide');
+    }
+
+    getElementAbove(x, y) {
+        const clone = document.querySelector('.clone');
+        if(clone) clone.style.display = 'none';
+        const target = this.shadowRoot.elementFromPoint(x, y);
+        if(clone) clone.style.display = 'block';
+        if(this.shadowRoot.contains(target)) {
+            return target;
+        }
+        return null;
+    }
+
+    onDragStart(event, elementId) {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log('drag start, elementId: ', elementId);
+        const original = this.shadowRoot.getElementById(elementId);
+        const block = this.editor.getElement(elementId);
+        if(!original) return;
+
+        const clone = document.createElement('div');
+        clone.className = 'clone';
+        clone.style.position = 'fixed';
+        clone.style.height = original.getBoundingClientRect().height + 'px';
+        clone.style.width = original.getBoundingClientRect().width + 'px';
+        document.body.appendChild(clone);
+
+        this.dragState = {
+            elementId: elementId,
+            original: original,
+            clone: clone,
+            originalValue: JSON.parse(JSON.stringify(original.getValue())),
+            originalComponent: block.component
+        };
+
+        this.boundHandleDrag = this.handleDrag.bind(this);
+        this.boundHandleDrop = this.handleDrop.bind(this);
+        
+        window.addEventListener('mousemove', this.boundHandleDrag);
+        window.addEventListener('mouseup', this.boundHandleDrop);
+    }
+
+    handleDrag(e) {
+        if(!this.dragState) return;
+        
+        const { clone } = this.dragState;
+        clone.style.left = e.clientX + 'px';
+        clone.style.top = e.clientY + 'px';
+        
+        const elementAbove = this.getElementAbove(e.clientX, e.clientY);
+        const targetContainer = elementAbove ? elementAbove.closest('.rndr') : null;
+        console.log('targetContainer: ', targetContainer);
+        if (targetContainer) {
+            this.showDropIndicator(targetContainer);
+        } else {
+            this.hideDropIndicator();
+        }
+    }
+
+    handleDrop(e) {
+        if (!this.dragState) return;
+        
+        this.hideDropIndicator();
+        
+        const {
+            elementId, original, clone, originalValue, originalComponent
+        } = this.dragState;
+        
+        document.body.removeChild(clone);
+        window.removeEventListener('mousemove', this.boundHandleDrag);
+        window.removeEventListener('mouseup', this.boundHandleDrop);
+        
+        const elementAbove = this.getElementAbove(e.clientX, e.clientY);
+        const targetContainer = elementAbove ? elementAbove.closest('.rndr') : null;
+        
+        if (targetContainer) {
+            const targetId = targetContainer.id.replace('div-', '');
+            console.log("moving element to below: ", targetId);
+            if (targetId !== elementId) {
+                this.editor.deleteBlock(elementId);
+                this.editor.createNewBlock(targetId, originalComponent, originalValue, { x: 0 });
+            }
+        }
+        
+        this.dragState = null;
     }
 
     setValue(path, value) {
