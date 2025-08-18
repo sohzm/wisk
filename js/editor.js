@@ -33,7 +33,7 @@ const createHoverImageContainer = elementId => {
     selectButton.addEventListener('mousedown', (event) => {
         dragHoldTimer = setTimeout(() => {
             onDragStart(event, elementId);
-        }, 300);
+        }, 150);
     });
 
     selectButton.addEventListener('mouseup', () => {
@@ -1261,7 +1261,7 @@ function onDragStart(event, elementId) {
     if(!original) return;
     const clone = document.createElement('div');
     clone.className = 'clone';
-    clone.style.position = 'absolute';
+    clone.style.position = 'fixed';
     clone.style.height = original.getBoundingClientRect().height + 'px';
     clone.style.width = original.getBoundingClientRect().width + 'px';
     document.body.appendChild(clone);

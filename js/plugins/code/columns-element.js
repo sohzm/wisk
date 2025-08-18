@@ -397,12 +397,12 @@ class ColumnsElement extends HTMLElement {
         item.addEventListener('click', e => {
             e.stopPropagation();
             onClick();
-            this.closeAnyColumnMenu();
+            this.closeMenu();
         });
         return item;
     }
 
-    closeAnyColumnMenu() {
+    closeMenu() {
         const existingMenu = this.shadowRoot.querySelector('.context-menu');
         if (existingMenu && existingMenu.parentNode) existingMenu.remove();
         if (this._menuCleanup) {
@@ -481,12 +481,12 @@ class ColumnsElement extends HTMLElement {
         });
 
         const scrollerEl = document.querySelector('.editor');
-        const onScroll = () => this.closeAnyColumnMenu();
-        const onResize = () => this.closeAnyColumnMenu();
+        const onScroll = () => this.closeMenu();
+        const onResize = () => this.closeMenu();
         const onClickOutside = e => {
             const path = e.composedPath?.() || [];
             if (!path.includes(contextMenu) && !path.includes(btn)) {
-            this.closeAnyColumnMenu();
+                this.closeMenu();
             }
         };
         scrollerEl?.addEventListener?.('scroll', onScroll, { passive: true });
@@ -545,19 +545,14 @@ class ColumnsElement extends HTMLElement {
         const column = this.columns[index];
         event.preventDefault();
         event.stopPropagation();
-        console.log('drag start, column: ', column);
         const original = this.shadowRoot.getElementById(column.id);
         const block = column;
         if(!original) return;
-        console.log('original: ', original);
-        console.log('block: ', block);
         const clone = document.createElement('div');
         clone.className = 'clone';
-        clone.style.position = 'absolute';
+        clone.style.position = 'fixed';
         clone.style.height = original.getBoundingClientRect().height + 'px';
         clone.style.width = original.getBoundingClientRect().width + 'px';
-        clone.style.zIndex = '9999';
-        clone.style.pointerEvents = 'none';
         document.body.appendChild(clone);
 
         this.dragState = {
@@ -593,15 +588,11 @@ class ColumnsElement extends HTMLElement {
 
     handleDrop(e) {
         if (!this.dragState) return;
-
         this.hideDropIndicator();
 
         const { elementId, clone } = this.dragState;
 
-        if (clone && clone.parentNode) {
-            document.body.removeChild(clone);
-        }
-
+        document.body.removeChild(clone);
         window.removeEventListener('mousemove', this.boundHandleDrag);
         window.removeEventListener('mouseup', this.boundHandleDrop);
 
@@ -612,8 +603,8 @@ class ColumnsElement extends HTMLElement {
             if (targetColumn) {
                 const targetColumnIndex = parseInt(targetColumn.getAttribute('data-column-index'));
                 const sourceColumnIndex = this.columns.findIndex(col => col.id === elementId);
-                if (sourceColumnIndex !== -1 && 
-                    targetColumnIndex !== -1 && 
+                if (sourceColumnIndex !== -1 &&
+                    targetColumnIndex !== -1 &&
                     sourceColumnIndex !== targetColumnIndex) {
                     const [draggedColumn] = this.columns.splice(sourceColumnIndex, 1);
                     this.columns.splice(targetColumnIndex, 0, draggedColumn);
@@ -624,7 +615,6 @@ class ColumnsElement extends HTMLElement {
         }
         this.dragState = null;
     }
-
 
     render() {
         var style = `
@@ -803,18 +793,15 @@ class ColumnsElement extends HTMLElement {
                     const index = parseInt(button.getAttribute('data-index'));
                     this.whenSelectClicked(button, index);
                 });
-
                 button.addEventListener('mousedown', (event) => {
                     this.dragHoldTimer = setTimeout(() => {
                         const index = parseInt(button.getAttribute('data-index'));
                         this.onDragStart(event, index);
-                    }, 300);
+                    }, 150);
                 });
-
                 button.addEventListener('mouseup', () => {
                     clearTimeout(this.dragHoldTimer);
                 });
-
                 button.addEventListener('mouseleave', () => {
                     clearTimeout(this.dragHoldTimer);
                 });
