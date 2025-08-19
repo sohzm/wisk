@@ -150,6 +150,65 @@ const closeApp = () => fetch('/app-nav/close');
 const minimizeApp = () => fetch('/app-nav/minimize');
 const maximizeApp = () => fetch('/app-nav/maximize');
 
+// Fullscreen helpers
+function isFullscreenActive() {
+    return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null;
+}
+
+function requestFullscreenFor(element) {
+    if (element.requestFullscreen) return element.requestFullscreen();
+    if (element.webkitRequestFullscreen) return element.webkitRequestFullscreen();
+    if (element.msRequestFullscreen) return element.msRequestFullscreen();
+}
+
+function exitFullscreen() {
+    if (document.exitFullscreen) return document.exitFullscreen();
+    if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+    if (document.msExitFullscreen) return document.msExitFullscreen();
+}
+
+function updateFullscreenIcon() {
+    const btn = document.getElementById('fullscreen-toggle');
+    if (!btn) return;
+    const img = btn.querySelector('img');
+    if (!img) return;
+    if (isFullscreenActive()) {
+        img.src = '/a7/plugins/neo-ai/collapse.svg';
+        img.alt = 'Exit Fullscreen';
+        btn.title = 'Exit Fullscreen (Esc)';
+    } else {
+        img.src = '/a7/plugins/neo-ai/expand.svg';
+        img.alt = 'Enter Fullscreen';
+        btn.title = 'Enter Fullscreen (F11)';
+    }
+}
+
+function toggleFullscreen() {
+    const elem = document.documentElement;
+    if (!isFullscreenActive()) {
+        requestFullscreenFor(elem);
+    } else {
+        exitFullscreen();
+    }
+}
+
+document.addEventListener('fullscreenchange', updateFullscreenIcon);
+document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
+
+// Keyboard shortcut: F11 or Ctrl+Cmd+F (macOS)
+document.addEventListener('keydown', e => {
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    if (e.key === 'F11') {
+        e.preventDefault();
+        toggleFullscreen();
+    }
+    if (isMac && e.ctrlKey && e.metaKey && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        toggleFullscreen();
+    }
+});
+
 // if url contains 55557 then .nav-app display flex
 // for desktop app
 if (window.location.href.includes('55557')) {
