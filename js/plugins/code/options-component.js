@@ -1427,6 +1427,8 @@ class OptionsComponent extends LitElement {
                             <jalebi-toggle id="toggle-notifications" ?checked="${this.notificationsEnabled}" @valuechange="${this.toggleNotifications}"></jalebi-toggle>
                         </div>
 
+                        
+
                         <!--
                         <div class="menu-item-static content-section">
                             <label for="toggle-autocomplete">AI Autocomplete</label>

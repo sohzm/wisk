@@ -241,6 +241,13 @@ class HelpDialog extends LitElement {
                         <div style="display: flex; gap: var(--gap-2); flex-direction: column; width: 100%;">
                             <p class="shortcut">Command Palette <span class="shortcut-key">Ctrl + Shift + P</span></p>
                             <p class="shortcut">Search <span class="shortcut-key">Ctrl + Shift + F</span></p>
+                            <p class="shortcut">
+                                <span>Toggle Fullscreen</span>
+                                <span style="display: flex; align-items: center; gap: var(--gap-2);">
+                                    <span class="shortcut-key">F11</span>
+                                    <span class="shortcut-key">Ctrl + ⌘ + F</span>
+                                </span>
+                            </p>
                         </div>
                     </div>
 
