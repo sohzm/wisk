@@ -198,26 +198,34 @@ class SelectorElement extends HTMLElement {
         this.renderButtons('');
 
         requestAnimationFrame(() => {
-            const GAP = 8;
+            const GAP = 10;
+            const MARGIN = 8;
             const vw = window.innerWidth;
             const vh = window.innerHeight;
 
-            let x = Math.round((vw - selector.getBoundingClientRect().width) / 2);
-            let y = Math.round((vh - selector.getBoundingClientRect().height) / 3);
+            const { width: mw, height: mh } = selector.getBoundingClientRect();
+
+            let left = Math.round((vw - mw) / 2);
+            let top = Math.round((vh - mh) / 3);
 
             if (anchorRect && (anchorRect.width > 0 || anchorRect.height > 0)) {
-                const { top: t, bottom: b, left: l } = anchorRect;
-                const menuRect = selector.getBoundingClientRect();
-                x = l;
-                y = b + GAP;
-                if (x + menuRect.width > vw - 8) x = Math.max(8, vw - menuRect.width - 8);
-                if (y + menuRect.height > vh - 8) y = Math.max(8, t - GAP - menuRect.height);
-                if (y < 8) y = 8;
+                const { top: t, bottom: b, left: l, right: r } = anchorRect;
+                const triggerMidY = (t + b) / 2;
+
+                left = l - GAP - mw;
+                top = triggerMidY - mh / 2;
+
+                if (left < MARGIN) {
+                    left = r + GAP;
+                }
+
+                top = Math.max(MARGIN, Math.min(top, vh - MARGIN - mh));
+                left = Math.max(MARGIN, Math.min(left, vw - MARGIN - mw));
             }
 
             selector.style.position = 'fixed';
-            selector.style.left = `${x}px`;
-            selector.style.top = `${y}px`;
+            selector.style.left = `${Math.round(left)}px`;
+            selector.style.top = `${Math.round(top)}px`;
             selector.style.visibility = 'visible';
         });
     }

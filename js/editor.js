@@ -711,6 +711,22 @@ wisk.editor.showSelector = function (elementId, focusIdentifier) {
     let hover = null;
     let plusIcon = null;
 
+    const prev = wisk.editor.prevElement(elementId);
+    if (prev) {
+        const prevBlockDiv = document.getElementById(`div-${prev.id}`);
+        if (prevBlockDiv) {
+            const prevHover = prevBlockDiv.querySelector('.hover-images');
+            const prevPlus = prevHover ? prevHover.querySelector('img[src$="plus-hover.svg"]') : null;
+            if (prevPlus) {
+                const r = prevPlus.getBoundingClientRect();
+                if (r && (r.width > 0 || r.height > 0)) {
+                    selector.show(elementId, r);
+                    return;
+                }
+            }
+        }
+    }
+
     if (blockDiv) {
         hover = blockDiv.querySelector('.hover-images');
         if (!hover) hover = blockDiv;
