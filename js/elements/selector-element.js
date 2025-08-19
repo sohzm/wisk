@@ -184,13 +184,42 @@ class SelectorElement extends HTMLElement {
         button.classList.add('selector-button-focused');
     }
 
-    show(elementId) {
+    show(elementId, anchorRect) {
         this.elementId = elementId;
         this.shadowRoot.querySelector('#selector-input').value = '';
-        this.shadowRoot.querySelector('#selector').classList.remove('displayNone');
-        this.shadowRoot.querySelector('#selector-bg').classList.remove('displayNone');
+        const selector = this.shadowRoot.querySelector('#selector');
+        const bg = this.shadowRoot.querySelector('#selector-bg');
+        selector.classList.remove('displayNone');
+        bg.classList.remove('displayNone');
+        selector.style.visibility = 'hidden';
+        selector.style.top = '0px';
+        selector.style.left = '0px';
         this.shadowRoot.querySelector('#selector-input').focus();
         this.renderButtons('');
+
+        requestAnimationFrame(() => {
+            const GAP = 8;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+
+            let x = Math.round((vw - selector.getBoundingClientRect().width) / 2);
+            let y = Math.round((vh - selector.getBoundingClientRect().height) / 3);
+
+            if (anchorRect && (anchorRect.width > 0 || anchorRect.height > 0)) {
+                const { top: t, bottom: b, left: l } = anchorRect;
+                const menuRect = selector.getBoundingClientRect();
+                x = l;
+                y = b + GAP;
+                if (x + menuRect.width > vw - 8) x = Math.max(8, vw - menuRect.width - 8);
+                if (y + menuRect.height > vh - 8) y = Math.max(8, t - GAP - menuRect.height);
+                if (y < 8) y = 8;
+            }
+
+            selector.style.position = 'fixed';
+            selector.style.left = `${x}px`;
+            selector.style.top = `${y}px`;
+            selector.style.visibility = 'visible';
+        });
     }
 
     hide() {
@@ -220,8 +249,6 @@ class SelectorElement extends HTMLElement {
                 max-width: 400px;
                 height: auto;
                 position: fixed;
-                top: calc(50% - min(50%, 150px));
-                left: calc(50% - min(40%, 200px));
                 background-color: var(--bg-1);
                 border: 1px solid var(--border-1);
                 border-radius: var(--radius-large);
@@ -233,9 +260,6 @@ class SelectorElement extends HTMLElement {
             }
 
             @media (max-width: 900px) {
-                #selector {
-                    top: 20%;
-                }
             }
             .displayNone {
                 display: none;

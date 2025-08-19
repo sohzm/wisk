@@ -706,7 +706,32 @@ wisk.editor.nextElement = function (elementId) {
 
 wisk.editor.showSelector = function (elementId, focusIdentifier) {
     const selector = byQuery('selector-element');
-    selector.show(elementId);
+
+    const blockDiv = document.getElementById(`div-${elementId}`);
+    let hover = null;
+    let plusIcon = null;
+
+    if (blockDiv) {
+        hover = blockDiv.querySelector('.hover-images');
+        if (!hover) hover = blockDiv;
+        if (hover) plusIcon = hover.querySelector('img[src$="plus-hover.svg"]');
+    }
+
+    let anchorRect = null;
+    if (plusIcon) {
+        const r = plusIcon.getBoundingClientRect();
+        if (r && (r.width > 0 || r.height > 0)) anchorRect = r;
+    }
+    if (!anchorRect && hover) {
+        const r = hover.getBoundingClientRect();
+        if (r && (r.width > 0 || r.height > 0)) anchorRect = r;
+    }
+    if (!anchorRect && blockDiv) {
+        const r = blockDiv.getBoundingClientRect();
+        if (r && (r.width > 0 || r.height > 0)) anchorRect = r;
+    }
+
+    selector.show(elementId, anchorRect);
 };
 
 wisk.editor.deleteBlock = function (elementId, rec) {
