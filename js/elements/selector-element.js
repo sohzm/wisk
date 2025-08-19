@@ -225,7 +225,6 @@ class SelectorElement extends HTMLElement {
         selector.style.visibility = 'hidden';
         selector.style.top = '0px';
         selector.style.left = '0px';
-        this.shadowRoot.querySelector('#selector-input').focus();
         this.renderButtons('');
 
         requestAnimationFrame(() => {
@@ -262,6 +261,11 @@ class SelectorElement extends HTMLElement {
             selector.style.left = `${Math.round(left)}px`;
             selector.style.top = `${Math.round(top)}px`;
             selector.style.visibility = 'visible';
+            const input = this.shadowRoot.querySelector('#selector-input');
+            input.focus();
+            setTimeout(() => {
+                input.focus();
+            }, 0);
         });
     }
 
