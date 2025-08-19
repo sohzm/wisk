@@ -47,6 +47,8 @@ bun x wrangler pages dev .
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
+All contributions require agreement to our [Contributor License Agreement](CLA.md).
+
 ## License
 
 Licensed under the Functional Source License (FSL), Version 1.1, with Apache License Version 2.0 as the Future License. See [LICENSE.md](LICENSE.md).
