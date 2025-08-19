@@ -1,5 +1,11 @@
 # Contributing to Wisk
 
+## Contributor License Agreement (CLA)
+
+By submitting a pull request, you confirm that you have read and agreed to the Contributor License Agreement in [CLA.md](CLA.md). Please include the text "I agree to the CLA" in your pull request description.
+
+## Welcome
+
 Thank you for your interest in contributing to Wisk! As an open-source project focused on simplicity and performance, we welcome contributions of all kinds.
 
 ## Getting Started
