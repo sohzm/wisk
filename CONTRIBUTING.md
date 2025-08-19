@@ -54,6 +54,14 @@ Thank you for your interest in contributing to Wisk! As an open-source project f
 - Feature enhancements
 - And anything really!
 
+### What We Don't Accept
+
+- **AI-generated or low-effort PRs without proper testing**
+- **Untested changes that break functionality**
+- **Generic or copy-paste solutions not aligned with Wisk's architecture**
+
+We value thoughtful, well-tested contributions with genuine understanding.
+
 ## Need Help?
 
 - Check existing [issues](https://github.com/sohzm/wisk/issues)
