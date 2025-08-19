@@ -1,4 +1,4 @@
-import { html, css, LitElement } from "/a7/cdn/lit-core-2.7.4.min.js";
+import { html, css, LitElement } from '/a7/cdn/lit-core-2.7.4.min.js';
 
 class HttpElement extends LitElement {
     static styles = [
@@ -104,7 +104,7 @@ class HttpElement extends LitElement {
                 background: var(--bg-1);
             }
 
-            .body-toggle input[type="checkbox"] {
+            .body-toggle input[type='checkbox'] {
                 width: 16px;
                 height: 16px;
                 border-radius: var(--radius);
@@ -114,12 +114,12 @@ class HttpElement extends LitElement {
                 appearance: none;
                 position: relative;
             }
-            .body-toggle input[type="checkbox"]:checked {
+            .body-toggle input[type='checkbox']:checked {
                 background: var(--fg-1);
                 border-color: var(--fg-1);
             }
-            .body-toggle input[type="checkbox"]:checked::after {
-                content: "✓";
+            .body-toggle input[type='checkbox']:checked::after {
+                content: '✓';
                 position: absolute;
                 top: 50%;
                 left: 50%;
@@ -306,16 +306,16 @@ class HttpElement extends LitElement {
 
     constructor() {
         super();
-        this._method = "GET";
-        this._url = "";
-        this._body = "";
+        this._method = 'GET';
+        this._url = '';
+        this._body = '';
         this._showBody = false;
-        this._response = "";
+        this._response = '';
         this._status = 0;
-        this._statusText = "";
+        this._statusText = '';
         this._loading = false;
-        this._error = "";
-        this._headers = { "Content-Type": "application/json" };
+        this._error = '';
+        this._headers = { 'Content-Type': 'application/json' };
         this._savedResponse = null;
         this._showCurlDialog = false;
     }
@@ -362,7 +362,7 @@ class HttpElement extends LitElement {
 
     handleMethodChange(e) {
         this._method = e.target.value;
-        this._showBody = ["POST", "PUT", "PATCH"].includes(this._method);
+        this._showBody = ['POST', 'PUT', 'PATCH'].includes(this._method);
         this.sendUpdates();
     }
     handleUrlChange(e) {
@@ -395,7 +395,7 @@ class HttpElement extends LitElement {
 
     runArg(action) {
         switch (action) {
-            case "paste-curl":
+            case 'paste-curl':
                 return this.handlePasteCurl();
             default:
                 throw new Error(`Unknown action: ${action}`);
@@ -405,7 +405,7 @@ class HttpElement extends LitElement {
     async handlePasteCurl() {
         this._showCurlDialog = true;
         await this.updateComplete;
-        this.renderRoot.querySelector(".curl-textarea").focus();
+        this.renderRoot.querySelector('.curl-textarea').focus();
     }
 
     closeCurlDialog() {
@@ -414,17 +414,17 @@ class HttpElement extends LitElement {
     }
 
     handleCurlSubmit() {
-        const textarea = this.renderRoot.querySelector(".curl-textarea");
+        const textarea = this.renderRoot.querySelector('.curl-textarea');
         const curl = textarea.value.trim();
 
-        if (!curl.startsWith("curl")) {
+        if (!curl.startsWith('curl')) {
             wisk.utils.showToast('Invalid cURL command. Please start with "curl".', 3000);
             return;
         }
 
         // Split while preserving quoted segments
         const tokens = [];
-        let current = "";
+        let current = '';
         let inQuote = null;
 
         for (let i = 0; i < curl.length; i++) {
@@ -437,24 +437,24 @@ class HttpElement extends LitElement {
                 } else {
                     current += char;
                 }
-            } else if (char === "\\" && inQuote) {
+            } else if (char === '\\' && inQuote) {
                 // Handle escape sequences
                 if (i + 1 < curl.length) {
                     current += curl[++i];
                 }
             } else if (!inQuote && /\s/.test(char)) {
                 if (current) tokens.push(current);
-                current = "";
+                current = '';
             } else {
                 current += char;
             }
         }
         if (current) tokens.push(current);
 
-        let method = "GET";
+        let method = 'GET';
         let headers = {};
-        let body = "";
-        let url = "";
+        let body = '';
+        let url = '';
         const used = new Array(tokens.length).fill(false);
 
         // First token is 'curl' - mark as used
@@ -465,16 +465,16 @@ class HttpElement extends LitElement {
             if (used[i]) continue;
             const token = tokens[i];
 
-            if (token === "-X" || token === "--request") {
+            if (token === '-X' || token === '--request') {
                 if (i + 1 < tokens.length) {
                     method = tokens[i + 1].toUpperCase();
                     used[i] = true;
                     used[i + 1] = true;
                     i++;
                 }
-            } else if (token === "-H" || token === "--header") {
+            } else if (token === '-H' || token === '--header') {
                 if (i + 1 < tokens.length) {
-                    const header = tokens[i + 1].split(":", 2);
+                    const header = tokens[i + 1].split(':', 2);
                     if (header.length === 2) {
                         headers[header[0].trim()] = header[1].trim();
                     }
@@ -482,7 +482,7 @@ class HttpElement extends LitElement {
                     used[i + 1] = true;
                     i++;
                 }
-            } else if (token === "-d" || token === "--data" || token === "--data-raw") {
+            } else if (token === '-d' || token === '--data' || token === '--data-raw') {
                 if (i + 1 < tokens.length) {
                     body = tokens[i + 1];
                     used[i] = true;
@@ -494,7 +494,7 @@ class HttpElement extends LitElement {
 
         // Find URL (last unused token starting with http)
         for (let i = tokens.length - 1; i > 0; i--) {
-            if (!used[i] && tokens[i].toLowerCase().startsWith("http")) {
+            if (!used[i] && tokens[i].toLowerCase().startsWith('http')) {
                 url = tokens[i];
                 break;
             }
@@ -503,7 +503,7 @@ class HttpElement extends LitElement {
         // Apply parsed values
         this._url = url;
         this._method = method;
-        this._headers = Object.keys(headers).length ? headers : { "Content-Type": "application/json" };
+        this._headers = Object.keys(headers).length ? headers : { 'Content-Type': 'application/json' };
         this._body = body;
         this._showBody = !!body;
         this._showCurlDialog = false;
@@ -512,28 +512,28 @@ class HttpElement extends LitElement {
 
     async sendRequest() {
         if (!this._url) {
-            this._error = "Please enter a URL";
+            this._error = 'Please enter a URL';
             this._loading = false;
             this.requestUpdate();
             return;
         }
 
         this._loading = true;
-        this._error = "";
+        this._error = '';
         this.requestUpdate();
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 30000);
             const options = { method: this._method, headers: this._headers, signal: controller.signal };
-            if (this._showBody && this._body && ["POST", "PUT", "PATCH", "DELETE"].includes(this._method)) options.body = this._body;
+            if (this._showBody && this._body && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(this._method)) options.body = this._body;
 
             const response = await fetch(this._url, options);
             clearTimeout(timeoutId);
 
             this._status = response.status;
             this._statusText = response.statusText;
-            const ct = response.headers.get("content-type");
-            if (ct && ct.includes("application/json")) this._response = JSON.stringify(await response.json(), null, 2);
+            const ct = response.headers.get('content-type');
+            if (ct && ct.includes('application/json')) this._response = JSON.stringify(await response.json(), null, 2);
             else this._response = await response.text();
 
             this._loading = false;
@@ -541,18 +541,18 @@ class HttpElement extends LitElement {
             this.sendUpdates();
         } catch (err) {
             this._loading = false;
-            this._error = err.name === "AbortError" ? "Request timeout (30s)" : err.message || "An error occurred";
+            this._error = err.name === 'AbortError' ? 'Request timeout (30s)' : err.message || 'An error occurred';
             this._status = 0;
-            this._response = "";
+            this._response = '';
             this.sendUpdates();
         }
     }
 
     getStatusClass() {
-        if (this._status >= 200 && this._status < 300) return "success";
-        if (this._status >= 400) return "error";
-        if (this._status > 0) return "info";
-        return "";
+        if (this._status >= 200 && this._status < 300) return 'success';
+        if (this._status >= 400) return 'error';
+        if (this._status > 0) return 'info';
+        return '';
     }
 
     render() {
@@ -569,8 +569,16 @@ class HttpElement extends LitElement {
                             <option value="HEAD">HEAD</option>
                             <option value="OPTIONS">OPTIONS</option>
                         </select>
-                        <input class="url-input" type="text" placeholder="https://api.example.com/endpoint" .value="${this._url}" @input="${this.handleUrlChange}" />
-                        <button class="send-button" @click="${this.sendRequest}" ?disabled="${this._loading}">${this._loading ? "Sending..." : "Send"}</button>
+                        <input
+                            class="url-input"
+                            type="text"
+                            placeholder="https://api.example.com/endpoint"
+                            .value="${this._url}"
+                            @input="${this.handleUrlChange}"
+                        />
+                        <button class="send-button" @click="${this.sendRequest}" ?disabled="${this._loading}">
+                            ${this._loading ? 'Sending...' : 'Send'}
+                        </button>
                     </div>
                 </div>
 
@@ -579,14 +587,20 @@ class HttpElement extends LitElement {
                         <input type="checkbox" .checked="${this._showBody}" @change="${this.toggleBody}" />
                         <span>Request Body</span>
                     </div>
-                    <div class="body-content ${this._showBody ? "visible" : ""}">
-                        <textarea class="body-textarea" placeholder='{"key": "value"}' .value="${this._body}" @input="${this.handleBodyChange}"></textarea>
+                    <div class="body-content ${this._showBody ? 'visible' : ''}">
+                        <textarea
+                            class="body-textarea"
+                            placeholder='{"key": "value"}'
+                            .value="${this._body}"
+                            @input="${this.handleBodyChange}"
+                        ></textarea>
                     </div>
                 </div>
 
-                ${this._loading ? html`<div class="loading visible">Sending request...</div>` : ""} ${this._error ? html`<div class="error-message visible">${this._error}</div>` : ""}
+                ${this._loading ? html`<div class="loading visible">Sending request...</div>` : ''}
+                ${this._error ? html`<div class="error-message visible">${this._error}</div>` : ''}
 
-                <div class="response-section" style="display: ${this._response ? "block" : "none"};">
+                <div class="response-section" style="display: ${this._response ? 'block' : 'none'};">
                     <div class="response-header">
                         <div class="status-info">
                             ${this._status > 0
@@ -595,21 +609,21 @@ class HttpElement extends LitElement {
                                 : html`<span>Response</span>`}
                         </div>
                     </div>
-                    <div class="response-content ${this._response && this._response.trim().startsWith("{") ? "json" : ""}">${this._response}</div>
+                    <div class="response-content ${this._response && this._response.trim().startsWith('{') ? 'json' : ''}">${this._response}</div>
                 </div>
             </div>
 
             ${this._showCurlDialog
                 ? html` <div class="curl-dialog-backdrop" @click="${this.closeCurlDialog}">
-                      <div class="curl-dialog" @click="${(e) => e.stopPropagation()}">
+                      <div class="curl-dialog" @click="${e => e.stopPropagation()}">
                           <h3>Paste cURL Command</h3>
                           <textarea class="curl-textarea" placeholder="Paste your cURL command here..."></textarea>
                           <button class="curl-submit-button" @click="${this.handleCurlSubmit}">Submit</button>
                       </div>
                   </div>`
-                : ""}
+                : ''}
         `;
     }
 }
 
-customElements.define("http-element", HttpElement);
+customElements.define('http-element', HttpElement);

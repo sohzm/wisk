@@ -1,14 +1,17 @@
 # Wisk Plugin Development Guide
 
 ## Plugin System Overview
+
 Wisk uses a comprehensive plugin system where **most functionality is implemented as plugins**. The central registry is [js/plugins/plugin-data.json](mdc:js/plugins/plugin-data.json).
 
 ## Plugin Categories & Examples
 
 ### Component Plugins (Document Blocks)
+
 Most common plugin type - adds new block types to documents:
+
 - `text-element` - Basic text blocks
-- `code-element` - Code blocks with syntax highlighting  
+- `code-element` - Code blocks with syntax highlighting
 - `latex-element` - Mathematical equations
 - `image-element` - Image blocks
 - `table-element` - Table blocks
@@ -17,12 +20,14 @@ Most common plugin type - adds new block types to documents:
 - `database-element` - Spreadsheet-like data tables
 
 ### UI Plugins
+
 - `mini-dialog` - Popup dialogs (options, symbols, pomodoro timer)
 - `right-sidebar` - Right panel plugins (citations, chat, PDF preview)
 - `left-sidebar` - Left panel plugins (navigation menu)
 - `nav-mini` - Navigation bar elements (word count, music player)
 
-### Background Plugins  
+### Background Plugins
+
 - `auto` - Automatically loaded plugins (AI, powerlevel, vim keybindings)
 
 ## Plugin Registration Format
@@ -57,25 +62,33 @@ Most common plugin type - adds new block types to documents:
 ## Plugin Properties
 
 ### Width Control
+
 This is only for component plugins
+
 - `"width": "mini"` - Standard width blocks
 - `"width": "max"` - Full-width blocks (like main-element)
 
 ### Loading Mechanism
+
 - `"loadAsModule": true` - Load as ES6 module
 - `"loadAsModule": false` - Load as regular script
 
 ### Content Types
+
 This is only for component plugins
+
 - `"textual": true` - Plugin handles text content (can be edited)
 - `"textual": false` - Plugin is interactive/media element
 
 ### Navigation Integration
+
 Isnt for component plugins
+
 - `"nav": true` - Show in navigation/toolbar
 - `"nav": false` - Background functionality only
 
 ## Plugin File Organization
+
 - **Plugin code**: All plugins stored in `/js/plugins/code/` directory
 - **Icons**: Plugin icons in `/js/plugins/icons/` directory
 - **Auto-loading**: Plugins automatically loaded by editor based on document configuration
@@ -83,6 +96,7 @@ Isnt for component plugins
 ## Development Workflow
 
 ### Creating New Component Plugin
+
 1. Create plugin file in `/js/plugins/code/your-plugin.js`
 2. Implement as Web Component
 3. Register in [js/plugins/plugin-data.json](mdc:js/plugins/plugin-data.json)
@@ -90,7 +104,9 @@ Isnt for component plugins
 5. Plugin automatically available in editor
 
 ### Plugin Code Structure
+
 Plugins are Web Components that follow these patterns:
+
 - Use `customElements.define()` to register
 - Implement standard Web Component lifecycle
 - Access editor APIs through `wisk.editor.*`
@@ -99,21 +115,26 @@ Plugins are Web Components that follow these patterns:
 ## Special Plugin Categories
 
 ### Experimental Plugins
+
 - Mark with `"experimental": true`
 - May have unstable APIs
 - Examples: `database-element`, `tweaks-element`, `vim`
 
-### Hidden Plugins  
+### Hidden Plugins
+
 - Mark with `"hide": true`
 - Not shown in plugin lists
 - Examples: `share-manager`, `main-element`
 
 ### Multi-Component Plugins
+
 Some plugins register multiple components:
+
 - `database-element` - includes `database-element` and `database-page`
 - `sticky-notes` - includes dialog and `pin-element`
 
 ## Editor Integration
+
 - Plugins auto-load based on document's plugin configuration
 - Access editor APIs: `wisk.editor.createNewBlock()`, `wisk.editor.updateBlock()`, etc.
 - Use theme system: CSS variables from [js/theme/variables.css](mdc:js/theme/variables.css)

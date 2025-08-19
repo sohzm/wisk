@@ -676,7 +676,7 @@ class BaseTextElement extends HTMLElement {
             }
 
             wisk.editor.changeBlockType(this.id, val, newType);
-            
+
             const elementToFocus = document.getElementById(this.id);
             if (elementToFocus) {
                 elementToFocus.focus();

@@ -19,7 +19,7 @@ wisk.db = (function () {
     };
 
     // Ensure 'WiskDatabase' is always present
-    if(!dbNames.includes('WiskDatabase')) {
+    if (!dbNames.includes('WiskDatabase')) {
         dbNames.unshift('WiskDatabase');
     }
 
@@ -82,7 +82,7 @@ wisk.db = (function () {
     });
 
     api.clearAllData = async function () {
-        for(const dbName of dbNames) {
+        for (const dbName of dbNames) {
             const db = await openDB(dbName);
             const tx = db.transaction(stores, 'readwrite');
             stores.forEach(name => tx.objectStore(name).clear());

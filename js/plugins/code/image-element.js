@@ -1136,44 +1136,44 @@ class ImageElement extends BaseTextElement {
     runArg(action) {
         switch (action) {
             case 'download':
-                return this.download()
+                return this.download();
             default:
-                throw new Error(`Unknown action: ${action}`)
+                throw new Error(`Unknown action: ${action}`);
         }
     }
 
     async download() {
         const url = this.imageUrl;
         if (url) {
-        try {
-            wisk.utils.showToast('Downloading image...', 3000);
+            try {
+                wisk.utils.showToast('Downloading image...', 3000);
 
-            // Get the blob from IndexedDB
-            const blob = await wisk.db.getAsset(url);
-            if (!blob) {
-                throw new Error('Image not found in storage');
+                // Get the blob from IndexedDB
+                const blob = await wisk.db.getAsset(url);
+                if (!blob) {
+                    throw new Error('Image not found in storage');
+                }
+
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+
+                // Create a filename from the stored key
+                const filename = url;
+                a.download = filename;
+
+                document.body.appendChild(a);
+                a.click();
+
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(blobUrl);
+            } catch (error) {
+                console.error('Error downloading image:', error);
+                wisk.utils.showToast('Failed to download image', 3000);
             }
-
-            const blobUrl = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = blobUrl;
-
-            // Create a filename from the stored key
-            const filename = url;
-            a.download = filename;
-
-            document.body.appendChild(a);
-            a.click();
-
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(blobUrl);
-        } catch (error) {
-            console.error('Error downloading image:', error);
-            wisk.utils.showToast('Failed to download image', 3000);
+        } else {
+            wisk.utils.showToast('No image found', 3000);
         }
-    } else {
-        wisk.utils.showToast('No image found', 3000);
-    }
     }
 }
 

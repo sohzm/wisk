@@ -413,7 +413,7 @@ class ColumnsElement extends HTMLElement {
             this._menuCleanup = null;
         }
     }
-    
+
     whenSelectClicked(btn, index) {
         const column = this.columns[index];
         // Show options for the column - duplicate and delete
@@ -424,29 +424,41 @@ class ColumnsElement extends HTMLElement {
         // Build menu
         const contextMenu = document.createElement('div');
         contextMenu.classList.add('context-menu');
-        
-        // Mandatory Items
-        contextMenu.appendChild(this.createMenuItem('Duplicate column', () => {
-            if (!column) return;
-            const newColId = wisk.editor.generateNewId(this.id);
-            const cloned = {
-            id: newColId,
-            elements: (column.elements || []).map(el => ({
-                id: wisk.editor.generateNewId(newColId),
-                component: el.component,
-                value: JSON.parse(JSON.stringify(el.value || {})),
-            }))
-            };
-            this.columns.splice(index + 1, 0, cloned);
-            this.sendUpdates();
-            this.render();
-        }, 'duplicate', '/a7/iconoir/copy.svg'));
 
-        
-        contextMenu.appendChild(this.createMenuItem('Delete column', () => {
-        this.deleteColumn(index);
-        }, 'delete', '/a7/forget/trash.svg'));
-        
+        // Mandatory Items
+        contextMenu.appendChild(
+            this.createMenuItem(
+                'Duplicate column',
+                () => {
+                    if (!column) return;
+                    const newColId = wisk.editor.generateNewId(this.id);
+                    const cloned = {
+                        id: newColId,
+                        elements: (column.elements || []).map(el => ({
+                            id: wisk.editor.generateNewId(newColId),
+                            component: el.component,
+                            value: JSON.parse(JSON.stringify(el.value || {})),
+                        })),
+                    };
+                    this.columns.splice(index + 1, 0, cloned);
+                    this.sendUpdates();
+                    this.render();
+                },
+                'duplicate',
+                '/a7/iconoir/copy.svg'
+            )
+        );
+
+        contextMenu.appendChild(
+            this.createMenuItem(
+                'Delete column',
+                () => {
+                    this.deleteColumn(index);
+                },
+                'delete',
+                '/a7/forget/trash.svg'
+            )
+        );
 
         this.shadowRoot.appendChild(contextMenu);
 
@@ -470,8 +482,8 @@ class ColumnsElement extends HTMLElement {
             contextMenu.style.transformOrigin = 'center left';
 
             if (left + mw > vw - MARGIN) {
-            left = l - GAP - mw;
-            contextMenu.style.transformOrigin = 'center right';
+                left = l - GAP - mw;
+                contextMenu.style.transformOrigin = 'center right';
             }
             top = Math.max(MARGIN, Math.min(top, vh - MARGIN - mh));
 
@@ -516,9 +528,9 @@ class ColumnsElement extends HTMLElement {
         const paddingLeft = parseFloat(computedStyle.paddingLeft);
         const paddingRight = parseFloat(computedStyle.paddingRight);
 
-        indicator.style.width = (rect.width - paddingLeft - paddingRight) + 'px';
-        indicator.style.left = (rect.left + paddingLeft) + 'px';
-        indicator.style.top = (rect.bottom + 1) + 'px';
+        indicator.style.width = rect.width - paddingLeft - paddingRight + 'px';
+        indicator.style.left = rect.left + paddingLeft + 'px';
+        indicator.style.top = rect.bottom + 1 + 'px';
 
         indicator.classList.remove('hide');
         indicator.classList.add('show');
@@ -533,11 +545,11 @@ class ColumnsElement extends HTMLElement {
     getElementAbove(x, y) {
         // get the column
         const clone = document.querySelector('.clone');
-        if(clone) clone.style.display = 'none';
-        const table = this.shadowRoot.querySelector(".columns");
+        if (clone) clone.style.display = 'none';
+        const table = this.shadowRoot.querySelector('.columns');
         const target = this.shadowRoot.elementFromPoint(x, y);
-        if(clone) clone.style.display = 'block';
-        if(table.contains(target)) return target;
+        if (clone) clone.style.display = 'block';
+        if (table.contains(target)) return target;
         return null;
     }
 
@@ -547,7 +559,7 @@ class ColumnsElement extends HTMLElement {
         event.stopPropagation();
         const original = this.shadowRoot.getElementById(column.id);
         const block = column;
-        if(!original) return;
+        if (!original) return;
         const clone = document.createElement('div');
         clone.className = 'clone';
         clone.style.position = 'fixed';
@@ -560,25 +572,25 @@ class ColumnsElement extends HTMLElement {
             original: original,
             clone: clone,
             originalValue: JSON.parse(JSON.stringify(original.getValue())),
-            originalComponent: block.component
+            originalComponent: block.component,
         };
 
         this.boundHandleDrag = this.handleDrag.bind(this);
         this.boundHandleDrop = this.handleDrop.bind(this);
-        
+
         window.addEventListener('mousemove', this.boundHandleDrag);
         window.addEventListener('mouseup', this.boundHandleDrop);
     }
 
     handleDrag(e) {
-        if(!this.dragState) return;
-        
+        if (!this.dragState) return;
+
         const { clone } = this.dragState;
         clone.style.left = e.clientX + 'px';
         clone.style.top = e.clientY + 'px';
-        
+
         const targetColumn = this.getElementAbove(e.clientX, e.clientY);
-        const targetContainer = targetColumn ? targetColumn.closest(".column") : null;
+        const targetContainer = targetColumn ? targetColumn.closest('.column') : null;
         if (targetContainer) {
             this.showDropIndicator(targetContainer);
         } else {
@@ -597,15 +609,13 @@ class ColumnsElement extends HTMLElement {
         window.removeEventListener('mouseup', this.boundHandleDrop);
 
         const targetElement = this.getElementAbove(e.clientX, e.clientY);
-        
+
         if (targetElement) {
             const targetColumn = targetElement.closest('.column');
             if (targetColumn) {
                 const targetColumnIndex = parseInt(targetColumn.getAttribute('data-column-index'));
                 const sourceColumnIndex = this.columns.findIndex(col => col.id === elementId);
-                if (sourceColumnIndex !== -1 &&
-                    targetColumnIndex !== -1 &&
-                    sourceColumnIndex !== targetColumnIndex) {
+                if (sourceColumnIndex !== -1 && targetColumnIndex !== -1 && sourceColumnIndex !== targetColumnIndex) {
                     const [draggedColumn] = this.columns.splice(sourceColumnIndex, 1);
                     this.columns.splice(targetColumnIndex, 0, draggedColumn);
                     this.sendUpdates();
@@ -787,24 +797,24 @@ class ColumnsElement extends HTMLElement {
 
         // Event listeners for options button
         const optionButtons = this.shadowRoot.querySelectorAll('.column-options-btn');
-            optionButtons.forEach(button => {
-                button.addEventListener('click', e => {
-                    e.stopPropagation();
+        optionButtons.forEach(button => {
+            button.addEventListener('click', e => {
+                e.stopPropagation();
+                const index = parseInt(button.getAttribute('data-index'));
+                this.whenSelectClicked(button, index);
+            });
+            button.addEventListener('mousedown', event => {
+                this.dragHoldTimer = setTimeout(() => {
                     const index = parseInt(button.getAttribute('data-index'));
-                    this.whenSelectClicked(button, index);
-                });
-                button.addEventListener('mousedown', (event) => {
-                    this.dragHoldTimer = setTimeout(() => {
-                        const index = parseInt(button.getAttribute('data-index'));
-                        this.onDragStart(event, index);
-                    }, 150);
-                });
-                button.addEventListener('mouseup', () => {
-                    clearTimeout(this.dragHoldTimer);
-                });
-                button.addEventListener('mouseleave', () => {
-                    clearTimeout(this.dragHoldTimer);
-                });
+                    this.onDragStart(event, index);
+                }, 150);
+            });
+            button.addEventListener('mouseup', () => {
+                clearTimeout(this.dragHoldTimer);
+            });
+            button.addEventListener('mouseleave', () => {
+                clearTimeout(this.dragHoldTimer);
+            });
         });
 
         // Set values to base layout elements

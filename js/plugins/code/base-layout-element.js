@@ -306,11 +306,11 @@ class BaseLayoutElement extends HTMLElement {
     createHoverImageContainer(elementId) {
         const imageContainer = document.createElement('div');
         imageContainer.classList.add('hover-images');
-        
+
         const addButton = this.createHoverButton('/a7/forget/plus-hover.svg', () => this.whenPlusClicked(elementId));
         const selectButton = this.createHoverButton('/a7/forget/dots-grid3x3.svg', () => this.whenSelectClicked(elementId));
-        
-        selectButton.addEventListener('mousedown', (event) => {
+
+        selectButton.addEventListener('mousedown', event => {
             this.dragHoldTimer = setTimeout(() => {
                 this.onDragStart(event, elementId);
             }, 150);
@@ -397,7 +397,7 @@ class BaseLayoutElement extends HTMLElement {
         const item = document.createElement('div');
         item.className = `context-menuItem ${itemClass}`;
 
-        if(icon) {
+        if (icon) {
             const iconElement = document.createElement('span');
             iconElement.className = 'cm-icon';
             const iconImage = document.createElement('img');
@@ -411,11 +411,11 @@ class BaseLayoutElement extends HTMLElement {
         labelElement.textContent = label;
         item.appendChild(labelElement);
 
-        item.addEventListener('click', (e) => {
+        item.addEventListener('click', e => {
             e.stopPropagation();
             onClick();
             const existingMenu = document.querySelector('.context-menu');
-            if(existingMenu) {
+            if (existingMenu) {
                 existingMenu.remove();
             }
         });
@@ -429,15 +429,17 @@ class BaseLayoutElement extends HTMLElement {
         if (!el) return;
         const valueClone = JSON.parse(JSON.stringify(el.getValue() || {}));
         this.editor.createNewBlock(elementId, componentType, valueClone, { x: 0 });
-    };
+    }
 
     async deleteItem(elementId) {
         const inst = this.shadowRoot.getElementById(elementId);
         if (inst && inst.aboutToBeOoomfed) {
-            try { await inst.aboutToBeOoomfed(); } catch { }
+            try {
+                await inst.aboutToBeOoomfed();
+            } catch {}
         }
         this.editor.deleteBlock(elementId);
-    };
+    }
 
     whenSelectClicked(elementId) {
         console.log('SELECT CLICKED <base layout element>', elementId);
@@ -451,7 +453,7 @@ class BaseLayoutElement extends HTMLElement {
         const blockDiv = this.shadowRoot.getElementById(`div-${elementId}`);
         const element = this.shadowRoot.getElementById(elementId);
         const existingMenu = this.shadowRoot.querySelector('.context-menu');
-        if(existingMenu) existingMenu.remove();
+        if (existingMenu) existingMenu.remove();
 
         // Build Menu
         const contextMenu = document.createElement('div');
@@ -465,13 +467,17 @@ class BaseLayoutElement extends HTMLElement {
         const elActions = wisk.plugins.getPluginDetail(elType)['context-menu-options'];
         if (Array.isArray(elActions)) {
             for (const action of elActions) {
-                contextMenu.appendChild(createMenuItem(
-                action.label, 
-                () => {
-                    const element = this.shadowRoot.getElementById(elementId);
-                    element.runArg(action.action);
-                }, '',
-                action.icon || ''));
+                contextMenu.appendChild(
+                    createMenuItem(
+                        action.label,
+                        () => {
+                            const element = this.shadowRoot.getElementById(elementId);
+                            element.runArg(action.action);
+                        },
+                        '',
+                        action.icon || ''
+                    )
+                );
             }
         }
 
@@ -518,8 +524,7 @@ class BaseLayoutElement extends HTMLElement {
             contextMenu.style.visibility = 'visible';
         });
 
-
-        const scrollerEl = document.querySelector('.editor')
+        const scrollerEl = document.querySelector('.editor');
 
         function cleanup() {
             if (contextMenu && contextMenu.parentNode) contextMenu.remove();
@@ -564,9 +569,9 @@ class BaseLayoutElement extends HTMLElement {
         const paddingLeft = parseFloat(computedStyle.paddingLeft);
         const paddingRight = parseFloat(computedStyle.paddingRight);
 
-        indicator.style.width = (rect.width - paddingLeft - paddingRight) + 'px';
-        indicator.style.left = (rect.left + paddingLeft) + 'px';
-        indicator.style.top = (rect.bottom + 1) + 'px';
+        indicator.style.width = rect.width - paddingLeft - paddingRight + 'px';
+        indicator.style.left = rect.left + paddingLeft + 'px';
+        indicator.style.top = rect.bottom + 1 + 'px';
 
         indicator.classList.remove('hide');
         indicator.classList.add('show');
@@ -580,10 +585,10 @@ class BaseLayoutElement extends HTMLElement {
 
     getElementAbove(x, y) {
         const clone = document.querySelector('.clone');
-        if(clone) clone.style.display = 'none';
+        if (clone) clone.style.display = 'none';
         const target = this.shadowRoot.elementFromPoint(x, y);
-        if(clone) clone.style.display = 'block';
-        if(this.shadowRoot.contains(target)) {
+        if (clone) clone.style.display = 'block';
+        if (this.shadowRoot.contains(target)) {
             return target;
         }
         return null;
@@ -595,7 +600,7 @@ class BaseLayoutElement extends HTMLElement {
         console.log('drag start, elementId: ', elementId);
         const original = this.shadowRoot.getElementById(elementId);
         const block = this.editor.getElement(elementId);
-        if(!original) return;
+        if (!original) return;
 
         const clone = document.createElement('div');
         clone.className = 'clone';
@@ -609,23 +614,23 @@ class BaseLayoutElement extends HTMLElement {
             original: original,
             clone: clone,
             originalValue: JSON.parse(JSON.stringify(original.getValue())),
-            originalComponent: block.component
+            originalComponent: block.component,
         };
 
         this.boundHandleDrag = this.handleDrag.bind(this);
         this.boundHandleDrop = this.handleDrop.bind(this);
-        
+
         window.addEventListener('mousemove', this.boundHandleDrag);
         window.addEventListener('mouseup', this.boundHandleDrop);
     }
 
     handleDrag(e) {
-        if(!this.dragState) return;
-        
+        if (!this.dragState) return;
+
         const { clone } = this.dragState;
         clone.style.left = e.clientX + 'px';
         clone.style.top = e.clientY + 'px';
-        
+
         const elementAbove = this.getElementAbove(e.clientX, e.clientY);
         const targetContainer = elementAbove ? elementAbove.closest('.rndr') : null;
         console.log('targetContainer: ', targetContainer);
@@ -638,29 +643,27 @@ class BaseLayoutElement extends HTMLElement {
 
     handleDrop(e) {
         if (!this.dragState) return;
-        
+
         this.hideDropIndicator();
-        
-        const {
-            elementId, original, clone, originalValue, originalComponent
-        } = this.dragState;
-        
+
+        const { elementId, original, clone, originalValue, originalComponent } = this.dragState;
+
         document.body.removeChild(clone);
         window.removeEventListener('mousemove', this.boundHandleDrag);
         window.removeEventListener('mouseup', this.boundHandleDrop);
-        
+
         const elementAbove = this.getElementAbove(e.clientX, e.clientY);
         const targetContainer = elementAbove ? elementAbove.closest('.rndr') : null;
-        
+
         if (targetContainer) {
             const targetId = targetContainer.id.replace('div-', '');
-            console.log("moving element to below: ", targetId);
+            console.log('moving element to below: ', targetId);
             if (targetId !== elementId) {
                 this.editor.deleteBlock(elementId);
                 this.editor.createNewBlock(targetId, originalComponent, originalValue, { x: 0 });
             }
         }
-        
+
         this.dragState = null;
     }
 

@@ -51,7 +51,7 @@ class ToolbarElement extends LitElement {
         }
 
         @media (max-width: 500px) {
-            .toolbar{
+            .toolbar {
                 position: fixed;
                 width: 60vw;
                 height: 400px;

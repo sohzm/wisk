@@ -22,7 +22,6 @@ const SCROLL_ZONE_SIZE = 40;
 const SCROLL_SPEED = 10;
 const SCROLL_INTERVAL = 16;
 
-
 const createHoverImageContainer = elementId => {
     const imageContainer = document.createElement('div');
     imageContainer.classList.add('hover-images');
@@ -30,7 +29,7 @@ const createHoverImageContainer = elementId => {
     const addButton = createHoverButton('/a7/forget/plus-hover.svg', () => whenPlusClicked(elementId));
     const selectButton = createHoverButton('/a7/forget/dots-grid3x3.svg', () => whenSelectClicked(elementId));
 
-    selectButton.addEventListener('mousedown', (event) => {
+    selectButton.addEventListener('mousedown', event => {
         dragHoldTimer = setTimeout(() => {
             onDragStart(event, elementId);
         }, 150);
@@ -1058,11 +1057,11 @@ function createMenuItem(label, onClick, itemClass = '', icon = '/a7/forget/null.
     item.appendChild(iconElement);
 
     const labelElement = document.createElement('span');
-    labelElement.className = 'cm-label'
+    labelElement.className = 'cm-label';
     labelElement.textContent = label;
     item.appendChild(labelElement);
 
-    item.addEventListener('click', (e) => {
+    item.addEventListener('click', e => {
         e.stopPropagation();
         onClick();
         const existingMenu = document.querySelector('.context-menu');
@@ -1075,20 +1074,22 @@ function createMenuItem(label, onClick, itemClass = '', icon = '/a7/forget/null.
 }
 
 function duplicateItem(elementId) {
-        if (elementId === 'abcdxyz') return;
-        const el = wisk.editor.getElement(elementId);
-        if (!el) return;
-        const valueClone = JSON.parse(JSON.stringify(el.value || {}));
-        wisk.editor.createNewBlock(elementId, el.component, valueClone, { x: 0 });
-};
+    if (elementId === 'abcdxyz') return;
+    const el = wisk.editor.getElement(elementId);
+    if (!el) return;
+    const valueClone = JSON.parse(JSON.stringify(el.value || {}));
+    wisk.editor.createNewBlock(elementId, el.component, valueClone, { x: 0 });
+}
 
 async function deleteItem(elementId) {
     const inst = document.getElementById(elementId);
     if (inst && inst.aboutToBeOoomfed) {
-        try { await inst.aboutToBeOoomfed(); } catch { }
+        try {
+            await inst.aboutToBeOoomfed();
+        } catch {}
     }
     wisk.editor.deleteBlock(elementId);
-};
+}
 
 function whenSelectClicked(elementId) {
     console.log('SELECT CLICKED', elementId);
@@ -1123,13 +1124,17 @@ function whenSelectClicked(elementId) {
     const elActions = wisk.plugins.getPluginDetail(elType)['context-menu-options'];
     if (Array.isArray(elActions)) {
         for (const action of elActions) {
-            contextMenu.appendChild(createMenuItem(
-            action.label, 
-            () => {
-                const element = document.getElementById(elementId);
-                element.runArg(action.action);
-            }, '',
-            action.icon || ''));
+            contextMenu.appendChild(
+                createMenuItem(
+                    action.label,
+                    () => {
+                        const element = document.getElementById(elementId);
+                        element.runArg(action.action);
+                    },
+                    '',
+                    action.icon || ''
+                )
+            );
         }
     }
 
@@ -1176,8 +1181,7 @@ function whenSelectClicked(elementId) {
         contextMenu.style.visibility = 'visible';
     });
 
-
-    const scrollerEl = document.querySelector('.editor')
+    const scrollerEl = document.querySelector('.editor');
 
     function cleanup() {
         if (contextMenu && contextMenu.parentNode) contextMenu.remove();
@@ -1203,7 +1207,7 @@ function whenSelectClicked(elementId) {
 
 function createDropIndicator() {
     if (dropIndicator) return dropIndicator;
-    
+
     dropIndicator = document.createElement('div');
     dropIndicator.className = 'drop-indicator';
     document.body.appendChild(dropIndicator);
@@ -1217,18 +1221,18 @@ function showDropIndicator(targetElement) {
         indicator.classList.add('hide');
         return;
     }
-    
+
     const rect = targetElement.getBoundingClientRect();
-    
+
     const computedStyle = window.getComputedStyle(targetElement);
     const paddingLeft = parseFloat(computedStyle.paddingLeft);
     const paddingRight = parseFloat(computedStyle.paddingRight);
-    
+
     // Positioning indicator to match the content area
-    indicator.style.width = (rect.width - paddingLeft - paddingRight) + 'px';
-    indicator.style.left = (rect.left + paddingLeft) + 'px';
-    indicator.style.top = (rect.bottom + 1) + 'px';
-    
+    indicator.style.width = rect.width - paddingLeft - paddingRight + 'px';
+    indicator.style.left = rect.left + paddingLeft + 'px';
+    indicator.style.top = rect.bottom + 1 + 'px';
+
     // Show with animation
     indicator.classList.remove('hide');
     indicator.classList.add('show');
@@ -1236,28 +1240,28 @@ function showDropIndicator(targetElement) {
 
 function hideDropIndicator() {
     if (!dropIndicator) return;
-    
+
     dropIndicator.classList.remove('show');
     dropIndicator.classList.add('hide');
 }
 
 function getElementAbove(x, y) {
     const clone = document.querySelector('.clone');
-    if(clone) clone.style.display = 'none';
+    if (clone) clone.style.display = 'none';
 
     const element = document.elementFromPoint(x, y);
-    if(clone) clone.style.display = 'block';
+    if (clone) clone.style.display = 'block';
     return element;
 }
 
 function onDragStart(event, elementId) {
-    if(elementId == 'abcdxyz') return;
+    if (elementId == 'abcdxyz') return;
     event.preventDefault();
     event.stopPropagation();
     // clone the element
     const original = document.getElementById(elementId);
     const block = wisk.editor.getElement(elementId);
-    if(!original) return;
+    if (!original) return;
     const clone = document.createElement('div');
     clone.className = 'clone';
     clone.style.position = 'fixed';
@@ -1270,14 +1274,14 @@ function onDragStart(event, elementId) {
         original: original,
         clone: clone,
         originalValue: JSON.parse(JSON.stringify(original.getValue())),
-        originalComponent: block.component
-    }
+        originalComponent: block.component,
+    };
     window.addEventListener('mousemove', handleDrag);
     window.addEventListener('mouseup', handleDrop);
 }
 
 function handleDrag(e) {
-    if(!dragState) return;
+    if (!dragState) return;
     const { clone } = dragState;
     clone.style.left = e.clientX + 'px';
     clone.style.top = e.clientY + 'px';
@@ -1308,7 +1312,7 @@ function handleScroll(y) {
 
     if (y < containerRect.top + SCROLL_ZONE_SIZE) {
         scrollDir = -1; // up
-        distance = (containerRect.top + SCROLL_ZONE_SIZE) - y;
+        distance = containerRect.top + SCROLL_ZONE_SIZE - y;
     } else if (y > containerRect.bottom - SCROLL_ZONE_SIZE) {
         scrollDir = 1; // down
         distance = y - (containerRect.bottom - SCROLL_ZONE_SIZE);
@@ -1330,33 +1334,31 @@ function handleScroll(y) {
 }
 
 function handleDrop(e) {
-    if(!dragState) return;
+    if (!dragState) return;
     // Clear auto-scroll when dropping
     if (autoScroll) {
         clearInterval(autoScroll);
         autoScroll = null;
     }
     hideDropIndicator();
-    const {
-        elementId, original, clone, originalValue, originalComponent
-    } = dragState;
-    
+    const { elementId, original, clone, originalValue, originalComponent } = dragState;
+
     document.body.removeChild(clone);
-    
+
     window.removeEventListener('mousemove', handleDrag);
     window.removeEventListener('mouseup', handleDrop);
-    
+
     // get the above element of the clone and put the clone below it after which delete the original
     const elementAbove = getElementAbove(e.clientX, e.clientY);
     const targetContainer = elementAbove ? elementAbove.closest('.rndr') : null;
 
-    if(targetContainer) {
+    if (targetContainer) {
         const targetId = targetContainer.id.replace('div-', '');
-        console.log("moving element to below: ", targetId);
+        console.log('moving element to below: ', targetId);
 
-        if(targetId != elementId) {
+        if (targetId != elementId) {
             wisk.editor.deleteBlock(elementId);
-            wisk.editor.createNewBlock(targetId, originalComponent, originalValue, {x: 0});
+            wisk.editor.createNewBlock(targetId, originalComponent, originalValue, { x: 0 });
         }
     }
 
@@ -1364,8 +1366,8 @@ function handleDrop(e) {
 }
 
 const menuActions = {
-    duplicateItem: (elementId) => duplicateItem(elementId),
-    deleteItem: (elementId) => deleteItem(elementId),
+    duplicateItem: elementId => duplicateItem(elementId),
+    deleteItem: elementId => deleteItem(elementId),
 };
 
 wisk.editor.justUpdates = async function (elementId) {

@@ -568,9 +568,18 @@ class OptionsComponent extends LitElement {
             color: var(--fg-1);
         }
 
-        .markdown-plugin-description h1 { font-size: 1.5em; font-weight: bold; }
-        .markdown-plugin-description h2 { font-size: 1.3em; font-weight: bold; }
-        .markdown-plugin-description h3 { font-size: 1.1em; font-weight: bold; }
+        .markdown-plugin-description h1 {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .markdown-plugin-description h2 {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        .markdown-plugin-description h3 {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
 
         .markdown-plugin-description p {
             margin: 10px 0;
@@ -656,7 +665,6 @@ class OptionsComponent extends LitElement {
         .markdown-plugin-description li::marker {
             color: var(--fg-1);
         }
-
     `;
 
     static properties = {
@@ -1382,7 +1390,7 @@ class OptionsComponent extends LitElement {
         // get the first paragraph of the plugin description
         const para = newDiv.querySelector('p');
 
-        return para ? para.textContent.trim() : "";
+        return para ? para.textContent.trim() : '';
     }
 
     render() {
@@ -1683,12 +1691,9 @@ class OptionsComponent extends LitElement {
                                               tag => html`<span class="tag tag-blue" @click="${() => this.tagClicked(tag)}">#${tag}</span>`
                                           )}
                                       </div>
-                                    <div class="detail-section">
-                                        <div class="markdown-plugin-description" 
-                                            .innerHTML=${marked.parse(this.selectedPlugin.description)}>
-                                        </div>
-                                    </div>
-
+                                      <div class="detail-section">
+                                          <div class="markdown-plugin-description" .innerHTML=${marked.parse(this.selectedPlugin.description)}></div>
+                                      </div>
                                   </div>
                               `
                             : ''
