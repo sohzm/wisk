@@ -54,10 +54,10 @@ class SelectorElement extends HTMLElement {
     }
 
     selectButton(btn) {
-        var element = byQueryShadowroot('#' + this.elementId);
-        // var elementData = wisk.editor.getElement(this.elementId);
-        // console.log(this.elementId, element, elementData);
-        // var callingDetail = wisk.plugins.getPluginDetail(elementData.component);
+        var element = findElementInNestedShadows(this.elementId);
+        if (!element) {
+            element = byQueryShadowroot('#' + this.elementId);
+        }
 
         var dataPluginId = btn.getAttribute('data-plugin-id');
         var dataContentId = btn.getAttribute('data-content-id');
@@ -229,7 +229,7 @@ class SelectorElement extends HTMLElement {
         this.renderButtons('');
 
         requestAnimationFrame(() => {
-            const GAP = 10;
+            const GAP = 8;
             const MARGIN = 8;
             const vw = window.innerWidth;
             const vh = window.innerHeight;
@@ -239,19 +239,23 @@ class SelectorElement extends HTMLElement {
             let left = Math.round((vw - mw) / 2);
             let top = Math.round((vh - mh) / 3);
 
+            if (!anchorRect || (anchorRect.width === 0 && anchorRect.height === 0)) {
+                const plusButton = findPlusButtonForElement(elementId);
+                if (plusButton) {
+                    anchorRect = plusButton.getBoundingClientRect();
+                }
+            }
+
             if (anchorRect && (anchorRect.width > 0 || anchorRect.height > 0)) {
                 const { top: t, bottom: b, left: l, right: r } = anchorRect;
-                const triggerMidY = (t + b) / 2;
 
-                left = l - GAP - mw;
-                top = triggerMidY - mh / 2;
+                top = b + GAP;
 
-                if (left < MARGIN) {
-                    left = r + GAP;
-                }
+                left = l;
+
+                left = Math.max(MARGIN, Math.min(left, vw - MARGIN - mw));
 
                 top = Math.max(MARGIN, Math.min(top, vh - MARGIN - mh));
-                left = Math.max(MARGIN, Math.min(left, vw - MARGIN - mw));
             }
 
             selector.style.position = 'fixed';

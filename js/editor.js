@@ -670,9 +670,12 @@ wisk.editor.htmlToMarkdown = function (html) {
 // Element Navigation/Management Functions
 wisk.editor.getElement = function (elementId) {
     if (elementId.includes('-')) {
-        eid = elementId.split('-')[0];
-        document.getElementById(eid).editor.getElement(elementId);
-        return;
+        const eid = elementId.split('-')[0];
+        const parentElement = document.getElementById(eid);
+        if (parentElement && parentElement.editor) {
+            return parentElement.editor.getElement(elementId);
+        }
+        return null;
     }
 
     return wisk.editor.document.data.elements.find(e => e.id === elementId);
@@ -680,12 +683,15 @@ wisk.editor.getElement = function (elementId) {
 
 wisk.editor.prevElement = function (elementId) {
     if (elementId.includes('-')) {
-        eid = elementId.split('-')[0];
-        document.getElementById(eid).editor.prevElement(elementId);
-        return;
+        const eid = elementId.split('-')[0];
+        const parentElement = document.getElementById(eid);
+        if (parentElement && parentElement.editor) {
+            return parentElement.editor.prevElement(elementId);
+        }
+        return null;
     }
 
-    if (elementId === wisk.editor.document.data.elements[0].id) {
+    if (elementId === wisk.editor.document.data.elements[0]?.id) {
         return null;
     }
 
@@ -695,9 +701,12 @@ wisk.editor.prevElement = function (elementId) {
 
 wisk.editor.nextElement = function (elementId) {
     if (elementId.includes('-')) {
-        eid = elementId.split('-')[0];
-        document.getElementById(eid).editor.nextElement(elementId);
-        return;
+        const eid = elementId.split('-')[0];
+        const parentElement = document.getElementById(eid);
+        if (parentElement && parentElement.editor) {
+            return parentElement.editor.nextElement(elementId);
+        }
+        return null;
     }
 
     const index = wisk.editor.document.data.elements.findIndex(e => e.id === elementId);
@@ -706,26 +715,33 @@ wisk.editor.nextElement = function (elementId) {
 
 wisk.editor.showSelector = function (elementId, focusIdentifier) {
     const selector = byQuery('selector-element');
-
-    const blockDiv = document.getElementById(`div-${elementId}`);
-    let hover = null;
-    let plusIcon = null;
+    let anchorRect = null;
 
     const prev = wisk.editor.prevElement(elementId);
     if (prev) {
-        const prevBlockDiv = document.getElementById(`div-${prev.id}`);
-        if (prevBlockDiv) {
-            const prevHover = prevBlockDiv.querySelector('.hover-images');
-            const prevPlus = prevHover ? prevHover.querySelector('img[src$="plus-hover.svg"]') : null;
-            if (prevPlus) {
-                const r = prevPlus.getBoundingClientRect();
-                if (r && (r.width > 0 || r.height > 0)) {
-                    selector.show(elementId, r);
-                    return;
-                }
+        const prevPlusIcon = findPlusButtonForElement(prev.id);
+        if (prevPlusIcon) {
+            const r = prevPlusIcon.getBoundingClientRect();
+            if (r && (r.width > 0 || r.height > 0)) {
+                anchorRect = r;
+                selector.show(elementId, anchorRect);
+                return;
             }
         }
     }
+
+    let plusIcon = findPlusButtonForElement(elementId);
+    if (plusIcon) {
+        const r = plusIcon.getBoundingClientRect();
+        if (r && (r.width > 0 || r.height > 0)) {
+            anchorRect = r;
+            selector.show(elementId, anchorRect);
+            return;
+        }
+    }
+
+    const blockDiv = document.getElementById(`div-${elementId}`);
+    let hover = null;
 
     if (blockDiv) {
         hover = blockDiv.querySelector('.hover-images');
@@ -733,7 +749,6 @@ wisk.editor.showSelector = function (elementId, focusIdentifier) {
         if (hover) plusIcon = hover.querySelector('img[src$="plus-hover.svg"]');
     }
 
-    let anchorRect = null;
     if (plusIcon) {
         const r = plusIcon.getBoundingClientRect();
         if (r && (r.width > 0 || r.height > 0)) anchorRect = r;
