@@ -59,6 +59,184 @@ function byQueryShadowroot(query) {
     return document.querySelector(query);
 }
 
+function findElementInNestedShadows(elementId) {
+    let element = document.getElementById(elementId);
+    if (element) {
+        return element;
+    }
+
+    function searchInShadow(root, id) {
+        const directMatch = root.getElementById ? root.getElementById(id) : root.querySelector(`#${id}`);
+        if (directMatch) {
+            return directMatch;
+        }
+
+        const shadowHosts = root.querySelectorAll('*');
+        for (const host of shadowHosts) {
+            if (host.shadowRoot) {
+                const result = searchInShadow(host.shadowRoot, id);
+                if (result) return result;
+            }
+        }
+        return null;
+    }
+
+    const result = searchInShadow(document, elementId);
+    return result;
+}
+
+function findPlusButtonForElement(elementId) {
+    function findPlusInRoot(root, id) {
+        const exactFullWidthWrapper = root.querySelector(`[id="full-width-wrapper-${id}"]`);
+        if (exactFullWidthWrapper) {
+            const hoverImages = exactFullWidthWrapper.querySelector('.hover-images');
+            if (hoverImages) {
+                const plusBtn = hoverImages.querySelector('img[src$="plus-hover.svg"]') || hoverImages.querySelector('img[src$="plus.svg"]');
+                if (plusBtn) {
+                    return plusBtn;
+                }
+            }
+        }
+
+        const targetElementForParent = root.querySelector(`#${id}`);
+        if (targetElementForParent) {
+            let parent = targetElementForParent.parentElement;
+            if (parent && parent.classList && parent.classList.contains('full-width-wrapper')) {
+                const hoverImages = parent.querySelector('.hover-images');
+                if (hoverImages) {
+                    const plusBtn = hoverImages.querySelector('img[src$="plus-hover.svg"]') || hoverImages.querySelector('img[src$="plus.svg"]');
+                    if (plusBtn) {
+                        return plusBtn;
+                    }
+                }
+            }
+        }
+
+        const container = root.querySelector(`[id="div-${id}"]`);
+        if (container) {
+            const hoverImages = container.querySelector('.hover-images');
+            if (hoverImages) {
+                const plusBtn = hoverImages.querySelector('img[src$="plus-hover.svg"]') || hoverImages.querySelector('img[src$="plus.svg"]');
+                if (plusBtn) {
+                    return plusBtn;
+                }
+            }
+        }
+
+        const allContainers = root.querySelectorAll('.rndr');
+        for (const cont of allContainers) {
+            if (cont.querySelector(`#${id}`)) {
+                const hoverImages = cont.querySelector('.hover-images');
+                if (hoverImages) {
+                    const plusBtn = hoverImages.querySelector('img[src$="plus-hover.svg"]') || hoverImages.querySelector('img[src$="plus.svg"]');
+                    if (plusBtn) {
+                        return plusBtn;
+                    }
+                }
+            }
+        }
+
+        const exactWrapper = root.querySelector(`[id="full-width-wrapper-${id}"]`);
+        if (exactWrapper) {
+            const hoverImages = exactWrapper.querySelector('.hover-images');
+            if (hoverImages) {
+                const plusBtn = hoverImages.querySelector('img[src$="plus-hover.svg"]') || hoverImages.querySelector('img[src$="plus.svg"]');
+                if (plusBtn) {
+                    return plusBtn;
+                }
+            }
+        }
+
+        const fullWidthWrappers = root.querySelectorAll(`[id^="full-width-wrapper-${id}"]`);
+        for (const wrapper of fullWidthWrappers) {
+            const hoverImages = wrapper.querySelector('.hover-images');
+            if (hoverImages) {
+                const plusBtn = hoverImages.querySelector('img[src$="plus-hover.svg"]') || hoverImages.querySelector('img[src$="plus.svg"]');
+                if (plusBtn) {
+                    return plusBtn;
+                }
+            }
+        }
+
+        const allWrappers = root.querySelectorAll('.full-width-wrapper');
+        for (const wrapper of allWrappers) {
+            if (wrapper.querySelector(`#${id}`)) {
+                const hoverImages = wrapper.querySelector('.hover-images');
+                if (hoverImages) {
+                    const plusBtn = hoverImages.querySelector('img[src$="plus-hover.svg"]') || hoverImages.querySelector('img[src$="plus.svg"]');
+                    if (plusBtn) {
+                        return plusBtn;
+                    }
+                }
+            }
+        }
+
+        const targetElementForHover = root.querySelector(`#${id}`);
+        if (targetElementForHover) {
+            let parent = targetElementForHover.parentElement;
+            while (parent && parent !== root) {
+                if (parent.classList && parent.classList.contains('full-width-wrapper')) {
+                    const hoverImages = parent.querySelector('.hover-images');
+                    if (hoverImages) {
+                        const plusBtn = hoverImages.querySelector('img[src$="plus-hover.svg"]') || hoverImages.querySelector('img[src$="plus.svg"]');
+                        if (plusBtn) {
+                            return plusBtn;
+                        }
+                    }
+                }
+                parent = parent.parentElement;
+            }
+        }
+
+        return null;
+    }
+
+    function comprehensiveSearch(root, id) {
+        const plusBtn = findPlusInRoot(root, id);
+        if (plusBtn) return plusBtn;
+
+        const shadowHosts = root.querySelectorAll('*');
+        const layoutElements = [];
+        const otherElements = [];
+
+        for (const host of shadowHosts) {
+            if (host.shadowRoot) {
+                if (host.tagName.toLowerCase() === 'base-layout-element' || host.tagName.toLowerCase() === 'columns-element') {
+                    layoutElements.push(host);
+                } else {
+                    otherElements.push(host);
+                }
+            }
+        }
+
+        for (const host of layoutElements) {
+            const result = comprehensiveSearch(host.shadowRoot, id);
+            if (result) return result;
+        }
+
+        for (const host of otherElements) {
+            const result = comprehensiveSearch(host.shadowRoot, id);
+            if (result) return result;
+        }
+
+        if (id.includes('-')) {
+            const idParts = id.split('-');
+            if (idParts.length > 1) {
+                const immediateParentId = idParts.slice(0, -1).join('-');
+                const parentBtn = findPlusInRoot(root, immediateParentId);
+                if (parentBtn) {
+                    return parentBtn;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    const result = comprehensiveSearch(document, elementId);
+    return result;
+}
+
 // TODO think
 // const consoleHistory = [];
 //

@@ -54,10 +54,10 @@ class SelectorElement extends HTMLElement {
     }
 
     selectButton(btn) {
-        var element = byQueryShadowroot('#' + this.elementId);
-        // var elementData = wisk.editor.getElement(this.elementId);
-        // console.log(this.elementId, element, elementData);
-        // var callingDetail = wisk.plugins.getPluginDetail(elementData.component);
+        var element = findElementInNestedShadows(this.elementId);
+        if (!element) {
+            element = byQueryShadowroot('#' + this.elementId);
+        }
 
         var dataPluginId = btn.getAttribute('data-plugin-id');
         var dataContentId = btn.getAttribute('data-content-id');
@@ -123,6 +123,20 @@ class SelectorElement extends HTMLElement {
         const buttonsContainer = this.shadowRoot.querySelector('.buttons');
         buttonsContainer.innerHTML = '';
 
+        const shortcutMap = {
+            'heading1-element': '#',
+            'heading2-element': '##',
+            'heading3-element': '###',
+            'heading4-element': '####',
+            'heading5-element': '#####',
+            'list-element': '-',
+            'numbered-list-element': '1.',
+            'quote-element': '>',
+            'code-element': '```',
+            'divider-element': '---',
+            'checkbox-element': '- [ ]',
+        };
+
         for (let key in wisk.plugins.pluginData.list) {
             if (wisk.plugins.pluginData.list[key].hide) {
                 continue;
@@ -136,6 +150,7 @@ class SelectorElement extends HTMLElement {
                     }
 
                     let title = wisk.plugins.pluginData.list[key].contents[i].title;
+                    let component = wisk.plugins.pluginData.list[key].contents[i].component;
 
                     if (query && !this.fuzzySearch(query, title)) {
                         continue;
@@ -154,9 +169,25 @@ class SelectorElement extends HTMLElement {
 
                     const p = document.createElement('p');
                     p.innerText = title;
+                    p.style.flex = '1';
+                    p.style.margin = '0';
+                    p.style.overflow = 'hidden';
+                    p.style.textOverflow = 'ellipsis';
+                    p.style.whiteSpace = 'nowrap';
 
-                    button.appendChild(img);
-                    button.appendChild(p);
+                    const leftGroup = document.createElement('span');
+                    leftGroup.style.display = 'flex';
+                    leftGroup.style.alignItems = 'center';
+                    leftGroup.style.gap = '8px';
+                    leftGroup.style.flex = '1';
+                    leftGroup.appendChild(img);
+                    leftGroup.appendChild(p);
+                    const shortcut = document.createElement('span');
+                    shortcut.className = 'selector-shortcut';
+                    shortcut.innerText = shortcutMap[component] || '';
+
+                    button.appendChild(leftGroup);
+                    button.appendChild(shortcut);
 
                     button.addEventListener('click', () => {
                         this.selectButton(button);
@@ -184,13 +215,58 @@ class SelectorElement extends HTMLElement {
         button.classList.add('selector-button-focused');
     }
 
-    show(elementId) {
+    show(elementId, anchorRect) {
         this.elementId = elementId;
         this.shadowRoot.querySelector('#selector-input').value = '';
-        this.shadowRoot.querySelector('#selector').classList.remove('displayNone');
-        this.shadowRoot.querySelector('#selector-bg').classList.remove('displayNone');
-        this.shadowRoot.querySelector('#selector-input').focus();
+        const selector = this.shadowRoot.querySelector('#selector');
+        const bg = this.shadowRoot.querySelector('#selector-bg');
+        selector.classList.remove('displayNone');
+        bg.classList.remove('displayNone');
+        selector.style.visibility = 'hidden';
+        selector.style.top = '0px';
+        selector.style.left = '0px';
         this.renderButtons('');
+
+        requestAnimationFrame(() => {
+            const GAP = 8;
+            const MARGIN = 8;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+
+            const { width: mw, height: mh } = selector.getBoundingClientRect();
+
+            let left = Math.round((vw - mw) / 2);
+            let top = Math.round((vh - mh) / 3);
+
+            if (!anchorRect || (anchorRect.width === 0 && anchorRect.height === 0)) {
+                const plusButton = findPlusButtonForElement(elementId);
+                if (plusButton) {
+                    anchorRect = plusButton.getBoundingClientRect();
+                }
+            }
+
+            if (anchorRect && (anchorRect.width > 0 || anchorRect.height > 0)) {
+                const { top: t, bottom: b, left: l, right: r } = anchorRect;
+
+                top = b + GAP;
+
+                left = l;
+
+                left = Math.max(MARGIN, Math.min(left, vw - MARGIN - mw));
+
+                top = Math.max(MARGIN, Math.min(top, vh - MARGIN - mh));
+            }
+
+            selector.style.position = 'fixed';
+            selector.style.left = `${Math.round(left)}px`;
+            selector.style.top = `${Math.round(top)}px`;
+            selector.style.visibility = 'visible';
+            const input = this.shadowRoot.querySelector('#selector-input');
+            input.focus();
+            setTimeout(() => {
+                input.focus();
+            }, 0);
+        });
     }
 
     hide() {
@@ -216,26 +292,18 @@ class SelectorElement extends HTMLElement {
                 z-index: 99;
             }
             #selector {
-                width: 80%;
-                max-width: 400px;
+                width: 90%;
+                max-width: 380px;
                 height: auto;
                 position: fixed;
-                top: calc(50% - min(50%, 150px));
-                left: calc(50% - min(40%, 200px));
                 background-color: var(--bg-1);
                 border: 1px solid var(--border-1);
-                border-radius: var(--radius-large);
+                border-radius: 10px;
                 filter: var(--drop-shadow);
                 z-index: 100;
                 padding: 0;
                 overflow: hidden;
                 transform: translateZ(0);
-            }
-
-            @media (max-width: 900px) {
-                #selector {
-                    top: 20%;
-                }
             }
             .displayNone {
                 display: none;
@@ -243,56 +311,73 @@ class SelectorElement extends HTMLElement {
             #selector-input {
                 width: 100%;
                 outline: none;
-            }
-            .buttons {
-                display: flex;
-                flex-direction: column;
-                gap: var(--gap-1);
-                height: 240px;
-                overflow-y: auto;
-            }
-            .selector-button {
-                outline: none;
-                border: 1px solid transparent;
-                background-color: var(--bg-1);
+                font-size: 15px;
+                padding: 6px 0 6px 0;
                 color: var(--fg-1);
-                padding: var(--padding-2) var(--padding-4);
-                border-radius: 0;
-                cursor: pointer;
-                display: flex;
-                justify-content: left;
-                align-items: center;
-                gap: var(--gap-2);
-            }
-            .selector-button-focused {
-                background-color: var(--bg-2);
-            }
-            #selector-input {
-                width: 100%;
-                color: var(--fg-1);
-                outline: none;
                 border: none;
                 background-color: transparent;
             }
             .search-div {
                 display: flex;
-                justify-content: center;
                 align-items: center;
-                gap: var(--gap-2);
-                padding: var(--padding-2);
-                border-radius: var(--radius);
+                gap: 6px;
+                padding: 6px 12px 6px 10px;
+                border-radius: 0;
                 background-color: var(--bg-1);
                 border: none;
                 border-bottom: 1px solid var(--border-1);
-                border-bottom-left-radius: 0;
-                border-bottom-right-radius: 0;
-                padding: var(--padding-4);
+            }
+            .buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+                max-height: 260px;
+                overflow-y: auto;
+                padding: 0;
+                margin: 4px 0px 4px 0px;
+                align-items: stretch;
+                justify-content: flex-start;
+            }
+            .selector-button {
+                outline: none;
+                border: none;
+                background-color: var(--bg-1);
+                color: var(--fg-1);
+                padding: 10px 8px 10px 8px;
+                margin: 0px 4px 0px 4px;
+                border-radius: 3px;
+                cursor: pointer;
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 0;
+                font-size: 15px;
+                height: 32px;
+                min-height: 32px;
+                max-height: 32px;
+                flex-shrink: 0;
+                transition: background 0.12s;
+            }
+            .selector-shortcut {
+                color: var(--fg-2);
+                font-size: 13px;
+                margin-left: 12px;
+                min-width: 28px;
+                text-align: right;
+                flex-shrink: 0;
+                opacity: 0.85;
+            }
+            .selector-button-focused {
+                background-color: var(--bg-2);
+                border-radius: 3px;
             }
             img {
-                height: 40px;
-                width: 40px;
-                padding: 9px;
-                border-radius: 4px;
+                height: 22px;
+                width: 22px;
+                padding: 0;
+                border-radius: 3px;
+                margin-right: 2px;
             }
             .font-1 {
                 font-family: var(--font);
@@ -300,20 +385,26 @@ class SelectorElement extends HTMLElement {
             img {
                 filter: var(--themed-svg);
             }
-
+            .selector-button p {
+                text-align: left;
+                flex: 1;
+                margin: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
             @media (hover: hover) {
-                *::-webkit-scrollbar { width: 15px; }
+                *::-webkit-scrollbar { width: 10px; }
                 *::-webkit-scrollbar-track { background: var(--bg-1); }
-                *::-webkit-scrollbar-thumb { background-color: var(--bg-3); border-radius: 20px; border: 4px solid var(--bg-1); }
+                *::-webkit-scrollbar-thumb { background-color: var(--bg-3); border-radius: 20px; border: 3px solid var(--bg-1); }
                 *::-webkit-scrollbar-thumb:hover { background-color: var(--fg-1); }
             }
-
             </style>
             <div id="selector-bg" class="displayNone"></div>
             <div id="selector" class="displayNone font-1">
                 <div class="search-div font-1">
                     <label class="font-1" for="selector-input" style="color: var(--fg-1); font-size: 13px; background-color: transparent;">&gt;</label>
-                    <input type="text" id="selector-input" autocomplete="off" class="font-1"/>
+                    <input type="text" placeholder="Search..." id="selector-input" autocomplete="off" class="font-1"/>
                 </div>
                 <div class="buttons">
                 </div>
