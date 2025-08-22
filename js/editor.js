@@ -671,8 +671,7 @@ wisk.editor.htmlToMarkdown = function (html) {
 wisk.editor.getElement = function (elementId) {
     if (elementId.includes('-')) {
         eid = elementId.split('-')[0];
-        document.getElementById(eid).editor.getElement(elementId);
-        return;
+        return document.getElementById(eid).editor.getElement(elementId);
     }
 
     return wisk.editor.document.data.elements.find(e => e.id === elementId);
@@ -681,14 +680,12 @@ wisk.editor.getElement = function (elementId) {
 wisk.editor.prevElement = function (elementId) {
     if (elementId.includes('-')) {
         eid = elementId.split('-')[0];
-        document.getElementById(eid).editor.prevElement(elementId);
-        return;
+        return document.getElementById(eid).editor.prevElement(elementId);
     }
 
     if (elementId === wisk.editor.document.data.elements[0].id) {
         return null;
     }
-
     const index = wisk.editor.document.data.elements.findIndex(e => e.id === elementId);
     return index > 0 ? wisk.editor.document.data.elements[index - 1] : null;
 };
@@ -696,8 +693,7 @@ wisk.editor.prevElement = function (elementId) {
 wisk.editor.nextElement = function (elementId) {
     if (elementId.includes('-')) {
         eid = elementId.split('-')[0];
-        document.getElementById(eid).editor.nextElement(elementId);
-        return;
+        return document.getElementById(eid).editor.nextElement(elementId);
     }
 
     const index = wisk.editor.document.data.elements.findIndex(e => e.id === elementId);
