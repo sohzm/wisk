@@ -348,6 +348,7 @@ class ToolbarElement extends LitElement {
 
         .submenu {
             display: none;
+            position: absolute;
             left: 100%;
             top: 0;
             background: var(--bg-1);
@@ -360,6 +361,7 @@ class ToolbarElement extends LitElement {
         }
 
         .font-size-menu {
+            position: absolute;
             left: 50%;
             transform: translateX(-50%);
             top: 100%;
@@ -706,6 +708,23 @@ class ToolbarElement extends LitElement {
         }, 2000);
     }
 
+    handleFontSizeClick(event, size) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        this.handleToolbarAction('fontSize', size);
+        
+        const container = this.shadowRoot.querySelector('.font-size-container');
+        if (container) {
+            container.classList.remove('keep-open');
+        }
+ 
+        if (this.fontSizeTimeout) {
+            clearTimeout(this.fontSizeTimeout);
+            this.fontSizeTimeout = null;
+        }
+    }
+
     connectedCallback() {
         super.connectedCallback();
         const editor = document.querySelector('.editor');
@@ -825,6 +844,8 @@ class ToolbarElement extends LitElement {
                 break;
 
             case 'fontSize':
+                this.currentFontSize = operation;
+                
                 this.dispatchEvent(
                     new CustomEvent('toolbar-action', {
                         detail: {
@@ -837,6 +858,9 @@ class ToolbarElement extends LitElement {
                         composed: true,
                     })
                 );
+                
+                // Close the entire toolbar after font size selection
+                this.hideToolbar();
                 break;
 
             case 'show-citations':
@@ -1544,21 +1568,21 @@ class ToolbarElement extends LitElement {
                             <div class="submenu font-size-menu"
                             @mouseenter=${this.handleFontSizeMouseEnter}
                             @mouseleave=${this.handleFontSizeMouseLeave}>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '8')}>8px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '10')}>10px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '12')}>12px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '14')}>14px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '16')}>16px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '18')}>18px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '20')}>20px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '24')}>24px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '28')}>28px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '32')}>32px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '36')}>36px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '40')}>40px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '48')}>48px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '56')}>56px</button>
-                                <button @click=${() => this.handleToolbarAction('fontSize', '64')}>64px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '8')}>8px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '10')}>10px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '12')}>12px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '14')}>14px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '16')}>16px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '18')}>18px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '20')}>20px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '24')}>24px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '28')}>28px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '32')}>32px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '36')}>36px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '40')}>40px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '48')}>48px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '56')}>56px</button>
+                                <button @click=${(e) => this.handleFontSizeClick(e, '64')}>64px</button>
                             </div>
                         </div>
                         <button @click=${() => this.handleToolbarAction('strikeThrough')} title="Strikethrough">
