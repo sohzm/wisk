@@ -339,6 +339,7 @@ class ToolbarElement extends LitElement {
         }
 
         .submenu-container {
+            position:relative;
         }
 
         .submenu-container:hover .submenu {
@@ -356,6 +357,24 @@ class ToolbarElement extends LitElement {
             min-width: 150px;
             z-index: 1002;
             overflow: hidden;
+        }
+
+        .font-size-menu {
+            left: 50%;
+            transform: translateX(-50%);
+            top: 100%;
+            margin-top: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .submenu-container.font-size-container {
+            position: relative;
+        }
+
+        .submenu-container.font-size-container:hover .font-size-menu,
+        .submenu-container.font-size-container.keep-open .font-size-menu {
+            display: block;
         }
 
         @media (min-width: 1150px) {
@@ -533,6 +552,15 @@ class ToolbarElement extends LitElement {
             transform: scale(1.1);
         }
 
+        .font-size-menu {
+            left: 50%;
+            transform: translateX(-50%);
+            top: 100%;
+            margin-top: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
         .submenu-container:hover .color-submenu {
             display: block;
         }
@@ -619,6 +647,7 @@ class ToolbarElement extends LitElement {
         activeTextColor: { type: String, state: true },
         activeBackgroundColor: { type: String, state: true },
         isMobile: { type: Boolean, state: true },
+        currentFontSize: { type: String, state: true },
     };
 
     constructor() {
@@ -650,12 +679,35 @@ class ToolbarElement extends LitElement {
 
         this.activeTextColor = 'var(--fg-1)';
         this.activeBackgroundColor = 'var(--bg-1)';
+        this.currentFontSize = '12';
+    }
+
+    handleFontSizeMouseEnter() {
+        // Clear any existing timeout
+        if (this.fontSizeTimeout) {
+            clearTimeout(this.fontSizeTimeout);
+            this.fontSizeTimeout = null;
+        }
+        
+        // Add class to keep dropdown open
+        const container = this.shadowRoot.querySelector('.font-size-container');
+        if (container) {
+            container.classList.add('keep-open');
+        }
+    }
+
+    handleFontSizeMouseLeave() {
+        this.fontSizeTimeout = setTimeout(() => {
+            const container = this.shadowRoot.querySelector('.font-size-container');
+            if (container) {
+                container.classList.remove('keep-open');
+            }
+            this.fontSizeTimeout = null;
+        }, 2000);
     }
 
     connectedCallback() {
         super.connectedCallback();
-
-        // Add event listeners when component is connected
         const editor = document.querySelector('.editor');
         if (editor) {
             this._scrollListener = this.updateToolbarPosition.bind(this);
@@ -766,6 +818,21 @@ class ToolbarElement extends LitElement {
                 this.dispatchEvent(
                     new CustomEvent('toolbar-action', {
                         detail: { action, elementId: this.elementId, selectedText: this.selectedText },
+                        bubbles: true,
+                        composed: true,
+                    })
+                );
+                break;
+
+            case 'fontSize':
+                this.dispatchEvent(
+                    new CustomEvent('toolbar-action', {
+                        detail: {
+                            action: 'fontSize',
+                            operation: operation,
+                            elementId: this.elementId,
+                            selectedText: this.selectedText
+                        },
                         bubbles: true,
                         composed: true,
                     })
@@ -1098,7 +1165,7 @@ class ToolbarElement extends LitElement {
                     <h3 style="user-select: none;">Text Color</h3>
                     <div class="color-grid">
                         ${Object.entries(this.colorOptions).map(
-                            ([key, color]) => html`
+            ([key, color]) => html`
                                 <div
                                     class="color-option ${color.fg === this.activeTextColor ? 'active' : ''}"
                                     style="background-color: ${color.fg}"
@@ -1106,14 +1173,14 @@ class ToolbarElement extends LitElement {
                                     title="${color.name}"
                                 ></div>
                             `
-                        )}
+        )}
                     </div>
                 </div>
                 <div class="color-section">
                     <h3 style="user-select: none;">Background Color</h3>
                     <div class="color-grid">
                         ${Object.entries(this.colorOptions).map(
-                            ([key, color]) => html`
+            ([key, color]) => html`
                                 <div
                                     class="color-option ${color.bg === this.activeBackgroundColor ? 'active' : ''}"
                                     style="background-color: ${color.bg}"
@@ -1121,7 +1188,7 @@ class ToolbarElement extends LitElement {
                                     title="${color.name}"
                                 ></div>
                             `
-                        )}
+        )}
                     </div>
                 </div>
             </div>
@@ -1133,7 +1200,7 @@ class ToolbarElement extends LitElement {
         return html`
                     <div class="color-grid">
                         ${Object.entries(this.colorOptions).map(
-                            ([key, color]) => html`
+            ([key, color]) => html`
                                 <div
                                     class="color-option ${color.fg === this.activeTextColor ? 'active' : ''}"
                                     style="background-color: ${color.fg}"
@@ -1141,12 +1208,12 @@ class ToolbarElement extends LitElement {
                                     title="${color.name}"
                                 ></div>
                             `
-                        )}
+        )}
                     </div>
                     <div style="margin-top: var(--gap-2);"></h3>
                     <div class="color-grid">
                         ${Object.entries(this.colorOptions).map(
-                            ([key, color]) => html`
+            ([key, color]) => html`
                                 <div
                                     class="color-option ${color.bg === this.activeBackgroundColor ? 'active' : ''}"
                                     style="background-color: ${color.bg}"
@@ -1154,7 +1221,7 @@ class ToolbarElement extends LitElement {
                                     title="${color.name}"
                                 ></div>
                             `
-                        )}
+        )}
                     </div>
         `;
     }
@@ -1214,7 +1281,7 @@ class ToolbarElement extends LitElement {
                         </div>
                         <div style="overflow: auto; max-height: 400px;">
                             ${this.citations.length === 0
-                                ? html`<p style="line-height: 1.5; font-size: 14px">
+                        ? html`<p style="line-height: 1.5; font-size: 14px">
                                       No citations available. Add citations using the Citations Manager. Or add new using
                                       <span
                                           style="background: var(--bg-3); padding: 2px 4px; border-radius: 4px; color: var(--fg-1); display: inline-flex; align-items: center;"
@@ -1223,8 +1290,8 @@ class ToolbarElement extends LitElement {
                                       >
                                       option.
                                   </p>`
-                                : this.citations.map(
-                                      citation => html`
+                        : this.citations.map(
+                            citation => html`
                                           <div class="source-item">
                                               <div style="display: flex; justify-content: space-between; align-items: start; width: 100%;">
                                                   <div style="flex: 1;">
@@ -1244,7 +1311,7 @@ class ToolbarElement extends LitElement {
                                               </div>
                                           </div>
                                       `
-                                  )}
+                        )}
                         </div>
                     </div>
                 `;
@@ -1409,11 +1476,11 @@ class ToolbarElement extends LitElement {
                         </div>
                         <div style="overflow: auto; padding: var(--padding-3) 0">
                             ${this.loading
-                                ? html`<div style="display: flex; justify-content: center; padding: 20px;">
+                        ? html`<div style="display: flex; justify-content: center; padding: 20px;">
                                       <div class="loading-indicator"></div>
                                   </div>`
-                                : this.sources.map(
-                                      source => html`
+                        : this.sources.map(
+                            source => html`
                                           <div class="source-item">
                                               <h3 style="user-select: text">${source.title}</h3>
                                               <p style="user-select: text">${source.content}</p>
@@ -1432,7 +1499,7 @@ class ToolbarElement extends LitElement {
                                               </div>
                                           </div>
                                       `
-                                  )}
+                        )}
                         </div>
                     </div>
                 `;
@@ -1467,6 +1534,33 @@ class ToolbarElement extends LitElement {
                         <button @click=${() => this.handleToolbarAction('underline')} title="Underline">
                             <img src="/a7/forget/underline.svg" alt="Underline" draggable="false" />
                         </button>
+                        <div class="submenu-container font-size-container"
+                        @mouseenter=${this.handleFontSizeMouseEnter}
+                        @mouseleave=${this.handleFontSizeMouseLeave}>
+                            <button class="submenu-trigger" title="Font Size" style="width: auto; padding: 0 8px; min-width: 40px;">
+                                <span style="font-size: 12px; font-weight: 500;">${this.currentFontSize}</span>
+                                <img src="/a7/plugins/toolbar/down.svg" alt=">" draggable="false" style="margin-left: 4px;" />
+                            </button>
+                            <div class="submenu font-size-menu"
+                            @mouseenter=${this.handleFontSizeMouseEnter}
+                            @mouseleave=${this.handleFontSizeMouseLeave}>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '8')}>8px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '10')}>10px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '12')}>12px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '14')}>14px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '16')}>16px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '18')}>18px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '20')}>20px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '24')}>24px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '28')}>28px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '32')}>32px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '36')}>36px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '40')}>40px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '48')}>48px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '56')}>56px</button>
+                                <button @click=${() => this.handleToolbarAction('fontSize', '64')}>64px</button>
+                            </div>
+                        </div>
                         <button @click=${() => this.handleToolbarAction('strikeThrough')} title="Strikethrough">
                             <img src="/a7/forget/strikethrough.svg" alt="Strikethrough" draggable="false" />
                         </button>
@@ -1500,12 +1594,12 @@ class ToolbarElement extends LitElement {
 
                 ${this.mode === 'loading' ? html`<div class="loading-overlay"><div class="loading-indicator"></div></div>` : ''}
                 ${this.mode === 'dialog' || this.mode === 'preview'
-                    ? html`
+                ? html`
                           <div class="dialog-container">
                               <div style="overflow: auto; width: 100%;">${this.renderDialog()}</div>
                           </div>
                       `
-                    : ''}
+                : ''}
             </div>
         `;
     }
