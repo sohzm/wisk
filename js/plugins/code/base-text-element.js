@@ -1023,6 +1023,9 @@ class BaseTextElement extends HTMLElement {
         const x = rect.left + rect.width / 2;
         const y = rect.top - 45;
 
+        const currentFontSize = this.detectCurrentFontSize();
+        this.toolbar.currentFontSize = currentFontSize;
+
         this.toolbar.showToolbar(Math.max(20, x), y, this.id, selectedText, this.editable.innerText);
 
         setTimeout(() => {
@@ -1034,17 +1037,50 @@ class BaseTextElement extends HTMLElement {
         }, 0);
     }
 
+    detectCurrentFontSize() {
+        const selection = this.shadowRoot.getSelection();
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            let element = range.commonAncestorContainer;
+
+            if (element.nodeType === Node.TEXT_NODE) {
+                element = element.parentElement;
+            }
+            
+            while (element && element !== this.editable) {
+                const computedStyle = window.getComputedStyle(element);
+                const fontSize = parseInt(computedStyle.fontSize);
+                
+                if (!isNaN(fontSize) && fontSize > 0) {
+                    return fontSize.toString();
+                }
+                element = element.parentElement;
+            }
+            
+            if (this.editable) {
+                const computedStyle = window.getComputedStyle(this.editable);
+                const fontSize = parseInt(computedStyle.fontSize);
+                if (!isNaN(fontSize) && fontSize > 0) {
+                    return fontSize.toString();
+                }
+            }
+        }
+        
+        
+        return '16';
+    }
+
     handleToolbarAction(detail) {
         if (!this.restoreSelection()) {
             console.warn('No saved selection for toolbar action');
             return;
         }
 
-        const { action, formatValue } = detail;
+        const { action, formatValue, size, operation } = detail;
 
         try {
             // Add debug logging
-            console.log(`Applying format: ${action} with value: ${formatValue}`);
+            console.log(`Applying format: ${action} with value: ${formatValue} or size: ${size} or operation: ${operation}`);
 
             switch (action) {
                 case 'bold':
@@ -1054,6 +1090,9 @@ class BaseTextElement extends HTMLElement {
                 case 'subscript':
                 case 'superscript':
                     document.execCommand(action, false, null);
+                    break;
+                case 'fontSize':
+                    this.applyFontSize(operation || size);
                     break;
                 case 'foreColor':
                     document.execCommand('styleWithCSS', false, true);
@@ -1089,6 +1128,101 @@ class BaseTextElement extends HTMLElement {
 
         this.clearSelection();
         this.sendUpdates();
+    }
+
+    applyFontSize(size) {
+        const selection = this.shadowRoot.getSelection();
+        if (!selection.rangeCount) return;
+
+        const range = selection.getRangeAt(0);
+        
+        try {
+            const span = document.createElement('span');
+            span.style.fontSize = size + 'px';
+  
+            if (range.collapsed) {
+                range.insertNode(span);
+            
+                const newRange = document.createRange();
+                newRange.selectNodeContents(span);
+                newRange.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+            } else {
+                
+                const contents = range.extractContents();
+                
+                this.removeFontSizeFromNode(contents);
+                
+                span.appendChild(contents);
+                
+                range.insertNode(span);
+                
+                const newRange = document.createRange();
+                newRange.selectNodeContents(span);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+            }
+            
+            if (this.toolbar) {
+                this.toolbar.currentFontSize = size;
+            }
+            
+        } catch (error) {
+            console.error('Error applying font size:', error);
+            this.applyFontSizeFallback(size);
+        }
+    }
+
+    removeFontSizeFromNode(node) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.style) {
+                node.style.fontSize = '';
+                if (!node.style.cssText) {
+                    node.removeAttribute('style');
+                }
+            }
+            
+            const children = Array.from(node.childNodes);
+            children.forEach(child => {
+                this.removeFontSizeFromNode(child);
+            });
+        }
+    }
+
+    applyFontSizeFallback(size) {
+        try {
+            document.execCommand('styleWithCSS', false, true);            
+            const fontSizeMap = {
+                '8': '1', '10': '1', '12': '2', '14': '3', '16': '4',
+                '18': '5', '20': '5', '24': '6', '28': '6', '32': '7',
+                '36': '7', '40': '7', '48': '7', '56': '7', '64': '7'
+            };
+            
+            const execCommandSize = fontSizeMap[size] || '4';
+            document.execCommand('fontSize', false, execCommandSize);
+
+            const selection = this.shadowRoot.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const parentElement = range.commonAncestorContainer.nodeType === Node.TEXT_NODE 
+                    ? range.commonAncestorContainer.parentElement 
+                    : range.commonAncestorContainer;
+                
+                // Find and update font elements created by execCommand
+                const fontElements = parentElement.querySelectorAll('font[size]');
+                fontElements.forEach(fontEl => {
+                    const span = document.createElement('span');
+                    span.style.fontSize = size + 'px';
+                    span.innerHTML = fontEl.innerHTML;
+                    fontEl.parentNode.replaceChild(span, fontEl);
+                });
+            }
+            
+            document.execCommand('styleWithCSS', false, false);
+        } catch (fallbackError) {
+            console.error('Font size fallback failed:', fallbackError);
+        }
     }
 
     handleFormatFallback(action, formatValue) {
