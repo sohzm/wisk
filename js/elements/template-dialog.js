@@ -33,39 +33,59 @@ class TemplateDialog extends LitElement {
             left: 0;
             width: 100%;
             height: 100%;
-            background: transparent;
+            background-color: var(--fg-2);
+            opacity: 0.3;
             display: none;
-            justify-content: center;
-            align-items: center;
             z-index: 999;
         }
 
         .dialog-content {
             background: var(--bg-1);
-            padding: calc(var(--padding-4) * 2);
-            height: 100%;
-            width: 100%;
+            padding: var(--padding-4);
+            border-radius: var(--radius-large);
+            max-width: 1200px;
+            max-height: 800px;
+            width: 90%;
+            height: 90%;
             position: fixed;
             z-index: 1000;
-            transform: translateZ(0);
-            overflow-y: auto;
+            opacity: 1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            flex-direction: column;
+            filter: var(--drop-shadow);
         }
 
         .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 300px);
+            grid-auto-rows: min-content;
             gap: var(--gap-3);
             margin-top: var(--gap-3);
-            display: flex;
-            flex-wrap: wrap;
+            overflow-y: auto;
+            flex: 1;
+            justify-content: space-between;
         }
 
         .template-card {
-            padding: var(--padding-4);
+            padding: var(--padding-3);
             cursor: pointer;
             border-radius: var(--radius);
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            background: var(--bg-1);
         }
 
         .template-card:hover {
             background: var(--bg-2);
+            border-color: var(--border-1);
+        }
+
+        .template-card.selected {
+            border-color: var(--fg-accent);
+            background: var(--bg-accent);
         }
 
         .preview-container {
@@ -76,8 +96,8 @@ class TemplateDialog extends LitElement {
         }
 
         .desktop-preview {
-            width: 408px;
-            height: 204px;
+            width: 280px;
+            height: 140px;
             object-fit: cover;
             border-radius: var(--radius);
             border: 1px solid var(--border-1);
@@ -86,15 +106,15 @@ class TemplateDialog extends LitElement {
         }
 
         .mobile-preview {
-            width: 71.67px;
-            height: 155px;
+            width: 49px;
+            height: 106px;
             object-fit: cover;
             border-radius: var(--radius);
             border: 1px solid var(--border-1);
             position: absolute;
-            right: 25px;
+            right: 15px;
             background-size: cover;
-            top: 90px;
+            top: 62px;
             transform: translateZ(0px); /* fix for pixalated image */
         }
 
@@ -126,95 +146,164 @@ class TemplateDialog extends LitElement {
             font-weight: 400;
         }
 
-        .template-view {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-1);
-            padding: calc(var(--padding-4) * 2);
+        .header {
             display: flex;
-            flex-direction: column;
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .template-view {
-                padding: var(--padding-4);
-            }
-        }
-
-        .template-view.active {
-            display: flex;
-        }
-
-        @starting-style {
-            .template-view {
-            }
-        }
-
-        .template-view-header {
-            display: flex;
+            flex-direction: row;
+            color: var(--fg-1);
+            gap: var(--gap-2);
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
             margin-bottom: var(--gap-3);
+        }
+
+        .header-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .header-controls {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .main-group {
+            overflow-y: auto;
+            height: inherit;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-container {
+            display: flex;
+            gap: var(--gap-2);
+            align-items: center;
+            margin-bottom: var(--gap-3);
+        }
+
+        .search-input {
+            padding: var(--padding-w2);
+            border: 2px solid var(--bg-3);
+            border-radius: calc(var(--radius-large) * 20);
+            background-color: var(--bg-2);
+            color: var(--fg-1);
+            font-size: 14px;
+            max-width: 400px;
+            width: 100%;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            background-color: var(--bg-1);
+            border-color: var(--fg-accent);
+        }
+
+        .search-input::placeholder {
+            color: var(--fg-2);
+        }
+
+        .template-actions {
+            display: flex;
+            gap: var(--gap-2);
+            margin-top: var(--gap-3);
+            justify-content: flex-end;
+            padding-top: var(--padding-3);
         }
 
         .back-button {
             display: flex;
             align-items: center;
             gap: var(--gap-2);
-            background: none;
-            border: none;
+            background: transparent;
+            border: 2px solid transparent;
             color: var(--fg-1);
             cursor: pointer;
-            padding: var(--padding-2);
-            border-radius: var(--radius);
+            padding: var(--padding-w2);
+            border-radius: calc(var(--radius-large) * 20);
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
         }
 
         .back-button:hover {
-            background: var(--bg-2);
+            background: var(--bg-3);
         }
 
-        .template-view-content {
-            flex: 1;
-            display: flex;
-            gap: var(--gap-3);
-        }
-
-        .preview-large {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: var(--gap-3);
-            width: 100%;
+        .template-description {
+            color: var(--fg-2);
+            font-size: 14px;
+            margin-top: var(--gap-2);
+            line-height: 1.4;
         }
 
         .use-template-button {
-            background: var(--fg-accent);
-            color: var(--bg-accent);
-            border: 2px solid var(--fg-accent);
+            background: var(--fg-1);
+            color: var(--bg-1);
+            border: 2px solid transparent;
             padding: var(--padding-w2);
-            border-radius: var(--radius);
+            border-radius: calc(var(--radius-large) * 20);
             cursor: pointer;
             font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--gap-2);
+            transition: all 0.2s ease;
         }
 
         .use-template-button:hover {
-            background: var(--bg-accent);
-            color: var(--fg-accent);
+            background: transparent;
+            border: 2px solid var(--fg-1);
+            color: var(--fg-1);
         }
 
         @media (max-width: 768px) {
             .dialog-content {
+                padding: var(--padding-4);
+                height: 90%;
+                width: 100%;
+                border-radius: 0;
+                border-top-left-radius: var(--radius-large);
+                border-top-right-radius: var(--radius-large);
+                top: 10%;
+                left: 0;
+                transform: none;
+                max-height: none;
+            }
+
+            @starting-style {
+                .dialog-content {
+                    top: 30%;
+                    opacity: 0;
+                }
             }
         }
 
         @media (max-width: 480px) {
+            .template-card {
+                padding: var(--padding-3);
+            }
             .desktop-preview {
-                width: 300px;
-                height: 150px;
+                width: 260px;
+                height: 130px;
+            }
+            .mobile-preview {
+                width: 58px;
+                height: 125px;
+                right: 20px;
+                top: 72px;
             }
         }
 
@@ -224,49 +313,10 @@ class TemplateDialog extends LitElement {
             }
         }
 
-        .dialog-close {
-            position: absolute;
-            top: var(--padding-4);
-            right: var(--padding-4);
-            display: flex;
-            width: 30px;
-            height: 30px;
-            background: none;
-            border: none;
-            border-radius: calc(var(--radius) * 20);
+        .icon {
             cursor: pointer;
-            color: var(--fg-1);
-            font-size: 1.5rem;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .dialog-close:hover {
-            background: var(--bg-3);
-        }
-
-        .dialog-title {
-            font-size: 1.5rem;
-            margin-bottom: var(--gap-3);
-            color: var(--fg-1);
-        }
-
-        .section-title {
-            color: var(--fg-1);
-            margin-bottom: var(--gap-3);
-        }
-
-        .lrg {
-            width: 100%;
-            height: 300px;
-            display: flex;
-            gap: var(--gap-3);
-            overflow: auto;
-        }
-
-        .img-preview-large {
-            border: 1px solid var(--border-1);
-            border-radius: var(--radius);
+            transition: transform 0.2s ease;
+            width: 22px;
         }
 
         a {
@@ -295,6 +345,7 @@ class TemplateDialog extends LitElement {
         visible: { type: Boolean },
         templates: { type: Array },
         selectedTemplate: { type: Object },
+        searchQuery: { type: String },
     };
 
     constructor() {
@@ -302,6 +353,7 @@ class TemplateDialog extends LitElement {
         this.visible = false;
         this.templates = [];
         this.selectedTemplate = null;
+        this.searchQuery = '';
         this.fetchTemplates();
     }
 
@@ -324,12 +376,34 @@ class TemplateDialog extends LitElement {
     hide() {
         this.visible = false;
         this.selectedTemplate = null;
+        this.searchQuery = '';
         this.requestUpdate();
     }
 
-    viewTemplate(template) {
+    handleBackdropClick() {
+        this.hide();
+    }
+
+    selectTemplate(template) {
         this.selectedTemplate = template;
         this.requestUpdate();
+    }
+
+    handleSearchInput(e) {
+        this.searchQuery = e.target.value.toLowerCase();
+        this.requestUpdate();
+    }
+
+    get filteredTemplates() {
+        if (!this.searchQuery) {
+            return this.templates;
+        }
+        return this.templates.filter(
+            template =>
+                template.name.toLowerCase().includes(this.searchQuery) ||
+                template.by.toLowerCase().includes(this.searchQuery) ||
+                (template.description && template.description.toLowerCase().includes(this.searchQuery))
+        );
     }
 
     async useTemplate() {
@@ -343,133 +417,80 @@ class TemplateDialog extends LitElement {
 
     render() {
         return html`
-            <div class="dialog-overlay" style="display: ${this.visible ? 'flex' : 'none'}">
-                <div class="dialog-content">
-                    <button class="dialog-close" @click=${this.hide}>
-                        <img src="/a7/forget/x.svg" alt="Close" style="filter: var(--themed-svg)" />
-                    </button>
-
-                    <div style="display: ${this.selectedTemplate ? 'none' : 'block'}">
-                        <h2 class="dialog-title">Templates</h2>
-
-                        <div class="templates-grid">
-                            ${this.templates.map(
-                                template => html`
-                                    <div class="template-card" @click=${() => this.viewTemplate(template)}>
-                                        <div class="preview-container">
-                                            <div
-                                                class="desktop-preview"
-                                                style="background-image: url(/a7/templates/${template.path}/preview/desktop.png)"
-                                                alt="${template.name} desktop preview"
-                                            ></div>
-                                            <div
-                                                class="mobile-preview"
-                                                style="background-image: url(/a7/templates/${template.path}/preview/phone.png)"
-                                                alt="${template.name} mobile preview"
-                                            ></div>
-                                        </div>
-                                        <div class="template-info">
-                                            <h3>${template.name}</h3>
-                                            <span class="template-by">By ${template.by}</span>
-                                        </div>
-                                    </div>
-                                `
-                            )}
+            <div class="dialog-overlay" style="display: ${this.visible ? 'block' : 'none'}" @click=${this.handleBackdropClick}></div>
+            <div class="dialog-content" style="display: ${this.visible ? 'flex' : 'none'}">
+                <div class="header">
+                    <div class="header-wrapper">
+                        <div class="header-controls">
+                            <label class="header-title">Templates</label>
+                            <img
+                                src="/a7/forget/dialog-x.svg"
+                                alt="Close"
+                                @click="${this.hide}"
+                                class="icon"
+                                draggable="false"
+                                style="padding: var(--padding-3); width: unset; filter: var(--themed-svg)"
+                            />
                         </div>
                     </div>
+                </div>
 
-                    <div class="template-view ${this.selectedTemplate ? 'active' : ''}">
-                        ${this.selectedTemplate
-                            ? html`
-                                  <div class="template-view-header">
-                                      <button class="back-button" @click=${() => (this.selectedTemplate = null)}>
-                                          <img src="/a7/forget/back.svg" alt="Back" style="filter: var(--themed-svg)" />
-                                          Back
-                                      </button>
-                                      <button class="use-template-button" @click=${this.useTemplate}>Use Template</button>
-                                  </div>
-                                  <div class="template-view-content">
-                                      <div class="preview-large">
-                                          <div class="template-info-main">
-                                              <h1>${this.selectedTemplate.name}</h1>
-                                              <span class="template-by"
-                                                  >By <a href="${this.selectedTemplate.link}" target="_blank">${this.selectedTemplate.by}</a></span
-                                              >
-                                          </div>
-                                          <div class="lrg">
-                                              <img
-                                                  class="img-preview-large"
-                                                  src="/a7/templates/${this.selectedTemplate.path}/phone.png"
-                                                  @click=${() => this.makeImageFullScreen(`/a7/templates/${this.selectedTemplate.path}/phone.png`)}
-                                              />
-                                              <img
-                                                  class="img-preview-large"
-                                                  src="/a7/templates/${this.selectedTemplate.path}/desktop.png"
-                                                  @click=${() => this.makeImageFullScreen(`/a7/templates/${this.selectedTemplate.path}/desktop.png`)}
-                                              />
-                                              ${this.selectedTemplate.images
-                                                  ? html`
-                                                        ${this.selectedTemplate.images.map(
-                                                            image => html`
-                                                                <img
-                                                                    class="img-preview-large"
-                                                                    src="/a7/templates/${this.selectedTemplate.path}/${image}"
-                                                                    @click=${() =>
-                                                                        this.makeImageFullScreen(
-                                                                            `/a7/templates/${this.selectedTemplate.path}/${image}`
-                                                                        )}
-                                                                />
-                                                            `
-                                                        )}
-                                                    `
-                                                  : ''}
-                                          </div>
+                <div class="main-group">
+                    <div class="search-container">
+                        <input
+                            type="text"
+                            class="search-input"
+                            placeholder="Search templates..."
+                            .value=${this.searchQuery}
+                            @input=${this.handleSearchInput}
+                        />
+                    </div>
 
-                                          <p>${this.selectedTemplate.description}</p>
+                    <div class="templates-grid">
+                        ${this.filteredTemplates.map(
+                            template => html`
+                                <div
+                                    class="template-card ${this.selectedTemplate?.path === template.path ? 'selected' : ''}"
+                                    @click=${() => this.selectTemplate(template)}
+                                >
+                                    <div class="preview-container">
+                                        <div
+                                            class="desktop-preview"
+                                            style="background-image: url(/a7/templates/${template.path}/preview/desktop.png)"
+                                            alt="${template.name} desktop preview"
+                                        ></div>
+                                        <div
+                                            class="mobile-preview"
+                                            style="background-image: url(/a7/templates/${template.path}/preview/phone.png)"
+                                            alt="${template.name} mobile preview"
+                                        ></div>
+                                    </div>
+                                    <div class="template-info">
+                                        <h3>${template.name}</h3>
+                                        <span class="template-by"
+                                            >By
+                                            ${template.link ? html`<a href="${template.link}" target="_blank">${template.by}</a>` : template.by}</span
+                                        >
+                                    </div>
+                                </div>
+                            `
+                        )}
+                    </div>
 
-                                          <div>
-                                              <h3
-                                                  style="margin-bottom: var(--gap-2); display: ${this.selectedTemplate.links.length > 0
-                                                      ? 'block'
-                                                      : 'none'}"
-                                              >
-                                                  Links
-                                              </h3>
-                                              ${this.selectedTemplate.links
-                                                  ? html`
-                                                        <ul>
-                                                            ${this.selectedTemplate.links.map(
-                                                                link => html` <li><a href="${link.url}" target="_blank">${link.text}</a></li> `
-                                                            )}
-                                                        </ul>
-                                                    `
-                                                  : ''}
-                                          </div>
-                                      </div>
-                                  </div>
-                              `
-                            : ''}
+                    <div class="template-actions">
+                        <button class="back-button" @click=${this.hide}>Cancel</button>
+                        <button
+                            class="use-template-button"
+                            @click=${this.useTemplate}
+                            ?disabled=${!this.selectedTemplate}
+                            style="opacity: ${this.selectedTemplate ? '1' : '0.5'}; cursor: ${this.selectedTemplate ? 'pointer' : 'not-allowed'}"
+                        >
+                            Use Template
+                        </button>
                     </div>
                 </div>
             </div>
-            <div
-                class="img-full"
-                style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; margin: auto; background: var(--bg-1); border-radius: var(--radius); border: 1px solid var(--border-1); z-index: 10001; align-items: center; justify-content: center; padding: calc(var(--padding-4)* 3); transform: translateZ(0)"
-                @click=${() => (this.shadowRoot.querySelector('.img-full').style.display = 'none')}
-            >
-                <img
-                    src=""
-                    alt="Full Screen Image"
-                    style="max-width: 100%; max-height: 100%; cursor: pointer; border-radius: var(--radius-large); border: 1px solid var(--border-1);filter: var(--drop-shadow) var(--drop-shadow) var(--drop-shadow); transform: translateZ(0)"
-                />
-            </div>
         `;
-    }
-
-    makeImageFullScreen(path) {
-        const img = this.shadowRoot.querySelector('.img-full img');
-        img.src = path;
-        this.shadowRoot.querySelector('.img-full').style.display = 'flex';
     }
 }
 

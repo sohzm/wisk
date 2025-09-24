@@ -21,6 +21,13 @@ let autoScroll = null;
 const SCROLL_ZONE_SIZE = 40;
 const SCROLL_SPEED = 10;
 const SCROLL_INTERVAL = 16;
+// rectangle selection vars
+let rectangleSelectionState = null;
+let selectionRectangle = null;
+let selectedElements = new Set();
+let selectionOverlays = new Map();
+// clipboard for custom elements
+let elementClipboard = [];
 
 const createHoverImageContainer = elementId => {
     const imageContainer = document.createElement('div');
@@ -531,6 +538,7 @@ async function initEditor(doc) {
 
     if (!wisk.editor.readonly) {
         document.getElementById('last-space').addEventListener('click', handleEditorClick);
+        initializeRectangleSelection();
     }
 
     await initializeElements();
@@ -860,13 +868,27 @@ wisk.editor.convertMarkdownToElements = function (markdown) {
         const nextLine = lines[i + 1];
         let element = null;
 
+        // Helper function to calculate indentation level
+        function getIndentLevel(line) {
+            const match = line.match(/^(\s*)/);
+            const spaces = match ? match[1].length : 0;
+            return Math.floor(spaces / 2); // 2 spaces = 1 indent level
+        }
+
+        // Helper function to get trimmed line content after list marker
+        function getListContent(line, markerLength) {
+            const match = line.match(/^(\s*)/);
+            const indentSpaces = match ? match[1].length : 0;
+            return line.slice(indentSpaces + markerLength);
+        }
+
         // Reset list tracking when encountering non-list items
-        if (!line.trim().startsWith('-') && !line.trim().startsWith('*') && !line.trim().match(/^\d+\./)) {
+        if (!line.trim().startsWith('-') && !line.trim().startsWith('*') && !line.trim().startsWith('+') && !line.trim().match(/^\d+\./)) {
             currentList = null;
             listNumber = 1;
         }
 
-        // Heading patterns
+        // Heading patterns (must start at beginning of line)
         if (line.startsWith('# ')) {
             element = createHeadingElement(line.slice(2), 'heading1-element');
         } else if (line.startsWith('## ')) {
@@ -878,7 +900,7 @@ wisk.editor.convertMarkdownToElements = function (markdown) {
         } else if (line.startsWith('##### ')) {
             element = createHeadingElement(line.slice(6), 'heading5-element');
         }
-        // Code block
+        // Code block (must start at beginning of line)
         else if (line.startsWith('```')) {
             const language = line.slice(3).trim();
             let codeContent = '';
@@ -897,7 +919,7 @@ wisk.editor.convertMarkdownToElements = function (markdown) {
                 },
             };
         }
-        // Blockquote
+        // Blockquote (must start at beginning of line)
         else if (line.startsWith('> ')) {
             element = {
                 id: wisk.editor.generateNewId(),
@@ -908,41 +930,48 @@ wisk.editor.convertMarkdownToElements = function (markdown) {
                 },
             };
         }
-        // Checkbox list
-        else if (line.match(/^- \[[ x]\] /)) {
+        // Checkbox list (can be indented) - must be specifically "- [" pattern
+        else if (line.match(/^\s*- \[[ x]\] /)) {
+            const indentLevel = getIndentLevel(line);
+            const trimmedLine = line.trim();
             element = {
                 id: wisk.editor.generateNewId(),
                 lastEdited: Math.floor(Date.now() / 1000),
                 component: 'checkbox-element',
                 value: {
-                    textContent: convertInlineMarkdown(line.slice(6)),
-                    checked: line[3] === 'x',
-                    indent: 0,
+                    textContent: convertInlineMarkdown(trimmedLine.slice(6)),
+                    checked: trimmedLine[3] === 'x',
+                    indent: indentLevel,
                 },
             };
         }
-        // Numbered list
-        else if (line.match(/^\d+\. /)) {
+        // Numbered list (can be indented)
+        else if (line.match(/^\s*\d+\. /)) {
+            const indentLevel = getIndentLevel(line);
+            const trimmedLine = line.trim();
+            const numberMatch = trimmedLine.match(/^\d+\. /);
             element = {
                 id: wisk.editor.generateNewId(),
                 lastEdited: Math.floor(Date.now() / 1000),
                 component: 'numbered-list-element',
                 value: {
-                    textContent: convertInlineMarkdown(line.replace(/^\d+\. /, '')),
+                    textContent: convertInlineMarkdown(trimmedLine.replace(/^\d+\. /, '')),
                     number: listNumber++,
-                    indent: 0,
+                    indent: indentLevel,
                 },
             };
         }
-        // Unordered list
-        else if (line.startsWith('- ') || line.startsWith('* ')) {
+        // Unordered list (can be indented) - includes +, -, *
+        else if (line.match(/^\s*[-*+] /)) {
+            const indentLevel = getIndentLevel(line);
+            const trimmedLine = line.trim();
             element = {
                 id: wisk.editor.generateNewId(),
                 lastEdited: Math.floor(Date.now() / 1000),
                 component: 'list-element',
                 value: {
-                    textContent: convertInlineMarkdown(line.slice(2)),
-                    indent: 0,
+                    textContent: convertInlineMarkdown(trimmedLine.slice(2)),
+                    indent: indentLevel,
                 },
             };
         }
@@ -1360,6 +1389,519 @@ function handleDrop(e) {
 
     dragState = null;
 }
+
+// Rectangle Selection Functions
+function createSelectionRectangle() {
+    if (selectionRectangle) return selectionRectangle;
+
+    selectionRectangle = document.createElement('div');
+    selectionRectangle.className = 'selection-rectangle';
+    selectionRectangle.style.cssText = `
+        position: fixed;
+        border: 2px solid var(--fg-accent);
+        background: var(--bg-accent);
+        pointer-events: none;
+        z-index: 1000;
+        display: none;
+        border-radius: 4px;
+        opacity: 0.7;
+    `;
+    document.body.appendChild(selectionRectangle);
+    return selectionRectangle;
+}
+
+function startRectangleSelection(event) {
+    // Don't start selection if clicking on specific UI elements
+    if (
+        event.target.closest('.hover-images') ||
+        event.target.closest('.context-menu') ||
+        event.target.closest('button') ||
+        event.target.closest('input') ||
+        event.target.closest('textarea') ||
+        event.target.closest('.mini-dialog') ||
+        event.target.closest('.right-sidebar') ||
+        event.target.closest('.left-sidebar') ||
+        event.target.closest('nav')
+    ) {
+        return;
+    }
+
+    // Clear any existing selection
+    clearSelection();
+
+    const rect = createSelectionRectangle();
+    const editorElement = document.getElementById('editor');
+    if (!editorElement) return;
+
+    // Store coordinates relative to editor element
+    const editorRect = editorElement.getBoundingClientRect();
+    rectangleSelectionState = {
+        startX: event.clientX - editorRect.left + editorElement.scrollLeft,
+        startY: event.clientY - editorRect.top + editorElement.scrollTop,
+        isActive: false,
+        editorElement: editorElement,
+    };
+
+    // Add mouse move and up listeners
+    document.addEventListener('mousemove', handleRectangleSelection);
+    document.addEventListener('mouseup', finishRectangleSelection);
+}
+
+function handleRectangleSelection(event) {
+    if (!rectangleSelectionState) return;
+
+    const { startX, startY, editorElement } = rectangleSelectionState;
+    const editorRect = editorElement.getBoundingClientRect();
+
+    // Convert current mouse position to editor-relative coordinates
+    const currentX = event.clientX - editorRect.left + editorElement.scrollLeft;
+    const currentY = event.clientY - editorRect.top + editorElement.scrollTop;
+
+    // Check if we've moved enough to start selection (prevent accidental selections)
+    const distance = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
+    if (distance < 5 && !rectangleSelectionState.isActive) {
+        return;
+    }
+
+    rectangleSelectionState.isActive = true;
+
+    // Calculate rectangle bounds in editor coordinates
+    const left = Math.min(startX, currentX);
+    const top = Math.min(startY, currentY);
+    const width = Math.abs(currentX - startX);
+    const height = Math.abs(currentY - startY);
+
+    // Convert to viewport coordinates for display
+    const viewportLeft = editorRect.left + left - editorElement.scrollLeft;
+    const viewportTop = editorRect.top + top - editorElement.scrollTop;
+
+    // Update selection rectangle (using viewport coordinates for display)
+    const rect = createSelectionRectangle();
+    rect.style.display = 'block';
+    rect.style.left = viewportLeft + 'px';
+    rect.style.top = viewportTop + 'px';
+    rect.style.width = width + 'px';
+    rect.style.height = height + 'px';
+
+    // Find elements within selection (using editor coordinates for intersection)
+    updateElementSelection(left, top, width, height, editorElement);
+}
+
+function updateElementSelection(left, top, width, height, editorElement) {
+    const selectionBounds = {
+        left: left,
+        top: top,
+        right: left + width,
+        bottom: top + height,
+    };
+
+    // Clear previous selection overlays
+    clearSelectionOverlays();
+    selectedElements.clear();
+
+    const intersectingElements = [];
+    const editorRect = editorElement.getBoundingClientRect();
+
+    // Check each element for intersection
+    document.querySelectorAll('.rndr').forEach(elementContainer => {
+        const rect = elementContainer.getBoundingClientRect();
+
+        // Convert element position to editor coordinates
+        const elementEditorLeft = rect.left - editorRect.left + editorElement.scrollLeft;
+        const elementEditorTop = rect.top - editorRect.top + editorElement.scrollTop;
+        const elementEditorRight = elementEditorLeft + rect.width;
+        const elementEditorBottom = elementEditorTop + rect.height;
+
+        // Check if rectangles intersect (both in editor coordinates)
+        if (
+            elementEditorLeft < selectionBounds.right &&
+            elementEditorRight > selectionBounds.left &&
+            elementEditorTop < selectionBounds.bottom &&
+            elementEditorBottom > selectionBounds.top
+        ) {
+            const elementId = elementContainer.id.replace('div-', '');
+            intersectingElements.push({ elementId, elementContainer, rect });
+        }
+    });
+
+    // If selection is entirely within a single element, don't show artificial selection
+    if (intersectingElements.length === 1) {
+        const { rect } = intersectingElements[0];
+
+        // Convert rect to editor coordinates for comparison
+        const rectEditorLeft = rect.left - editorRect.left + editorElement.scrollLeft;
+        const rectEditorTop = rect.top - editorRect.top + editorElement.scrollTop;
+        const rectEditorRight = rectEditorLeft + rect.width;
+        const rectEditorBottom = rectEditorTop + rect.height;
+
+        // Check if all four corners of selection are within the single element (in editor coordinates)
+        const allCornersInside =
+            selectionBounds.left >= rectEditorLeft &&
+            selectionBounds.right <= rectEditorRight &&
+            selectionBounds.top >= rectEditorTop &&
+            selectionBounds.bottom <= rectEditorBottom;
+
+        if (allCornersInside) {
+            // Selection is entirely within one element, let natural selection handle it
+            return;
+        }
+    }
+
+    // Add overlays for all intersecting elements
+    intersectingElements.forEach(({ elementId, elementContainer }) => {
+        selectedElements.add(elementId);
+        createSelectionOverlay(elementContainer, elementId);
+    });
+}
+
+function finishRectangleSelection() {
+    if (rectangleSelectionState && rectangleSelectionState.isActive) {
+        // Selection completed with elements
+        console.log('Selected elements:', Array.from(selectedElements));
+
+        // Dispatch custom event for other parts of the app
+        window.dispatchEvent(
+            new CustomEvent('elements-selected', {
+                detail: { selectedElementIds: Array.from(selectedElements) },
+            })
+        );
+    }
+
+    // Clean up
+    if (selectionRectangle) {
+        selectionRectangle.style.display = 'none';
+    }
+
+    rectangleSelectionState = null;
+
+    // Remove event listeners
+    document.removeEventListener('mousemove', handleRectangleSelection);
+    document.removeEventListener('mouseup', finishRectangleSelection);
+}
+
+function createSelectionOverlay(elementContainer, elementId) {
+    const editorElement = document.getElementById('editor');
+    if (!editorElement) return;
+
+    // Find the actual content element inside the container
+    const contentElement = elementContainer.querySelector('.rndr > *') || elementContainer.querySelector('.rndr') || elementContainer;
+
+    const editorRect = editorElement.getBoundingClientRect();
+    const contentRect = contentElement.getBoundingClientRect();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'selection-overlay';
+    overlay.style.cssText = `
+        position: absolute;
+        left: ${contentRect.left - editorRect.left + editorElement.scrollLeft}px;
+        top: ${contentRect.top - editorRect.top + editorElement.scrollTop}px;
+        width: ${contentRect.width}px;
+        height: ${contentRect.height}px;
+        border: 2px solid var(--fg-accent);
+        background: var(--bg-accent);
+        opacity: 0.3;
+        pointer-events: none;
+        z-index: 999;
+        border-radius: var(--radius);
+        box-sizing: border-box;
+    `;
+
+    editorElement.appendChild(overlay);
+    selectionOverlays.set(elementId, overlay);
+}
+
+function clearSelectionOverlays() {
+    selectionOverlays.forEach(overlay => {
+        if (overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+        }
+    });
+    selectionOverlays.clear();
+}
+
+function clearSelection() {
+    selectedElements.clear();
+    clearSelectionOverlays();
+
+    if (selectionRectangle) {
+        selectionRectangle.style.display = 'none';
+    }
+}
+
+function updateSelectionOverlays() {
+    const editorElement = document.getElementById('editor');
+    if (!editorElement) return;
+
+    // Update overlay positions when scrolling or resizing
+    selectionOverlays.forEach((overlay, elementId) => {
+        const elementContainer = document.getElementById(`div-${elementId}`);
+        if (elementContainer) {
+            // Find the actual content element inside the container
+            const contentElement = elementContainer.querySelector('.rndr > *') || elementContainer.querySelector('.rndr') || elementContainer;
+
+            const editorRect = editorElement.getBoundingClientRect();
+            const contentRect = contentElement.getBoundingClientRect();
+
+            overlay.style.left = `${contentRect.left - editorRect.left + editorElement.scrollLeft}px`;
+            overlay.style.top = `${contentRect.top - editorRect.top + editorElement.scrollTop}px`;
+            overlay.style.width = `${contentRect.width}px`;
+            overlay.style.height = `${contentRect.height}px`;
+        }
+    });
+}
+
+// Add selection handling to editor initialization
+function initializeRectangleSelection() {
+    const editorElement = document.querySelector('.editor');
+    if (editorElement) {
+        editorElement.addEventListener('mousedown', startRectangleSelection);
+    }
+
+    // Add keyboard shortcuts for selection operations
+    document.addEventListener('keydown', handleSelectionKeyboard);
+
+    // Update overlay positions on scroll and resize
+    window.addEventListener('scroll', updateSelectionOverlays);
+    window.addEventListener('resize', updateSelectionOverlays);
+
+    // Update overlays when editor content changes
+    const observer = new MutationObserver(() => {
+        updateSelectionOverlays();
+    });
+
+    if (editorElement) {
+        observer.observe(editorElement, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+        });
+    }
+}
+
+// Keyboard shortcuts for selection
+function handleSelectionKeyboard(event) {
+    // Handle paste even when no elements are selected
+    if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+        const editorElement = document.querySelector('.editor');
+        if (editorElement && editorElement.contains(document.activeElement)) {
+            event.preventDefault();
+            pasteElements();
+            return;
+        }
+    }
+
+    // Only handle other shortcuts when there are selected elements
+    if (selectedElements.size === 0) return;
+
+    // Copy selected elements with Ctrl+C or Cmd+C
+    if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
+        event.preventDefault();
+        copySelectedElements();
+    }
+
+    // Cut selected elements with Ctrl+X or Cmd+X
+    if ((event.ctrlKey || event.metaKey) && event.key === 'x') {
+        event.preventDefault();
+        cutSelectedElements();
+    }
+
+    // Delete selected elements with Delete or Backspace
+    if (event.key === 'Delete' || event.key === 'Backspace') {
+        event.preventDefault();
+        deleteSelectedElements();
+    }
+
+    // Clear selection with Escape
+    if (event.key === 'Escape') {
+        event.preventDefault();
+        clearSelection();
+    }
+}
+
+// Bulk operations for selected elements
+function deleteSelectedElements() {
+    if (selectedElements.size === 0) return;
+
+    const elementsToDelete = Array.from(selectedElements);
+    elementsToDelete.forEach(elementId => {
+        if (elementId !== 'abcdxyz') {
+            // Don't delete the main element
+            wisk.editor.deleteBlock(elementId);
+        }
+    });
+
+    clearSelection();
+}
+
+function copySelectedElements() {
+    if (selectedElements.size === 0) return;
+
+    // Clear previous clipboard
+    elementClipboard = [];
+
+    // Copy element data to clipboard
+    Array.from(selectedElements).forEach(elementId => {
+        if (elementId !== 'abcdxyz') {
+            // Don't copy the main element
+            const element = wisk.editor.getElement(elementId);
+            if (element) {
+                elementClipboard.push({
+                    component: element.component,
+                    value: JSON.parse(JSON.stringify(element.value || {})), // Deep clone
+                });
+            }
+        }
+    });
+
+    console.log('Copied', elementClipboard.length, 'elements to clipboard');
+}
+
+function cutSelectedElements() {
+    if (selectedElements.size === 0) return;
+
+    // First copy the elements
+    copySelectedElements();
+
+    // Then delete them
+    deleteSelectedElements();
+
+    console.log('Cut', elementClipboard.length, 'elements');
+}
+
+function pasteElements() {
+    if (elementClipboard.length === 0) {
+        console.log('No elements in clipboard to paste');
+        return;
+    }
+
+    // Clear current selection
+    clearSelection();
+
+    // Find the focused element or use the last element as fallback
+    let targetElementId = 'abcdxyz'; // Default to main element
+
+    // Check if there's a focused element in the editor
+    const focusedElement = document.activeElement;
+    if (focusedElement) {
+        // Look for the closest .rndr parent
+        const closestRndr = focusedElement.closest('.rndr');
+        if (closestRndr && closestRndr.id && closestRndr.id.startsWith('div-')) {
+            targetElementId = closestRndr.id.replace('div-', '');
+        } else {
+            // Check if the focused element is inside an element container
+            const elementContainer = focusedElement.closest('[id^="div-"]');
+            if (elementContainer && elementContainer.id.startsWith('div-')) {
+                targetElementId = elementContainer.id.replace('div-', '');
+            }
+        }
+    }
+
+    // If no focused element found, use the last element as fallback
+    if (targetElementId === 'abcdxyz') {
+        const allElements = document.querySelectorAll('.rndr');
+        if (allElements.length > 0) {
+            const lastElement = allElements[allElements.length - 1];
+            if (lastElement.id && lastElement.id.startsWith('div-')) {
+                targetElementId = lastElement.id.replace('div-', '');
+            }
+        }
+    }
+
+    // Paste each element from clipboard after the target element
+    const newElementIds = [];
+    let currentTargetId = targetElementId;
+    elementClipboard.forEach(elementData => {
+        const newElementId = wisk.editor.createNewBlock(currentTargetId, elementData.component, elementData.value, { x: 0 });
+        if (newElementId) {
+            newElementIds.push(newElementId);
+            currentTargetId = newElementId; // Chain elements after each other
+        }
+    });
+
+    // Select the newly pasted elements
+    setTimeout(() => {
+        newElementIds.forEach(elementId => {
+            const elementContainer = document.getElementById(`div-${elementId}`);
+            if (elementContainer) {
+                selectedElements.add(elementId);
+                createSelectionOverlay(elementContainer, elementId);
+            }
+        });
+
+        // Dispatch selection event
+        window.dispatchEvent(
+            new CustomEvent('elements-selected', {
+                detail: { selectedElementIds: Array.from(selectedElements) },
+            })
+        );
+    }, 100); // Small delay to ensure elements are rendered
+
+    console.log('Pasted', newElementIds.length, 'elements');
+}
+
+function duplicateSelectedElements() {
+    if (selectedElements.size === 0) return;
+
+    const elementsToProcess = Array.from(selectedElements).reverse(); // Process in reverse order to maintain positions
+
+    elementsToProcess.forEach(elementId => {
+        if (elementId !== 'abcdxyz') {
+            // Don't duplicate the main element
+            const element = wisk.editor.getElement(elementId);
+            if (element) {
+                const valueClone = JSON.parse(JSON.stringify(element.value || {}));
+                wisk.editor.createNewBlock(elementId, element.component, valueClone, { x: 0 });
+            }
+        }
+    });
+
+    clearSelection();
+}
+
+function selectAllElements() {
+    clearSelection();
+
+    document.querySelectorAll('.rndr').forEach(elementContainer => {
+        const elementId = elementContainer.id.replace('div-', '');
+        selectedElements.add(elementId);
+        createSelectionOverlay(elementContainer, elementId);
+    });
+
+    // Dispatch selection event
+    window.dispatchEvent(
+        new CustomEvent('elements-selected', {
+            detail: { selectedElementIds: Array.from(selectedElements) },
+        })
+    );
+}
+
+// API functions for external use
+wisk.editor.getSelectedElements = function () {
+    return Array.from(selectedElements);
+};
+
+wisk.editor.clearSelection = clearSelection;
+
+wisk.editor.selectElements = function (elementIds) {
+    clearSelection();
+    elementIds.forEach(elementId => {
+        const elementContainer = document.getElementById(`div-${elementId}`);
+        if (elementContainer) {
+            selectedElements.add(elementId);
+            createSelectionOverlay(elementContainer, elementId);
+        }
+    });
+};
+
+wisk.editor.copySelectedElements = copySelectedElements;
+wisk.editor.cutSelectedElements = cutSelectedElements;
+wisk.editor.pasteElements = pasteElements;
+wisk.editor.getClipboard = function () {
+    return elementClipboard.slice(); // Return a copy
+};
+wisk.editor.clearClipboard = function () {
+    elementClipboard = [];
+};
 
 const menuActions = {
     duplicateItem: elementId => duplicateItem(elementId),

@@ -16,7 +16,7 @@ class LeftMenu extends LitElement {
             list-style-type: none;
         }
         li {
-            padding: var(--padding-2) 0;
+            padding: 0;
             position: relative;
         }
         li a {
@@ -24,12 +24,14 @@ class LeftMenu extends LitElement {
             text-decoration: none;
             flex: 1;
             display: block;
-            padding: var(--padding-w1);
+            padding: 0;
             border-radius: var(--radius);
 
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-size: 14px;
+            font-weight: 500;
         }
         .vert-nav {
             display: flex;
@@ -40,18 +42,18 @@ class LeftMenu extends LitElement {
             align-items: center;
             gap: var(--gap-2);
             padding: var(--padding-w1);
-            color: var(--fg-2);
+            color: var(--fg-1);
             background-color: transparent;
             text-decoration: none;
             cursor: pointer;
             outline: none;
             border: none;
-            width: 100%;
             border-radius: var(--radius);
             font-weight: 500;
         }
         .vert-nav-button img {
-            width: 16px;
+            width: 20px;
+            height: 20px;
         }
         .vert-nav-button:hover {
             background-color: var(--bg-3);
@@ -59,11 +61,15 @@ class LeftMenu extends LitElement {
         .vert-nav-button:active {
             background-color: var(--bg-3);
         }
-        li a:hover {
-            background-color: var(--bg-2);
-            color: var(--fg-1);
+        .horizontal-nav {
+            display: flex;
+            flex-direction: row;
+            gap: var(--gap-2);
         }
-        li a:active {
+        .item:hover {
+            background-color: var(--bg-3);
+        }
+        .item:active {
             background-color: var(--bg-3);
         }
         .outer {
@@ -159,14 +165,15 @@ class LeftMenu extends LitElement {
         .item {
             display: flex;
             align-items: center;
-            padding: 0;
+            padding: var(--padding-w1);
+            gap: var(--gap-2);
+            border-radius: var(--radius);
         }
         .more-options {
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 4px;
             border-radius: 4px;
             cursor: pointer;
             opacity: 0;
@@ -248,13 +255,10 @@ class LeftMenu extends LitElement {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 4px;
             border-radius: 4px;
             cursor: pointer;
             opacity: 0;
             transition: opacity 0.2s;
-            height: 24px;
-            width: 24px;
         }
         .item:hover .add-child {
             opacity: 1;
@@ -267,7 +271,7 @@ class LeftMenu extends LitElement {
             background-color: var(--bg-3);
         }
         .child-item {
-            padding-left: 16px;
+            padding-left: 26px;
         }
         @media (max-width: 900px) {
             .more-options,
@@ -308,12 +312,12 @@ class LeftMenu extends LitElement {
             background-color: var(--bg-2);
         }
         .folder-icon img {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
         }
         .folder-icon .arrow {
-            width: 14px;
-            height: 14px;
+            width: 20px;
+            height: 20px;
             transition: transform 0.2s ease;
         }
         .folder-icon .emoji {
@@ -321,8 +325,8 @@ class LeftMenu extends LitElement {
             line-height: 1;
         }
         .folder-icon .page-icon {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             opacity: 0.8;
         }
 
@@ -353,8 +357,8 @@ class LeftMenu extends LitElement {
             text-overflow: ellipsis;
         }
         .workspace-arrow {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             transition: transform 0.2s ease;
         }
         .workspace-arrow.rotated {
@@ -522,27 +526,48 @@ class LeftMenu extends LitElement {
         }
         .workspace-btn {
             padding: var(--padding-w2);
-            border-radius: var(--radius);
-            border: none;
+            border-radius: calc(var(--radius-large) * 20);
+            border: 2px solid var(--bg-3);
             background-color: var(--bg-1);
             color: var(--fg-1);
             cursor: pointer;
             font-weight: 500;
             font-size: 14px;
-            transition: all 0.15s ease;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--gap-2);
         }
         .workspace-btn:hover {
             background-color: var(--bg-3);
-            border-color: var(--border-1);
+            color: var(--fg-1);
         }
         .workspace-btn.primary {
-            background-color: var(--fg-accent);
-            color: var(--bg-accent);
-            border-color: var(--fg-accent);
+            background: var(--fg-1);
+            color: var(--bg-1);
+            padding: var(--padding-w2);
+            font-weight: 600;
+            border-radius: calc(var(--radius-large) * 20);
+            border: 2px solid transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--gap-2);
         }
         .workspace-btn.primary:hover {
-            background-color: var(--fg-accent);
-            opacity: 0.9;
+            background-color: transparent;
+            border: 2px solid var(--fg-1);
+            color: var(--fg-1);
+        }
+        .workspace-btn.tertiary {
+            background-color: transparent;
+            border: 2px solid transparent;
+            color: var(--fg-1);
+            font-weight: 500;
+        }
+        .workspace-btn.tertiary:hover {
+            background-color: var(--bg-3);
+            color: var(--fg-1);
         }
     `;
 
@@ -1046,13 +1071,13 @@ class LeftMenu extends LitElement {
 
                     <div class="vert-nav">
                         <button class="vert-nav-button" @click=${() => (window.location.href = '/')}>
-                            <img src="/a7/forget/page-plus-outline.svg" class="new-img" /> New Page
+                            <img src="/a7/forget/new-page-heroicon.svg" class="new-img" /> New Page
                         </button>
                         <button class="vert-nav-button" @click=${() => document.querySelector('search-element').show()}>
-                            <img src="/a7/forget/search-outline.svg" class="new-img" /> Search
+                            <img src="/a7/forget/search-heroicon.svg" class="new-img" /> Search
                         </button>
                         <button class="vert-nav-button" @click=${() => (window.location.href = '/?id=home')}>
-                            <img src="/a7/forget/home-outline.svg" class="new-img" /> Home
+                            <img src="/a7/forget/home-heroicon.svg" class="new-img" /> Home
                         </button>
                         <button
                             class="vert-nav-button"
@@ -1065,12 +1090,12 @@ class LeftMenu extends LitElement {
                 </div>
 
                 <div class="pages-section">
-                    <ul style="padding: var(--padding-w1);">
+                    <ul style="">
                         ${this.filteredList.map(
                             item => html`
                                 <li
                                     class="item ${item.level > 0 ? 'child-item' : ''}"
-                                    style="padding-left: ${item.level * 16}px;"
+                                    style="${item.level > 0 ? `padding-left: ${item.level * 16}px;` : ''}"
                                     @mouseenter=${() => (this.hoveredItemId = item.id)}
                                     @mouseleave=${() => {
                                         this.hoveredItemId = null;
@@ -1104,23 +1129,23 @@ class LeftMenu extends LitElement {
                                               : html`<img
                                                     class="page-icon"
                                                     src="${!item.name || item.name === 'Untitled'
-                                                        ? '/a7/forget/page-2.svg'
-                                                        : '/a7/forget/page-content-outline.svg'}"
+                                                        ? '/a7/forget/document-empty-heroicon.svg'
+                                                        : '/a7/forget/page-heroicon.svg'}"
                                                     alt="File"
                                                 />`}
                                     </div>
 
-                                    <a href="?id=${item.id}" style="display: flex; align-items: center; font-size: 13px; flex: 1;"> ${item.name} </a>
+                                    <a href="?id=${item.id}"> ${item.name} </a>
                                     <div class="add-child" @click=${e => this.createChildPage(item.id, e)}>
-                                        <img src="/a7/forget/plus.svg" alt="Add child" style="width: 16px; height: 16px;" />
+                                        <img src="/a7/forget/plus.svg" alt="Add child" style="width: 20px; height: 20px;" />
                                     </div>
                                     <div class="more-options" @click=${e => this.toggleDropdown(item.id, e)}>
-                                        <img src="/a7/forget/morex.svg" alt="More options" style="width: 16px; height: 16px;" />
+                                        <img src="/a7/forget/morex.svg" alt="More options" style="width: 20px; height: 20px;" />
                                         ${this.openDropdownId === item.id
                                             ? html`
                                                   <div class="dropdown">
                                                       <div class="dropdown-item delete-item" @click=${e => this.removeItem(item.id, e)}>
-                                                          <img src="/a7/forget/trash.svg" alt="Delete" style="width: 16px; height: 16px;" />
+                                                          <img src="/a7/forget/trash.svg" alt="Delete" style="width: 20px; height: 20px;" />
                                                           Delete
                                                       </div>
                                                   </div>
@@ -1134,12 +1159,12 @@ class LeftMenu extends LitElement {
                 </div>
 
                 <div class="bottom-section">
-                    <div class="vert-nav">
+                    <div class="horizontal-nav">
                         <button class="vert-nav-button" @click=${() => document.querySelector('help-dialog').show()}>
-                            <img src="/a7/forget/help-3.svg" class="new-img" /> Help
+                            <img src="/a7/forget/help-heroicon.svg" class="new-img" />
                         </button>
                         <button class="vert-nav-button" @click=${() => document.querySelector('feedback-dialog').show()}>
-                            <img src="/a7/forget/feedback.svg" class="new-img" /> Feedback
+                            <img src="/a7/forget/feedback-heroicon.svg" class="new-img" />
                         </button>
                     </div>
                 </div>
@@ -1183,7 +1208,7 @@ class LeftMenu extends LitElement {
                                       </div>
 
                                       <div class="workspace-dialog-actions">
-                                          <button class="workspace-btn" @click=${this.closeNewWorkspaceDialog}>Cancel</button>
+                                          <button class="workspace-btn tertiary" @click=${this.closeNewWorkspaceDialog}>Cancel</button>
                                           <button class="workspace-btn primary" @click=${this.saveNewWorkspace}>Create Workspace</button>
                                       </div>
                                   </div>

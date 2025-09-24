@@ -147,6 +147,26 @@
             ]
         },
 
+        "plugin-manager": {
+            "name": "plugin-manager",
+            "title": "Plugin Manager",
+            "author": "Wisk Team",
+            "contact": "https://wisk.cc",
+            "icon": "puzzle.svg",
+            "tags": ["plugin", "manage", "install", "uninstall"],
+            "description": "Manage and install plugins",
+            "contents": [
+                {
+                    "title": "Plugin Manager",
+                    "icon": "puzzle.svg",
+                    "category": "mini-dialog",
+                    "component": "plugin-manager",
+                    "nav": true,
+                    "loadAsModule": true
+                }
+            ]
+        },
+
         "text-element": {
             "name": "text-element",
             "title": "Text Element",

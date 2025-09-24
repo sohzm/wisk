@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
     <head>
         <title>New Wisk</title>
@@ -52,7 +52,9 @@
                 height: 30px;
                 border-radius: 50%;
                 border: 3.5px solid var(--fg-1);
-                animation: spinner-bulqg1 0.96s infinite linear alternate, spinner-oaa3wk 1.92s infinite linear;
+                animation:
+                    spinner-bulqg1 0.96s infinite linear alternate,
+                    spinner-oaa3wk 1.92s infinite linear;
             }
             @keyframes spinner-bulqg1 {
                 0% {
@@ -230,11 +232,29 @@
 
         <div class="update-box" style="display: none">
             <div class="update-box-bg"></div>
-            <div class="update-box-dialog">
+
+            <!-- Fancy Update Dialog -->
+            <div class="update-box-dialog" id="fancy-update-dialog">
                 <button class="update-box-confirm" onclick="(async () => { await window.clearWiskPWA(); window.updateWiskPWA(); })()">
                     Yes, Honey
                 </button>
                 <button class="update-box-cancel" onclick="document.querySelector('.update-box').style.display = 'none'">Later</button>
+            </div>
+
+            <!-- Simple Update Dialog -->
+            <div class="simple-update-dialog" id="simple-update-dialog" style="display: none">
+                <div class="simple-update-content">
+                    <h3>New Update Available</h3>
+                    <p>A new version of Wisk is ready to install.</p>
+                    <div class="simple-update-buttons">
+                        <button class="simple-update-now" onclick="(async () => { await window.clearWiskPWA(); window.updateWiskPWA(); })()">
+                            Update Now
+                        </button>
+                        <button class="simple-update-later" onclick="document.querySelector('.update-box').style.display = 'none'">
+                            Update Later
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -394,11 +414,28 @@
 
                 if (daysDiff >= 3) {
                     console.log('updateplz - last update was ' + daysDiff + ' days ago');
-                    document.querySelector('.update-box').style.display = 'block';
+                    showUpdateBox();
                     return true;
                 }
 
                 return false;
+            }
+
+            function showUpdateBox() {
+                const fancyUpdater = localStorage.getItem('fancyUpdater') === 'true';
+                const updateBox = document.querySelector('.update-box');
+                const fancyDialog = document.getElementById('fancy-update-dialog');
+                const simpleDialog = document.getElementById('simple-update-dialog');
+
+                if (fancyUpdater) {
+                    fancyDialog.style.display = 'block';
+                    simpleDialog.style.display = 'none';
+                } else {
+                    fancyDialog.style.display = 'none';
+                    simpleDialog.style.display = 'block';
+                }
+
+                updateBox.style.display = 'block';
             }
 
             checkForUpdate();

@@ -32,6 +32,7 @@ wisk.plugins = {
         // 'general-chat',
         'more',
         'left-menu',
+        'plugin-manager',
     ],
     loadedPlugins: [],
     pluginData: null,
@@ -179,6 +180,11 @@ function addToNavBar(content, inx) {
         button.classList.add('nav-button-dont-hover');
         button.style.order = inx;
         button.title = '';
+    }
+
+    if (content.title == 'Plugin Manager') {
+        button.style.order = 998;
+        button.classList.add('options-button');
     }
 
     if (content.title == 'Options') {

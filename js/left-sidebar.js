@@ -1,5 +1,5 @@
 // Initialize width management - only for desktop
-const DEFAULT_LEFT_WIDTH = 320;
+const DEFAULT_LEFT_WIDTH = 369;
 const MIN_LEFT_WIDTH = 200;
 const MAX_LEFT_WIDTH = 1000;
 

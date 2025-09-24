@@ -548,7 +548,6 @@ class GettingStarted extends LitElement {
             wisk.utils.showLoading('Importing report...');
 
             const elements = wisk.editor.convertMarkdownToElements(this.reportContent);
-            console.log('----- Elements:', elements);
 
             for (let i = 0; i < elements.length; i++) {
                 if (elements[i].component !== 'main-element') {

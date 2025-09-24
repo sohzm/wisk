@@ -233,31 +233,46 @@ class OptionsComponent extends LitElement {
             outline: none;
             border: none;
             cursor: pointer;
-            padding: var(--padding-w3);
-            border-radius: var(--radius);
+            padding: var(--padding-w2);
+            border-radius: calc(var(--radius-large) * 20);
             transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--gap-2);
         }
         .btn-default {
             background-color: var(--bg-3);
             color: var(--fg-1);
         }
+        .btn-default:hover {
+            background-color: var(--bg-2);
+        }
         .btn-primary {
-            background-color: var(--fg-1);
+            background: var(--fg-1);
             color: var(--bg-1);
-            font-weight: bold;
+            font-weight: 600;
+            border-radius: calc(var(--radius-large) * 20);
+            border: 2px solid transparent;
         }
         .btn-primary:hover:not(:disabled) {
-            filter: brightness(1.1);
+            background-color: transparent;
+            border: 2px solid var(--fg-1);
+            color: var(--fg-1);
         }
         .btn-primary:disabled {
-            opacity: 0.7;
+            background-color: var(--bg-3);
+            color: var(--fg-2);
+            border: 2px solid transparent;
             cursor: not-allowed;
         }
         .btn-secondary {
             background-color: var(--bg-1);
             border: 2px solid var(--bg-3);
             color: var(--fg-1);
-            font-weight: 600;
+            font-weight: 500;
+            border-radius: calc(var(--radius-large) * 20);
         }
         .btn-secondary:hover {
             background-color: var(--bg-3);
@@ -267,8 +282,8 @@ class OptionsComponent extends LitElement {
             background-color: var(--fg-red);
             color: var(--bg-red);
             font-weight: 600;
-            padding: var(--padding-w2);
             border: 2px solid var(--fg-red);
+            border-radius: calc(var(--radius-large) * 20);
         }
         .btn-danger:hover {
             background-color: var(--bg-red);
@@ -276,15 +291,26 @@ class OptionsComponent extends LitElement {
             border: 2px solid var(--fg-red);
         }
         .btn-developer {
-            background-color: var(--fg-1);
+            background: var(--fg-1);
             color: var(--bg-1);
-            border: 2px solid var(--fg-1);
-            padding: var(--padding-w1);
+            font-weight: 600;
+            border-radius: calc(var(--radius-large) * 20);
+            border: 2px solid transparent;
         }
         .btn-developer:hover {
-            background-color: var(--bg-1);
-            color: var(--fg-1);
+            background-color: transparent;
             border: 2px solid var(--fg-1);
+            color: var(--fg-1);
+        }
+        .btn-tertiary {
+            background-color: transparent;
+            border: 2px solid transparent;
+            color: var(--fg-1);
+            font-weight: 500;
+        }
+        .btn-tertiary:hover {
+            background-color: var(--bg-3);
+            color: var(--fg-1);
         }
         .detail-header {
             background-color: var(--bg-2);
@@ -423,21 +449,28 @@ class OptionsComponent extends LitElement {
             justify-content: flex-end;
         }
         .action-button {
-            padding: 0;
+            padding: var(--padding-2);
             display: flex;
+            align-items: center;
+            justify-content: center;
             background: var(--bg-1);
             border: none;
             outline: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
             opacity: 0.7;
+            width: 32px;
+            height: 32px;
         }
         .action-button:hover {
             opacity: 1;
+            background-color: var(--bg-3);
         }
         .action-button img {
-            padding: var(--padding-1);
             filter: var(--themed-svg);
-            height: 26px;
-            width: 26px;
+            height: 20px;
+            width: 20px;
         }
         .snapshot-info {
             padding: var(--padding-4);
@@ -668,12 +701,9 @@ class OptionsComponent extends LitElement {
     `;
 
     static properties = {
-        plugins: { type: Array },
-        searchTerm: { type: String },
+        devSearchTerm: { type: String },
         currentView: { type: String },
-        selectedPlugin: { type: Object },
         showUsernameEdit: { type: Boolean },
-        showPluginSearch: { type: Boolean },
         notificationsEnabled: { type: Boolean },
         changelog: { type: String },
         showSnapshotInfo: { type: Boolean },
@@ -682,11 +712,8 @@ class OptionsComponent extends LitElement {
 
     constructor() {
         super();
-        this.plugins = [];
-        this.searchTerm = '';
+        this.devSearchTerm = '';
         this.currentView = 'main';
-        this.showPluginSearch = false;
-        this.selectedPlugin = null;
         this.showUsernameEdit = false;
         this.notificationsEnabled = Notification.permission === 'granted';
         this.showSnapshotInfo = false;
@@ -698,11 +725,54 @@ class OptionsComponent extends LitElement {
         this.initEmojiTracker();
         this.changelog = '';
         this.fetchChangelog();
+
+        this.developerItems = [
+            {
+                title: 'Clear all service worker cache (for pwa)',
+                description: 'Clear service worker cache PWA',
+                type: 'button',
+                action: () => window.clearWiskPWA(),
+                buttonText: 'Clear',
+            },
+            {
+                title: 'Update Wisk PWA',
+                description: 'Update Wisk progressive web app',
+                type: 'button',
+                action: async () => {
+                    await window.clearWiskPWA();
+                    window.updateWiskPWA();
+                },
+                buttonText: 'Update',
+            },
+            {
+                title: 'Copy Template Configurations',
+                description: 'Copy template configurations to clipboard',
+                type: 'button',
+                action: () => this.copyTemplateConfigurations(),
+                buttonText: 'Copy',
+            },
+            {
+                title: 'Add Theme Object',
+                description: 'Add theme object to customize appearance',
+                type: 'textarea',
+                action: () => wisk.theme.addTheme(this.shadowRoot.querySelector('#theme-tx').value),
+                buttonText: 'Apply',
+                textareaId: 'theme-tx',
+                placeholder: 'Enter theme object here',
+                textareaHeight: '200px',
+            },
+            {
+                title: 'Fancy Updater',
+                description: 'Enable fancy update notifications and boxes',
+                type: 'toggle',
+                storageKey: 'fancyUpdater',
+                defaultValue: false,
+            },
+        ];
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.loadPlugins();
 
         if (typeof wisk.editor.notificationsEnabled === 'undefined') {
             wisk.editor.notificationsEnabled = Notification.permission === 'granted';
@@ -762,9 +832,6 @@ class OptionsComponent extends LitElement {
     handleBack() {
         if (this.currentView === 'main') {
             return false;
-        } else if (this.currentView === 'plugin-details') {
-            this.currentView = 'plugins';
-            return true;
         } else if (['developer', 'account', 'about', 'changelog', 'data-controls'].includes(this.currentView)) {
             this.showSettingsView();
             return true;
@@ -774,14 +841,62 @@ class OptionsComponent extends LitElement {
         }
     }
 
-    loadPlugins() {
-        if (wisk.plugins.pluginData && wisk.plugins.pluginData.list) {
-            this.plugins = Object.values(wisk.plugins.pluginData.list).filter(plugin => !wisk.plugins.defaultPlugins.includes(plugin.name));
-        }
+    handleDevSearch(e) {
+        this.devSearchTerm = e.target.value.toLowerCase();
     }
 
-    handleSearch(e) {
-        this.searchTerm = e.target.value.toLowerCase();
+    getFilteredDeveloperItems() {
+        if (!this.devSearchTerm) {
+            return this.developerItems;
+        }
+        return this.developerItems.filter(
+            item => item.title.toLowerCase().includes(this.devSearchTerm) || item.description.toLowerCase().includes(this.devSearchTerm)
+        );
+    }
+
+    renderDeveloperItem(item) {
+        if (item.type === 'button') {
+            return html`
+                <div class="menu-item-static content-section">
+                    <label>${item.title}</label>
+                    <button class="btn btn-developer" @click="${item.action}">${item.buttonText}</button>
+                </div>
+            `;
+        } else if (item.type === 'textarea') {
+            return html`
+                <div class="menu-item-static content-section content-section--column">
+                    <div
+                        style="display: flex; flex-direction: row; gap: var(--gap-2); align-items: center; justify-content: space-between; width: 100%;"
+                    >
+                        <label>${item.title}</label>
+                        <button class="btn btn-developer" @click="${item.action}">${item.buttonText}</button>
+                    </div>
+                    <textarea
+                        class="select-dropdown"
+                        id="${item.textareaId}"
+                        placeholder="${item.placeholder}"
+                        style="height: ${item.textareaHeight}; resize: none; font-family: var(--font-mono); width: 100%;"
+                    ></textarea>
+                </div>
+            `;
+        } else if (item.type === 'toggle') {
+            const isChecked = localStorage.getItem(item.storageKey) === 'true';
+            return html`
+                <div class="menu-item-static content-section">
+                    <label>${item.title}</label>
+                    <jalebi-toggle
+                        ?checked="${isChecked}"
+                        @valuechange="${e => {
+                            localStorage.setItem(item.storageKey, e.detail.value);
+                            this.requestUpdate();
+                        }}"
+                        class="dev-jalebi"
+                    >
+                    </jalebi-toggle>
+                </div>
+            `;
+        }
+        return '';
     }
 
     handleIntegrationSearch(e) {
@@ -806,59 +921,12 @@ class OptionsComponent extends LitElement {
         }
     }
 
-    showPluginsManager() {
-        this.currentView = 'plugins';
-    }
-
     showIntegrationsManager() {
         this.currentView = 'integrations';
     }
 
     showMainView() {
         this.currentView = 'main';
-    }
-
-    togglePlugin(plugin) {
-        this.selectedPlugin = plugin;
-        this.currentView = 'plugin-details';
-    }
-
-    installButtonClicked() {
-        if (this.isPluginInstalled(this.selectedPlugin.name)) {
-            this.handlePluginUninstall(this.selectedPlugin);
-        } else {
-            this.handlePluginInstall(this.selectedPlugin);
-        }
-    }
-
-    async handlePluginInstall(plugin) {
-        // TODO check if that plugin is experimental, if yes, show a confirmation dialog
-
-        await wisk.plugins.loadPlugin(plugin.name);
-        await wisk.editor.addConfigChange('document.config.plugins.add', plugin.name);
-        this.requestUpdate();
-    }
-
-    async handlePluginUninstall(plugin) {
-        // check if plugin is currently getting used, if yes, don't uninstall and show a toast
-        var pluginContents = wisk.plugins.pluginData.list[plugin.name].contents;
-        console.log(pluginContents);
-        for (const element in wisk.editor.document.data.elements) {
-            for (const content in pluginContents) {
-                if (wisk.editor.document.data.elements[element].component == pluginContents[content].component) {
-                    wisk.utils.showToast('Plugin is currently being used, please remove the block first', 3000);
-                    return;
-                }
-            }
-        }
-
-        // if no then uninstall and reload the page
-        await wisk.editor.addConfigChange('document.config.plugins.remove', plugin.name);
-        window.location.reload();
-    }
-
-    isPluginInstalled(pluginName) {
-        return wisk.plugins.loadedPlugins.includes(pluginName);
     }
 
     async getUserData() {
@@ -967,8 +1035,6 @@ class OptionsComponent extends LitElement {
             console.log('STORAGE STATS', stats);
             this.storageStats = stats;
         });
-        this.shadowRoot.querySelector('.search-input').value = '';
-        this.handleSearch({ target: { value: '' } });
 
         this.refreshSnapshots();
         this.requestUpdate();
@@ -1028,23 +1094,6 @@ class OptionsComponent extends LitElement {
 
     async showChangelogView() {
         this.currentView = 'changelog';
-    }
-
-    async tagClicked(tag) {
-        if (tag == 'search') {
-            this.showPluginSearch = true;
-            await this.updateComplete;
-            this.shadowRoot.querySelector('.search-input').focus();
-            return;
-        }
-        if (tag == '') {
-            this.searchTerm = '';
-            return;
-        }
-        tag = '#' + tag;
-        this.shadowRoot.querySelector('#pluginSearch').value = tag;
-        this.searchTerm = tag;
-        this.currentView = 'plugins';
     }
 
     toggleAIAutocomplete() {
@@ -1382,30 +1431,7 @@ class OptionsComponent extends LitElement {
         event.target.value = '';
     }
 
-    mdtoText(md) {
-        const html = marked.parse(md);
-        const newDiv = document.createElement('div');
-        newDiv.innerHTML = html;
-
-        // get the first paragraph of the plugin description
-        const para = newDiv.querySelector('p');
-
-        return para ? para.textContent.trim() : '';
-    }
-
     render() {
-        var filteredPlugins = this.plugins.filter(
-            plugin =>
-                plugin.title.toLowerCase().includes(this.searchTerm) ||
-                plugin.description.toLowerCase().includes(this.searchTerm) ||
-                plugin.tags.some(tag => ('#' + tag).toLowerCase().includes(this.searchTerm)) ||
-                plugin.author.toLowerCase().includes(this.searchTerm) ||
-                plugin.contents.some(content => content.experimental && 'experimental'.includes(this.searchTerm))
-        );
-
-        // if plugin.hide is true, don't show it
-        filteredPlugins = filteredPlugins.filter(plugin => !plugin.hide);
-
         return html`
             <div class="container" data-view="${this.currentView}">
                 <!-- Main View -->
@@ -1447,10 +1473,6 @@ class OptionsComponent extends LitElement {
                         <img src="/a7/iconoir/right.svg" alt="Themes" class="icon" draggable="false"/>
                     </div>
 
-                    <div class="menu-item" @click="${this.showPluginsManager}">
-                        <label> <img src="/a7/plugins/options-element/plug.svg" alt="Plugins" class="icon" draggable="false"/> Plugins</label>
-                        <img src="/a7/iconoir/right.svg" alt="Plugins" class="icon" draggable="false"/>
-                    </div>
 
                     <div class="menu-item" @click="${this.showIntegrationsManager}" style="display: none">
                         <label> <img src="/a7/plugins/options-element/integrations.svg" alt="Plugins" class="icon" draggable="false"/> Integrations</label>
@@ -1474,82 +1496,6 @@ class OptionsComponent extends LitElement {
                     </p>
                 </div>
 
-                <!-- Plugins View -->
-                <div class="view ${this.currentView === 'plugins' ? 'active' : ''}">
-                    <div class="header">
-                        <div class="header-wrapper">
-                            <div class="header-controls">
-                                <img src="/a7/forget/dialog-back.svg" alt="Back" @click="${this.showMainView}" class="icon" draggable="false"/>
-                                <img src="/a7/forget/dialog-x.svg" alt="Close" @click="${() => {
-                                    wisk.editor.hideMiniDialog();
-                                }}" class="icon" draggable="false" style="padding: var(--padding-3);"/>
-                            </div>
-                            <label class="header-title">Plugins</label>
-                        </div>
-                    </div>
-
-                    <div class="filter-tags">
-                        <input id="pluginSearch" type="text" placeholder="Search plugins" class="search-input" @input="${this.handleSearch}" style="flex: 1; 
-                            display: ${this.showPluginSearch ? 'block' : this.searchTerm === '' ? 'none' : 'block'};" @blur="${() => {
-                                if (this.searchTerm === '') {
-                                    this.showPluginSearch = false;
-                                }
-                            }}"/>
-                        <div class="filter-tag" @click="${() => this.tagClicked('search')}" style="display: ${this.showPluginSearch ? 'none' : this.searchTerm === '' ? 'block' : 'none'}">
-                            <img src="/a7/forget/search-thicc.svg" alt="Search" style="width: 17px;"/> 
-                        </div>
-                        <div class="filter-tag ${this.searchTerm === '' ? 'filter-tag-selected' : ''}" @click="${() => this.tagClicked('')}">All</div>
-                        <div class="filter-tag ${this.searchTerm === '#programming' ? 'filter-tag-selected' : ''}" @click="${() => this.tagClicked('programming')}">Programming</div>
-                        <div class="filter-tag ${this.searchTerm === '#customization' ? 'filter-tag-selected' : ''}" @click="${() => this.tagClicked('customization')}">Customization</div>
-                        <div class="filter-tag ${this.searchTerm === '#blog' ? 'filter-tag-selected' : ''}" @click="${() => this.tagClicked('blog')}">Blog</div>
-                        <div class="filter-tag ${this.searchTerm === '#utility' ? 'filter-tag-selected' : ''}" @click="${() => this.tagClicked('utility')}">Utility</div>
-                    </div>
-
-                    <div style="flex: 1; overflow-y: auto; margin-top: 10px;">
-                        ${filteredPlugins
-                            .sort((a, b) => a.title.localeCompare(b.title))
-                            .map(
-                                plugin => html`
-                                    <div
-                                        class="content-card"
-                                        @click="${() => this.togglePlugin(plugin)}"
-                                        style="cursor: pointer; margin-bottom: 8px;"
-                                    >
-                                        <img
-                                            src="${SERVER + wisk.plugins.pluginData['icon-path'] + plugin.icon}"
-                                            alt="${plugin.title}"
-                                            class="card-icon"
-                                            draggable="false"
-                                        />
-                                        <div class="card-info">
-                                            <span class="card-title">${plugin.title}</span>
-                                            <span class="card-description">${this.mdtoText(plugin.description)}</span>
-                                        </div>
-                                    </div>
-                                `
-                            )}
-                            
-                        ${
-                            filteredPlugins.length === 0
-                                ? html`
-                                      <div class="empty-state">
-                                          <img
-                                              src="/a7/plugins/options-element/puzzled.svg"
-                                              alt="No plugins"
-                                              style="width: 80px; margin: 0 auto;"
-                                              draggable="false"
-                                          />
-                                          <p>No plugins found</p>
-                                          <p>
-                                              Want a plugin? Request it
-                                              <a href="https://github.com/sohzm/wisk/issues/new" target="_blank" class="link-blue">here</a>.
-                                          </p>
-                                      </div>
-                                  `
-                                : ''
-                        }
-                    </div>
-                </div>
 
                 <!-- Integrations View -->
                 <div class="view ${this.currentView === 'integrations' ? 'active' : ''}">
@@ -1576,131 +1522,6 @@ class OptionsComponent extends LitElement {
                     </div>
                 </div>
 
-                <!-- Plugin Details View -->
-                <div class="view ${this.currentView === 'plugin-details' ? 'active' : ''}">
-                    <div class="header">
-                        <div class="header-wrapper">
-                            <div class="header-controls">
-                                <img src="/a7/forget/dialog-back.svg" alt="Back" @click="${() => (this.currentView = 'plugins')}" class="icon" draggable="false"/>
-                                <img src="/a7/forget/dialog-x.svg" alt="Close" @click="${() => {
-                                    wisk.editor.hideMiniDialog();
-                                }}" class="icon" draggable="false" style="padding: var(--padding-3);"/>
-                            </div>
-                            <label class="header-title">Plugin Detail</label>
-                        </div>
-                    </div>
-
-                    ${
-                        this.selectedPlugin
-                            ? html`
-                                  <div class="detail-header">
-                                      <img
-                                          src="${SERVER + wisk.plugins.pluginData['icon-path'] + this.selectedPlugin.icon}"
-                                          class="card-icon"
-                                          draggable="false"
-                                      />
-                                      <div style="display: flex; flex-direction: column; gap: 5px;">
-                                          <h4>${this.selectedPlugin.title}</h4>
-                                          <p style="font-size: 14px">
-                                              made by
-                                              <a href="${this.selectedPlugin.contact}" target="_blank" style="color: var(--fg-2)">
-                                                  ${this.selectedPlugin.author}
-                                              </a>
-                                          </p>
-                                      </div>
-                                      <div style="flex: 1"></div>
-                                      <div style="padding: var(--padding-3); display: flex; align-items: center; justify-content: center;">
-                                          <button class="btn btn-primary" @click="${this.installButtonClicked}">
-                                              ${this.isPluginInstalled(this.selectedPlugin.name) ? 'Uninstall' : 'Install'}
-                                          </button>
-                                      </div>
-                                  </div>
-
-                                  <div class="content-section content-section--column">
-                                      ${this.selectedPlugin.contents.some(
-                                          content =>
-                                              content.category.includes('mini-dialog') ||
-                                              content.category.includes('nav-mini') ||
-                                              content.category.includes('full-dialog') ||
-                                              content.category.includes('right-sidebar') ||
-                                              content.category.includes('left-sidebar') ||
-                                              content.category.includes('component') ||
-                                              content.category.includes('auto') ||
-                                              content.category.includes('context-box') ||
-                                              content.nav ||
-                                              content.experimental
-                                      )
-                                          ? html`
-                                                <div class="detail-section">
-                                                    <div>
-                                                        <span class="tag"
-                                                            >${this.selectedPlugin.contents.map(content => content.category).join(', ')}</span
-                                                        >
-                                                        ${this.selectedPlugin.contents.some(content => content.nav)
-                                                            ? html`<span class="tag">navigation</span>`
-                                                            : ''}
-                                                        ${this.selectedPlugin.contents.some(content => content.experimental)
-                                                            ? html`<span class="tag tag-red">experimental</span>`
-                                                            : ''}
-                                                    </div>
-
-                                                    <ul style="color: var(--fg-2); display: flex; flex-direction: column; gap: var(--gap-1)">
-                                                        ${this.selectedPlugin.contents.some(content => content.category.includes('mini-dialog'))
-                                                            ? html`<p style="font-size: 14px;">• opens as a small dialog box</p>`
-                                                            : ''}
-                                                        ${this.selectedPlugin.contents.some(content => content.category.includes('nav-mini'))
-                                                            ? html`<p style="font-size: 14px;">• adds a interactive button to the navigation bar</p>`
-                                                            : ''}
-                                                        ${this.selectedPlugin.contents.some(content => content.category.includes('full-dialog'))
-                                                            ? html`<p style="font-size: 14px;">
-                                                                  • opens as a full-screen dialog box (Not implemented yet)
-                                                              </p>`
-                                                            : ''}
-                                                        ${this.selectedPlugin.contents.some(content => content.category.includes('right-sidebar'))
-                                                            ? html`<p style="font-size: 14px;">• appears in the right sidebar</p>`
-                                                            : ''}
-                                                        ${this.selectedPlugin.contents.some(content => content.category.includes('left-sidebar'))
-                                                            ? html`<p style="font-size: 14px;">• appears in the left sidebar</p>`
-                                                            : ''}
-                                                        ${this.selectedPlugin.contents.some(content => content.category.includes('component'))
-                                                            ? html`<p style="font-size: 14px;">• adds a new block to the editor</p>`
-                                                            : ''}
-                                                        ${this.selectedPlugin.contents.some(content => content.category.includes('auto'))
-                                                            ? html`<p style="font-size: 14px;">
-                                                                  • runs automatically without user intervention/has custom ui
-                                                              </p>`
-                                                            : ''}
-                                                        ${this.selectedPlugin.contents.some(content => content.category.includes('context-box'))
-                                                            ? html`<p style="font-size: 14px;">
-                                                                  • appears as a context menu or box (Not implemented yet)
-                                                              </p>`
-                                                            : ''}
-                                                        ${this.selectedPlugin.contents.some(content => content.experimental)
-                                                            ? html`<p style="font-size: 14px;">
-                                                                  • is experimental and may cause issues and is not recommended to use
-                                                              </p>`
-                                                            : ''}
-                                                        ${this.selectedPlugin.contents.some(content => content.nav)
-                                                            ? html`<p style="font-size: 14px;">• will be shown in the navigation bar</p>`
-                                                            : ''}
-                                                    </ul>
-                                                </div>
-                                            `
-                                          : ''}
-
-                                      <div style="display: flex; flex-wrap: wrap; gap: var(--gap-1);">
-                                          ${this.selectedPlugin.tags.map(
-                                              tag => html`<span class="tag tag-blue" @click="${() => this.tagClicked(tag)}">#${tag}</span>`
-                                          )}
-                                      </div>
-                                      <div class="detail-section">
-                                          <div class="markdown-plugin-description" .innerHTML=${marked.parse(this.selectedPlugin.description)}></div>
-                                      </div>
-                                  </div>
-                              `
-                            : ''
-                    }
-                </div>
 
                 <!-- Developer View -->
                 <div class="view ${this.currentView === 'developer' ? 'active' : ''}">
@@ -1732,34 +1553,21 @@ class OptionsComponent extends LitElement {
                     </div>
 
                     <div style="flex: 1; display: ${localStorage.getItem('devMode') === 'true' ? 'block' : 'none'}">
-                        <div class="menu-item-static content-section">
-                            <label>Clear all service worker cache (for pwa)</label>
-                            <button class="btn btn-developer" @click="${() => window.clearWiskPWA()}">Clear</button>
+                        <!-- Search Bar -->
+                        <div style="margin-bottom: var(--gap-3);">
+                            <input
+                                type="text"
+                                placeholder="Search developer options"
+                                class="form-input"
+                                @input="${this.handleDevSearch}"
+                                @focus="${e => (e.target.style.borderColor = 'var(--fg-accent)')}"
+                                @blur="${e => (e.target.style.borderColor = 'var(--bg-3)')}"
+                                style="width: 100%; padding: var(--padding-w2); border: 2px solid var(--bg-3); border-radius: var(--radius); background-color: var(--bg-2); color: var(--fg-1); transition: all 0.2s ease;"
+                            />
                         </div>
 
-                        <div class="menu-item-static content-section">
-                            <label>Update Wisk PWA</label>
-                            <button class="btn btn-developer" @click="${async () => {
-                                await window.clearWiskPWA();
-                                window.updateWiskPWA();
-                            }}">Update</button>
-                        </div>
-
-                        <div class="menu-item-static content-section">
-                            <label>Copy Template Configurations</label>
-                            <button class="btn btn-developer" @click="${() => this.copyTemplateConfigurations()}">Copy</button>
-                        </div>
-
-                        <div class="menu-item-static content-section content-section--column">
-                            <div style="display: flex; flex-direction: row; gap: var(--gap-2); align-items: center; justify-content: space-between; width: 100%;">
-                                <label>Add Theme Object</label>
-                                <button class="btn btn-developer" 
-                                    @click="${() => wisk.theme.addTheme(this.shadowRoot.querySelector('#theme-tx').value)}">Apply</button>
-                            </div>
-                            
-                            <textarea class="select-dropdown" id="theme-tx" placeholder="Enter theme object here" 
-                                style="height: 200px; resize: none; font-family: var(--font-mono); width: 100%;"></textarea>
-                        </div>
+                        <!-- Filtered Developer Items -->
+                        ${this.getFilteredDeveloperItems().map(item => this.renderDeveloperItem(item))}
                     </div>
                 </div>
 
@@ -2040,38 +1848,50 @@ class OptionsComponent extends LitElement {
                         <p>• <strong>Note:</strong> Snapshots do <strong>not</strong> include databases, as these may change independently of the page content.</p>
                     </div>
 
-                    <div class="snapshot-list-outer">
-                        ${
-                            this.snapshots.length === 0
-                                ? html`<p style="height: 100%; display: flex ; align-items: center; justify-content: center">
-                                      No saved snapshots for this page, create one now!
-                                  </p>`
-                                : ''
-                        }
-                        <div class="snapshot-list">
-                            ${this.snapshots.map(
-                                snapshot => html`
-                                    <div class="snapshot-section">
-                                        <div class="">
-                                            <p>
-                                                ${snapshot.title}<br />
-                                                <span style="color: var(--fg-2);"
-                                                    >${new Date(snapshot.timestamp).toLocaleString('en-US', {
-                                                        month: 'short',
-                                                        day: 'numeric',
-                                                        hour: 'numeric',
-                                                        minute: '2-digit',
-                                                        hour12: true,
-                                                    })}</span
-                                                >
-                                            </p>
-                                        </div>
-                                        <button class="btn btn-secondary" @click="${() => this.restoreSnapshot(snapshot)}">Restore</button>
-                                    </div>
-                                `
-                            )}
-                        </div>
-                    </div>
+                    ${
+                        this.snapshots.length === 0
+                            ? html`
+                                  <div class="empty-state" style="flex: 1; min-height: 400px;">
+                                      <img
+                                          src="/a7/plugins/options-element/puzzled.svg"
+                                          alt="No snapshots"
+                                          style="width: 80px; margin: 0 auto;"
+                                          draggable="false"
+                                      />
+                                      <p>No snapshots found</p>
+                                      <p>Create a snapshot above to save your current progress.</p>
+                                  </div>
+                              `
+                            : html`
+                                  <div class="snapshot-list-outer">
+                                      <div class="snapshot-list">
+                                          ${this.snapshots.map(
+                                              snapshot => html`
+                                                  <div class="snapshot-section">
+                                                      <div class="">
+                                                          <p>
+                                                              ${snapshot.title}<br />
+                                                              <span style="color: var(--fg-2);"
+                                                                  >${new Date(snapshot.timestamp).toLocaleString('en-US', {
+                                                                      month: 'short',
+                                                                      day: 'numeric',
+                                                                      hour: 'numeric',
+                                                                      minute: '2-digit',
+                                                                      hour12: true,
+                                                                  })}</span
+                                                              >
+                                                          </p>
+                                                      </div>
+                                                      <button class="btn btn-secondary" @click="${() => this.restoreSnapshot(snapshot)}">
+                                                          Restore
+                                                      </button>
+                                                  </div>
+                                              `
+                                          )}
+                                      </div>
+                                  </div>
+                              `
+                    }
                 </div>
 
                 <!-- Changelog View -->

@@ -46,4 +46,4 @@ By submitting a pull request or other contribution to this project, you acknowle
 
 ---
 
-*This CLA is effective as of the date of your first contribution and applies to all past, present, and future contributions to the Wisk project.*
+_This CLA is effective as of the date of your first contribution and applies to all past, present, and future contributions to the Wisk project._
