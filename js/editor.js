@@ -50,6 +50,14 @@ const createHoverImageContainer = elementId => {
         clearTimeout(dragHoldTimer);
     });
 
+    selectButton.addEventListener('touchstart', event => {
+        dragHoldTimer = setTimeout(() => onDragStart(event, elementId), 150);
+    });
+
+    selectButton.addEventListener('touchend', () => clearTimeout(dragHoldTimer));
+
+    selectButton.addEventListener('touchcancel', () => clearTimeout(dragHoldTimer));
+
     imageContainer.appendChild(addButton);
     imageContainer.appendChild(selectButton);
 
@@ -1318,14 +1326,19 @@ function onDragStart(event, elementId) {
     };
     window.addEventListener('mousemove', handleDrag);
     window.addEventListener('mouseup', handleDrop);
+    window.addEventListener('touchmove', handleDrag, {passive: false});
+    window.addEventListener('touchend', handleDrop);
 }
 
 function handleDrag(e) {
     if (!dragState) return;
+
+    const event = e.touches ? e.touches[0] : e;
+
     const { clone } = dragState;
-    clone.style.left = e.clientX + 'px';
-    clone.style.top = e.clientY + 'px';
-    const elementAbove = getElementAbove(e.clientX, e.clientY);
+    clone.style.left = event.clientX + 'px';
+    clone.style.top = event.clientY + 'px';
+    const elementAbove = getElementAbove(event.clientX, event.clientY);
     const targetContainer = elementAbove ? elementAbove.closest('.rndr') : null;
     if (targetContainer) {
         showDropIndicator(targetContainer);
@@ -1387,9 +1400,13 @@ function handleDrop(e) {
 
     window.removeEventListener('mousemove', handleDrag);
     window.removeEventListener('mouseup', handleDrop);
+    window.removeEventListener('touchmove', handleDrop);
+    window.removeEventListener('touchend', handleDrop);
+
+    const event = e.changedTouches ? e.changedTouches[0] : e;
 
     // get the above element of the clone and put the clone below it after which delete the original
-    const elementAbove = getElementAbove(e.clientX, e.clientY);
+    const elementAbove = getElementAbove(event.clientX, event.clientY);
     const targetContainer = elementAbove ? elementAbove.closest('.rndr') : null;
 
     if (targetContainer) {
