@@ -1507,16 +1507,20 @@ function handleRectangleSelection(event) {
     const viewportLeft = editorRect.left + left - editorElement.scrollLeft;
     const viewportTop = editorRect.top + top - editorElement.scrollTop;
 
-    // Update selection rectangle (using viewport coordinates for display)
-    const rect = createSelectionRectangle();
-    rect.style.display = 'block';
-    rect.style.left = viewportLeft + 'px';
-    rect.style.top = viewportTop + 'px';
-    rect.style.width = width + 'px';
-    rect.style.height = height + 'px';
+    // Find elements within selection first (using editor coordinates for intersection)
+    const shouldShowSelection = updateElementSelection(left, top, width, height, editorElement);
 
-    // Find elements within selection (using editor coordinates for intersection)
-    updateElementSelection(left, top, width, height, editorElement);
+    // Update selection rectangle only if it should be visible (using viewport coordinates for display)
+    const rect = createSelectionRectangle();
+    if (shouldShowSelection) {
+        rect.style.display = 'block';
+        rect.style.left = viewportLeft + 'px';
+        rect.style.top = viewportTop + 'px';
+        rect.style.width = width + 'px';
+        rect.style.height = height + 'px';
+    } else {
+        rect.style.display = 'none';
+    }
 }
 
 function updateElementSelection(left, top, width, height, editorElement) {
@@ -1575,7 +1579,7 @@ function updateElementSelection(left, top, width, height, editorElement) {
 
         if (allCornersInside) {
             // Selection is entirely within one element, let natural selection handle it
-            return;
+            return false;
         }
     }
 
@@ -1584,6 +1588,8 @@ function updateElementSelection(left, top, width, height, editorElement) {
         selectedElements.add(elementId);
         createSelectionOverlay(elementContainer, elementId);
     });
+
+    return true; // Show selection rectangle
 }
 
 function finishRectangleSelection() {
