@@ -821,7 +821,22 @@ wisk.editor.useTemplate = async function (template) {
             document.getElementById('abcdxyz').setValue('', element.value);
             document.getElementById('abcdxyz').sendUpdates();
         }
-        if (element.id !== 'abcdxyz') wisk.editor.createBlockNoFocus('', element.component, element.value);
+        if (element.id !== 'abcdxyz') {
+            // Create DOM elements directly like in initializeRemainingElements
+            const container = createBlockContainer(element.id, element.component);
+            const block = createBlockElement(element.id, element.component);
+            const imageContainer = createHoverImageContainer(element.id);
+
+            const fullWidthWrapper = createFullWidthWrapper(element.id, block, imageContainer);
+            container.appendChild(fullWidthWrapper);
+            document.getElementById('editor').appendChild(container);
+
+            window.dispatchEvent(new CustomEvent('block-created', { detail: { id: element.id } }));
+
+            setTimeout(() => {
+                document.getElementById(element.id).setValue('', element.value);
+            }, 0);
+        }
     }
 
     wisk.theme.setTheme(template.theme);

@@ -1082,7 +1082,6 @@ class LeftMenu extends LitElement {
                         <button
                             class="vert-nav-button"
                             @click=${() => document.querySelector('template-dialog').show()}
-                            style="display: ${localStorage.getItem('devMode') === 'true' ? 'flex' : 'none'};"
                         >
                             <img src="/a7/forget/templates-outline.svg" class="new-img" /> Templates
                         </button>
