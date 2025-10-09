@@ -1,4 +1,4 @@
-class SuperDividier extends HTMLElement {
+class SuperDivider extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
@@ -91,4 +91,4 @@ class SuperDividier extends HTMLElement {
     }
 }
 
-customElements.define('super-divider', SuperDividier);
+customElements.define('super-divider', SuperDivider);
