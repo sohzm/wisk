@@ -387,7 +387,7 @@ function registerCommand(title, description, category, callback, shortcut = '') 
         return;
     }
     commandRegistry.push({ title, description, category, callback, shortcut });
-    console.log(`Command registered: ${title} (${category})`);
+    // console.log(`Command registered: ${title} (${category})`);
 }
 
 function getCommandRegistry() {

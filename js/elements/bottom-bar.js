@@ -84,7 +84,9 @@ class BottomBar extends LitElement {
                 <button @click="${() => this.buttonClicked('home')}"><img src="/a7/plugins/bottom-bar/home.svg" alt="Home" /></button>
                 <button @click="${() => this.buttonClicked('search')}"><img src="/a7/plugins/bottom-bar/search.svg" alt="Home" /></button>
                 <button @click="${() => this.buttonClicked('plus')}"><img src="/a7/plugins/bottom-bar/plus.svg" alt="Home" /></button>
-                <button @click="${() => this.buttonClicked('more')}"><img src="/a7/plugins/bottom-bar/more.svg" alt="Home" /></button>
+                <button @click="${() => this.buttonClicked('more')}">
+                    <img src="/a7/plugins/bottom-bar/more.svg" alt="Home" onboarding-options-button />
+                </button>
             </div>
         `;
     }

@@ -199,20 +199,18 @@ class StickyNotes extends LitElement {
         }
 
         .btn-primary {
-            border-radius: calc(var(--radius) * 20);
+            background: var(--fg-1);
+            color: var(--bg-1);
+            font-weight: 600;
+            border-radius: calc(var(--radius-large) * 20);
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
         }
 
         .btn-primary:hover {
-            background-color: var(--bg-3);
-        }
-
-        .btn-default {
-            background-color: var(--bg-3);
+            background-color: transparent;
+            border: 2px solid var(--fg-1);
             color: var(--fg-1);
-        }
-
-        .btn-default:hover {
-            filter: brightness(1.05);
         }
 
         .btn-danger {
@@ -231,50 +229,54 @@ class StickyNotes extends LitElement {
             width: 100%;
             max-width: 400px;
             padding: var(--padding-w2);
-            border: 2px solid transparent;
-            border-radius: var(--radius);
+            border: 2px solid var(--bg-3);
+            border-radius: calc(var(--radius) * 20);
             outline: none;
-            background-color: var(--bg-3);
+            background-color: var(--bg-2);
             color: var(--fg-1);
+            transition: all 0.2s ease;
         }
         .search-input:focus {
-            border: 2px solid var(--fg-1);
+            border: 2px solid var(--fg-accent);
             background-color: var(--bg-1);
         }
 
         .search-input:focus::placeholder {
-            color: var(--bg-1);
+            color: var(--fg-2);
         }
 
         .color-palette {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: var(--gap-2);
-            flex-wrap: wrap;
-            padding: var(--padding-2);
-            background-color: var(--bg-2);
+            padding: var(--padding-3);
+            background-color: var(--bg-1);
+            border: 2px solid var(--bg-3);
             border-radius: var(--radius);
             position: absolute;
             top: 100%;
             right: 0;
             z-index: 10;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--drop-shadow);
         }
 
         .color-option {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             cursor: pointer;
             border: 2px solid transparent;
-            transition: transform 0.2s ease;
+            transition: all 0.2s ease;
         }
 
         .color-option:hover {
             transform: scale(1.2);
+            border-color: var(--fg-2);
         }
 
         .color-option[selected] {
-            border-color: var(--fg-1);
+            border: 3px solid var(--fg-1);
+            transform: scale(1.1);
         }
 
         .color-toggle {
@@ -358,6 +360,7 @@ class StickyNotes extends LitElement {
         this.showColorPaletteForNote = null; // Store note ID instead of index
         this.sortOrder = 'newest';
         this.debouncer = null;
+        this.boundCloseDialogs = this.closeDialogs.bind(this);
         this.colors = [
             { fg: 'var(--fg-1)', bg: 'var(--bg-2)' },
             { fg: 'var(--fg-red)', bg: 'var(--bg-red)' },
@@ -395,13 +398,18 @@ class StickyNotes extends LitElement {
         return texts[randomIndex];
     }
 
-    async loadData(data) {
+    loadData(data) {
+        console.log('---------------------------------- Loading sticky notes data:', data);
         try {
-            const obj = JSON.parse(data);
+            if (!data) {
+                this.notes = [];
+                this.pinnedNotes = [];
+                return;
+            }
 
             // Convert old format to new format if needed
-            if (obj.notes && Array.isArray(obj.notes)) {
-                this.notes = obj.notes.map(note => {
+            if (data.notes && Array.isArray(data.notes)) {
+                this.notes = data.notes.map(note => {
                     if (!note.timestamp) {
                         note.timestamp = Date.now();
                     }
@@ -415,8 +423,8 @@ class StickyNotes extends LitElement {
             }
 
             // Load pinned notes if available
-            if (obj.pinnedNotes && Array.isArray(obj.pinnedNotes)) {
-                this.pinnedNotes = obj.pinnedNotes;
+            if (data.pinnedNotes && Array.isArray(data.pinnedNotes)) {
+                this.pinnedNotes = data.pinnedNotes;
                 // Restore pinned notes to the document
                 this.pinnedNotes.forEach(pinnedNote => {
                     this.createPinnedNote(pinnedNote);
@@ -441,13 +449,10 @@ class StickyNotes extends LitElement {
     savePluginData() {
         if (this.debouncer) clearTimeout(this.debouncer);
         this.debouncer = setTimeout(() => {
-            wisk.editor.savePluginData(
-                this.identifier,
-                JSON.stringify({
-                    notes: this.notes,
-                    pinnedNotes: this.pinnedNotes,
-                })
-            );
+            wisk.editor.savePluginData(this.identifier, {
+                notes: this.notes,
+                pinnedNotes: this.pinnedNotes,
+            });
         }, 1000);
     }
 
@@ -484,12 +489,6 @@ class StickyNotes extends LitElement {
         const firstNote = this.shadowRoot.querySelector(`.note:first-child .note-content`);
         if (firstNote) {
             firstNote.focus();
-            // Select all text in the note for easy replacement
-            const range = document.createRange();
-            range.selectNodeContents(firstNote);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
         }
     }
 
@@ -572,9 +571,15 @@ class StickyNotes extends LitElement {
                 return; // Already pinned
             }
 
-            // Add to pinned notes
-            const pinnedNote = { ...note, position: { x: 50, y: 50 } };
+            // Add to pinned notes (x is percentage, y is pixels)
+            // Generate random rotation of -8 or 8 degrees
+            const rotation = Math.random() < 0.5 ? -8 : 8;
+            // Generate random initial position (x: 20-70%, y: 100-400px)
+            const randomX = 20 + Math.random() * 50;
+            const randomY = 100 + Math.random() * 300;
+            const pinnedNote = { ...note, position: { x: randomX, y: randomY }, rotation: rotation };
             this.pinnedNotes.push(pinnedNote);
+            this.requestUpdate();
             this.savePluginData();
 
             // Create the pinned note element
@@ -586,6 +591,7 @@ class StickyNotes extends LitElement {
         const pinnedIndex = this.pinnedNotes.findIndex(note => note.id === id);
         if (pinnedIndex !== -1) {
             this.pinnedNotes.splice(pinnedIndex, 1);
+            this.requestUpdate();
             this.savePluginData();
 
             // Remove the pinned element from DOM
@@ -597,16 +603,20 @@ class StickyNotes extends LitElement {
     }
 
     createPinnedNote(note) {
-        // Create a new pin-element and add it to the document
+        // Create a new pin-element and add it to the editor
         const pinnedElement = document.createElement('pin-element');
 
-        // Set attributes
+        // Set attributes (x is percentage, y is pixels)
         pinnedElement.setAttribute('data-note-id', note.id);
         pinnedElement.setAttribute('position-x', note.position ? note.position.x : 50);
-        pinnedElement.setAttribute('position-y', note.position ? note.position.y : 50);
+        pinnedElement.setAttribute('position-y', note.position ? note.position.y : 100);
         pinnedElement.setAttribute('bg-color', note.bg);
         pinnedElement.setAttribute('fg-color', note.fg);
         pinnedElement.setAttribute('content', note.text);
+
+        // Apply stored rotation or default to 8 degrees for backwards compatibility
+        const rotation = note.rotation !== undefined ? note.rotation : 8;
+        pinnedElement.style.transform = `rotate(${rotation}deg)`;
 
         // Set up the callback for position updates
         pinnedElement.onPositionChange = (x, y) => {
@@ -622,8 +632,14 @@ class StickyNotes extends LitElement {
             this.unpinNote(note.id);
         };
 
-        // Add to document
-        document.body.appendChild(pinnedElement);
+        // Add to .editor instead of body
+        const editor = document.querySelector('.editor');
+        if (editor) {
+            editor.appendChild(pinnedElement);
+        } else {
+            // Fallback to body if .editor not found
+            document.body.appendChild(pinnedElement);
+        }
     }
 
     toggleColorPalette(event, id) {
@@ -683,12 +699,12 @@ class StickyNotes extends LitElement {
     }
 
     firstUpdated() {
-        document.addEventListener('click', this.closeDialogs.bind(this));
+        document.addEventListener('click', this.boundCloseDialogs);
     }
 
     disconnectedCallback() {
         super.disconnectedCallback();
-        document.removeEventListener('click', this.closeDialogs.bind(this));
+        document.removeEventListener('click', this.boundCloseDialogs);
     }
 
     // Distribute notes evenly between columns based on content length
@@ -746,25 +762,7 @@ class StickyNotes extends LitElement {
 
                     <div class="control-bar">
                         <div class="left-controls">
-                            <button class="btn btn-primary" @click=${this.addNote}>
-                                <?xml version="1.0" encoding="UTF-8"?><svg
-                                    width="24px"
-                                    height="24px"
-                                    stroke-width="2"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    color="#000000"
-                                >
-                                    <path
-                                        d="M6 12H12M18 12H12M12 12V6M12 12V18"
-                                        stroke="#000000"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                    ></path>
-                                </svg>
-                            </button>
+                            <button class="btn btn-primary" @click=${this.addNote}>New Note</button>
                         </div>
                         <div class="right-controls">
                             <input

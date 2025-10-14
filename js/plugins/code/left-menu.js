@@ -8,7 +8,6 @@ class LeftMenu extends LitElement {
             margin: 0px;
             padding: 0px;
             color: var(--fg-1);
-            transition: all 0.2s ease;
             font-size: 14px;
             user-select: none;
         }
@@ -272,6 +271,22 @@ class LeftMenu extends LitElement {
         }
         .child-item {
             padding-left: 26px;
+            position: relative;
+        }
+        .hierarchy-line-vertical {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--bg-3);
+        }
+        .hierarchy-line-l {
+            position: absolute;
+            top: 0;
+            width: 10px;
+            height: 50%;
+            border-left: 2px solid var(--bg-3);
+            border-bottom: 2px solid var(--bg-3);
         }
         @media (max-width: 900px) {
             .more-options,
@@ -818,7 +833,7 @@ class LeftMenu extends LitElement {
         }
 
         // Navigate to new page with parent_id parameter
-        window.location.href = `/?parent_id=${parentId}`;
+        window.location.href = `/?id=newpage&parent_id=${parentId}`;
     }
 
     openInEditor() {
@@ -845,6 +860,65 @@ class LeftMenu extends LitElement {
         // Update the filtered list based on new expanded state
         this.filteredList = this.getFilteredHierarchicalList();
         this.requestUpdate();
+    }
+
+    // Pre-compute hierarchy lines - works like the tree command in Linux
+    computeHierarchyLines() {
+        const lineData = new Array(this.filteredList.length);
+
+        for (let i = 0; i < this.filteredList.length; i++) {
+            const item = this.filteredList[i];
+            const lines = [];
+
+            // For each indentation level (depth) of this item
+            for (let depth = 0; depth < item.level; depth++) {
+                const isCurrentLevel = depth === item.level - 1;
+
+                // The ancestor we're checking is at level depth+1
+                const ancestorLevel = depth + 1;
+                const ancestorId = item.id
+                    .split('.')
+                    .slice(0, ancestorLevel + 1)
+                    .join('.');
+                const ancestorParentId = this.getParentId(ancestorId);
+
+                // Check if this ancestor has a sibling that comes after
+                let hasNextSibling = false;
+
+                for (let j = i + 1; j < this.filteredList.length; j++) {
+                    const nextItem = this.filteredList[j];
+
+                    // Stop if we've reached a shallower level
+                    if (nextItem.level < ancestorLevel) {
+                        break;
+                    }
+
+                    // Check if nextItem has an ancestor at the same level that's a sibling
+                    if (nextItem.level >= ancestorLevel) {
+                        const nextAncestorId = nextItem.id
+                            .split('.')
+                            .slice(0, ancestorLevel + 1)
+                            .join('.');
+                        const nextAncestorParentId = this.getParentId(nextAncestorId);
+
+                        if (nextAncestorId !== ancestorId && nextAncestorParentId === ancestorParentId) {
+                            hasNextSibling = true;
+                            break;
+                        }
+                    }
+                }
+
+                lines.push({
+                    leftPos: 10 + depth * 16,
+                    isCurrentLevel: isCurrentLevel,
+                    hasNextSibling: hasNextSibling,
+                });
+            }
+
+            lineData[i] = lines;
+        }
+
+        return lineData;
     }
 
     // Workspace management methods
@@ -1070,7 +1144,7 @@ class LeftMenu extends LitElement {
                     </div>
 
                     <div class="vert-nav">
-                        <button class="vert-nav-button" @click=${() => (window.location.href = '/')}>
+                        <button class="vert-nav-button" @click=${() => (window.location.href = '?id=newpage')}>
                             <img src="/a7/forget/new-page-heroicon.svg" class="new-img" /> New Page
                         </button>
                         <button class="vert-nav-button" @click=${() => document.querySelector('search-element').show()}>
@@ -1079,10 +1153,7 @@ class LeftMenu extends LitElement {
                         <button class="vert-nav-button" @click=${() => (window.location.href = '/?id=home')}>
                             <img src="/a7/forget/home-heroicon.svg" class="new-img" /> Home
                         </button>
-                        <button
-                            class="vert-nav-button"
-                            @click=${() => document.querySelector('template-dialog').show()}
-                        >
+                        <button class="vert-nav-button" @click=${() => document.querySelector('template-dialog').show()}>
                             <img src="/a7/forget/templates-outline.svg" class="new-img" /> Templates
                         </button>
                     </div>
@@ -1090,70 +1161,96 @@ class LeftMenu extends LitElement {
 
                 <div class="pages-section">
                     <ul style="">
-                        ${this.filteredList.map(
-                            item => html`
-                                <li
-                                    class="item ${item.level > 0 ? 'child-item' : ''}"
-                                    style="${item.level > 0 ? `padding-left: ${item.level * 16}px;` : ''}"
-                                    @mouseenter=${() => (this.hoveredItemId = item.id)}
-                                    @mouseleave=${() => {
-                                        this.hoveredItemId = null;
-                                        // Close dropdown when mouse leaves the item
-                                        if (this.openDropdownId === item.id) {
-                                            this.openDropdownId = null;
-                                        }
-                                    }}
-                                >
-                                    <div
-                                        class="folder-icon"
-                                        @click=${item.hasChildren
-                                            ? e => this.toggleFolder(item.id, e)
-                                            : e => {
-                                                  e.preventDefault();
-                                                  window.location.href = `?id=${item.id}`;
-                                              }}
+                        ${(() => {
+                            const hierarchyLines = this.computeHierarchyLines();
+                            return this.filteredList.map(
+                                (item, itemIndex) => html`
+                                    <li
+                                        class="item ${item.level > 0 ? 'child-item' : ''}"
+                                        style="${item.level > 0 ? `padding-left: calc(${item.level * 16}px + var(--padding-2));` : ''}"
+                                        @mouseenter=${() => (this.hoveredItemId = item.id)}
+                                        @mouseleave=${() => {
+                                            this.hoveredItemId = null;
+                                            // Close dropdown when mouse leaves the item
+                                            if (this.openDropdownId === item.id) {
+                                                this.openDropdownId = null;
+                                            }
+                                        }}
                                     >
-                                        ${item.hasChildren && this.hoveredItemId === item.id
-                                            ? html`
-                                                  <img
-                                                      class="arrow"
-                                                      src=${this.expandedFolders[item.id]
-                                                          ? '/a7/forget/down-arrow.svg'
-                                                          : '/a7/forget/right-arrow.svg'}
-                                                      alt="Toggle folder"
-                                                  />
-                                              `
-                                            : item.emoji
-                                              ? html`<span class="emoji">${item.emoji}</span>`
-                                              : html`<img
-                                                    class="page-icon"
-                                                    src="${!item.name || item.name === 'Untitled'
-                                                        ? '/a7/forget/document-empty-heroicon.svg'
-                                                        : '/a7/forget/page-heroicon.svg'}"
-                                                    alt="File"
-                                                />`}
-                                    </div>
+                                        ${hierarchyLines[itemIndex].map(line => {
+                                            if (line.isCurrentLevel) {
+                                                // Show L-shape for current level
+                                                return html`
+                                                    <div class="hierarchy-line-l" style="left: ${line.leftPos}px;"></div>
+                                                    ${line.hasNextSibling
+                                                        ? html`<div class="hierarchy-line-vertical" style="left: ${line.leftPos}px; top: 50%;"></div>`
+                                                        : ''}
+                                                `;
+                                            } else {
+                                                // Show vertical line for ancestor levels if needed
+                                                return line.hasNextSibling
+                                                    ? html`<div class="hierarchy-line-vertical" style="left: ${line.leftPos}px;"></div>`
+                                                    : '';
+                                            }
+                                        })}
+                                        <div
+                                            class="folder-icon"
+                                            @click=${item.hasChildren
+                                                ? e => this.toggleFolder(item.id, e)
+                                                : e => {
+                                                      e.preventDefault();
+                                                      window.location.href = `?id=${item.id}`;
+                                                  }}
+                                        >
+                                            ${item.hasChildren && this.hoveredItemId === item.id
+                                                ? html`
+                                                      <img
+                                                          class="arrow"
+                                                          draggable="false"
+                                                          src=${this.expandedFolders[item.id]
+                                                              ? '/a7/forget/down-arrow.svg'
+                                                              : '/a7/forget/right-arrow.svg'}
+                                                          alt="Toggle folder"
+                                                      />
+                                                  `
+                                                : item.emoji
+                                                  ? html`<span class="emoji">${item.emoji}</span>`
+                                                  : html`<img
+                                                        class="page-icon"
+                                                        draggable="false"
+                                                        src="${!item.name || item.name === 'Untitled'
+                                                            ? '/a7/forget/document-empty-heroicon.svg'
+                                                            : '/a7/forget/page-heroicon.svg'}"
+                                                        alt="File"
+                                                    />`}
+                                        </div>
 
-                                    <a href="?id=${item.id}"> ${item.name} </a>
-                                    <div class="add-child" @click=${e => this.createChildPage(item.id, e)}>
-                                        <img src="/a7/forget/plus.svg" alt="Add child" style="width: 20px; height: 20px;" />
-                                    </div>
-                                    <div class="more-options" @click=${e => this.toggleDropdown(item.id, e)}>
-                                        <img src="/a7/forget/morex.svg" alt="More options" style="width: 20px; height: 20px;" />
-                                        ${this.openDropdownId === item.id
-                                            ? html`
-                                                  <div class="dropdown">
-                                                      <div class="dropdown-item delete-item" @click=${e => this.removeItem(item.id, e)}>
-                                                          <img src="/a7/forget/trash.svg" alt="Delete" style="width: 20px; height: 20px;" />
-                                                          Delete
+                                        <a href="?id=${item.id}"> ${item.name} </a>
+                                        <div class="add-child" @click=${e => this.createChildPage(item.id, e)}>
+                                            <img src="/a7/forget/plus.svg" alt="Add child" draggable="false" style="width: 20px; height: 20px;" />
+                                        </div>
+                                        <div class="more-options" @click=${e => this.toggleDropdown(item.id, e)}>
+                                            <img src="/a7/forget/morex.svg" alt="More options" draggable="false" style="width: 20px; height: 20px;" />
+                                            ${this.openDropdownId === item.id
+                                                ? html`
+                                                      <div class="dropdown">
+                                                          <div class="dropdown-item delete-item" @click=${e => this.removeItem(item.id, e)}>
+                                                              <img
+                                                                  src="/a7/forget/trash.svg"
+                                                                  alt="Delete"
+                                                                  draggable="false"
+                                                                  style="width: 20px; height: 20px;"
+                                                              />
+                                                              Delete
+                                                          </div>
                                                       </div>
-                                                  </div>
-                                              `
-                                            : ''}
-                                    </div>
-                                </li>
-                            `
-                        )}
+                                                  `
+                                                : ''}
+                                        </div>
+                                    </li>
+                                `
+                            );
+                        })()}
                     </ul>
                 </div>
 

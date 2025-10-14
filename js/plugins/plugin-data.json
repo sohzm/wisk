@@ -478,7 +478,8 @@
                     "nav": false,
                     "textual": true,
                     "loadAsModule": true,
-                    "width": "mini"
+                    "width": "mini",
+                    "disableSelection": true
                 }
             ]
         },
@@ -656,7 +657,8 @@
                     "textual": false,
                     "loadAsModule": true,
                     "experimental": true,
-                    "width": "mini"
+                    "width": "mini",
+                    "disableSelection": true
                 },
                 {
                     "title": "Database Page",
@@ -754,7 +756,8 @@
                     "nav": false,
                     "textual": false,
                     "loadAsModule": true,
-                    "width": "mini"
+                    "width": "mini",
+                    "disableSelection": true
                 }
             ]
         },
@@ -871,7 +874,8 @@
                     "nav": false,
                     "textual": false,
                     "loadAsModule": true,
-                    "width": "mini"
+                    "width": "mini",
+                    "disableSelection": true
                 }
             ]
         },
@@ -998,7 +1002,8 @@
                     "component": "music-maker",
                     "nav": false,
                     "textual": false,
-                    "loadAsModule": true
+                    "loadAsModule": true,
+                    "disableSelection": true
                 }
             ]
         },
@@ -1187,6 +1192,28 @@
                     "icon": "brainrot.svg",
                     "category": "auto",
                     "component": "brainrot-element",
+                    "nav": false,
+                    "textual": false,
+                    "loadAsModule": true
+                }
+            ]
+        },
+
+        "mspaint": {
+            "name": "mspaint",
+            "title": "MS Paint",
+            "author": "Wisk Team",
+            "contact": "https://wisk.cc",
+            "icon": "mspaint.svg",
+            "tags": ["random"],
+            "description": "With MS Paint you can doodle on top of the document, just like the good old days",
+            "contents": [
+                {
+                    "title": "MS Paint",
+                    "icon": "mspaint.svg",
+                    "category": "auto",
+                    "component": "mspaint-element",
+                    "identifier": "pl_mspaint",
                     "nav": false,
                     "textual": false,
                     "loadAsModule": true

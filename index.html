@@ -171,7 +171,7 @@
                 <div class="left-sidebar-header">
                     <button class="left-sidebar-close" onclick="hideLeftSidebar()">
                         <p class="left-sidebar-title">Title</p>
-                        <img src="/a7/forget/max-sidebar.svg" alt="Close" class="plugin-icon" />
+                        <img src="/a7/forget/max-sidebar.svg" alt="Close" class="plugin-icon" draggable="false" />
                     </button>
                 </div>
                 <div class="left-sidebar-body">
@@ -183,7 +183,7 @@
                 <nav id="nav">
                     <div class="nav-top-icons">
                         <button class="nav-button" onclick="toggleMenu()" id="menu-1">
-                            <img src="/js/plugins/icons/menu.svg" alt="Menu" class="plugin-icon" />
+                            <img src="/js/plugins/icons/menu.svg" alt="Menu" class="plugin-icon" draggable="false" />
                         </button>
                     </div>
                     <div class="nav-plugins">
@@ -264,6 +264,7 @@
         <emoji-selector></emoji-selector>
         <bottom-bar></bottom-bar>
         <show-dialog style="z-index: 9999"></show-dialog>
+        <onboarding-guide></onboarding-guide>
 
         <script src="/global.js"></script>
         <script src="/js/wisk.js"></script>
@@ -305,6 +306,7 @@
         <script type="module" src="/js/elements/cite-element.js"></script>
         <script type="module" src="/js/elements/obj-visualizer-element.js"></script>
         <script type="module" src="/js/elements/toolbar-element.js" type="module"></script>
+        <script type="module" src="/js/elements/onboarding-guide.js"></script>
 
         <!-- more details at https://jalebi.soham.sh/examples -->
         <script src="https://jalebi.soham.sh/src/jalebi-toggle.js"></script>
@@ -316,6 +318,7 @@
         <script src="https://jalebi.soham.sh/src/jalebi-checkbox.js"></script>
         <script src="https://jalebi.soham.sh/src/jalebi-input.js"></script>
 
+        <script src="/js/scripts/home-sidebar.js"></script>
         <script src="/script.js"></script>
 
         <script>

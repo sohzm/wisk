@@ -126,7 +126,7 @@ class KeystrokeSound extends LitElement {
         try {
             const data = await wisk.editor.getPluginData(this.identifier);
             if (data) {
-                const obj = JSON.parse(data);
+                const obj = data;
                 if (obj.soundType) {
                     this.soundType = obj.soundType;
                 }
@@ -137,12 +137,9 @@ class KeystrokeSound extends LitElement {
     }
 
     savePluginData() {
-        wisk.editor.savePluginData(
-            this.identifier,
-            JSON.stringify({
-                soundType: this.soundType,
-            })
-        );
+        wisk.editor.savePluginData(this.identifier, {
+            soundType: this.soundType,
+        });
     }
 
     setupAudioContext() {

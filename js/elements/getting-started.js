@@ -769,10 +769,7 @@ class GettingStarted extends LitElement {
                 <div style="display: flex; gap: var(--gap-3); flex-wrap: wrap; align-items: center;">
                     Get started with
                     <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap">
-                        <button
-                            class="button"
-                            @click=${() => document.querySelector('template-dialog').show()}
-                        >
+                        <button onboarding-template-button class="button" @click=${() => document.querySelector('template-dialog').show()}>
                             <img src="/a7/forget/gs-templates.svg" alt="" /> Start with Templates
                         </button>
                         <button class="button" @click=${() => this.showDialog('report')}>

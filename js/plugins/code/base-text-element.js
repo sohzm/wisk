@@ -1557,6 +1557,12 @@ class BaseTextElement extends HTMLElement {
         const htmlData = clipboardData.getData('text/html');
         console.log('Pasting:', clipboardData, htmlData);
 
+        // Check if this is a wisk clipboard format (multi-element paste)
+        if (htmlData && htmlData.includes('__WISK_CLIPBOARD__')) {
+            // Let the document-level paste handler deal with it
+            return;
+        }
+
         if (htmlData) {
             event.preventDefault();
             const parser = new DOMParser();

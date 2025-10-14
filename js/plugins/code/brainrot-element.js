@@ -107,6 +107,8 @@ class BrainrotElement extends LitElement {
             'Subway Surfers': 'https://wisk-temp-brainrot.vercel.app/subway-surfers.mp4',
             'GTA V': 'https://wisk-temp-brainrot.vercel.app/gta5.mp4',
             Minecraft: 'https://wisk-temp-brainrot.vercel.app/minecraft.mp4',
+            'Riders Republic': 'https://wisk-temp-brainrot.vercel.app/riders-republic.mp4',
+            Fortnite: 'https://wisk-temp-brainrot.vercel.app/fortnite.mp4',
             Forza: 'https://wisk-temp-brainrot.vercel.app/forza5.mp4',
         };
         this.currentVideo = this.videos[Object.keys(this.videos)[Math.floor(Math.random() * Object.keys(this.videos).length)]];

@@ -1,3 +1,6 @@
+- Oct 15
+    - i aint maintinng this shit, but i am still working, so yeah dont worry :)
+
 - Aug 10
     - context menu added
 

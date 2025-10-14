@@ -1,5 +1,7 @@
 // db.js
 wisk.db = (function () {
+    const bc = new BroadcastChannel('database-broadcast');
+
     const currentDB = (() => {
         const name = localStorage.getItem('currentWorkspace');
         return name ? `WiskDatabase-${name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}` : 'WiskDatabase';
@@ -76,7 +78,18 @@ wisk.db = (function () {
     const api = {};
     Object.entries(functionNames).forEach(([storeName, fns]) => {
         api[fns.get] = makeMethod(storeName, 'get');
-        api[fns.set] = makeMethod(storeName, 'set');
+        if (fns.set === 'setDatabase') {
+            // Special handling for setDatabase to include broadcast
+            api[fns.set] = function (key, value) {
+                return makeMethod(storeName, 'set')(key, value).then(result => {
+                    // Broadcast the database update
+                    bc.postMessage({ id: key, instance: wisk.sync.instance });
+                    return result;
+                });
+            };
+        } else {
+            api[fns.set] = makeMethod(storeName, 'set');
+        }
         api[fns.remove] = makeMethod(storeName, 'remove');
         api[fns.getAll] = makeMethod(storeName, 'getAll');
     });

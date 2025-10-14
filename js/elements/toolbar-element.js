@@ -74,7 +74,7 @@ class ToolbarElement extends LitElement {
             justify-content: center;
             color: var(--fg-1);
             transition: background 0.2s ease-in-out;
-            gap: var(--gap-1);
+            gap: var(--gap-2);
             opacity: 1;
             user-select: none;
         }

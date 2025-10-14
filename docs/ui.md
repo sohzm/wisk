@@ -244,6 +244,11 @@ This document outlines the comprehensive UI design system used in the Wisk appli
     background-color: var(--bg-1);
     border-color: var(--fg-accent);
 }
+
+/* if its a search input */
+.form-input.search {
+    border-radius: calc(var(--radius) * 20); /* Pill shape */
+}
 ```
 
 ## Layout Patterns

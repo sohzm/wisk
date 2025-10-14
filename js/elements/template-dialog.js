@@ -60,13 +60,11 @@ class TemplateDialog extends LitElement {
 
         .templates-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, 300px);
-            grid-auto-rows: min-content;
+            grid-template-columns: repeat(3, 1fr);
             gap: var(--gap-3);
             margin-top: var(--gap-3);
             overflow-y: auto;
             flex: 1;
-            justify-content: space-between;
         }
 
         .template-card {
@@ -80,50 +78,24 @@ class TemplateDialog extends LitElement {
 
         .template-card:hover {
             background: var(--bg-2);
-            border-color: var(--border-1);
         }
 
-        .template-card.selected {
+        .template-card.selected .desktop-preview {
             border-color: var(--fg-accent);
-            background: var(--bg-accent);
         }
 
         .preview-container {
-            display: flex;
-            gap: var(--gap-3);
             margin-bottom: var(--gap-3);
-            position: relative;
         }
 
         .desktop-preview {
-            width: 280px;
-            height: 140px;
-            object-fit: cover;
-            border-radius: var(--radius);
-            border: 1px solid var(--border-1);
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: var(--radius-large);
+            border: 2px solid var(--border-1);
             background-size: cover;
+            background-position: center;
             transform: translateZ(0px); /* fix for pixalated image */
-        }
-
-        .mobile-preview {
-            width: 49px;
-            height: 106px;
-            object-fit: cover;
-            border-radius: var(--radius);
-            border: 1px solid var(--border-1);
-            position: absolute;
-            right: 15px;
-            background-size: cover;
-            top: 62px;
-            transform: translateZ(0px); /* fix for pixalated image */
-        }
-
-        .template-card:hover .desktop-preview {
-            rotate: -2deg;
-        }
-
-        .template-card:hover .mobile-preview {
-            rotate: 7deg;
         }
 
         .template-info h3 {
@@ -154,7 +126,7 @@ class TemplateDialog extends LitElement {
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            margin-bottom: var(--gap-3);
+            margin-bottom: 30px;
         }
 
         .header-wrapper {
@@ -173,7 +145,7 @@ class TemplateDialog extends LitElement {
         }
 
         .header-title {
-            font-size: 24px;
+            font-size: 30px;
             font-weight: 500;
         }
 
@@ -189,7 +161,6 @@ class TemplateDialog extends LitElement {
             display: flex;
             gap: var(--gap-2);
             align-items: center;
-            margin-bottom: var(--gap-3);
         }
 
         .search-input {
@@ -283,27 +254,15 @@ class TemplateDialog extends LitElement {
                 max-height: none;
             }
 
+            .templates-grid {
+                grid-template-columns: 1fr;
+            }
+
             @starting-style {
                 .dialog-content {
                     top: 30%;
                     opacity: 0;
                 }
-            }
-        }
-
-        @media (max-width: 480px) {
-            .template-card {
-                padding: var(--padding-3);
-            }
-            .desktop-preview {
-                width: 260px;
-                height: 130px;
-            }
-            .mobile-preview {
-                width: 58px;
-                height: 125px;
-                right: 20px;
-                top: 72px;
             }
         }
 
@@ -428,6 +387,7 @@ class TemplateDialog extends LitElement {
                                 alt="Close"
                                 @click="${this.hide}"
                                 class="icon"
+                                onboarding-templates-close
                                 draggable="false"
                                 style="padding: var(--padding-3); width: unset; filter: var(--themed-svg)"
                             />
@@ -458,11 +418,6 @@ class TemplateDialog extends LitElement {
                                             class="desktop-preview"
                                             style="background-image: url(/a7/templates/${template.path}/preview/desktop.png)"
                                             alt="${template.name} desktop preview"
-                                        ></div>
-                                        <div
-                                            class="mobile-preview"
-                                            style="background-image: url(/a7/templates/${template.path}/preview/phone.png)"
-                                            alt="${template.name} mobile preview"
                                         ></div>
                                     </div>
                                     <div class="template-info">

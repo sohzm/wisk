@@ -59,7 +59,6 @@ class DatabaseElement extends LitElement {
             overflow-x: auto;
             gap: var(--gap-2);
             padding-top: var(--gap-3);
-            border-top: 1px solid var(--border-1);
         }
         .kanban-column {
             min-width: 320px;
@@ -71,7 +70,6 @@ class DatabaseElement extends LitElement {
             grid-template-columns: repeat(7, 1fr);
             gap: var(--gap-1);
             padding-top: var(--gap-3);
-            border-top: 1px solid var(--border-1);
         }
         .gallery {
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -313,16 +311,17 @@ class DatabaseElement extends LitElement {
 
         .edit-form-input,
         .edit-form-select {
-            padding: var(--padding-2);
-            border: 2px solid transparent;
+            padding: var(--padding-w2);
+            border: 2px solid var(--bg-3);
             border-radius: var(--radius);
-            background-color: var(--bg-3);
+            background-color: var(--bg-2);
             color: var(--fg-1);
         }
 
         .edit-form-input:focus,
         .edit-form-select:focus {
-            border-color: var(--fg-1);
+            background-color: var(--bg-1);
+            border-color: var(--fg-accent);
         }
 
         .calendar-container {
@@ -443,27 +442,25 @@ class DatabaseElement extends LitElement {
         .view-tabs {
             display: flex;
             overflow-x: auto;
-            width: fit-content;
+            width: 100%;
         }
 
         .view-tab {
-            padding: var(--padding-2) var(--padding-4);
+            padding: var(--padding-w2);
             border: none;
             background: none;
             cursor: pointer;
             font-family: var(--font);
             font-size: 1em;
             color: var(--fg-1);
-            border-bottom: 3px solid transparent;
             transition: border-color 0.3s ease;
-            border-radius: 0;
+            border-radius: calc(20 * var(--radius-large));
             color: var(--fg-2);
             display: flex;
             align-items: center;
             white-space: nowrap;
             font-weight: 500;
-            padding-bottom: calc(var(--padding-2) - 3px);
-            border-bottom: 3px solid var(--bg-3);
+            border: none;
         }
 
         .view-tab:hover {
@@ -472,13 +469,12 @@ class DatabaseElement extends LitElement {
         }
 
         .view-tab.active {
-            border-bottom-color: var(--fg-1);
             color: var(--fg-1);
+            background: var(--bg-3);
         }
 
         .view-tab.add-view {
             font-size: 1.2em;
-            padding: var(--padding-w2);
         }
 
         .view-actions {
@@ -605,15 +601,14 @@ class DatabaseElement extends LitElement {
         th,
         td {
             border: none;
-            border-left: 1px solid var(--border-1);
             border-bottom: 1px solid var(--border-1);
             padding: var(--padding-3);
             text-align: left;
             vertical-align: top;
         }
 
-        th {
-            border-top: 1px solid var(--border-1);
+        td {
+            border-left: 1px solid var(--border-1);
         }
 
         th:first-of-type,
@@ -698,24 +693,26 @@ class DatabaseElement extends LitElement {
 
         .plugin-icon {
             filter: var(--themed-svg);
-            width: 28px;
-            height: 28px;
+            width: 20px;
+            height: 20px;
             padding: var(--padding-1);
+            border-radius: calc(20 * var(--radius-large));
         }
 
         .plugin-icon-button {
             background-color: transparent;
             border: none;
             cursor: pointer;
-            padding: var(--padding-w1);
-            border-radius: 0;
+            padding: var(--padding-3);
+            border-radius: calc(20 * var(--radius-large));
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 3px solid var(--bg-3);
+            opacity: 0.7;
         }
         .plugin-icon-button:hover {
             background-color: var(--bg-3);
+            opacity: 1;
         }
 
         input,
@@ -871,7 +868,6 @@ class DatabaseElement extends LitElement {
         .carousel-container {
             position: relative;
             overflow: hidden;
-            padding: var(--padding-3);
             max-width: 100vw;
             overflow: clip;
         }
@@ -903,7 +899,6 @@ class DatabaseElement extends LitElement {
         }
 
         .carousel-property-label {
-            font-weight: bold;
             color: var(--fg-2);
             margin-bottom: var(--gap-1);
             font-size: 0.9em;
@@ -911,13 +906,15 @@ class DatabaseElement extends LitElement {
 
         .carousel-property-value {
             color: var(--fg-1);
+            font-weight: bold;
+            font-size: xx-large;
         }
 
         .carousel-navigation {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: var(--gap-2);
-            margin-top: var(--gap-3);
         }
 
         .carousel-dot {
@@ -934,37 +931,26 @@ class DatabaseElement extends LitElement {
         }
 
         .carousel-nav-button {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
             background: transparent;
             border: none;
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             cursor: pointer;
             transition: background-color 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10;
-            opacity: 0;
             padding: 0;
+            opacity: 0;
         }
 
-        .carousel-container:hover .carousel-nav-button {
+        :host(:hover) .carousel-nav-button {
             opacity: 1;
         }
 
-        .carousel-nav-button.prev {
-            left: var(--padding-3);
-        }
-
-        .carousel-nav-button.next {
-            right: var(--padding-3);
-        }
-
         .carousel-nav-button:hover {
+            background: var(--bg-3);
         }
 
         .carousel-nav-button:disabled {
@@ -1074,26 +1060,44 @@ class DatabaseElement extends LitElement {
         }
 
         .edit-dialog {
-            background: var(--bg-1);
-            border-radius: 8px;
-            padding: 24px;
-            width: 90%;
+            background-color: var(--bg-1);
+            border-radius: var(--radius-large);
+            padding: var(--padding-4);
             max-width: 500px;
+            width: 90%;
             max-height: 80vh;
-            display: flex;
-            flex-direction: column;
+            filter: var(--drop-shadow);
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 91;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 600px) {
+            .edit-dialog {
+                width: 95%;
+                max-height: 90vh;
+                padding: var(--padding-3);
+            }
         }
 
         .edit-dialog-title {
             margin: 0 0 var(--gap-3) 0;
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 28px;
+            font-weight: 500;
             font-family: var(--font);
+        }
+
+        .properties-accordion {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
         }
 
         .properties-list {
@@ -1103,23 +1107,85 @@ class DatabaseElement extends LitElement {
             overflow: auto;
         }
 
+        .property-accordion-item {
+            border-bottom: 1px solid var(--bg-3);
+        }
+
+        .property-accordion-item:last-child {
+            border-bottom: none;
+        }
+
         .property-list-item {
             display: flex;
             align-items: center;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: background-color 0.3s;
             gap: var(--gap-2);
+            padding: var(--padding-w1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
         }
 
         .property-list-item:hover {
-            background-color: var(--bg-2);
+            background-color: var(--bg-3);
         }
 
         .property-list-item.removed {
             opacity: 0.5;
             background-color: var(--bg-2);
             cursor: default;
+        }
+
+        .property-main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+            min-width: 0;
+        }
+
+        .property-expand-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .property-expand-btn:hover {
+            background-color: var(--bg-3);
+        }
+
+        .property-expand-btn img {
+            width: 16px;
+            height: 16px;
+            filter: var(--themed-svg);
+            transition: all 0.2s ease;
+        }
+
+        .property-edit-content {
+            max-height: 0;
+            overflow: hidden;
+            transition:
+                max-height 0.3s ease,
+                padding 0.3s ease,
+                margin 0.3s ease;
+            margin: 0;
+            border: none;
+            border-radius: 0;
+        }
+
+        .property-edit-content.expanded {
+            max-height: 400px;
+            padding: var(--padding-3);
+            margin: var(--padding-4) 0;
+            border: 1px solid var(--bg-3);
+            border-radius: var(--radius-large);
         }
 
         .property-name {
@@ -1162,7 +1228,7 @@ class DatabaseElement extends LitElement {
         .edit-form-group {
             display: flex;
             flex-direction: column;
-            gap: var(--gap-1);
+            gap: var(--gap-2);
         }
 
         .edit-form-label {
@@ -1184,63 +1250,116 @@ class DatabaseElement extends LitElement {
             background-color: var(--bg-3);
         }
 
+        .dialog-footer {
+            padding-top: var(--gap-2);
+            margin-top: var(--gap-2);
+        }
+
         .edit-dialog-buttons {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             gap: var(--gap-2);
             margin-top: var(--gap-3);
-            padding-top: var(--gap-2);
         }
 
         .edit-button {
+            background-color: transparent;
+            border: 2px solid transparent;
+            color: var(--fg-1);
+            font-weight: 500;
             padding: var(--padding-w2);
-            border: none;
-            border-radius: var(--radius);
-            background: transparent;
+            border-radius: calc(var(--radius-large) * 20);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--gap-2);
+            font-size: 14px;
             cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+        }
+
+        .edit-button:hover {
+            background-color: var(--bg-3);
+            color: var(--fg-1);
         }
 
         .edit-button-primary {
             background: var(--fg-1);
             color: var(--bg-1);
-            border: none;
-        }
-
-        .edit-button:hover {
-            background: var(--bg-3);
+            padding: var(--padding-w2);
+            font-weight: 600;
+            border-radius: calc(var(--radius-large) * 20);
+            border: 2px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--gap-2);
+            font-size: 14px;
+            transition: all 0.2s ease;
         }
 
         .edit-button-primary:hover {
-            background: var(--fg-accent);
+            background-color: transparent;
+            border: 2px solid var(--fg-1);
+            color: var(--fg-1);
         }
 
         .add-property-button {
-            margin-top: var(--gap-2);
+            margin-top: var(--gap-3);
             width: 100%;
-            padding: var(--padding-3);
             background: var(--bg-3);
-            border: none;
             color: var(--fg-1);
-            border-radius: var(--radius);
+            padding: var(--padding-w2);
+            font-weight: 600;
+            border-radius: calc(var(--radius-large) * 20);
+            border: 2px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--gap-2);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
         .add-property-button:hover {
-            background: var(--bg-2);
+            background-color: transparent;
+            border: 2px solid var(--fg-1);
+            color: var(--fg-1);
         }
 
         .name-input {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
         }
 
         .name-input input {
             border: none;
-            width: 100%;
+            flex: 1;
             outline: none;
             background-color: transparent;
             padding: var(--padding-3) 0;
             font-weight: 600;
             font-size: 22px;
+        }
+
+        .dropdown-arrow {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--padding-1);
+            border-radius: calc(20 * var(--radius-large));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .dropdown-arrow:hover {
+            background-color: var(--bg-2);
+        }
+
+        .dropdown-arrow.expanded {
+            transform: rotate(90deg);
         }
 
         .emoji {
@@ -1271,6 +1390,7 @@ class DatabaseElement extends LitElement {
         .view-management {
             display: flex;
             overflow-x: auto;
+            padding: var(--padding-2) 0;
         }
 
         .calendar-day.drag-over {
@@ -1311,6 +1431,546 @@ class DatabaseElement extends LitElement {
         .edit-dialog-btns img {
             filter: var(--themed-svg);
         }
+
+        /* Edit View Dialog Enhancements */
+        .view-basic-settings {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-3);
+            margin-bottom: var(--gap-3);
+        }
+
+        .view-configuration {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-3);
+            margin-bottom: var(--gap-2);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-1);
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--fg-1);
+        }
+
+        .form-input {
+            padding: var(--padding-w2);
+            border: 2px solid var(--bg-3);
+            border-radius: var(--radius);
+            background-color: var(--bg-2);
+            color: var(--fg-1);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            background-color: var(--bg-1);
+            border-color: var(--fg-accent);
+            outline: none;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--fg-1);
+            margin: 0 0 var(--gap-3) 0;
+            padding: var(--gap-3) 0 0 0;
+            border-top: 1px solid var(--border-1);
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+        }
+
+        .section-title:first-child {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .section-title img {
+            filter: var(--themed-svg);
+        }
+
+        .filters-section,
+        .sorts-section {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-2);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header .section-title {
+            margin: 0;
+            padding: 0;
+            border: none;
+            font-size: 14px;
+        }
+
+        .filter-list,
+        .sort-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-2);
+        }
+
+        .filter-item,
+        .sort-item {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+            padding: var(--padding-2);
+            background-color: var(--bg-1);
+            border-radius: var(--radius);
+            border: 1px solid var(--bg-3);
+            transition: all 0.2s ease;
+        }
+
+        .filter-item:hover,
+        .sort-item:hover {
+            border-color: var(--border-1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-property,
+        .sort-property {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .filter-operator,
+        .sort-direction {
+            flex: 0 0 120px;
+        }
+
+        .filter-value {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .filter-value .form-input {
+            width: 100%;
+            padding: var(--padding-1) var(--padding-2);
+            font-size: 13px;
+        }
+
+        .filter-item .form-input,
+        .sort-item .form-input {
+            padding: var(--padding-1) var(--padding-2);
+            font-size: 13px;
+            border: 1px solid var(--bg-3);
+        }
+
+        .remove-btn {
+            flex: 0 0 auto;
+            padding: var(--padding-1);
+            min-width: auto;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius);
+            border: none;
+            background: transparent;
+        }
+
+        .remove-btn img {
+            filter: var(--themed-svg);
+        }
+
+        .remove-btn:hover {
+            background-color: var(--bg-3);
+        }
+
+        .add-filter-btn,
+        .add-sort-btn {
+            align-self: flex-start;
+            display: flex;
+            align-items: center;
+            gap: var(--gap-1);
+            font-size: 13px;
+            padding: var(--padding-w2);
+            background: var(--bg-3);
+            border-radius: calc(20 * var(--radius-large));
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .add-filter-btn:hover,
+        .add-sort-btn:hover {
+            background: var(--bg-1);
+            border-color: var(--fg-1);
+        }
+
+        .property-checkboxes {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-1);
+            padding: var(--padding-2);
+            background-color: var(--bg-2);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-1);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+            padding: var(--padding-1);
+            cursor: pointer;
+            border-radius: var(--radius);
+            transition: background-color 0.2s ease;
+        }
+
+        .checkbox-label:hover {
+            background-color: var(--bg-3);
+        }
+
+        .checkbox-label input[type='checkbox'] {
+            margin: 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--gap-2);
+        }
+
+        .btn-danger {
+            background-color: var(--fg-red);
+            color: var(--bg-1);
+            border: 2px solid var(--fg-red);
+        }
+
+        .btn-danger:hover {
+            background-color: transparent;
+            color: var(--fg-red);
+        }
+
+        .danger-section {
+            margin-top: var(--gap-4);
+            padding-top: var(--gap-3);
+        }
+
+        .btn-danger-secondary {
+            background-color: var(--bg-3);
+            color: var(--fg-red);
+            border: none;
+            font-size: 13px;
+            border-radius: calc(20 * var(--radius-large));
+            padding: var(--padding-w2);
+            transition: all 0.2s ease;
+            width: 100%;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .btn-danger-secondary:hover {
+            background-color: var(--fg-red);
+            color: var(--bg-1);
+        }
+
+        .btn-danger-secondary img {
+            filter: var(--themed-svg);
+        }
+
+        .btn-danger-secondary:hover img {
+            filter: brightness(0) invert(1);
+        }
+
+        /* Tab Interface Styles */
+        .edit-view-tabs {
+            display: flex;
+            margin-bottom: var(--gap-3);
+            border-bottom: 1px solid var(--border-1);
+        }
+
+        .edit-view-tab {
+            padding: var(--padding-w2);
+            color: var(--fg-2);
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            border-bottom: 4px solid transparent;
+            flex: 1;
+            text-align: center;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--gap-1);
+        }
+
+        .edit-view-tab:hover {
+            color: var(--fg-1);
+            background-color: var(--bg-3);
+        }
+
+        .edit-view-tab.active {
+            color: var(--fg-1);
+            border-bottom: 4px solid var(--fg-1);
+            background-color: transparent;
+        }
+
+        .edit-view-tab img {
+            filter: var(--themed-svg);
+            width: 16px;
+            height: 16px;
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .edit-dialog {
+            display: flex;
+            flex-direction: column;
+            max-height: 85vh;
+        }
+
+        @media (max-width: 600px) {
+            .filter-item,
+            .sort-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-property,
+            .filter-operator,
+            .sort-property,
+            .sort-direction {
+                flex: none;
+                min-width: auto;
+            }
+
+            .property-checkboxes {
+                max-height: 150px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .edit-view-tabs {
+                flex-direction: row;
+            }
+
+            .edit-view-tab {
+                font-size: 12px;
+                padding: var(--padding-1) var(--padding-2);
+            }
+        }
+
+        /* Activity Styles */
+        .activity-container {
+            max-width: 100%;
+            overflow-x: auto;
+            padding: var(--padding-3);
+        }
+
+        .activity-legend {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--gap-1);
+            font-size: 12px;
+            color: var(--fg-2);
+            margin-bottom: var(--gap-2);
+            display: none;
+        }
+
+        .legend-squares {
+            display: flex;
+            gap: 2px;
+        }
+
+        .legend-square {
+            width: 12px;
+            height: 12px;
+            border: 1px solid var(--border-1);
+            border-radius: 2px;
+        }
+
+        .activity-grid {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-2);
+        }
+
+        .activity-calendar {
+            display: flex;
+            gap: var(--gap-1);
+        }
+
+        .activity-weekdays {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-top: 20px;
+        }
+
+        .weekday-label {
+            font-size: 10px;
+            color: var(--fg-2);
+            text-align: center;
+            height: 12px;
+            line-height: 12px;
+            width: 20px;
+        }
+
+        .activity-months-and-days {
+            flex: 1;
+        }
+
+        .activity-months {
+            position: relative;
+            height: 20px;
+            margin-bottom: var(--gap-1);
+        }
+
+        .month-label {
+            position: absolute;
+            font-size: 11px;
+            color: var(--fg-2);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .activity-days {
+            display: grid;
+            grid-template-rows: repeat(7, 1fr);
+            grid-auto-flow: column;
+            gap: 2px;
+            height: calc(7 * 12px + 6 * 2px); /* 7 cells of 12px + 6 gaps of 2px */
+        }
+
+        .activity-day {
+            width: 100%;
+            height: 12px;
+            border-radius: 2px;
+            border: 1px solid var(--bg-3);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .activity-day.empty {
+            visibility: hidden;
+        }
+
+        .activity-day.bg-3 {
+            background-color: var(--bg-3);
+        }
+
+        .activity-day.bg-2 {
+            background-color: var(--bg-2);
+        }
+
+        .activity-day.fg-3 {
+            background-color: var(--fg-3);
+            opacity: 0.3;
+        }
+
+        .activity-day.fg-2 {
+            background-color: var(--fg-2);
+            opacity: 0.6;
+        }
+
+        .activity-day.fg-1 {
+            background-color: var(--fg-1);
+            opacity: 0.9;
+        }
+
+        .activity-day:hover {
+            transform: scale(1.1);
+            z-index: 1;
+            border-color: var(--fg-1);
+        }
+
+        .activity-tooltip {
+            position: absolute;
+            background: var(--bg-1);
+            border: 1px solid var(--border-1);
+            border-radius: var(--radius);
+            padding: var(--padding-2);
+            font-size: 12px;
+            color: var(--fg-1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .activity-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--gap-2);
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border-1);
+            background-color: var(--bg-2);
+            color: var(--fg-1);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background: transparent;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background-color: var(--bg-3);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .year-display {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--fg-1);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        @media (max-width: 800px) {
+            .activity-calendar {
+                overflow-x: auto;
+            }
+
+            .activity-days {
+                min-width: max-content;
+                grid-template-columns: repeat(53, 12px) !important; /* Override dynamic columns */
+            }
+
+            .activity-day {
+                width: 12px !important;
+                height: 12px;
+            }
+        }
     `;
 
     // TODO add visibleProperties to most (all?) views
@@ -1328,7 +1988,9 @@ class DatabaseElement extends LitElement {
         currentViewId: { type: String },
         editingEntry: { type: Object },
         editingView: { type: Object },
+        activeViewTab: { type: String },
         calendarDate: { type: Object },
+        showViewManagement: { type: Boolean },
 
         newColumnName: { type: String },
         newColumnType: { type: String },
@@ -1339,6 +2001,7 @@ class DatabaseElement extends LitElement {
         openedProperty: { type: String },
 
         currentSlide: { type: Number },
+        activityYear: { type: Number },
     };
 
     constructor() {
@@ -1350,6 +2013,8 @@ class DatabaseElement extends LitElement {
         this.currentViewId = 'table';
         this.editingEntry = null;
         this.editingView = null;
+        this.activeViewTab = 'config';
+        this.showViewManagement = true;
         this.editingItem = null;
         this.showAddRowForm = false;
         this.newEntry = {};
@@ -1375,7 +2040,102 @@ class DatabaseElement extends LitElement {
         this.currentSlide = 0;
         this.dbIdentifier = '';
 
+        this.bc = new BroadcastChannel('database-broadcast');
+
         this.listenToEmojiSelector();
+
+        // Bind ESC key handler
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+
+        // Bind theme change handler
+        this.handleThemeChange = this.handleThemeChange.bind(this);
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        document.addEventListener('keydown', this.handleKeyDown);
+        window.addEventListener('wisk-theme-changed', this.handleThemeChange);
+
+        this.bc.addEventListener('message', event => {
+            const { id, instance } = event.data;
+            if (id === this.dbIdentifier && instance !== wisk.sync.instance) {
+                wisk.db.getDatabase(this.dbIdentifier).then(data => {
+                    if (data) {
+                        if (data.title) this.title = data.title;
+                        if (data.entries) this.entries = [...data.entries];
+                        if (data.properties) this.properties = [...data.properties];
+                        if (data.views) this.views = [...data.views];
+                        if (data.lastView) this.currentViewId = data.lastView;
+                        if (data.viewManagementVisibility !== undefined) this.showViewManagement = data.viewManagementVisibility;
+                        this.requestUpdate();
+                    }
+                });
+            }
+        });
+
+        // Start autoplay if in carousel mode
+        if (this.currentView?.type === 'carousel') {
+            this.startCarouselAutoplay();
+        }
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        document.removeEventListener('keydown', this.handleKeyDown);
+        window.removeEventListener('wisk-theme-changed', this.handleThemeChange);
+        this.stopCarouselAutoplay();
+        if (this.bc) {
+            this.bc.close();
+        }
+    }
+
+    handleKeyDown(event) {
+        if (event.key === 'Escape' && this.editingView) {
+            event.preventDefault();
+            this.editingView = null;
+            this.requestUpdate();
+        }
+    }
+
+    handleThemeChange() {
+        this.requestUpdate();
+    }
+
+    async switchTabWithAnimation(newTab) {
+        if (this.activeViewTab === newTab) return;
+
+        const dialog = this.shadowRoot.querySelector('.edit-dialog');
+        if (!dialog) return;
+
+        // Capture current height
+        const currentHeight = dialog.offsetHeight;
+
+        // Set explicit height to current height
+        dialog.style.height = currentHeight + 'px';
+        dialog.style.transition = 'none';
+
+        // Switch tab content
+        this.activeViewTab = newTab;
+        await this.updateComplete;
+
+        // Measure new height by temporarily removing explicit height
+        dialog.style.height = 'auto';
+        const newHeight = dialog.offsetHeight;
+
+        // Set back to current height and prepare for animation
+        dialog.style.height = currentHeight + 'px';
+        dialog.style.transition = 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
+
+        // Animate to new height
+        requestAnimationFrame(() => {
+            dialog.style.height = newHeight + 'px';
+        });
+
+        // Clean up after animation
+        setTimeout(() => {
+            dialog.style.height = '';
+            dialog.style.transition = '';
+        }, 250);
     }
 
     async aboutToBeOoomfed() {
@@ -1430,6 +2190,8 @@ class DatabaseElement extends LitElement {
                 if (data.entries) this.entries = [...data.entries];
                 if (data.properties) this.properties = [...data.properties];
                 if (data.views) this.views = [...data.views];
+                if (data.lastView) this.currentViewId = data.lastView;
+                if (data.viewManagementVisibility !== undefined) this.showViewManagement = data.viewManagementVisibility;
             } else {
                 this.onUpdate();
             }
@@ -1448,6 +2210,8 @@ class DatabaseElement extends LitElement {
             entries: this.entries,
             properties: this.properties,
             views: this.views,
+            lastView: this.currentViewId,
+            viewManagementVisibility: this.showViewManagement,
         };
     }
 
@@ -1898,18 +2662,12 @@ class DatabaseElement extends LitElement {
 
     updated(changedProperties) {
         super.updated(changedProperties);
-        if (changedProperties.has('currentView')) {
-            if (this.currentView?.type === 'carousel') {
-                this.startCarouselAutoplay();
-            } else {
-                this.stopCarouselAutoplay();
-            }
+        // Always ensure autoplay is running if in carousel mode
+        if (this.currentView?.type === 'carousel') {
+            this.startCarouselAutoplay();
+        } else {
+            this.stopCarouselAutoplay();
         }
-    }
-
-    disconnectedCallback() {
-        super.disconnectedCallback();
-        this.stopCarouselAutoplay();
     }
 
     renderAddColumnDialog() {
@@ -2010,30 +2768,6 @@ class DatabaseElement extends LitElement {
 
     renderViewManagement() {
         return html`
-            <div class="view-management">
-                <div class="view-tabs">
-                    <button @click=${() => (this.editingView = { ...this.currentView })} class="plugin-icon-button">
-                        <img src="/a7/plugins/database-element/edit.svg" class="plugin-icon" alt="Edit view" />
-                    </button>
-                    <button @click=${this.toggleEditPropertiesDialog} class="plugin-icon-button">
-                        <img src="/a7/plugins/database-element/properties.svg" class="plugin-icon" alt="Edit properties" />
-                    </button>
-
-                    ${this.views.map(
-                        view => html`
-                            <button class="view-tab ${this.currentViewId === view.id ? 'active' : ''}" @click=${() => (this.currentViewId = view.id)}>
-                                ${view.name}
-                            </button>
-                        `
-                    )}
-                    <button class="view-tab add-view plugin-icon-button" @click=${this.createNewView}>
-                        <img src="/a7/plugins/database-element/plus.svg" class="plugin-icon" alt="Add view" />
-                    </button>
-                </div>
-                ${this.renderFilterSortPanel()}
-                <div style="flex: 1; border-bottom: 3px solid var(--bg-3);"></div>
-            </div>
-
             <div class="name-input">
                 <input
                     @input=${e => {
@@ -2044,7 +2778,42 @@ class DatabaseElement extends LitElement {
                     placeholder="Database Title"
                     .value=${this.title}
                 />
+                <button class="dropdown-arrow ${this.showViewManagement ? 'expanded' : ''}" @click=${this.toggleViewManagement}>
+                    <img src="/a7/plugins/database-element/right.svg" class="plugin-icon" alt="Toggle view management" />
+                </button>
             </div>
+            ${this.showViewManagement
+                ? html`<div class="view-management">
+                      <div class="view-tabs">
+                          ${this.views.map(
+                              view => html`
+                                  <button
+                                      class="view-tab ${this.currentViewId === view.id ? 'active' : ''}"
+                                      @click=${() => {
+                                          this.currentViewId = view.id;
+                                          this.onUpdate();
+                                      }}
+                                  >
+                                      ${view.name}
+                                  </button>
+                              `
+                          )}
+                          <button class="view-tab add-view plugin-icon-button" @click=${this.createNewView}>
+                              <img src="/a7/plugins/database-element/plus.svg" class="plugin-icon" alt="Add view" />
+                          </button>
+
+                          <div style="flex-grow: 1"></div>
+
+                          <button @click=${() => (this.editingView = { ...this.currentView })} class="plugin-icon-button">
+                              <img src="/a7/plugins/database-element/edit.svg" class="plugin-icon" alt="Edit view" />
+                          </button>
+                          <button @click=${this.toggleEditPropertiesDialog} class="plugin-icon-button">
+                              <img src="/a7/plugins/database-element/properties.svg" class="plugin-icon" alt="Edit properties" />
+                          </button>
+                      </div>
+                      ${this.renderFilterSortPanel()}
+                  </div>`
+                : ''}
         `;
     }
 
@@ -2056,116 +2825,144 @@ class DatabaseElement extends LitElement {
 
             <div class="edit-dialog">
                 <h2 class="edit-dialog-title">Edit Properties</h2>
-                ${this.openedProperty === null
-                    ? html`
-                          <div class="properties-list">
-                              ${this.editingProperties.map(
-                                  (prop, index) => html`
-                                      <div
-                                          class="property-list-item ${prop.removed ? 'removed' : ''}"
-                                          @click=${() => !prop.removed && (this.openedProperty = index)}
-                                      >
-                                          <span class="emoji" style="${prop.emoji ? '' : 'display: none;'}">${prop.emoji}</span>
-                                          <span class="property-name">${prop.name}</span>
-                                          <span class="property-type">${prop.type}</span>
-                                          ${prop.removed
-                                              ? html`<button
-                                                    class="edit-button"
-                                                    @click=${e => {
-                                                        e.stopPropagation();
-                                                        this.restoreProperty(index);
-                                                    }}
-                                                >
-                                                    Restore
-                                                </button>`
-                                              : html`<button
-                                                    class="edit-button"
-                                                    @click=${e => {
-                                                        e.stopPropagation();
-                                                        if (this.properties.length <= 1) {
-                                                            wisk.utils.showToast('Cannot remove the last property');
-                                                            return;
-                                                        }
-                                                        this.removeProperty(index);
-                                                    }}
-                                                >
-                                                    Remove
-                                                </button>`}
-                                      </div>
-                                  `
-                              )}
-                              <button class="add-property-button" @click=${this.addNewProperty}>Add New Property</button>
-                          </div>
-                      `
-                    : html`
-                          <div class="property-edit-view">
-                              <div class="property-edit-form">
-                                  <div class="edit-form-group" style="flex-direction: row; align-items: center;">
-                                      <label class="edit-form-emoji" @click=${() => document.querySelector('emoji-selector').show(this.id)}
-                                          >${!this.editingProperties[this.openedProperty].emoji ||
-                                          this.editingProperties[this.openedProperty].emoji == ''
-                                              ? ':3'
-                                              : this.editingProperties[this.openedProperty].emoji}</label
-                                      >
-                                      <input
-                                          class="edit-form-input"
-                                          style="border: 2px solid transparent; background-color: var(--bg-3);"
-                                          type="text"
-                                          placeholder="Property Name"
-                                          .value=${this.editingProperties[this.openedProperty].name}
-                                          @input=${e => this.updatePropertyName(this.openedProperty, e.target.value)}
-                                      />
-                                  </div>
-                                  <div class="edit-form-group">
-                                      <label class="edit-form-label">Type</label>
-                                      <select
-                                          class="edit-form-select"
-                                          .value=${this.editingProperties[this.openedProperty].type}
-                                          @change=${e => this.updatePropertyType(this.openedProperty, e.target.value)}
-                                      >
-                                          <option value="text">Text</option>
-                                          <option value="number">Number</option>
-                                          <option value="select">Select</option>
-                                          <option value="multi-select">Multi-select</option>
-                                          <option value="date">Date</option>
-                                          <option value="datetime-local">DateTime</option>
-                                          <option value="checkbox">Checkbox</option>
-                                          <option value="url">URL</option>
-                                          <option value="email">Email</option>
-                                          <option value="phone">Phone</option>
-                                      </select>
-                                  </div>
-                                  ${this.editingProperties[this.openedProperty].type === 'select' ||
-                                  this.editingProperties[this.openedProperty].type === 'multi-select'
-                                      ? html`
-                                            <div class="edit-form-group">
-                                                <label class="edit-form-label">Options</label>
-                                                <input
-                                                    class="edit-form-input"
-                                                    type="text"
-                                                    style="border: 2px solid transparent; background-color: var(--bg-3);"
-                                                    placeholder="Options (comma-separated)"
-                                                    .value=${this.editingProperties[this.openedProperty].options
-                                                        ? this.editingProperties[this.openedProperty].options.join(', ')
-                                                        : ''}
-                                                    @input=${e => this.updatePropertyOptions(this.openedProperty, e.target.value)}
-                                                />
-                                            </div>
-                                        `
-                                      : ''}
-                              </div>
-                          </div>
-                      `}
+
+                <div class="properties-accordion">
+                    ${this.editingProperties.map(
+                        (prop, index) => html`
+                            <div class="property-accordion-item">
+                                <div
+                                    class="property-list-item ${prop.removed ? 'removed' : ''}"
+                                    @click=${() => !prop.removed && this.togglePropertyExpansion(index)}
+                                >
+                                    <div class="property-main-content">
+                                        <span class="emoji" style="${prop.emoji ? '' : 'display: none;'}">${prop.emoji}</span>
+                                        <span class="property-name">${prop.name}</span>
+                                        <span class="property-type">${prop.type}</span>
+                                    </div>
+                                    ${prop.removed
+                                        ? html`<button
+                                              class="property-expand-btn"
+                                              @click=${e => {
+                                                  e.stopPropagation();
+                                                  this.restoreProperty(index);
+                                              }}
+                                              title="Restore Property"
+                                          >
+                                              <img src="/a7/plugins/database-element/restore.svg" alt="Restore" />
+                                          </button>`
+                                        : html`<button
+                                              class="property-expand-btn"
+                                              @click=${e => {
+                                                  e.stopPropagation();
+                                                  this.togglePropertyExpansion(index);
+                                              }}
+                                              title="Edit Property"
+                                          >
+                                              <img
+                                                  src="/a7/plugins/database-element/${this.openedProperty === index ? 'down' : 'right'}.svg"
+                                                  alt="${this.openedProperty === index ? 'Collapse' : 'Expand'}"
+                                              />
+                                          </button>`}
+                                </div>
+
+                                <!-- Always render the edit content for smooth animation -->
+                                ${!prop.removed
+                                    ? html`
+                                          <div class="property-edit-content ${this.openedProperty === index ? 'expanded' : ''}">
+                                              <div class="property-edit-form">
+                                                  <div class="edit-form-group" style="flex-direction: row; align-items: center;">
+                                                      <label
+                                                          class="edit-form-emoji"
+                                                          @click=${() => document.querySelector('emoji-selector').show(this.id)}
+                                                          >${!this.editingProperties[index].emoji || this.editingProperties[index].emoji == ''
+                                                              ? ':3'
+                                                              : this.editingProperties[index].emoji}</label
+                                                      >
+                                                      <input
+                                                          class="edit-form-input"
+                                                          type="text"
+                                                          placeholder="Property Name"
+                                                          .value=${this.editingProperties[index].name}
+                                                          @input=${e => this.updatePropertyName(index, e.target.value)}
+                                                      />
+                                                  </div>
+                                                  <div class="edit-form-group">
+                                                      <label class="edit-form-label">Type</label>
+                                                      <select
+                                                          class="edit-form-select"
+                                                          .value=${this.editingProperties[index].type}
+                                                          @change=${e => this.updatePropertyType(index, e.target.value)}
+                                                      >
+                                                          <option value="text">Text</option>
+                                                          <option value="number">Number</option>
+                                                          <option value="select">Select</option>
+                                                          <option value="multi-select">Multi-select</option>
+                                                          <option value="date">Date</option>
+                                                          <option value="datetime-local">DateTime</option>
+                                                          <option value="checkbox">Checkbox</option>
+                                                          <option value="url">URL</option>
+                                                          <option value="email">Email</option>
+                                                          <option value="phone">Phone</option>
+                                                      </select>
+                                                  </div>
+                                                  ${this.editingProperties[index].type === 'select' ||
+                                                  this.editingProperties[index].type === 'multi-select'
+                                                      ? html`
+                                                            <div class="edit-form-group">
+                                                                <label class="edit-form-label">Options</label>
+                                                                <input
+                                                                    class="edit-form-input"
+                                                                    type="text"
+                                                                    placeholder="Options (comma-separated)"
+                                                                    .value=${this.editingProperties[index].options
+                                                                        ? this.editingProperties[index].options.join(', ')
+                                                                        : ''}
+                                                                    @input=${e => this.updatePropertyOptions(index, e.target.value)}
+                                                                />
+                                                            </div>
+                                                        `
+                                                      : ''}
+
+                                                  <!-- Remove Button -->
+                                                  <div style="margin-top: var(--gap-3)">
+                                                      <button
+                                                          class="edit-button"
+                                                          style="color: var(--fg-red); border-color: var(--fg-red);"
+                                                          @click=${() => {
+                                                              if (this.properties.length <= 1) {
+                                                                  wisk.utils.showToast('Cannot remove the last property');
+                                                                  return;
+                                                              }
+                                                              this.removeProperty(index);
+                                                          }}
+                                                      >
+                                                          Remove Property
+                                                      </button>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      `
+                                    : ''}
+                            </div>
+                        `
+                    )}
+                </div>
+
+                <div class="dialog-footer">
+                    <button class="add-property-button" @click=${this.addNewProperty}>+ Add New Property</button>
+                </div>
+
                 <div class="edit-dialog-buttons">
-                    ${this.openedProperty !== null
-                        ? html` <button class="edit-button" @click=${() => (this.openedProperty = null)}>Back to List</button> `
-                        : html`
-                              <button class="edit-button" @click=${this.toggleEditPropertiesDialog}>Cancel</button>
-                              <button class="edit-button edit-button-primary" @click=${this.saveProperties}>Save</button>
-                          `}
+                    <button class="edit-button" @click=${this.toggleEditPropertiesDialog}>Cancel</button>
+                    <button class="edit-button edit-button-primary" @click=${this.saveProperties}>Save</button>
                 </div>
             </div>
         `;
+    }
+
+    toggleViewManagement() {
+        this.showViewManagement = !this.showViewManagement;
+        this.onUpdate();
     }
 
     toggleEditPropertiesDialog() {
@@ -2173,6 +2970,26 @@ class DatabaseElement extends LitElement {
         this.showEditPropertiesDialog = !this.showEditPropertiesDialog;
         if (this.showEditPropertiesDialog) {
             this.editingProperties = JSON.parse(JSON.stringify(this.properties));
+            // Add ESC key listener when dialog opens
+            document.addEventListener('keydown', this.handleEscapeKey);
+        } else {
+            // Remove ESC key listener when dialog closes
+            document.removeEventListener('keydown', this.handleEscapeKey);
+        }
+        this.requestUpdate();
+    }
+
+    handleEscapeKey = event => {
+        if (event.key === 'Escape' && this.showEditPropertiesDialog) {
+            this.toggleEditPropertiesDialog();
+        }
+    };
+
+    togglePropertyExpansion(index) {
+        if (this.openedProperty === index) {
+            this.openedProperty = null;
+        } else {
+            this.openedProperty = index;
         }
         this.requestUpdate();
     }
@@ -2254,11 +3071,19 @@ class DatabaseElement extends LitElement {
 
     addNewProperty() {
         const newPropName = `New Property ${this.editingProperties.length + 1}`;
-        const newProperty = { name: newPropName, type: 'text' };
+        const randomEmoji = document.querySelector('emoji-selector')?.randomEmoji() || '📝';
+        const newProperty = {
+            name: newPropName,
+            type: 'text',
+            emoji: randomEmoji,
+        };
         this.editingProperties.push(newProperty);
 
         // Use the same logic as addNewColumn
         this.entries = this.entries.map(entry => ({ ...entry, [newPropName]: '' }));
+
+        // Automatically expand the newly created property
+        this.openedProperty = this.editingProperties.length - 1;
 
         this.requestUpdate();
     }
@@ -2349,7 +3174,9 @@ class DatabaseElement extends LitElement {
         this.views = [...this.views, newView];
         this.currentViewId = newView.id;
         this.editingView = { ...newView };
+        this.activeViewTab = 'config';
         this.requestUpdate();
+        this.onUpdate();
     }
 
     deleteCurrentView() {
@@ -2406,17 +3233,63 @@ class DatabaseElement extends LitElement {
     renderEditViewDialog() {
         if (!this.editingView) return '';
         return html`
-            <div class="dialog-overlay"></div>
+            <div class="edit-dialog-overlay"></div>
+            <div class="edit-dialog">
+                <h2 class="edit-dialog-title">Edit View</h2>
 
-            <div class="dialog">
-                <h2>Edit View</h2>
-                <label>
-                    View Name:
-                    <input type="text" .value=${this.editingView.name} @input=${e => (this.editingView.name = e.target.value)} />
-                </label>
-                <label>
-                    Type:
+                <!-- Tab Navigation -->
+                <div class="edit-view-tabs">
+                    <div
+                        class="edit-view-tab ${this.activeViewTab === 'config' ? 'active' : ''}"
+                        @click=${() => this.switchTabWithAnimation('config')}
+                    >
+                        <img src="/a7/plugins/database-element/config.svg" />
+                        Config
+                    </div>
+                    <div
+                        class="edit-view-tab ${this.activeViewTab === 'filter' ? 'active' : ''}"
+                        @click=${() => this.switchTabWithAnimation('filter')}
+                    >
+                        <img src="/a7/plugins/database-element/filter.svg" />
+                        Filter
+                    </div>
+                    <div class="edit-view-tab ${this.activeViewTab === 'sort' ? 'active' : ''}" @click=${() => this.switchTabWithAnimation('sort')}>
+                        <img src="/a7/plugins/database-element/sort.svg" />
+                        Sort
+                    </div>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    ${this.activeViewTab === 'config'
+                        ? this.renderConfigTab()
+                        : this.activeViewTab === 'filter'
+                          ? this.renderFilterTab()
+                          : this.renderSortTab()}
+                </div>
+
+                <div class="edit-dialog-buttons">
+                    <div class="button-group">
+                        <button class="edit-button" @click=${() => (this.editingView = null)}>Cancel</button>
+                        <button class="edit-button edit-button-primary" @click=${this.saveEditView}>Save</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderConfigTab() {
+        return html`
+            <div class="view-basic-settings">
+                <div class="form-group">
+                    <label class="form-label">View Name</label>
+                    <input type="text" class="form-input" .value=${this.editingView.name} @input=${e => (this.editingView.name = e.target.value)} />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">View Type</label>
                     <select
+                        class="form-input"
                         .value=${this.editingView.type}
                         @change=${e => {
                             this.editingView.type = e.target.value;
@@ -2446,78 +3319,71 @@ class DatabaseElement extends LitElement {
                         <option value="timeline">Timeline</option>
                         <option value="carousel">Carousel</option>
                         <option value="matrix">Matrix</option>
+                        <option value="activity">Activity</option>
                     </select>
-                </label>
+                </div>
+            </div>
 
+            <div class="view-configuration">
                 ${this.editingView.type === 'matrix'
                     ? html`
-                          <label>
-                              X Axis Property:
-                              <select .value=${this.editingView.xAxisProperty} @change=${e => (this.editingView.xAxisProperty = e.target.value)}>
+                          <div class="form-group">
+                              <label class="form-label">X Axis Property</label>
+                              <select
+                                  class="form-input"
+                                  .value=${this.editingView.xAxisProperty}
+                                  @change=${e => (this.editingView.xAxisProperty = e.target.value)}
+                              >
                                   ${this.properties.map(
                                       prop => html`
                                           <option value=${prop.name} ?selected=${this.editingView.xAxisProperty === prop.name}>${prop.name}</option>
                                       `
                                   )}
                               </select>
-                          </label>
-                          <label>
-                              Y Axis Property:
-                              <select .value=${this.editingView.yAxisProperty} @change=${e => (this.editingView.yAxisProperty = e.target.value)}>
+                          </div>
+                          <div class="form-group">
+                              <label class="form-label">Y Axis Property</label>
+                              <select
+                                  class="form-input"
+                                  .value=${this.editingView.yAxisProperty}
+                                  @change=${e => (this.editingView.yAxisProperty = e.target.value)}
+                              >
                                   ${this.properties.map(
                                       prop => html`
                                           <option value=${prop.name} ?selected=${this.editingView.yAxisProperty === prop.name}>${prop.name}</option>
                                       `
                                   )}
                               </select>
-                          </label>
+                          </div>
                       `
                     : ''}
                 ${this.editingView.type === 'kanban'
                     ? html`
-                          <label>
-                              Group By:
-                              <select .value=${this.editingView.groupBy} @change=${e => (this.editingView.groupBy = e.target.value)}>
+                          <div class="form-group">
+                              <label class="form-label">Group By</label>
+                              <select
+                                  class="form-input"
+                                  .value=${this.editingView.groupBy}
+                                  @change=${e => (this.editingView.groupBy = e.target.value)}
+                              >
                                   ${this.properties.map(
                                       prop => html`
                                           <option value=${prop.name} ?selected=${this.editingView.groupBy === prop.name}>${prop.name}</option>
                                       `
                                   )}
                               </select>
-                          </label>
-                      `
-                    : ''}
-                ${this.editingView.type === 'list' ||
-                this.editingView.type === 'carousel' ||
-                this.editingView.type === 'gallery' ||
-                this.editingView.type === 'kanban' ||
-                this.editingView.type === 'matrix' ||
-                this.editingView.type === 'calendar'
-                    ? html`
-                          <label>
-                              Visible Properties:
-                              <div class="property-checkboxes">
-                                  ${this.properties.map(
-                                      prop => html`
-                                          <label>
-                                              <input
-                                                  type="checkbox"
-                                                  .checked=${this.editingView.visibleProperties.includes(prop.name)}
-                                                  @change=${e => this.toggleVisibleProperty(prop.name, e.target.checked)}
-                                              />
-                                              ${prop.name}
-                                          </label>
-                                      `
-                                  )}
-                              </div>
-                          </label>
+                          </div>
                       `
                     : ''}
                 ${this.editingView.type === 'calendar'
                     ? html`
-                          <label>
-                              Date Property:
-                              <select .value=${this.editingView.dateProperty} @change=${e => (this.editingView.dateProperty = e.target.value)}>
+                          <div class="form-group">
+                              <label class="form-label">Date Property</label>
+                              <select
+                                  class="form-input"
+                                  .value=${this.editingView.dateProperty}
+                                  @change=${e => (this.editingView.dateProperty = e.target.value)}
+                              >
                                   ${this.properties
                                       .filter(prop => prop.type === 'date' || prop.type === 'datetime-local')
                                       .map(
@@ -2528,81 +3394,180 @@ class DatabaseElement extends LitElement {
                                           `
                                       )}
                               </select>
-                          </label>
+                          </div>
                       `
                     : ''}
-                <h3>Filters</h3>
-                ${this.editingView.filters.map(
-                    (filter, index) => html`
-                        <div>
-                            <select
-                                .value=${filter.property}
-                                @change=${e => {
-                                    filter.property = e.target.value;
-                                    filter.value = ''; // Reset value when property changes
-                                    this.requestUpdate();
-                                }}
-                            >
-                                ${this.properties.map(
-                                    prop => html` <option value=${prop.name} ?selected=${filter.property === prop.name}>${prop.name}</option> `
-                                )}
-                            </select>
-                            <select
-                                .value=${filter.operator}
-                                @change=${e => {
-                                    filter.operator = e.target.value;
-                                    this.requestUpdate();
-                                }}
-                            >
-                                <option value="equals" ?selected=${filter.operator === 'equals'}>Equals</option>
-                                <option value="contains" ?selected=${filter.operator === 'contains'}>Contains</option>
-                                <option value="greater_than" ?selected=${filter.operator === 'greater_than'}>Greater Than</option>
-                                <option value="less_than" ?selected=${filter.operator === 'less_than'}>Less Than</option>
-                            </select>
-                            ${this.renderFilterValueInput(filter, index)}
-                            <button @click=${() => this.removeFilter(index)}>Remove</button>
-                        </div>
-                    `
-                )}
-                <button @click=${this.addFilter}>Add Filter</button>
-                <h3>Sorts</h3>
-                ${this.editingView.sorts.map(
-                    (sort, index) => html`
-                        <div>
-                            <select
-                                .value=${sort.property}
-                                @change=${e => {
-                                    sort.property = e.target.value;
-                                    this.requestUpdate();
-                                }}
-                            >
-                                ${this.properties.map(
-                                    prop => html` <option value=${prop.name} ?selected=${sort.property === prop.name}>${prop.name}</option> `
-                                )}
-                            </select>
-                            <select
-                                .value=${sort.direction}
-                                @change=${e => {
-                                    sort.direction = e.target.value;
-                                    this.requestUpdate();
-                                }}
-                            >
-                                <option value="asc" ?selected=${sort.direction === 'asc'}>Ascending</option>
-                                <option value="desc" ?selected=${sort.direction === 'desc'}>Descending</option>
-                            </select>
-                            <button @click=${() => this.removeSort(index)}>Remove</button>
-                        </div>
-                    `
-                )}
-                <button @click=${this.addSort}>Add Sort</button>
-                <div class="dialog-buttons">
-                    ${this.editingView.id !== 'default-table'
-                        ? html` <button class="delete-button" @click=${this.deleteCurrentView}>Delete View</button> `
-                        : ''}
-                    <div>
-                        <button @click=${() => (this.editingView = null)}>Cancel</button>
-                        <button @click=${this.saveEditView}>Save</button>
-                    </div>
+                ${this.editingView.type === 'activity'
+                    ? html`
+                          <div class="form-group">
+                              <label class="form-label">Date Property</label>
+                              <select
+                                  class="form-input"
+                                  .value=${this.editingView.dateProperty}
+                                  @change=${e => (this.editingView.dateProperty = e.target.value)}
+                              >
+                                  ${this.properties
+                                      .filter(prop => prop.type === 'date' || prop.type === 'datetime-local')
+                                      .map(
+                                          prop => html`
+                                              <option value=${prop.name} ?selected=${this.editingView.dateProperty === prop.name}>
+                                                  ${prop.name}
+                                              </option>
+                                          `
+                                      )}
+                              </select>
+                          </div>
+                          <div class="form-group">
+                              <label class="form-label">Value Property</label>
+                              <select
+                                  class="form-input"
+                                  .value=${this.editingView.valueProperty}
+                                  @change=${e => (this.editingView.valueProperty = e.target.value)}
+                              >
+                                  ${this.properties
+                                      .filter(prop => prop.type === 'number')
+                                      .map(
+                                          prop => html`
+                                              <option value=${prop.name} ?selected=${this.editingView.valueProperty === prop.name}>
+                                                  ${prop.name}
+                                              </option>
+                                          `
+                                      )}
+                              </select>
+                          </div>
+                      `
+                    : ''}
+                ${this.editingView.type === 'list' ||
+                this.editingView.type === 'carousel' ||
+                this.editingView.type === 'gallery' ||
+                this.editingView.type === 'kanban' ||
+                this.editingView.type === 'matrix' ||
+                this.editingView.type === 'calendar'
+                    ? html`
+                          <div class="form-group">
+                              <label class="form-label">Visible Properties</label>
+                              <div class="property-checkboxes">
+                                  ${this.properties.map(
+                                      prop => html`
+                                          <label class="checkbox-label">
+                                              <input
+                                                  type="checkbox"
+                                                  .checked=${this.editingView.visibleProperties.includes(prop.name)}
+                                                  @change=${e => this.toggleVisibleProperty(prop.name, e.target.checked)}
+                                              />
+                                              <span>${prop.name}</span>
+                                          </label>
+                                      `
+                                  )}
+                              </div>
+                          </div>
+                      `
+                    : ''}
+            </div>
+
+            ${this.editingView.id !== 'default-table'
+                ? html`
+                      <div class="danger-section">
+                          <button class="btn-secondary btn-danger-secondary" @click=${this.deleteCurrentView}>Delete View</button>
+                      </div>
+                  `
+                : ''}
+        `;
+    }
+
+    renderFilterTab() {
+        return html`
+            <div class="filters-section">
+                <div class="section-header">
+                    <button class="btn-secondary add-filter-btn" @click=${this.addFilter}>
+                        <img src="/a7/plugins/database-element/plus.svg" style="width: 14px; height: 14px; filter: var(--themed-svg)" />
+                        Add Filter
+                    </button>
+                </div>
+                <div class="filter-list">
+                    ${this.editingView.filters.map(
+                        (filter, index) => html`
+                            <div class="filter-item">
+                                <select
+                                    class="form-input filter-property"
+                                    .value=${filter.property}
+                                    @change=${e => {
+                                        filter.property = e.target.value;
+                                        filter.value = '';
+                                        this.requestUpdate();
+                                    }}
+                                >
+                                    ${this.properties.map(
+                                        prop => html` <option value=${prop.name} ?selected=${filter.property === prop.name}>${prop.name}</option> `
+                                    )}
+                                </select>
+                                <select
+                                    class="form-input filter-operator"
+                                    .value=${filter.operator}
+                                    @change=${e => {
+                                        filter.operator = e.target.value;
+                                        this.requestUpdate();
+                                    }}
+                                >
+                                    <option value="equals" ?selected=${filter.operator === 'equals'}>Equals</option>
+                                    <option value="contains" ?selected=${filter.operator === 'contains'}>Contains</option>
+                                    <option value="greater_than" ?selected=${filter.operator === 'greater_than'}>Greater Than</option>
+                                    <option value="less_than" ?selected=${filter.operator === 'less_than'}>Less Than</option>
+                                </select>
+                                <div class="filter-value">${this.renderFilterValueInput(filter, index)}</div>
+                                <button class="btn-tertiary remove-btn" @click=${() => this.removeFilter(index)}>
+                                    <img src="/a7/plugins/database-element/delete.svg" style="width: 16px; height: 16px;" />
+                                </button>
+                            </div>
+                        `
+                    )}
+                </div>
+            </div>
+        `;
+    }
+
+    renderSortTab() {
+        return html`
+            <div class="sorts-section">
+                <div class="section-header">
+                    <button class="btn-secondary add-sort-btn" @click=${this.addSort}>
+                        <img src="/a7/plugins/database-element/plus.svg" style="width: 14px; height: 14px; filter: var(--themed-svg)" />
+                        Add Sort
+                    </button>
+                </div>
+                <div class="sort-list">
+                    ${this.editingView.sorts.map(
+                        (sort, index) => html`
+                            <div class="sort-item">
+                                <select
+                                    class="form-input sort-property"
+                                    .value=${sort.property}
+                                    @change=${e => {
+                                        sort.property = e.target.value;
+                                        this.requestUpdate();
+                                    }}
+                                >
+                                    ${this.properties.map(
+                                        prop => html` <option value=${prop.name} ?selected=${sort.property === prop.name}>${prop.name}</option> `
+                                    )}
+                                </select>
+                                <select
+                                    class="form-input sort-direction"
+                                    .value=${sort.direction}
+                                    @change=${e => {
+                                        sort.direction = e.target.value;
+                                        this.requestUpdate();
+                                    }}
+                                >
+                                    <option value="asc" ?selected=${sort.direction === 'asc'}>Ascending</option>
+                                    <option value="desc" ?selected=${sort.direction === 'desc'}>Descending</option>
+                                </select>
+                                <button class="btn-tertiary remove-btn" @click=${() => this.removeSort(index)}>
+                                    <img src="/a7/plugins/database-element/delete.svg" style="width: 16px; height: 16px;" />
+                                </button>
+                            </div>
+                        `
+                    )}
                 </div>
             </div>
         `;
@@ -2614,6 +3579,7 @@ class DatabaseElement extends LitElement {
             case 'select':
                 return html`
                     <select
+                        class="form-input"
                         .value=${filter.value}
                         @change=${e => {
                             this.editingView.filters[index].value = e.target.value;
@@ -2627,6 +3593,7 @@ class DatabaseElement extends LitElement {
             case 'multi-select':
                 return html`
                     <select
+                        class="form-input"
                         .value=${filter.value}
                         @change=${e => {
                             this.editingView.filters[index].value = e.target.value;
@@ -2641,6 +3608,7 @@ class DatabaseElement extends LitElement {
                 return html`
                     <input
                         type="date"
+                        class="form-input"
                         .value=${filter.value}
                         @input=${e => {
                             this.editingView.filters[index].value = e.target.value;
@@ -2651,6 +3619,7 @@ class DatabaseElement extends LitElement {
             case 'checkbox':
                 return html`
                     <select
+                        class="form-input"
                         .value=${filter.value}
                         @change=${e => {
                             this.editingView.filters[index].value = e.target.value;
@@ -2666,6 +3635,7 @@ class DatabaseElement extends LitElement {
                 return html`
                     <input
                         type="text"
+                        class="form-input"
                         .value=${filter.value}
                         @input=${e => {
                             this.editingView.filters[index].value = e.target.value;
@@ -3287,20 +4257,27 @@ class DatabaseElement extends LitElement {
     }
 
     nextSlide() {
-        const entries = this.entries.length;
-        this.currentSlide = (this.currentSlide + 1) % entries;
-        this.requestUpdate();
+        const entries = this.filteredEntries ? this.filteredEntries.length : this.entries.length;
+        if (entries > 0) {
+            this.currentSlide = (this.currentSlide + 1) % entries;
+            this.requestUpdate();
+        }
     }
 
     prevSlide() {
-        const entries = this.entries.length;
-        this.currentSlide = (this.currentSlide - 1 + entries) % entries;
-        this.requestUpdate();
+        const entries = this.filteredEntries ? this.filteredEntries.length : this.entries.length;
+        if (entries > 0) {
+            this.currentSlide = (this.currentSlide - 1 + entries) % entries;
+            this.requestUpdate();
+        }
     }
 
     goToSlide(index) {
-        this.currentSlide = index;
-        this.requestUpdate();
+        const entries = this.filteredEntries ? this.filteredEntries.length : this.entries.length;
+        if (index >= 0 && index < entries) {
+            this.currentSlide = index;
+            this.requestUpdate();
+        }
     }
 
     renderCarouselView(entries) {
@@ -3309,32 +4286,6 @@ class DatabaseElement extends LitElement {
 
         return html`
             <div class="carousel-container" @mouseenter=${this.stopCarouselAutoplay} @mouseleave=${this.startCarouselAutoplay}>
-                <button class="carousel-nav-button prev" @click=${this.prevSlide}>
-                    <?xml version="1.0" encoding="UTF-8"?><svg
-                        width="25px"
-                        height="25px"
-                        stroke-width="2"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        color="currentColor"
-                    >
-                        <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
-                </button>
-                <button class="carousel-nav-button next" @click=${this.nextSlide}>
-                    <?xml version="1.0" encoding="UTF-8"?><svg
-                        width="25px"
-                        height="25px"
-                        stroke-width="2"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        color="currentColor"
-                    >
-                        <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
-                </button>
                 <div class="carousel-track" style="transform: translateX(-${this.currentSlide * 100}%)">
                     ${entries.map(
                         (entry, index) => html`
@@ -3353,11 +4304,17 @@ class DatabaseElement extends LitElement {
                     )}
                 </div>
                 <div class="carousel-navigation">
+                    <button class="carousel-nav-button prev" @click=${this.prevSlide}>
+                        <img src="/a7/plugins/database-element/left.svg" class="plugin-icon" alt="Previous" />
+                    </button>
                     ${allEntries.map(
                         (_, index) => html`
                             <div class="carousel-dot ${index === this.currentSlide ? 'active' : ''}" @click=${() => this.goToSlide(index)}></div>
                         `
                     )}
+                    <button class="carousel-nav-button next" @click=${this.nextSlide}>
+                        <img src="/a7/plugins/database-element/right.svg" class="plugin-icon" alt="Next" />
+                    </button>
                 </div>
             </div>
         `;
@@ -3507,8 +4464,351 @@ class DatabaseElement extends LitElement {
         `;
     }
 
+    renderActivityView(entries) {
+        // Default to first available date and number properties if not configured
+        const dateProperty = this.currentView.dateProperty || this.properties.find(p => p.type === 'date' || p.type === 'datetime-local')?.name;
+        const valueProperty = this.currentView.valueProperty || this.properties.find(p => p.type === 'number')?.name;
+
+        // If still no properties found, show configuration message
+        if (!dateProperty || !valueProperty) {
+            const availableDateProps = this.properties.filter(p => p.type === 'date' || p.type === 'datetime-local');
+            const availableNumberProps = this.properties.filter(p => p.type === 'number');
+
+            return html`
+                <div class="activity-container">
+                    <p>Please configure both Date Property and Value Property in the view settings.</p>
+                    <p>Available date properties: ${availableDateProps.map(p => p.name).join(', ') || 'None'}</p>
+                    <p>Available number properties: ${availableNumberProps.map(p => p.name).join(', ') || 'None'}</p>
+                    <p>Entries count: ${entries.length}</p>
+                    <p>Sample entry: ${entries.length > 0 ? JSON.stringify(entries[0]) : 'No entries'}</p>
+                </div>
+            `;
+        }
+
+        // Initialize current year if not set
+        if (!this.activityYear) {
+            this.activityYear = new Date().getFullYear();
+        }
+
+        // Group entries by date and sum values
+        const dateValueMap = {};
+        let debugInfo = { processedEntries: 0, validDates: 0, validValues: 0 };
+
+        entries.forEach(entry => {
+            debugInfo.processedEntries++;
+            const dateValue = entry[dateProperty];
+            const numValue = parseFloat(entry[valueProperty]) || 0;
+
+            if (numValue > 0) debugInfo.validValues++;
+
+            if (dateValue) {
+                // Handle YYYY-MM-DD format directly
+                let dateStr;
+                if (typeof dateValue === 'string' && dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    dateStr = dateValue;
+                    debugInfo.validDates++;
+                } else {
+                    const date = new Date(dateValue);
+                    if (!isNaN(date.getTime())) {
+                        dateStr = date.toISOString().split('T')[0];
+                        debugInfo.validDates++;
+                    }
+                }
+
+                if (dateStr) {
+                    dateValueMap[dateStr] = (dateValueMap[dateStr] || 0) + numValue;
+                }
+            }
+        });
+
+        // Get all years that have data
+        const availableYears = [...new Set(Object.keys(dateValueMap).map(date => new Date(date).getFullYear()))].sort((a, b) => b - a);
+
+        // If no data found, show debug info
+        if (availableYears.length === 0) {
+            return html`
+                <div class="activity-container">
+                    <h3>Debug Information</h3>
+                    <p>Date Property: ${dateProperty}</p>
+                    <p>Value Property: ${valueProperty}</p>
+                    <p>Processed Entries: ${debugInfo.processedEntries}</p>
+                    <p>Valid Dates: ${debugInfo.validDates}</p>
+                    <p>Valid Values: ${debugInfo.validValues}</p>
+                    <p>Date Value Map: ${JSON.stringify(dateValueMap)}</p>
+                    <p>Sample entry data:</p>
+                    <pre>
+${entries
+                            .slice(0, 3)
+                            .map(
+                                entry =>
+                                    `${dateProperty}: "${entry[dateProperty]}" (${typeof entry[dateProperty]})\n${valueProperty}: "${entry[valueProperty]}" (${typeof entry[valueProperty]})`
+                            )
+                            .join('\n\n')}</pre
+                    >
+                </div>
+            `;
+        }
+
+        // Filter data for current year
+        const yearData = {};
+        Object.keys(dateValueMap).forEach(dateStr => {
+            const year = new Date(dateStr).getFullYear();
+            if (year === this.activityYear) {
+                yearData[dateStr] = dateValueMap[dateStr];
+            }
+        });
+
+        // Calculate min and max values for color scaling
+        const values = Object.values(yearData);
+        const maxValue = Math.max(...values, 1);
+        const minValue = Math.min(...values, 0);
+
+        // Generate calendar grid for the year - simplified approach
+        const startDate = new Date(this.activityYear, 0, 1);
+        const endDate = new Date(this.activityYear, 11, 31);
+        const startDayOfWeek = startDate.getDay(); // 0 = Sunday, 6 = Saturday
+
+        const weeks = [];
+        let currentWeek = [];
+
+        // Add empty cells for the beginning of the first week
+        for (let i = 0; i < startDayOfWeek; i++) {
+            currentWeek.push(null);
+        }
+
+        // Add all days of the year
+        const currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+            currentWeek.push(new Date(currentDate));
+
+            // If we've filled a week (7 days), start a new week
+            if (currentWeek.length === 7) {
+                weeks.push(currentWeek);
+                currentWeek = [];
+            }
+
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        // Add the final week if it has any days
+        if (currentWeek.length > 0) {
+            // Fill the rest with nulls to complete the week
+            while (currentWeek.length < 7) {
+                currentWeek.push(null);
+            }
+            weeks.push(currentWeek);
+        }
+
+        // Helper function to convert hex to RGB
+        const hexToRgb = hex => {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result
+                ? {
+                      r: parseInt(result[1], 16),
+                      g: parseInt(result[2], 16),
+                      b: parseInt(result[3], 16),
+                  }
+                : null;
+        };
+
+        // Helper function to interpolate between two RGB colors
+        const interpolateColor = (color1, color2, factor) => {
+            const c1 = hexToRgb(color1);
+            const c2 = hexToRgb(color2);
+            if (!c1 || !c2) return color1;
+
+            const r = Math.round(c1.r + (c2.r - c1.r) * factor);
+            const g = Math.round(c1.g + (c2.g - c1.g) * factor);
+            const b = Math.round(c1.b + (c2.b - c1.b) * factor);
+
+            return `rgb(${r}, ${g}, ${b})`;
+        };
+
+        // Get CSS custom property values
+        const computedStyle = getComputedStyle(this);
+        const bgColor = computedStyle.getPropertyValue('--bg-1').trim();
+        const fgColor = computedStyle.getPropertyValue('--fg-green').trim();
+
+        // Function to get interpolated color based on value
+        const getColor = value => {
+            if (!value || value === 0) return bgColor;
+            const rawIntensity = (value - minValue) / (maxValue - minValue || 1);
+            // Set minimum intensity to 25% to ensure small values are still visible
+            const intensity = Math.max(0.25, rawIntensity);
+            return interpolateColor(bgColor, fgColor, intensity);
+        };
+
+        return html`
+            <div class="activity-container">
+                <div class="activity-legend">
+                    <span>${minValue}</span>
+                    <div class="legend-squares">
+                        ${[0, 0.25, 0.5, 0.75, 1].map(
+                            factor => html`
+                                <div class="legend-square" style="background-color: ${interpolateColor(bgColor, fgColor, factor)};"></div>
+                            `
+                        )}
+                    </div>
+                    <span>${maxValue}</span>
+                </div>
+
+                <div class="activity-grid">
+                        <div class="activity-calendar">
+                            <div class="activity-weekdays">
+                                ${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(day => html` <div class="weekday-label">${day}</div> `)}
+                            </div>
+
+                            <div class="activity-months-and-days">
+                                <div class="activity-months">
+                                    ${(() => {
+                                        const monthLabels = [];
+                                        let currentMonth = -1;
+
+                                        weeks.forEach((week, weekIndex) => {
+                                            const firstValidDay = week.find(day => day !== null);
+                                            if (firstValidDay) {
+                                                const month = firstValidDay.getMonth();
+                                                if (month !== currentMonth) {
+                                                    // Use percentage for responsive positioning
+                                                    const leftPosition = (weekIndex / weeks.length) * 100;
+                                                    const monthNames = [
+                                                        'Jan',
+                                                        'Feb',
+                                                        'Mar',
+                                                        'Apr',
+                                                        'May',
+                                                        'Jun',
+                                                        'Jul',
+                                                        'Aug',
+                                                        'Sep',
+                                                        'Oct',
+                                                        'Nov',
+                                                        'Dec',
+                                                    ];
+                                                    monthLabels.push(html`
+                                                        <div class="month-label" style="left: ${leftPosition}%;">${monthNames[month]}</div>
+                                                    `);
+                                                    currentMonth = month;
+                                                }
+                                            }
+                                        });
+
+                                        return monthLabels;
+                                    })()}
+                                </div>
+
+                                <div class="activity-days" style="grid-template-columns: repeat(${weeks.length}, 1fr);">
+                                    ${weeks.flatMap(week =>
+                                        week.map(day => {
+                                            if (!day) return html`<div class="activity-day empty"></div>`;
+
+                                            const dateStr = day.toISOString().split('T')[0];
+                                            const value = yearData[dateStr] || 0;
+                                            const color = getColor(value);
+
+                                            return html`
+                                                <div
+                                                    class="activity-day"
+                                                    style="background-color: ${color};"
+                                                    data-date="${dateStr}"
+                                                    data-value="${value}"
+                                                    @mouseenter=${e => this.showTooltip(e, dateStr, value)}
+                                                    @mouseleave=${() => this.hideTooltip()}
+                                                    @mousemove=${e => this.updateTooltipPosition(e)}
+                                                ></div>
+                                            `;
+                                        })
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-navigation">
+                    <button
+                        class="nav-button"
+                        ?disabled=${availableYears.indexOf(this.activityYear) >= availableYears.length - 1}
+                        @click=${() => {
+                            const currentIndex = availableYears.indexOf(this.activityYear);
+                            if (currentIndex < availableYears.length - 1) {
+                                this.activityYear = availableYears[currentIndex + 1];
+                                this.requestUpdate();
+                            }
+                        }}
+                    >
+                        <img src="/a7/plugins/database-element/left.svg" alt="Previous year" width="16" height="16" style="filter: var(--themed-svg)">
+                    </button>
+
+                    <span class="year-display">${this.activityYear}</span>
+
+                    <button
+                        class="nav-button"
+                        ?disabled=${availableYears.indexOf(this.activityYear) <= 0}
+                        @click=${() => {
+                            const currentIndex = availableYears.indexOf(this.activityYear);
+                            if (currentIndex > 0) {
+                                this.activityYear = availableYears[currentIndex - 1];
+                                this.requestUpdate();
+                            }
+                        }}
+                    >
+                        <img src="/a7/plugins/database-element/right.svg" alt="Next year" width="16" height="16"style="filter: var(--themed-svg)">
+                    </button>
+                </div>
+                <div id="activity-tooltip" class="activity-tooltip" style="display: none;"></div>
+            </div>
+        `;
+    }
+
+    showTooltip(event, dateStr, value) {
+        const tooltip = this.shadowRoot.querySelector('#activity-tooltip');
+        if (tooltip) {
+            const date = new Date(dateStr);
+            const formattedDate = date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            });
+
+            tooltip.innerHTML = `
+                <div><strong>${formattedDate}</strong></div>
+                <div>${value} contributions</div>
+            `;
+            tooltip.style.display = 'block';
+            this.updateTooltipPosition(event);
+        }
+    }
+
+    hideTooltip() {
+        const tooltip = this.shadowRoot.querySelector('#activity-tooltip');
+        if (tooltip) {
+            tooltip.style.display = 'none';
+        }
+    }
+
+    updateTooltipPosition(event) {
+        const tooltip = this.shadowRoot.querySelector('#activity-tooltip');
+        if (tooltip && tooltip.style.display !== 'none') {
+            const rect = this.getBoundingClientRect();
+            const x = event.clientX - rect.left + 10;
+            const y = event.clientY - rect.top - 10;
+
+            tooltip.style.left = `${x}px`;
+            tooltip.style.top = `${y}px`;
+        }
+    }
+
     render() {
         const filteredEntries = this.applyFiltersAndSorts([...this.entries]);
+        this.filteredEntries = filteredEntries; // Store for carousel navigation
+
+        // Reset slide if out of bounds
+        if (this.currentSlide >= filteredEntries.length) {
+            this.currentSlide = 0;
+        }
+
         return html`
             <div style="max-width: var(--width); margin: 0 auto;">
                 ${this.renderViewManagement()}
@@ -3529,7 +4829,9 @@ class DatabaseElement extends LitElement {
                                     ? this.renderCarouselView(filteredEntries)
                                     : this.currentView.type === 'matrix'
                                       ? this.renderMatrixView(filteredEntries)
-                                      : html`<p>Unknown view type</p>`}
+                                      : this.currentView.type === 'activity'
+                                        ? this.renderActivityView(filteredEntries)
+                                        : html`<p>Unknown view type</p>`}
                 </div>
                 ${this.renderAddRowDialog()} ${this.renderAddColumnDialog()} ${this.renderEditDialog()} ${this.renderEditViewDialog()}
                 ${this.renderEditPropertiesDialog()}

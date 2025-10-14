@@ -1,0 +1,10 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+  <!-- top-left -->
+  <rect x="1" y="1" width="6" height="6" rx="1" ry="1" fill="currentColor"/>
+  <!-- top-right -->
+  <rect x="9" y="1" width="6" height="6" rx="1" ry="1" fill="currentColor"/>
+  <!-- bottom-left -->
+  <rect x="1" y="9" width="6" height="6" rx="1" ry="1" fill="currentColor"/>
+  <!-- bottom-right -->
+  <rect x="9" y="9" width="6" height="6" rx="1" ry="1" fill="currentColor"/>
+</svg>

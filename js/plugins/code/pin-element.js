@@ -7,8 +7,8 @@ class PinElement extends HTMLElement {
         this.dragging = false;
         this.offsetX = 0;
         this.offsetY = 0;
-        this.posX = 50; // Percentage of viewport width
-        this.posY = 50; // Percentage of viewport height
+        this.posX = 50; // Percentage of container width
+        this.posY = 100; // Pixels from top of container
         this.bgColor = 'var(--bg-2)';
         this.fgColor = 'var(--fg-1)';
         this.content = '';
@@ -65,11 +65,14 @@ class PinElement extends HTMLElement {
 
     // Custom element methods
     setupEventListeners() {
-        const header = this.shadowRoot.querySelector('.pin-header');
+        const container = this.shadowRoot.querySelector('.pin-container');
         const closeButton = this.shadowRoot.querySelector('.pin-close');
 
-        header.addEventListener('mousedown', this.onMouseDown);
-        closeButton.addEventListener('click', this.onClose);
+        container.addEventListener('mousedown', this.onMouseDown);
+        closeButton.addEventListener('click', e => {
+            e.stopPropagation(); // Prevent dragging when clicking close
+            this.onClose();
+        });
     }
 
     render() {
@@ -82,19 +85,12 @@ class PinElement extends HTMLElement {
                 color: var(--fg-1);            
             }
             :host {
-                position: fixed;
+                position: absolute;
                 z-index: ${this.initialZIndex};
                 min-width: 200px;
                 max-width: 300px;
-                border-radius: var(--radius);
-                overflow: hidden;
+                border-radius: var(--radius-large);
                 font-family: var(--font);
-                opacity: 0.7;
-            }
-            
-            :host(:hover) {
-                filter: var(--drop-shadow);
-                opacity: 1;
             }
             
             :host([dragging]) {
@@ -103,36 +99,34 @@ class PinElement extends HTMLElement {
             }
             
             .pin-container {
+                position: relative;
                 display: flex;
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
                 background-color: var(--bg-2);
                 color: var(--fg-1);
-                border-radius: var(--radius);
+                border-radius: var(--radius-large);
                 overflow: clip;
-            }
-            
-            .pin-header {
-                display: flex;
-                justify-content: flex-end;
-                align-items: center;
-                padding: 4px;
                 cursor: grab;
                 user-select: none;
-                height: 24px;
+                border: 2px solid transparent;
             }
 
-            .pin-header:active {
+            :host(:hover) .pin-container {
+                border: 2px solid var(--fg-1);
+            }
+            
+
+            .pin-container:active {
                 cursor: grabbing;
             }
-            
-            .pin-actions {
-                display: flex;
-                gap: 8px;
-            }
-            
-            .pin-action-button {
+
+            .pin-close {
+                position: absolute;
+                top: -18px;
+                right: 16px;
+                z-index: 10;
                 background: transparent;
                 border: none;
                 cursor: pointer;
@@ -141,22 +135,12 @@ class PinElement extends HTMLElement {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                opacity: 0;
                 transition: all 0.2s ease;
             }
-            
-            .pin-container:hover .pin-action-button {
-                opacity: 0.7;
-            }
-            
-            .pin-action-button:hover {
-                opacity: 1 !important;
-                background-color: rgba(0, 0, 0, 0.05);
-            }
-            
+
             .pin-close img {
-                width: 18px;
-                height: 18px;
+                width: 28px;
+                height: 28px;
                 filter: var(--themed-svg);
             }
             
@@ -187,25 +171,26 @@ class PinElement extends HTMLElement {
             }
 
             @media (max-width: 900px) {
-                .pin-container {
+                :host {
                     display: none;
                 }
             }
         </style>
+        <button class="pin-close" title="Unpin">
+            <img src="/a7/plugins/options-element/pin-tack.svg" alt="Close" />
+        </button>
         <div class="pin-container">
-            <div class="pin-header">
-                <div class="pin-actions">
-                    <button class="pin-action-button pin-close" title="Unpin">
-                        <img src="/a7/forget/dialog-x.svg" alt="Close" />
-                    </button>
-                </div>
-            </div>
             <div class="pin-content"></div>
         </div>
         `;
     }
 
     onMouseDown(e) {
+        // Don't start dragging if clicking on the close button
+        if (e.target.closest('.pin-close')) {
+            return;
+        }
+
         // Start dragging
         this.dragging = true;
         this.setAttribute('dragging', '');
@@ -224,16 +209,22 @@ class PinElement extends HTMLElement {
     onMouseMove(e) {
         if (!this.dragging) return;
 
-        // Calculate new position in pixels
-        const x = e.clientX - this.offsetX;
-        const y = e.clientY - this.offsetY;
+        // Get the parent container (should be .editor)
+        const parent = this.parentElement;
+        if (!parent) return;
 
-        // Convert to percentages
-        const percentX = (x / window.innerWidth) * 100;
-        const percentY = (y / window.innerHeight) * 100;
+        const parentRect = parent.getBoundingClientRect();
+
+        // Calculate new position relative to parent
+        const x = e.clientX - parentRect.left - this.offsetX;
+        const y = e.clientY - parentRect.top - this.offsetY + parent.scrollTop;
+
+        // Convert X to percentage, keep Y as pixels
+        const percentX = (x / parentRect.width) * 100;
+        const pixelsY = y;
 
         // Update position
-        this.updatePosition(percentX, percentY);
+        this.updatePosition(percentX, pixelsY);
 
         e.preventDefault();
     }
@@ -269,22 +260,24 @@ class PinElement extends HTMLElement {
     }
 
     onResize() {
-        // Reapply the percentage-based position on window resize
+        // Reapply position on window resize (X percentage, Y pixels)
         this.updatePosition(this.posX, this.posY);
     }
 
-    updatePosition(percentX, percentY) {
-        // Constrain position to viewport (using percentages)
+    updatePosition(percentX, pixelsY) {
+        // Constrain X position (percentage)
         percentX = Math.max(0, Math.min(percentX, 95));
-        percentY = Math.max(0, Math.min(percentY, 95));
 
-        // Store position as percentages
+        // Constrain Y position (pixels, minimum 0)
+        pixelsY = Math.max(0, pixelsY);
+
+        // Store position (X as percentage, Y as pixels)
         this.posX = percentX;
-        this.posY = percentY;
+        this.posY = pixelsY;
 
-        // Apply percentage-based positioning
+        // Apply mixed positioning: X as percentage, Y as pixels
         this.style.left = `${percentX}%`;
-        this.style.top = `${percentY}%`;
+        this.style.top = `${pixelsY}px`;
     }
 
     updateStyle(bgColor, fgColor) {
@@ -295,7 +288,6 @@ class PinElement extends HTMLElement {
         if (container) {
             container.style.backgroundColor = bgColor;
             container.style.color = fgColor;
-            container.style.border = `2px solid ${fgColor}`;
             container.style.overflow = 'hidden';
         }
     }

@@ -54,20 +54,28 @@ async function init() {
                 window.location.href = '/';
             }
         });
+
+        document.querySelector('onboarding-guide').show();
     } catch (error) {
         console.error('Initialization error:', error);
     }
 }
 
 async function initScript() {
-    if (getURLParam('id') == 'home') {
+    if (getURLParam('id') == null || getURLParam('id') == '' || getURLParam('id') == 'home') {
         document.querySelector('#last-space').remove();
         const editor = document.querySelector('#editor');
         const homeElement = document.createElement('home-element');
         editor.appendChild(homeElement);
+
+        // Initialize home sidebar with workspace selector, theme selector, and search
+        initHomeSidebar();
+
+        document.querySelector('*').style.userSelect = 'none';
+
         return;
     }
-    if (getURLParam('id') == null || getURLParam('id') == '') {
+    if (getURLParam('id') == 'newpage') {
         var id = Math.random().toString(36).substring(2, 12).toUpperCase();
         if (getURLParam('parent_id') != null) {
             id = getURLParam('parent_id') + '.' + id;

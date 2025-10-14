@@ -285,8 +285,7 @@ nav {
 }
 
 .selection-overlay {
-    border: 2px solid var(--fg-accent);
-    background: var(--bg-accent);
+    border: none;
     opacity: 0.3;
     pointer-events: none;
     z-index: 999;
@@ -382,7 +381,7 @@ nav {
 }
 
 @media (max-width: 768px) {
-    .options-button {
+    .options-button-main {
         display: none;
     }
 }
@@ -404,7 +403,8 @@ nav {
     left: 0;
     width: 100%;
     height: 100%;
-    backdrop-filter: blur(10px) brightness(0.5);
+    background: var(--fg-2);
+    opacity: 0.3;
 }
 
 .update-box-dialog {

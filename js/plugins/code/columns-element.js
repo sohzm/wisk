@@ -6,6 +6,7 @@ class ColumnsElement extends HTMLElement {
         this.dragState = null;
         this.dropIndicator = null;
         this.dragHoldTimer = null;
+        this.resizeState = null;
         this.attachShadow({ mode: 'open' });
         this.setupEditor();
     }
@@ -17,21 +18,23 @@ class ColumnsElement extends HTMLElement {
         this.columns = [
             {
                 id: id1,
+                width: 50,
                 elements: [
                     {
                         id: wisk.editor.generateNewId(id1), // This ensures proper nesting of IDs
                         component: 'text-element',
-                        value: { textContent: 'Hello World' },
+                        value: { textContent: 'Edit me' },
                     },
                 ],
             },
             {
                 id: id2,
+                width: 50,
                 elements: [
                     {
                         id: wisk.editor.generateNewId(id2), // This ensures proper nesting of IDs
                         component: 'text-element',
-                        value: { textContent: 'Lorem Ipsum' },
+                        value: { textContent: 'Edit me' },
                     },
                 ],
             },
@@ -52,10 +55,15 @@ class ColumnsElement extends HTMLElement {
         if (value) {
             // Handle setting value recursively
             this.columns = Array.isArray(value)
-                ? value.map(column => {
+                ? value.map((column, idx, arr) => {
                       // Ensure column has a proper ID first
                       if (!column.id) {
                           column.id = wisk.editor.generateNewId(this.id);
+                      }
+
+                      // Ensure column has a width, default to equal distribution
+                      if (column.width == null) {
+                          column.width = 100 / arr.length;
                       }
 
                       // If column already has elements array, ensure IDs follow proper nesting
@@ -75,6 +83,7 @@ class ColumnsElement extends HTMLElement {
                       // Otherwise, create a default elements array with proper IDs
                       return {
                           ...column,
+                          width: column.width,
                           elements: [
                               {
                                   id: wisk.editor.generateNewId(column.id),
@@ -117,12 +126,14 @@ class ColumnsElement extends HTMLElement {
 
                 c.push({
                     id: column.id,
+                    width: column.width || null,
                     elements: elements,
                 });
             } else {
                 // Fallback if element doesn't exist yet
                 c.push({
                     id: column.id,
+                    width: column.width || null,
                     elements: column.elements || [],
                 });
             }
@@ -206,6 +217,7 @@ class ColumnsElement extends HTMLElement {
                 }
             },
             changeBlockType: (elementId, value, newBlockType, rec) => {
+                console.log('ColumnsElement.editor.changeBlockType', elementId, newBlockType);
                 const columnId = this.findContainingColumn(elementId);
                 if (columnId) {
                     const columnElement = this.shadowRoot.getElementById(columnId);
@@ -372,7 +384,18 @@ class ColumnsElement extends HTMLElement {
     deleteColumn(index) {
         // Only allow deletion if we have more than one column
         if (this.columns.length > 1) {
+            const deletedWidth = this.columns[index].width || 100 / this.columns.length;
             this.columns.splice(index, 1);
+
+            // Redistribute the deleted column's width proportionally
+            const totalRemainingWidth = this.columns.reduce((sum, col) => sum + (col.width || 0), 0);
+            if (totalRemainingWidth > 0) {
+                this.columns.forEach(col => {
+                    const proportion = (col.width || 0) / totalRemainingWidth;
+                    col.width = (col.width || 0) + deletedWidth * proportion;
+                });
+            }
+
             this.sendUpdates();
             this.render();
         }
@@ -432,8 +455,17 @@ class ColumnsElement extends HTMLElement {
                 () => {
                     if (!column) return;
                     const newColId = wisk.editor.generateNewId(this.id);
+
+                    // Calculate width for duplicate
+                    const sourceWidth = column.width || 100 / this.columns.length;
+                    const newWidth = sourceWidth / 2;
+
+                    // Update source column width
+                    column.width = newWidth;
+
                     const cloned = {
                         id: newColId,
+                        width: newWidth,
                         elements: (column.elements || []).map(el => ({
                             id: wisk.editor.generateNewId(newColId),
                             component: el.component,
@@ -626,22 +658,101 @@ class ColumnsElement extends HTMLElement {
         this.dragState = null;
     }
 
+    onResizeStart(event, index) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const columnsContainer = this.shadowRoot.querySelector('.columns');
+        const containerWidth = columnsContainer.offsetWidth;
+
+        this.resizeState = {
+            index: index,
+            startX: event.clientX,
+            containerWidth: containerWidth,
+            startWidths: this.columns.map(col => col.width || 100 / this.columns.length),
+        };
+
+        this.boundHandleResize = this.handleResize.bind(this);
+        this.boundHandleResizeEnd = this.handleResizeEnd.bind(this);
+
+        window.addEventListener('mousemove', this.boundHandleResize);
+        window.addEventListener('mouseup', this.boundHandleResizeEnd);
+
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+    }
+
+    handleResize(e) {
+        if (!this.resizeState) return;
+
+        const { index, startX, containerWidth, startWidths } = this.resizeState;
+        const deltaX = e.clientX - startX;
+        const deltaPercent = (deltaX / containerWidth) * 100;
+
+        // Calculate new widths
+        const newWidths = [...startWidths];
+        newWidths[index] = Math.max(10, startWidths[index] + deltaPercent);
+        newWidths[index + 1] = Math.max(10, startWidths[index + 1] - deltaPercent);
+
+        // Apply widths immediately for smooth resizing
+        this.columns[index].width = newWidths[index];
+        this.columns[index + 1].width = newWidths[index + 1];
+
+        // Update the DOM directly for smooth dragging
+        const column1 = this.shadowRoot.querySelector(`.column[data-column-index="${index}"]`);
+        const column2 = this.shadowRoot.querySelector(`.column[data-column-index="${index + 1}"]`);
+
+        if (column1 && column2) {
+            column1.style.flex = `0 0 ${newWidths[index]}%`;
+            column2.style.flex = `0 0 ${newWidths[index + 1]}%`;
+        }
+    }
+
+    handleResizeEnd(e) {
+        if (!this.resizeState) return;
+
+        window.removeEventListener('mousemove', this.boundHandleResize);
+        window.removeEventListener('mouseup', this.boundHandleResizeEnd);
+
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+
+        this.resizeState = null;
+        this.sendUpdates();
+    }
+
     render() {
         var style = `
             <style>
                 .columns {
                     display: flex;
-                    gap: var(--gap-1);
                     border-radius: var(--radius);
+                    position: relative;
                 }
                 .column {
-                    flex: 1;
                     border-radius: var(--radius);
                     border: 1px solid transparent;
                     position: relative;
+                    min-width: 10%;
+                }
+                .column:not(:last-child) {
+                    margin-right: var(--gap-1);
                 }
                 .column:hover {
                     border: 1px solid var(--bg-3);
+                }
+                .resize-handle {
+                    position: absolute;
+                    top: 0;
+                    bottom: 0;
+                    right: calc(var(--gap-1) / -2);
+                    width: 10px;
+                    background: transparent;
+                    cursor: col-resize;
+                    z-index: 10;
+                }
+                .resize-handle:hover {
+                    background: var(--fg-accent);
                 }
                 .plus-btn {
                     padding: 0;
@@ -748,15 +859,27 @@ class ColumnsElement extends HTMLElement {
             </style>
         `;
 
+        // Ensure all columns have widths, default to equal distribution
+        const hasWidths = this.columns.every(col => col.width != null);
+        if (!hasWidths) {
+            const defaultWidth = 100 / this.columns.length;
+            this.columns.forEach(col => {
+                if (col.width == null) col.width = defaultWidth;
+            });
+        }
+
         var content = `
             <div class="columns">
                 ${this.columns
                     .map((column, index) => {
                         var id = column.id;
+                        const width = column.width || 100 / this.columns.length;
+                        const isLastColumn = index === this.columns.length - 1;
                         return `
-                            <div class="column" data-column-index="${index}">
+                            <div class="column" data-column-index="${index}" style="flex: 0 0 ${width}%;">
                                 ${this.editor.readonly ? '' : `<div class="column-options-btn" data-index="${index}"><img src="/a7/forget/dots-grid3x3.svg" alt="Context Menu" draggable="false"/></div>`}
                                 <base-layout-element id="${id}" data-column-parent="${this.id}"></base-layout-element>
+                                ${!this.editor.readonly && !isLastColumn ? `<div class="resize-handle" data-resize-index="${index}"></div>` : ''}
                             </div>`;
                     })
                     .join('')}
@@ -768,8 +891,19 @@ class ColumnsElement extends HTMLElement {
         // Add new column button event
         this.shadowRoot.querySelector('.plus-btn').addEventListener('click', () => {
             var id = wisk.editor.generateNewId(this.id);
+
+            // Calculate width: redistribute to maintain proportions
+            const newWidth = 100 / (this.columns.length + 1);
+            const scaleFactor = (100 - newWidth) / 100;
+
+            // Scale existing columns
+            this.columns.forEach(col => {
+                col.width = (col.width || 100 / this.columns.length) * scaleFactor;
+            });
+
             this.columns.push({
                 id: id,
+                width: newWidth,
                 elements: [
                     {
                         id: wisk.editor.generateNewId(id), // Proper ID nesting!
@@ -814,6 +948,15 @@ class ColumnsElement extends HTMLElement {
             });
             button.addEventListener('mouseleave', () => {
                 clearTimeout(this.dragHoldTimer);
+            });
+        });
+
+        // Event listeners for resize handles
+        const resizeHandles = this.shadowRoot.querySelectorAll('.resize-handle');
+        resizeHandles.forEach(handle => {
+            handle.addEventListener('mousedown', event => {
+                const index = parseInt(handle.getAttribute('data-resize-index'));
+                this.onResizeStart(event, index);
             });
         });
 

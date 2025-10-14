@@ -156,23 +156,21 @@ class BaseLayoutElement extends HTMLElement {
                 return id;
             },
             changeBlockType: (elementId, value, newBlockType, rec) => {
+                console.log('changeBlockType', elementId, newBlockType);
                 // Check if we should delegate to a nested layout
                 const nestedLayout = this.getNextLevelLayout(elementId);
                 if (nestedLayout) {
                     return nestedLayout.editor.changeBlockType(elementId, value, newBlockType, rec);
                 }
 
-                const prevElement = this.editor.prevElement(elementId);
-                if (!prevElement) return;
-
+                this.editor.createNewBlock(elementId, newBlockType, value, { x: 0 }, rec);
                 this.editor.deleteBlock(elementId, rec);
-                this.editor.createNewBlock(prevElement.id, newBlockType, value, { x: 0 }, rec);
 
                 this.dispatchEvent(
                     new CustomEvent('block-updated', {
                         bubbles: true,
                         composed: true,
-                        detail: { id: prevElement.id },
+                        detail: { id: elementId },
                     })
                 );
             },
@@ -701,8 +699,6 @@ class BaseLayoutElement extends HTMLElement {
     getValue() {
         const elementValues = [];
 
-        console.log('getValue of base-layout-element ------------', this.elements);
-
         for (const element of this.elements) {
             const domElement = this.shadowRoot.getElementById(element.id);
             if (domElement) {
@@ -719,7 +715,6 @@ class BaseLayoutElement extends HTMLElement {
                 // For regular elements
                 else {
                     let elementValue = domElement.getValue();
-                    console.log('getValue elementValue ------------', elementValue);
                     elementValues.push({
                         id: element.id,
                         component: element.component,
@@ -732,8 +727,6 @@ class BaseLayoutElement extends HTMLElement {
                 elementValues.push(element);
             }
         }
-
-        console.log(' 33 getValue ------------', elementValues);
 
         return {
             elements: elementValues,
@@ -758,7 +751,7 @@ class BaseLayoutElement extends HTMLElement {
                 id: wisk.editor.generateNewId(this.id),
                 component: 'text-element',
                 value: {
-                    textContent: 'Hello World',
+                    textContent: 'Edit me',
                 },
                 lastEdited: Math.floor(Date.now() / 1000),
             },

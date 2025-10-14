@@ -139,6 +139,9 @@ class HelpDialog extends LitElement {
             border-radius: var(--radius);
             cursor: pointer;
             text-decoration: none;
+            border: none;
+            outline: none;
+            font-size: 14px;
         }
 
         .input-label {
@@ -206,6 +209,11 @@ class HelpDialog extends LitElement {
         this.hide();
     }
 
+    showOnboarding() {
+        this.hide();
+        document.querySelector('onboarding-guide').show(true);
+    }
+
     render() {
         return html`
             <div class="dialog-overlay" style="display: ${this.visible ? 'block' : 'none'}" @click=${this.handleBackdropClick}></div>
@@ -229,6 +237,8 @@ class HelpDialog extends LitElement {
                     <div style="display: flex; align-items: center; gap: var(--gap-3); font-size: 15px; flex-wrap: wrap">
                         <label class="input-label">Quick Links</label>
                         <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap">
+                            <button @click="${() => this.showOnboarding()}" class="quick-link">Onboarding Guide</button>
+
                             <a target="_blank" href="https://wisk.cc/faq" class="quick-link">FAQ</a>
                             <a target="_blank" href="https://discord.gg/D8tQCvgDhu" class="quick-link">Discord</a>
                             <a target="_blank" href="https://github.com/sohzm/wisk/blob/master/docs/docs.md" class="quick-link">Documentation</a>

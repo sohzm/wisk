@@ -21,7 +21,7 @@ class EmojiSelector extends LitElement {
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 999;
+            z-index: 1001;
         }
         .inner {
             position: fixed;
@@ -37,7 +37,7 @@ class EmojiSelector extends LitElement {
             display: none;
             flex-direction: column;
             overflow: hidden;
-            z-index: 1000;
+            z-index: 1002;
         }
         .outer.show,
         .inner.show {

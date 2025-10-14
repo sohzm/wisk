@@ -136,7 +136,7 @@ class OptionsComponent extends LitElement {
             border-radius: 0;
         }
         .snapshot-section {
-            padding: var(--padding-3) var(--padding-4);
+            padding: var(--padding-4);
             border-bottom: 1px solid var(--bg-3);
         }
         .snapshot-section:first-child {
@@ -1192,8 +1192,117 @@ class OptionsComponent extends LitElement {
     }
 
     createCurrentSnapshot() {
+        // Creative names for first 7 snapshots
+        const creativeNames = [
+            // First snapshot
+            [
+                'Hello there!',
+                'Day one',
+                'Fresh start',
+                'Here we go',
+                'First draft',
+                'Genesis',
+                'Baby steps',
+                'The beginning',
+                'Initial thoughts',
+                'Version 0.1',
+            ],
+            // Second snapshot
+            [
+                'Getting warmer',
+                'Round two',
+                'Baby steps v2',
+                'Progress?',
+                'Iteration two',
+                'Second attempt',
+                'Still figuring it out',
+                'Not bad so far',
+                'Draft 2: Electric Boogaloo',
+                'Leveling up',
+            ],
+            // Third snapshot
+            [
+                "Third time's the charm",
+                'Halfway there?',
+                'Getting somewhere',
+                'The middle child',
+                'Triple threat',
+                'Trilogy complete',
+                'Actually making progress',
+                'Might be onto something',
+                "Three's company",
+                'Semi-decent now',
+            ],
+            // Fourth snapshot
+            [
+                'Almost done (probably)',
+                'One more to go',
+                'So close',
+                'Fourth and inches',
+                'Nearly there',
+                'Final stretch',
+                'Getting serious now',
+                'Wait, one more thing...',
+                'Draft 4: The Reckoning',
+                'This might actually work',
+            ],
+            // Fifth snapshot
+            [
+                'Final version (lol)',
+                "Okay NOW it's done",
+                'Actually final',
+                'Fifth and final',
+                'Done... I think?',
+                'The finale',
+                'Final final FINAL',
+                'This is it, I swear',
+                'Ship it!',
+                'Mic drop',
+            ],
+            // Sixth snapshot
+            [
+                'Wait, I lied',
+                'Bonus round',
+                'Plot twist',
+                'One more for good luck',
+                'Post-credits scene',
+                'The sequel nobody asked for',
+                'Just kidding',
+                "Couldn't help myself",
+                "Director's cut",
+                'Encore!',
+            ],
+            // Seventh snapshot
+            [
+                'Okay seriously this time',
+                'No more after this',
+                'THE final version',
+                'I mean it now',
+                'Lucky number 7',
+                'The actual end',
+                'For real this time',
+                'Last one, promise',
+                'Ultimate edition',
+                'And... scene!',
+            ],
+        ];
+
+        // Get snapshot count for this document
+        const snapshotCount = this.snapshots.length;
+
+        // Determine default name
+        let defaultName;
+        if (snapshotCount < 7) {
+            // Pick a random name from the appropriate array
+            const nameArray = creativeNames[snapshotCount];
+            defaultName = nameArray[Math.floor(Math.random() * nameArray.length)];
+        } else {
+            // Use default naming after 7 snapshots
+            defaultName = 'Snapshot ' + new Date().toISOString();
+        }
+
         // get title from prompt
-        var title = prompt('Enter a name for the snapshot', 'Snapshot ' + new Date().toISOString());
+        var title = prompt('Enter a name for the snapshot', defaultName);
         if (!title) {
             return;
         }
@@ -1468,7 +1577,7 @@ class OptionsComponent extends LitElement {
                         -->
                     </div>
 
-                    <div class="menu-item" @click="${this.showThemesView}">
+                    <div class="menu-item" @click="${this.showThemesView}" onboarding-theme-menu>
                         <label> <img src="/a7/plugins/options-element/theme.svg" alt="Themes" class="icon" draggable="false"/> Themes</label>
                         <img src="/a7/iconoir/right.svg" alt="Themes" class="icon" draggable="false"/>
                     </div>
@@ -1754,7 +1863,7 @@ class OptionsComponent extends LitElement {
                         <div class="header-wrapper">
                             <div class="header-controls">
                                 <img src="/a7/forget/dialog-back.svg" alt="Back" @click="${this.showMainView}" class="icon" draggable="false"/>
-                                <img src="/a7/forget/dialog-x.svg" alt="Close" @click="${() => {
+                                <img src="/a7/forget/dialog-x.svg" alt="Close" onboarding-themes-close @click="${() => {
                                     wisk.editor.hideMiniDialog();
                                 }}" class="icon" draggable="false" style="padding: var(--padding-3);"/>
                             </div>
@@ -1859,7 +1968,7 @@ class OptionsComponent extends LitElement {
                                           draggable="false"
                                       />
                                       <p>No snapshots found</p>
-                                      <p>Create a snapshot above to save your current progress.</p>
+                                      <p style="text-align: center">Create a snapshot above to save your current progress.</p>
                                   </div>
                               `
                             : html`

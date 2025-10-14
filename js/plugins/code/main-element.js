@@ -5,6 +5,7 @@ class MainElement extends BaseTextElement {
         this.bannerSize = 'big'; // Can be 'smallest', 'small', 'big', 'bigger', 'biggest'
         this.emoji = this.getAttribute('emoji') || '';
         this.backgroundUrl = null;
+        this.gradientData = null;
         this.MAX_WIDTH = 1920;
         this.MAX_HEIGHT = 1080;
         this.loading = false;
@@ -52,6 +53,7 @@ class MainElement extends BaseTextElement {
             textContent: this.editable.innerHTML,
             emoji: this.emoji,
             backgroundUrl: this.backgroundUrl,
+            gradientData: this.gradientData,
             bannerSize: this.bannerSize,
         };
     }
@@ -68,6 +70,10 @@ class MainElement extends BaseTextElement {
             if (value.backgroundUrl) {
                 this.backgroundUrl = value.backgroundUrl;
                 this.updateBackground();
+            }
+            if (value.gradientData) {
+                this.gradientData = value.gradientData;
+                this.applyGradient();
             }
             if (value.bannerSize) {
                 this.bannerSize = value.bannerSize;
@@ -171,6 +177,20 @@ class MainElement extends BaseTextElement {
             this.updateBannerSize();
             this.sendUpdates();
         });
+
+        const removeCoverButton = this.shadowRoot.querySelector('#remove-cover-button');
+        if (removeCoverButton) {
+            removeCoverButton.addEventListener('click', () => {
+                this.removeCover();
+            });
+        }
+
+        const gradientButton = this.shadowRoot.querySelector('#gradient-button');
+        if (gradientButton) {
+            gradientButton.addEventListener('click', () => {
+                this.openGradientMaker();
+            });
+        }
     }
 
     async onBackgroundSelected(event) {
@@ -199,6 +219,9 @@ class MainElement extends BaseTextElement {
 
             // Save to IndexedDB asset store
             await wisk.db.setAsset(uniqueUrl, resizedBlob);
+
+            // Clear gradient if switching to image
+            this.gradientData = null;
 
             this.backgroundUrl = uniqueUrl;
             this.updateBackground();
@@ -288,6 +311,257 @@ class MainElement extends BaseTextElement {
             } catch (error) {
                 console.error('Error retrieving background from storage:', error);
             }
+        }
+    }
+
+    async removeCover() {
+        // Clean up current object URL
+        if (this._currentObjectUrl) {
+            URL.revokeObjectURL(this._currentObjectUrl);
+            this._currentObjectUrl = null;
+        }
+
+        // Remove background from IndexedDB if it exists
+        if (this.backgroundUrl) {
+            try {
+                await wisk.db.deleteAsset(this.backgroundUrl);
+            } catch (error) {
+                console.error('Error deleting background from storage:', error);
+            }
+        }
+
+        // Clear background styling
+        this.backgroundUrl = null;
+        this.gradientData = null;
+        this.headerContainer.style.backgroundImage = '';
+        this.headerContainer.classList.remove('has-background');
+        this.updateBannerSize();
+        this.sendUpdates();
+    }
+
+    openGradientMaker() {
+        const dialog = this.shadowRoot.querySelector('.gradient-dialog');
+        dialog.classList.add('show');
+
+        // Initialize gradient data if not exists
+        if (!this.gradientData) {
+            this.gradientData = {
+                type: 'linear',
+                angle: 90,
+                stops: [
+                    { color: '#667eea', position: 0 },
+                    { color: '#764ba2', position: 100 },
+                ],
+            };
+        }
+
+        // Setup dialog event listeners
+        this.setupGradientDialogListeners();
+
+        // Set UI values based on current gradient data
+        const typeBtns = dialog.querySelectorAll('.type-btn');
+        typeBtns.forEach(btn => {
+            if (btn.dataset.type === this.gradientData.type) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        const angleInput = dialog.querySelector('#angle-input');
+        const angleValue = dialog.querySelector('#angle-value');
+        angleInput.value = this.gradientData.angle;
+        angleValue.textContent = this.gradientData.angle;
+
+        this.updateAngleVisibility();
+
+        // Render initial state
+        this.renderColorStops();
+        this.updateGradientPreview();
+    }
+
+    setupGradientDialogListeners() {
+        const dialog = this.shadowRoot.querySelector('.gradient-dialog');
+
+        // Close button
+        const closeBtn = dialog.querySelector('.gradient-close');
+        closeBtn.onclick = () => this.closeGradientMaker();
+
+        // Cancel button
+        const cancelBtn = dialog.querySelector('#gradient-cancel');
+        cancelBtn.onclick = () => this.closeGradientMaker();
+
+        // Apply button
+        const applyBtn = dialog.querySelector('#gradient-apply');
+        applyBtn.onclick = () => this.applyGradientFromMaker();
+
+        // Type buttons
+        const typeBtns = dialog.querySelectorAll('.type-btn');
+        typeBtns.forEach(btn => {
+            btn.onclick = () => {
+                typeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.gradientData.type = btn.dataset.type;
+                this.updateAngleVisibility();
+                this.updateGradientPreview();
+            };
+        });
+
+        // Angle slider
+        const angleInput = dialog.querySelector('#angle-input');
+        const angleValue = dialog.querySelector('#angle-value');
+        angleInput.oninput = () => {
+            this.gradientData.angle = parseInt(angleInput.value);
+            angleValue.textContent = angleInput.value;
+            this.updateGradientPreview();
+        };
+
+        // Add color stop button
+        const addStopBtn = dialog.querySelector('#add-color-stop');
+        addStopBtn.onclick = () => this.addColorStop();
+
+        // Close on backdrop click
+        dialog.onclick = e => {
+            if (e.target === dialog) {
+                this.closeGradientMaker();
+            }
+        };
+    }
+
+    updateAngleVisibility() {
+        const angleControl = this.shadowRoot.querySelector('#angle-control');
+        if (this.gradientData.type === 'linear') {
+            angleControl.style.display = 'flex';
+        } else {
+            angleControl.style.display = 'none';
+        }
+    }
+
+    closeGradientMaker() {
+        const dialog = this.shadowRoot.querySelector('.gradient-dialog');
+        dialog.classList.remove('show');
+    }
+
+    renderColorStops() {
+        const container = this.shadowRoot.querySelector('#color-stops-container');
+        container.innerHTML = '';
+
+        this.gradientData.stops.forEach((stop, index) => {
+            const stopEl = document.createElement('div');
+            stopEl.className = 'color-stop';
+
+            stopEl.innerHTML = `
+                <input type="color" value="${stop.color}" data-index="${index}" />
+                <input type="range" min="0" max="100" value="${stop.position}" data-index="${index}" />
+                <span class="color-stop-position">${stop.position}%</span>
+                ${
+                    this.gradientData.stops.length > 2
+                        ? `
+                    <button class="delete-stop-btn" data-index="${index}">
+                        <img src="/a7/forget/trash-mini.svg" width="20" height="20" />
+                    </button>
+                `
+                        : ''
+                }
+            `;
+
+            container.appendChild(stopEl);
+
+            // Add event listeners
+            const colorInput = stopEl.querySelector('input[type="color"]');
+            const rangeInput = stopEl.querySelector('input[type="range"]');
+            const positionText = stopEl.querySelector('.color-stop-position');
+            const deleteBtn = stopEl.querySelector('.delete-stop-btn');
+
+            colorInput.oninput = () => {
+                this.gradientData.stops[index].color = colorInput.value;
+                this.updateGradientPreview();
+            };
+
+            rangeInput.oninput = () => {
+                this.gradientData.stops[index].position = parseInt(rangeInput.value);
+                positionText.textContent = rangeInput.value + '%';
+                this.updateGradientPreview();
+            };
+
+            if (deleteBtn) {
+                deleteBtn.onclick = () => this.removeColorStop(index);
+            }
+        });
+    }
+
+    addColorStop() {
+        if (this.gradientData.stops.length >= 5) return;
+
+        // Find a good position for the new stop
+        const positions = this.gradientData.stops.map(s => s.position).sort((a, b) => a - b);
+        let newPosition = 50;
+
+        for (let i = 0; i < positions.length - 1; i++) {
+            const gap = positions[i + 1] - positions[i];
+            if (gap > 20) {
+                newPosition = positions[i] + Math.floor(gap / 2);
+                break;
+            }
+        }
+
+        this.gradientData.stops.push({
+            color: '#ffffff',
+            position: newPosition,
+        });
+
+        this.renderColorStops();
+        this.updateGradientPreview();
+    }
+
+    removeColorStop(index) {
+        if (this.gradientData.stops.length <= 2) return;
+        this.gradientData.stops.splice(index, 1);
+        this.renderColorStops();
+        this.updateGradientPreview();
+    }
+
+    updateGradientPreview() {
+        const preview = this.shadowRoot.querySelector('#gradient-preview');
+        const gradient = this.generateGradientString();
+        preview.style.backgroundImage = gradient;
+    }
+
+    generateGradientString() {
+        const { type, angle, stops } = this.gradientData;
+        const sortedStops = [...stops].sort((a, b) => a.position - b.position);
+        const stopString = sortedStops.map(s => `${s.color} ${s.position}%`).join(', ');
+
+        if (type === 'linear') {
+            return `linear-gradient(${angle}deg, ${stopString})`;
+        } else if (type === 'radial') {
+            return `radial-gradient(circle, ${stopString})`;
+        } else if (type === 'conic') {
+            return `conic-gradient(from 0deg, ${stopString})`;
+        }
+    }
+
+    applyGradientFromMaker() {
+        // Clear image background if exists
+        if (this.backgroundUrl) {
+            if (this._currentObjectUrl) {
+                URL.revokeObjectURL(this._currentObjectUrl);
+                this._currentObjectUrl = null;
+            }
+            this.backgroundUrl = null;
+        }
+
+        this.applyGradient();
+        this.closeGradientMaker();
+        this.sendUpdates();
+    }
+
+    applyGradient() {
+        if (this.gradientData && this.headerContainer) {
+            const gradient = this.generateGradientString();
+            this.headerContainer.style.backgroundImage = gradient;
+            this.headerContainer.classList.add('has-background');
+            this.updateBannerSize();
         }
     }
 
@@ -429,25 +703,44 @@ class MainElement extends BaseTextElement {
                 position: absolute;
                 opacity: 0.6;
             }
-            #background-upload-button {
+            .header-actions {
                 position: absolute;
                 bottom: 12px;
                 right: 0;
+                display: flex;
+                gap: var(--gap-2);
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+            .header-container:hover .header-actions {
+                opacity: 1;
+            }
+
+            .header-btn {
                 padding: var(--padding-w1);
                 background-color: var(--bg-2);
                 color: var(--fg-1);
                 border-radius: var(--radius);
                 cursor: pointer;
-                opacity: 0;
-                transition: opacity 0.3s;
                 border: none;
+                font-size: 14px;
+                transition: background-color 0.2s;
             }
-            .header-container:hover #background-upload-button {
-                opacity: 1;
-            }
-            #background-upload-button:hover {
+
+            .header-btn:hover {
                 background-color: var(--bg-3);
             }
+
+            .header-btn.remove-cover,
+            .header-btn.banner-size {
+                display: none;
+            }
+
+            .has-background .header-btn.remove-cover,
+            .has-background .header-btn.banner-size {
+                display: block;
+            }
+
             #background-file {
                 display: none;
             }
@@ -489,7 +782,7 @@ class MainElement extends BaseTextElement {
             .emoji-suggestion:hover {
                 background: var(--bg-3);
             }
-                            .emoji-name {
+            .emoji-name {
                 color: var(--fg-2);
                 font-size: 0.9em;
             }
@@ -497,24 +790,219 @@ class MainElement extends BaseTextElement {
                 width: 30px;
                 text-align: center;
             }
-            #banner-size-button {
-                position: absolute;
-                bottom: 12px;
-                right: 94px;
-                padding: var(--padding-w1);
-                background-color: var(--bg-2);
+
+            .gradient-dialog {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 2000;
+            }
+
+            .gradient-dialog.show {
+                display: flex;
+            }
+
+            .gradient-content {
+                background-color: var(--bg-1);
+                border-radius: var(--radius-large);
+                padding: var(--padding-4);
+                max-width: 500px;
+                width: 90%;
+                filter: var(--drop-shadow);
+                display: flex;
+                flex-direction: column;
+                gap: var(--gap-3);
+            }
+
+            .gradient-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .gradient-title {
+                font-size: 18px;
+                font-weight: 600;
+            }
+
+            .gradient-close {
+                background: none;
                 border: none;
+                color: var(--fg-1);
+                cursor: pointer;
+                padding: var(--padding-2);
+                border-radius: var(--radius);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .gradient-close:hover {
+                background-color: var(--bg-3);
+            }
+
+            .gradient-preview {
+                width: 100%;
+                height: 120px;
+                border-radius: var(--radius);
+                border: 2px solid var(--bg-3);
+            }
+
+            .gradient-type-selector {
+                display: flex;
+            }
+
+            .type-btn {
+                flex: 1;
+                padding: var(--padding-w2);
+                color: var(--fg-2);
+                cursor: pointer;
+                position: relative;
+                user-select: none;
+                border: none;
+                border-bottom: 4px solid var(--bg-3);
+                text-align: center;
+                font-weight: 500;
+                font-size: 14px;
+                background: transparent;
+                transition: all 0.2s ease;
+            }
+
+            .type-btn.active {
+                color: var(--fg-1);
+                border-bottom: 4px solid var(--fg-1);
+            }
+
+            .angle-control {
+                display: flex;
+                flex-direction: column;
+                gap: var(--gap-2);
+            }
+
+            .angle-control label {
+                font-size: 14px;
+                color: var(--fg-2);
+            }
+
+            .angle-input {
+                width: 100%;
+                padding: var(--padding-w2);
+                border: 2px solid var(--bg-3);
+                border-radius: var(--radius);
+                background-color: var(--bg-2);
+                color: var(--fg-1);
+            }
+
+            .color-stops {
+                display: flex;
+                flex-direction: column;
+                gap: var(--gap-2);
+            }
+
+            .color-stop {
+                display: flex;
+                align-items: center;
+                gap: var(--gap-2);
+            }
+
+            .color-stop input[type="color"] {
+                width: 60px;
+                height: 40px;
+                border: 2px solid var(--bg-3);
+                border-radius: var(--radius);
+                cursor: pointer;
+                background: none;
+            }
+
+            .color-stop input[type="range"] {
+                flex: 1;
+            }
+
+            .color-stop-position {
+                min-width: 40px;
+                text-align: center;
+                font-size: 14px;
+                color: var(--fg-2);
+            }
+
+            .delete-stop-btn {
+                background: none;
+                border: none;
+                color: var(--fg-red);
+                cursor: pointer;
+                padding: var(--padding-2);
+                border-radius: var(--radius);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .delete-stop-btn img, .gradient-close img {
+                filter: var(--themed-svg);
+            }
+
+            .delete-stop-btn:hover {
+                background-color: var(--bg-3);
+            }
+
+            .add-stop-btn {
+                padding: var(--padding-w2);
+                background-color: var(--bg-2);
+                border: 2px solid var(--bg-3);
                 color: var(--fg-1);
                 border-radius: var(--radius);
                 cursor: pointer;
-                opacity: 0;
-                transition: opacity 0.3s;
-            }
-            .header-container:hover #banner-size-button {
-                opacity: 1;
+                font-size: 14px;
+                transition: all 0.2s ease;
             }
 
-            #banner-size-button:hover {
+            .add-stop-btn:hover {
+                background-color: var(--bg-3);
+            }
+
+            .gradient-actions {
+                display: flex;
+                gap: var(--gap-2);
+                justify-content: flex-end;
+            }
+
+            .btn-primary-gradient {
+                background: var(--fg-1);
+                color: var(--bg-1);
+                padding: var(--padding-w2);
+                font-weight: 600;
+                border-radius: calc(var(--radius-large) * 20);
+                border: 2px solid transparent;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.2s ease;
+            }
+
+            .btn-primary-gradient:hover {
+                background-color: transparent;
+                border: 2px solid var(--fg-1);
+                color: var(--fg-1);
+            }
+
+            .btn-tertiary-gradient {
+                background-color: transparent;
+                border: 2px solid transparent;
+                color: var(--fg-1);
+                font-weight: 500;
+                padding: var(--padding-w2);
+                border-radius: calc(var(--radius-large) * 20);
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.2s ease;
+            }
+
+            .btn-tertiary-gradient:hover {
                 background-color: var(--bg-3);
             }
 
@@ -604,8 +1092,12 @@ class MainElement extends BaseTextElement {
                     ${
                         !wisk.editor.readonly
                             ? `
-                        <button id="background-upload-button">Add Cover</button>
-                        <button id="banner-size-button">Small Banner</button>
+                        <div class="header-actions">
+                            <button class="header-btn" id="background-upload-button">Add Image</button>
+                            <button class="header-btn" id="gradient-button">Add Gradient</button>
+                            <button class="header-btn remove-cover" id="remove-cover-button">Remove Cover</button>
+                            <button class="header-btn banner-size" id="banner-size-button">Small Banner</button>
+                        </div>
                     `
                             : ''
                     }
@@ -619,7 +1111,36 @@ class MainElement extends BaseTextElement {
                 </div>
             </div>
             <div class="emoji-suggestions"></div>
-            <div class="database-props"></div>`;
+            <div class="database-props"></div>
+            <div class="gradient-dialog">
+                <div class="gradient-content">
+                    <div class="gradient-header">
+                        <div class="gradient-title">Gradient Maker</div>
+                        <button class="gradient-close">
+                            <img src="/a7/forget/dialog-x.svg" width="22" height="22" />
+                        </button>
+                    </div>
+                    <div class="gradient-preview" id="gradient-preview"></div>
+                    <div class="gradient-type-selector">
+                        <button class="type-btn active" data-type="linear">Linear</button>
+                        <button class="type-btn" data-type="radial">Radial</button>
+                        <button class="type-btn" data-type="conic">Conic</button>
+                    </div>
+                    <div class="angle-control" id="angle-control">
+                        <label>Angle: <span id="angle-value">90</span>°</label>
+                        <input type="range" class="angle-input" id="angle-input" min="0" max="360" value="90" />
+                    </div>
+                    <div>
+                        <label style="font-size: 14px; color: var(--fg-2); margin-bottom: var(--gap-2); display: block;">Color Stops</label>
+                        <div class="color-stops" id="color-stops-container"></div>
+                    </div>
+                    <button class="add-stop-btn" id="add-color-stop">+ Add Color Stop</button>
+                    <div class="gradient-actions">
+                        <button class="btn-tertiary-gradient" id="gradient-cancel">Cancel</button>
+                        <button class="btn-primary-gradient" id="gradient-apply">Apply</button>
+                    </div>
+                </div>
+            </div>`;
         this.shadowRoot.innerHTML = style + content;
     }
 

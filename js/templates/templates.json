@@ -6,13 +6,7 @@
             "by": "Wisk Team",
             "link": "https://wisk.cc",
             "path": "blog-simple",
-            "images": [],
-            "links": [
-                {
-                    "text": "Banner photo by Codioful (formerly Gradienta)",
-                    "url": "https://www.pexels.com/photo/blue-and-purple-gradient-background-7130475/"
-                }
-            ]
+            "links": []
         },
         {
             "name": "Travel Itinerary",
@@ -20,13 +14,15 @@
             "by": "Wisk Team",
             "link": "https://wisk.cc",
             "path": "travel-itinerary-simple",
-            "images": [],
-            "links": [
-                {
-                    "text": "Photo by Mihis Alex",
-                    "url": "https://www.pexels.com/photo/black-toy-car-on-world-map-paper-21014/"
-                }
-            ]
+            "links": []
+        },
+        {
+            "name": "Daily Planner",
+            "description": "A simple daily planner template",
+            "by": "Wisk Team",
+            "link": "https://wisk.cc",
+            "path": "daily-planner-simple",
+            "links": []
         },
         {
             "name": "Minimal Weekly Todo",
@@ -34,7 +30,6 @@
             "by": "Wisk Team",
             "link": "https://wisk.cc",
             "path": "minimal-weekly-todo",
-            "images": [],
             "links": []
         }
     ]

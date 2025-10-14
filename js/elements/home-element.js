@@ -32,6 +32,7 @@ class HomeElement extends LitElement {
         .section-title {
             font-size: 1.5rem;
             color: var(--fg-1);
+            font-weight: 500;
         }
 
         @media (max-width: 768px) {
@@ -47,17 +48,32 @@ class HomeElement extends LitElement {
             background-color: var(--bg-3);
             display: flex;
             align-items: center;
+            gap: 0;
+            width: fit-content;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .search-div.expanded {
             gap: var(--gap-2);
-            max-width: 400px;
         }
 
         .search-input {
-            width: 100%;
             color: var(--fg-1);
             font-size: 14px;
             outline: none;
             border: none;
             background-color: transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .search-input.expanded {
+            width: 200px;
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .search-div:has(.search-input:focus-within) {
@@ -68,6 +84,9 @@ class HomeElement extends LitElement {
 
         .search-div img {
             filter: var(--themed-svg);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            flex-shrink: 0;
         }
 
         .search-div:has(.search-input:focus-within) img {
@@ -76,19 +95,20 @@ class HomeElement extends LitElement {
         .files-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: var(--gap-3);
+            gap: 20px;
         }
 
         @media (max-width: 768px) {
             .files-grid {
                 gap: 1px;
+                grid-template-columns: 1fr;
             }
         }
 
         .templates-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: var(--gap-3);
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
         }
 
         .template-card {
@@ -103,6 +123,14 @@ class HomeElement extends LitElement {
             background: var(--bg-3);
         }
 
+        .template-card:hover .desktop-preview {
+            width: 300px;
+            height: 120px;
+            top: 20px;
+            right: -56px;
+            rotate: 3deg;
+        }
+
         .preview-container {
             position: relative;
             overflow: clip;
@@ -110,11 +138,11 @@ class HomeElement extends LitElement {
         }
 
         .desktop-preview {
-            width: 300px;
-            height: 150px;
+            width: 260px;
+            height: 120px;
             position: absolute;
-            top: 0;
-            right: -36px;
+            top: 20px;
+            right: -16px;
             object-fit: cover;
             border-radius: var(--radius);
             background-size: cover;
@@ -201,6 +229,7 @@ class HomeElement extends LitElement {
         @media (max-width: 768px) {
             .file-content {
                 flex-direction: row;
+                align-items: center;
             }
             img[src='/a7/forget/page-1.svg'],
             emoji-display {
@@ -228,6 +257,43 @@ class HomeElement extends LitElement {
 
         .file-card:hover .more-options {
             opacity: 1;
+        }
+
+        .tree-actions {
+            display: flex;
+            gap: var(--gap-1);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .tree-item:hover .tree-actions {
+            opacity: 1;
+        }
+
+        .tree-delete {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            padding: var(--padding-1);
+            transition: all 0.2s;
+        }
+
+        .tree-delete:hover {
+            background-color: var(--bg-2);
+        }
+
+        .tree-delete:active {
+            background-color: var(--bg-3);
+        }
+
+        .tree-delete img {
+            width: 16px;
+            height: 16px;
+            filter: var(--themed-svg);
         }
 
         .file-card:hover {
@@ -311,6 +377,244 @@ class HomeElement extends LitElement {
             gap: var(--gap-3);
             flex-wrap: wrap;
         }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 60px 20px;
+            opacity: 0.6;
+        }
+
+        .empty-state img {
+            filter: var(--themed-svg);
+            width: 80px;
+        }
+
+        .empty-state p {
+            color: var(--fg-1);
+            text-align: center;
+            margin: 0;
+        }
+
+        .new-page-only {
+            border-radius: var(--radius-large);
+        }
+
+        @media (max-width: 768px) {
+            .new-page-only {
+                border-radius: var(--radius-large) !important;
+            }
+        }
+
+        .view-toggle {
+            display: flex;
+            position: relative;
+            padding: 2px;
+        }
+
+        .view-toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: calc(50% - 2px);
+            height: calc(100% - 4px);
+            background-color: var(--bg-3);
+            border-radius: var(--radius);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+        }
+
+        .view-toggle-slider.tree {
+            transform: translateX(100%);
+        }
+
+        .view-toggle-btn {
+            padding: var(--padding-w1);
+            border: none;
+            background-color: transparent;
+            color: var(--fg-2);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+            opacity: 0.4;
+        }
+
+        .view-toggle-btn.active {
+            color: var(--fg-1);
+            opacity: 1;
+        }
+
+        .view-toggle-btn:hover:not(.active) {
+            color: var(--fg-1);
+        }
+
+        .view-toggle-btn img {
+            width: 16px;
+            height: 16px;
+            filter: var(--themed-svg);
+        }
+
+        .tree-view {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            padding: var(--padding-w1);
+            gap: var(--gap-2);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: var(--fg-1);
+            position: relative;
+        }
+
+        .tree-item:hover {
+            background-color: var(--bg-accent);
+            color: var(--fg-accent);
+        }
+
+        .tree-item.child {
+            margin-left: 24px;
+        }
+
+        .tree-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            position: relative;
+        }
+
+        .tree-icon:hover {
+            background-color: var(--bg-2);
+        }
+
+        .tree-icon img {
+            width: 16px;
+            height: 16px;
+            filter: var(--themed-svg);
+            transition: opacity 0.2s ease;
+        }
+
+        .tree-icon .emoji {
+            font-size: 16px;
+        }
+
+        .tree-icon .arrow {
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .tree-item:hover .tree-icon .arrow {
+            opacity: 1;
+        }
+
+        .tree-item:hover .tree-icon .emoji,
+        .tree-item:hover .tree-icon .page-icon {
+            opacity: 0;
+        }
+
+        .tree-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+            overflow: hidden;
+        }
+
+        .tree-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+        }
+
+        .add-child {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            width: 20px;
+            height: 20px;
+            padding: var(--padding-1);
+        }
+
+        .tree-item:hover .add-child {
+            opacity: 1;
+        }
+
+        .add-child:hover {
+            background-color: var(--bg-2);
+        }
+
+        .add-child:active {
+            background-color: var(--bg-3);
+        }
+
+        .add-child img {
+            width: 16px;
+            height: 16px;
+            filter: var(--themed-svg);
+        }
+
+        @media (max-width: 900px) {
+            .more-options,
+            .tree-actions {
+                opacity: 1;
+            }
+        }
+
+        /* Animation classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .template-card.initial-load {
+            opacity: 0;
+            transform: translateY(30px) scale(0.9);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .template-card.initial-load.animate-in {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .bottom-link {
+            color: var(--fg-2);
+            text-decoration: none;
+        }
+
+        .bottom-link:hover {
+            text-decoration: underline;
+        }
     `;
 
     static properties = {
@@ -321,6 +625,9 @@ class HomeElement extends LitElement {
         message: { type: String },
         searchText: { type: String },
         inputFocused: { type: Boolean },
+        viewMode: { type: String },
+        hierarchicalFiles: { type: Array },
+        expandedFolders: { type: Object },
     };
 
     constructor() {
@@ -332,11 +639,17 @@ class HomeElement extends LitElement {
         this.greet = this.getGreeting();
         this.expandTemplates = false;
         this.message = 'Loading...';
+        this.viewMode = 'grid'; // 'grid' or 'tree'
+        this.hierarchicalFiles = [];
+        this.expandedFolders = {};
     }
 
     firstUpdated() {
         // Fetch files when the component is first updated
         this.fetchFiles();
+
+        // Start the page load animations
+        this.startPageAnimations();
 
         // why? because it's fun
         const greeting = this.shadowRoot.querySelector('.this-greet');
@@ -487,6 +800,39 @@ class HomeElement extends LitElement {
         }
     }
 
+    startPageAnimations() {
+        // Sequence the animations with delays
+        setTimeout(() => {
+            // 1. Fade in the greeting section
+            const greetSection = this.shadowRoot.querySelector('.section-greet');
+            if (greetSection) greetSection.classList.add('visible');
+        }, 100);
+
+        setTimeout(() => {
+            // 2. Fade in the Create New section
+            const createSection = this.shadowRoot.querySelectorAll('.section.fade-in')[1];
+            if (createSection) createSection.classList.add('visible');
+
+            // Animate template cards one by one
+            this.animateTemplateCards();
+        }, 400);
+
+        setTimeout(() => {
+            // 3. Fade in the files section
+            const filesSection = this.shadowRoot.querySelectorAll('.section.fade-in')[2];
+            if (filesSection) filesSection.classList.add('visible');
+        }, 800);
+    }
+
+    animateTemplateCards() {
+        const templateCards = this.shadowRoot.querySelectorAll('.template-card');
+        templateCards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add('animate-in');
+            }, index * 150);
+        });
+    }
+
     async fetchFiles() {
         try {
             // Get all keys from wisk.db
@@ -515,6 +861,9 @@ class HomeElement extends LitElement {
 
             this.filteredFiles = [...this.files];
             this.message = this.files.length === 0 ? 'No files found' : '';
+            if (this.viewMode === 'tree') {
+                this.buildHierarchicalFiles();
+            }
             this.requestUpdate();
         } catch (error) {
             console.error('Error fetching documents:', error);
@@ -527,22 +876,36 @@ class HomeElement extends LitElement {
         event.preventDefault();
         event.stopPropagation();
 
-        const result = confirm('Are you sure you want to delete this page?');
+        const result = confirm('Are you sure you want to delete this page and all its children?');
         if (!result) {
             return;
         }
 
         try {
-            // Use wisk.db to remove the item
+            // Find all child pages to delete as well
+            const childPages = this.files.filter(item => item.id !== id && item.id.startsWith(id + '.')).map(item => item.id);
+
+            // Delete the main page
             await wisk.db.removePage(id);
 
-            // Update the UI state
-            this.files = this.files.filter(item => item.id !== id);
-            this.filteredFiles = this.filteredFiles.filter(item => item.id !== id);
+            // Delete all child pages
+            for (const childId of childPages) {
+                await wisk.db.removePage(childId);
+            }
+
+            // Update the UI state - remove parent and all children
+            this.files = this.files.filter(item => item.id !== id && !item.id.startsWith(id + '.'));
+            this.filteredFiles = this.filteredFiles.filter(item => item.id !== id && !item.id.startsWith(id + '.'));
+
+            // Rebuild hierarchical structure if in tree mode
+            if (this.viewMode === 'tree') {
+                this.buildHierarchicalFiles();
+            }
+
             this.requestUpdate();
 
-            // If the deleted file is the current one, redirect to home
-            if (id === wisk?.editor?.pageId) {
+            // If the deleted page (or any of its children) is the current one, redirect to home
+            if (id === wisk?.editor?.pageId || childPages.includes(wisk?.editor?.pageId)) {
                 window.location.href = '/';
             }
         } catch (error) {
@@ -594,13 +957,36 @@ class HomeElement extends LitElement {
         } else {
             this.filteredFiles = this.files.filter(file => file.name.toLowerCase().includes(searchTerm));
         }
+
+        if (this.viewMode === 'tree') {
+            this.buildHierarchicalFiles();
+        }
     }
 
     useTemplate(template) {
-        window.location.href = `/?template=${template.path}`;
+        window.location.href = `/?id=newpage&template=${template.path}`;
     }
 
     getGreeting() {
+        // Track visits and show welcome message for new users
+        let visits = parseInt(localStorage.getItem('visits') || '0');
+        visits++;
+        localStorage.setItem('visits', visits.toString());
+
+        if (visits <= 2) {
+            const firstTimeGreetings = [
+                'Welcome to Wisk!',
+                'Hello there, welcome to your new workspace!',
+                'Welcome stranger, this is Wisk!',
+                'First time here? Welcome to Wisk!',
+                'Hey there! Welcome to your creative space!',
+                'Welcome! Ready to discover Wisk?',
+                'New here? Welcome to the magic!',
+                'Hello! Wisk is ready for you!',
+            ];
+            return firstTimeGreetings[Math.floor(Math.random() * firstTimeGreetings.length)];
+        }
+
         const hour = new Date().getHours();
 
         const timeBasedGreetings = {
@@ -617,6 +1003,24 @@ class HomeElement extends LitElement {
                 'Fresh ideas coming your way!',
                 'Morning! Time to bring ideas to life!',
                 'Start writing something amazing!',
+                'Early bird gets the words!',
+                'Dawn of a productive day!',
+                'Morning coffee and creativity!',
+                'A new day, a new page!',
+                'Sunrise productivity mode!',
+                'Morning motivation activated!',
+                'First light, bright ideas!',
+                'Wake up and write!',
+                'Morning momentum building!',
+                'Golden hour of creativity!',
+                'Fresh start, fresh perspective!',
+                'Soham says good morning!',
+                'Ready to seize the day?',
+                'Dawn brings new possibilities!',
+                'Morning clarity ahead!',
+                'Time to make today count!',
+                'New day, new opportunities!',
+                'Morning energy flowing!',
             ],
             afternoon: [
                 'Good afternoon!',
@@ -631,6 +1035,24 @@ class HomeElement extends LitElement {
                 'Time to refine your work!',
                 'Productive afternoon ahead!',
                 'Your documents are waiting!',
+                'Midday motivation boost!',
+                'Lunch break over, creativity on!',
+                'Afternoon excellence awaits!',
+                'Peak performance time!',
+                'Second wind incoming!',
+                'Afternoon breakthrough ready!',
+                'Steady progress continues!',
+                'Afternoon focus activated!',
+                'Time to dive deep!',
+                'Midday masterpiece mode!',
+                'Afternoon advantage unlocked!',
+                'Power through the afternoon!',
+                'Sustained creativity session!',
+                'Afternoon inspiration strikes!',
+                'Keep the good work going!',
+                'Afternoon productivity peak!',
+                'Ready for the next chapter?',
+                'Afternoon acceleration time!',
             ],
             evening: [
                 'Good evening!',
@@ -645,6 +1067,24 @@ class HomeElement extends LitElement {
                 'Capture your evening thoughts!',
                 'Evening focus time!',
                 'One last creative push!',
+                'Golden hour productivity!',
+                'Evening excellence time!',
+                'Sunset session starting!',
+                'Perfect time for polishing!',
+                'Evening reflection mode!',
+                'Twilight creativity flows!',
+                'End-of-day refinement!',
+                'Evening masterpiece time!',
+                'Winding down with words!',
+                'Perfect editing atmosphere!',
+                'Evening breakthrough incoming!',
+                'Calm evening, focused mind!',
+                'Time for thoughtful writing!',
+                'Evening dedication pays off!',
+                'Quiet evening, productive spirit!',
+                'Final stretch of the day!',
+                'Evening wisdom emerges!',
+                'Peaceful productivity time!',
             ],
             night: [
                 'Working late?',
@@ -659,64 +1099,164 @@ class HomeElement extends LitElement {
                 'Burning the midnight oil?',
                 'Creative night ahead!',
                 'Your late-night workspace is ready!',
+                'Midnight motivation strikes!',
+                'Night shift excellence!',
+                'Stars align for creativity!',
+                'Nocturnal genius at work!',
+                'Late night brilliance!',
+                'Moon-powered productivity!',
+                'Quiet night, loud thoughts!',
+                'After-hours inspiration!',
+                'Night time breakthrough mode!',
+                'Darkness brings clarity!',
+                'Midnight masterpiece time!',
+                'Late night dedication!',
+                'Silent hours, profound work!',
+                'Night brings deep focus!',
+                'Overtime inspiration flowing!',
+                'Moonlight manuscripts!',
+                'Night vision activated!',
+                'Deep night, deeper thoughts!',
             ],
         };
 
-        const generalGreetings = [
-            'Welcome back to your workspace!',
-            'Ready to create something great?',
-            'Your documents are waiting!',
-            'Time to bring ideas to life!',
-            'Welcome to your creative space!',
-            'Ready to be productive?',
-            'Your workspace is ready!',
-            "Let's create something amazing!",
-            'Ready when you are!',
-            'Your ideas start here!',
-            'Time to get creative!',
-            'Welcome to your productivity zone!',
-            'Ready to make progress?',
-            'Your creative journey continues here!',
-            'Pick up where you left off!',
-            'Your canvas awaits!',
-            'Ideas into documents!',
-            'Ready to write?',
-            'Your thoughts, documented.',
-            'Create something meaningful!',
-        ];
-
-        if (Math.random() < 0.5) {
-            if (hour >= 5 && hour < 12) {
-                return timeBasedGreetings.morning[Math.floor(Math.random() * timeBasedGreetings.morning.length)];
-            } else if (hour >= 12 && hour < 17) {
-                return timeBasedGreetings.afternoon[Math.floor(Math.random() * timeBasedGreetings.afternoon.length)];
-            } else if (hour >= 17 && hour < 21) {
-                return timeBasedGreetings.evening[Math.floor(Math.random() * timeBasedGreetings.evening.length)];
-            } else {
-                return timeBasedGreetings.night[Math.floor(Math.random() * timeBasedGreetings.night.length)];
-            }
+        if (hour >= 5 && hour < 12) {
+            return timeBasedGreetings.morning[Math.floor(Math.random() * timeBasedGreetings.morning.length)];
+        } else if (hour >= 12 && hour < 17) {
+            return timeBasedGreetings.afternoon[Math.floor(Math.random() * timeBasedGreetings.afternoon.length)];
+        } else if (hour >= 17 && hour < 21) {
+            return timeBasedGreetings.evening[Math.floor(Math.random() * timeBasedGreetings.evening.length)];
         } else {
-            return generalGreetings[Math.floor(Math.random() * generalGreetings.length)];
+            return timeBasedGreetings.night[Math.floor(Math.random() * timeBasedGreetings.night.length)];
         }
     }
 
     async ff() {
         this.inputFocused = true;
         await this.updateComplete;
-        this.shadowRoot.querySelector('.search-input').focus();
+        const input = this.shadowRoot.querySelector('.search-input');
+        const container = this.shadowRoot.querySelector('.search-div');
+        input.classList.add('expanded');
+        container.classList.add('expanded');
+        setTimeout(() => input.focus(), 150);
+    }
+
+    async hideSearch() {
+        const input = this.shadowRoot.querySelector('.search-input');
+        const container = this.shadowRoot.querySelector('.search-div');
+        if (this.searchText) return; // Don't hide if there's search text
+
+        input.classList.remove('expanded');
+        container.classList.remove('expanded');
+        this.inputFocused = false;
+    }
+
+    setViewMode(mode) {
+        this.viewMode = mode;
+        if (mode === 'tree') {
+            this.buildHierarchicalFiles();
+        }
+        this.requestUpdate();
+    }
+
+    // Helper methods from left-menu for tree structure
+    isChildOf(id, parentId) {
+        return id !== parentId && id.startsWith(parentId + '.');
+    }
+
+    getParentId(id) {
+        const lastDotIndex = id.lastIndexOf('.');
+        return lastDotIndex > -1 ? id.substring(0, lastDotIndex) : null;
+    }
+
+    getNestingLevel(id) {
+        return id.split('.').length - 1;
+    }
+
+    hasChildren(id) {
+        return this.files.some(item => this.isChildOf(item.id, id));
+    }
+
+    buildHierarchicalFiles() {
+        // Create a map of items by ID for quick access
+        const itemsMap = new Map();
+        this.filteredFiles.forEach(item => {
+            const enhancedItem = {
+                ...item,
+                children: [],
+                level: this.getNestingLevel(item.id),
+                parentId: this.getParentId(item.id),
+                hasChildren: this.hasChildren(item.id),
+            };
+            itemsMap.set(item.id, enhancedItem);
+
+            // Auto-expand all folders by default
+            if (enhancedItem.hasChildren && this.expandedFolders[item.id] === undefined) {
+                this.expandedFolders[item.id] = true;
+            }
+        });
+
+        // Build the tree structure
+        const rootItems = [];
+        itemsMap.forEach(item => {
+            if (item.parentId) {
+                const parent = itemsMap.get(item.parentId);
+                if (parent) {
+                    parent.children.push(item);
+                } else {
+                    rootItems.push(item);
+                }
+            } else {
+                rootItems.push(item);
+            }
+        });
+
+        // Flatten the tree for rendering
+        const flatList = [];
+        const flattenTree = (items, level) => {
+            items.forEach(item => {
+                flatList.push({ ...item, level });
+                if (item.children && item.children.length > 0 && this.expandedFolders[item.id]) {
+                    flattenTree(item.children, level + 1);
+                }
+            });
+        };
+
+        flattenTree(rootItems, 0);
+        this.hierarchicalFiles = flatList;
+    }
+
+    toggleFolder(id, e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.expandedFolders = {
+            ...this.expandedFolders,
+            [id]: !this.expandedFolders[id],
+        };
+        this.buildHierarchicalFiles();
+        this.requestUpdate();
+    }
+
+    createChildPage(parentId, e) {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        // Navigate to new page with parent_id parameter
+        window.location.href = `/?id=newpage&parent_id=${parentId}`;
     }
 
     render() {
         return html`
             <div class="container">
-                <div class="section section-greet" style="margin-top: 60px; margin-bottom: 60px; align-items: center;">
+                <div class="section section-greet fade-in" style="margin-top: 60px; margin-bottom: 60px; align-items: center;">
                     <h1 class="this-greet">${this.greet}</h1>
                 </div>
 
-                <div class="section" style="display: none">
+                <div class="section fade-in">
                     <h2 class="section-title">Create New</h2>
                     <div class="templates-grid">
-                        <div class="template-card" @click=${() => (window.location.href = '/')}>
+                        <div class="template-card initial-load" @click=${() => (window.location.href = '/?id=newpage')}>
                             <div
                                 style="height: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 12px; min-height: 120px"
                             >
@@ -725,42 +1265,24 @@ class HomeElement extends LitElement {
                             </div>
                         </div>
 
-                        ${this.templates.length > 0
-                            ? html`
-                                  <div class="template-card mobhide" @click=${() => this.useTemplate(this.templates[0])}>
-                                      <div class="template-info">
-                                          <h3>${this.templates[0].name}</h3>
-                                          <span class="template-by">By ${this.templates[0].by}</span>
-                                      </div>
+                        ${this.templates.slice(0, 3).map(
+                            (template, index) => html`
+                                <div class="template-card initial-load mobhide" @click=${() => this.useTemplate(template)}>
+                                    <div class="template-info">
+                                        <h3>${template.name}</h3>
+                                        <span class="template-by">By ${template.by}</span>
+                                    </div>
 
-                                      <div class="preview-container">
-                                          <div
-                                              class="desktop-preview"
-                                              style="background-image: url(/a7/templates/${this.templates[0].path}/preview/desktop.png)"
-                                              alt="${this.templates[0].name} preview"
-                                          ></div>
-                                      </div>
-                                  </div>
-                              `
-                            : ''}
-                        ${this.templates.length > 1
-                            ? html`
-                                  <div class="template-card mobhide" @click=${() => this.useTemplate(this.templates[1])}>
-                                      <div class="template-info">
-                                          <h3>${this.templates[1].name}</h3>
-                                          <span class="template-by">By ${this.templates[1].by}</span>
-                                      </div>
-
-                                      <div class="preview-container">
-                                          <div
-                                              class="desktop-preview"
-                                              style="background-image: url(/a7/templates/${this.templates[1].path}/preview/desktop.png)"
-                                              alt="${this.templates[1].name} preview"
-                                          ></div>
-                                      </div>
-                                  </div>
-                              `
-                            : ''}
+                                    <div class="preview-container">
+                                        <div
+                                            class="desktop-preview"
+                                            style="background-image: url(/a7/templates/${template.path}/preview/desktop.png)"
+                                            alt="${template.name} preview"
+                                        ></div>
+                                    </div>
+                                </div>
+                            `
+                        )}
                     </div>
 
                     <button class="btn show-more" @click=${() => (this.expandTemplates = !this.expandTemplates)}>
@@ -793,49 +1315,124 @@ class HomeElement extends LitElement {
                     </div>
                 </div>
 
-                <div class="section" style="gap: calc(2*var(--gap-3)); min-height: 100svh">
+                <div class="section fade-in" style="gap: calc(2*var(--gap-3)); min-height: 100svh">
                     <div class="your-files-header">
-                        <h2 class="section-title">Your Pages</h2>
-                        <div class="search-div">
-                            <img src="/a7/forget/search.svg" alt="Search" style="width: 20px; cursor: pointer" @click=${() => this.ff()} />
+                        <div class="search-div" @click=${() => this.ff()}>
+                            <img src="/a7/forget/search.svg" alt="Search" style="width: 20px;" draggable="false" />
                             <input
                                 type="text"
-                                class="search-input"
+                                class="search-input ${this.searchText || this.inputFocused ? 'expanded' : ''}"
                                 placeholder="Search files..."
                                 @input=${this.filterFiles}
-                                style=${this.searchText || this.inputFocused ? '' : 'display: none;'}
                                 @focus=${() => (this.inputFocused = true)}
-                                @blur=${() => (this.inputFocused = false)}
+                                @blur=${() => this.hideSearch()}
+                                @click=${e => e.stopPropagation()}
                             />
                         </div>
+                        <div class="view-toggle">
+                            <div class="view-toggle-slider ${this.viewMode === 'tree' ? 'tree' : ''}"></div>
+                            <button class="view-toggle-btn ${this.viewMode === 'grid' ? 'active' : ''}" @click=${() => this.setViewMode('grid')}>
+                                <img src="/a7/forget/home-grid.svg" alt="Grid view" draggable="false" />
+                            </button>
+                            <button class="view-toggle-btn ${this.viewMode === 'tree' ? 'active' : ''}" @click=${() => this.setViewMode('tree')}>
+                                <img src="/a7/forget/home-list.svg" alt="Tree view" draggable="false" />
+                            </button>
+                        </div>
                     </div>
-                    <div class="files-grid">
-                        <a href="/" class="file-card">
-                            <div class="file-content" style="width: 100%">
-                                <img src="/a7/forget/plus.svg" alt="File" width="25px" />
-                                <span>New Page</span>
-                            </div>
-                        </a>
-                        ${this.filteredFiles.length === 0 ? html` <p>${this.message}</p> ` : ''}
-                        ${this.filteredFiles.map(file => {
-                            const fileInfo = this.getFileDisplayInfo(file.name);
-                            return html`
-                                <a href="/?id=${file.id}" class="file-card">
-                                    <div class="file-content" style="">
-                                        ${file.emoji
-                                            ? html`<span class="emoji-display">${file.emoji}</span>`
-                                            : fileInfo.hasEmoji
-                                              ? html`<span class="emoji-display">${fileInfo.emoji}</span>`
-                                              : html`<img src="/a7/forget/page-1.svg" alt="File" />`}
-                                        <span>${fileInfo.hasEmoji ? fileInfo.displayName : file.name}</span>
-                                    </div>
-                                    <div class="more-options" @click=${e => this.removeFile(file.id, e)}>
-                                        <img src="/a7/forget/trash.svg" alt="More options" style="width: 18px" />
-                                    </div>
-                                </a>
-                            `;
-                        })}
-                    </div>
+                    ${this.viewMode === 'grid'
+                        ? html`
+                              <div class="files-grid">
+                                  <a href="/?id=newpage" class="file-card ${this.filteredFiles.length === 0 ? 'new-page-only' : ''}">
+                                      <div class="file-content" style="width: 100%">
+                                          <img src="/a7/forget/plus.svg" alt="File" width="25px" draggable="false" />
+                                          <span>New Page</span>
+                                      </div>
+                                  </a>
+                                  ${this.filteredFiles.map(file => {
+                                      const fileInfo = this.getFileDisplayInfo(file.name);
+                                      return html`
+                                          <a href="/?id=${file.id}" class="file-card">
+                                              <div class="file-content" style="">
+                                                  ${file.emoji
+                                                      ? html`<span class="emoji-display">${file.emoji}</span>`
+                                                      : fileInfo.hasEmoji
+                                                        ? html`<span class="emoji-display">${fileInfo.emoji}</span>`
+                                                        : html`<img src="/a7/forget/page-1.svg" alt="File" draggable="false" />`}
+                                                  <span>${fileInfo.hasEmoji ? fileInfo.displayName : file.name}</span>
+                                              </div>
+                                              <div class="more-options" @click=${e => this.removeFile(file.id, e)}>
+                                                  <img src="/a7/forget/trash.svg" alt="More options" style="width: 18px" draggable="false" />
+                                              </div>
+                                          </a>
+                                      `;
+                                  })}
+                              </div>
+                          `
+                        : html`
+                              <div class="tree-view">
+                                  <a href="/?id=newpage" class="tree-item" style="margin-bottom: var(--gap-2);">
+                                      <div class="tree-icon">
+                                          <img src="/a7/forget/plus.svg" alt="New page" draggable="false" />
+                                      </div>
+                                      <div class="tree-content">
+                                          <span class="tree-name">New Page</span>
+                                      </div>
+                                  </a>
+                                  ${this.hierarchicalFiles.map(file => {
+                                      const fileInfo = this.getFileDisplayInfo(file.name);
+                                      return html`
+                                          <div class="tree-item ${file.level > 0 ? 'child' : ''}" style="margin-left: ${file.level * 24}px;">
+                                              <div
+                                                  class="tree-icon"
+                                                  @click=${file.hasChildren
+                                                      ? e => this.toggleFolder(file.id, e)
+                                                      : e => {
+                                                            e.preventDefault();
+                                                            window.location.href = `/?id=${file.id}`;
+                                                        }}
+                                              >
+                                                  ${file.emoji
+                                                      ? html` <span class="emoji">${file.emoji}</span> `
+                                                      : fileInfo.hasEmoji
+                                                        ? html` <span class="emoji">${fileInfo.emoji}</span> `
+                                                        : html` <img src="/a7/forget/page-1.svg" alt="File" class="page-icon" draggable="false" /> `}
+                                                  ${file.hasChildren
+                                                      ? html`
+                                                            <img
+                                                                draggable="false"
+                                                                class="arrow"
+                                                                src=${this.expandedFolders[file.id]
+                                                                    ? '/a7/forget/down-arrow.svg'
+                                                                    : '/a7/forget/right-arrow.svg'}
+                                                                alt="Toggle folder"
+                                                            />
+                                                        `
+                                                      : ''}
+                                              </div>
+                                              <a href="/?id=${file.id}" class="tree-content">
+                                                  <span class="tree-name">${fileInfo.hasEmoji ? fileInfo.displayName : file.name}</span>
+                                              </a>
+                                              <div class="tree-actions">
+                                                  <div class="add-child" @click=${e => this.createChildPage(file.id, e)}>
+                                                      <img src="/a7/forget/plus.svg" alt="Add child" draggable="false" />
+                                                  </div>
+                                                  <div class="tree-delete" @click=${e => this.removeFile(file.id, e)}>
+                                                      <img src="/a7/forget/trash.svg" alt="Delete" draggable="false" />
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      `;
+                                  })}
+                              </div>
+                          `}
+                    ${this.filteredFiles.length === 0 && this.message !== 'Loading...'
+                        ? html`
+                              <div class="empty-state">
+                                  <img src="/a7/plugins/options-element/puzzled.svg" alt="No pages found" draggable="false" />
+                                  <p>No pages found</p>
+                              </div>
+                          `
+                        : ''}
                 </div>
 
                 <br />
@@ -843,27 +1440,14 @@ class HomeElement extends LitElement {
                 <br />
                 <br />
 
-                <div class="section">
-                    <?xml version="1.0" encoding="UTF-8"?><svg
-                        width="64px"
-                        height="64px"
-                        stroke-width="1.5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        color="#000000"
-                    >
-                        <path
-                            d="M22 8.86222C22 10.4087 21.4062 11.8941 20.3458 12.9929C17.9049 15.523 15.5374 18.1613 13.0053 20.5997C12.4249 21.1505 11.5042 21.1304 10.9488 20.5547L3.65376 12.9929C1.44875 10.7072 1.44875 7.01723 3.65376 4.73157C5.88044 2.42345 9.50794 2.42345 11.7346 4.73157L11.9998 5.00642L12.2648 4.73173C13.3324 3.6245 14.7864 3 16.3053 3C17.8242 3 19.2781 3.62444 20.3458 4.73157C21.4063 5.83045 22 7.31577 22 8.86222Z"
-                            class="xml"
-                            stroke-width="1.5"
-                            stroke-linejoin="round"
-                        ></path>
-                    </svg>
-                    <h2 class="section-title">Thanks for using Wisk!</h2>
+                <div style="display: flex; gap: 12px; justify-content: center; padding: var(--padding-3); color: var(--fg-2); font-size: 14px;">
+                    <a class="bottom-link " href="https://github.com/sohzm/wisk" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <span>•</span>
+                    <a href="https://discord.gg/D8tQCvgDhu" target="_blank" rel="noopener noreferrer" class="bottom-link">Discord</a>
+                    <span>•</span>
+                    <a href="https://twitter.com/wisk_cc" target="_blank" rel="noopener noreferrer" class="bottom-link">Twitter</a>
                 </div>
 
-                <br />
                 <br />
                 <br />
                 <br />

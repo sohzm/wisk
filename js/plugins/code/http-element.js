@@ -37,8 +37,8 @@ class HttpElement extends LitElement {
 
             .method-select {
                 border-radius: var(--radius);
-                border: 1px solid var(--border-1);
-                background: var(--bg-1);
+                border: 2px solid var(--bg-3);
+                background: var(--bg-2);
                 color: var(--fg-1);
                 font-size: 14px;
                 font-weight: 600;
@@ -46,34 +46,39 @@ class HttpElement extends LitElement {
                 font-family: var(--font);
                 min-width: 90px;
                 text-align: center;
+                padding: var(--padding-w2);
+                transition: all 0.2s ease;
             }
             .method-select:focus {
                 outline: none;
-                border-color: var(--fg-1);
+                background-color: var(--bg-1);
+                border-color: var(--fg-accent);
             }
 
             .url-input {
                 flex: 1;
-                padding: var(--padding-3) var(--padding-4);
+                padding: var(--padding-w2);
                 border-radius: var(--radius);
-                border: 1px solid var(--border-1);
-                background: var(--bg-1);
+                border: 2px solid var(--bg-3);
+                background: var(--bg-2);
                 color: var(--fg-1);
                 font-size: 14px;
                 font-family: var(--font);
+                transition: all 0.2s ease;
             }
             .url-input:focus {
                 outline: none;
-                border-color: var(--fg-1);
+                background-color: var(--bg-1);
+                border-color: var(--fg-accent);
             }
             .url-input::placeholder {
                 color: var(--fg-2);
             }
 
             .send-button {
-                padding: var(--padding-3) var(--padding-4);
-                border-radius: var(--radius);
-                border: none;
+                padding: var(--padding-w2);
+                border-radius: calc(var(--radius-large) * 20);
+                border: 2px solid transparent;
                 background: var(--fg-1);
                 color: var(--bg-1);
                 font-size: 14px;
@@ -81,17 +86,30 @@ class HttpElement extends LitElement {
                 cursor: pointer;
                 font-family: var(--font);
                 width: 80px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: var(--gap-2);
+                transition: all 0.2s ease;
+            }
+            .send-button:hover:not(:disabled) {
+                background-color: transparent;
+                border: 2px solid var(--fg-1);
+                color: var(--fg-1);
             }
             .send-button:disabled {
-                background: var(--bg-3);
+                background-color: var(--bg-3);
                 color: var(--fg-2);
+                border: 2px solid transparent;
                 cursor: not-allowed;
             }
 
-            .body-section {
+            .body-section,
+            .headers-section {
                 background: var(--bg-1);
             }
-            .body-toggle {
+            .body-toggle,
+            .headers-toggle {
                 display: flex;
                 align-items: center;
                 gap: var(--gap-1);
@@ -104,7 +122,8 @@ class HttpElement extends LitElement {
                 background: var(--bg-1);
             }
 
-            .body-toggle input[type='checkbox'] {
+            .body-toggle input[type='checkbox'],
+            .headers-toggle input[type='checkbox'] {
                 width: 16px;
                 height: 16px;
                 border-radius: var(--radius);
@@ -114,11 +133,13 @@ class HttpElement extends LitElement {
                 appearance: none;
                 position: relative;
             }
-            .body-toggle input[type='checkbox']:checked {
+            .body-toggle input[type='checkbox']:checked,
+            .headers-toggle input[type='checkbox']:checked {
                 background: var(--fg-1);
                 border-color: var(--fg-1);
             }
-            .body-toggle input[type='checkbox']:checked::after {
+            .body-toggle input[type='checkbox']:checked::after,
+            .headers-toggle input[type='checkbox']:checked::after {
                 content: '✓';
                 position: absolute;
                 top: 50%;
@@ -129,29 +150,104 @@ class HttpElement extends LitElement {
                 font-weight: bold;
             }
 
-            .body-content {
+            .body-content,
+            .headers-content {
                 display: none;
                 padding: 0 var(--padding-4) var(--padding-4);
             }
-            .body-content.visible {
+            .body-content.visible,
+            .headers-content.visible {
                 display: block;
+            }
+
+            .headers-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .headers-row {
+                display: flex;
+                gap: var(--gap-2);
+                margin-bottom: var(--gap-2);
+            }
+            .headers-row input {
+                padding: var(--padding-w2);
+                border-radius: var(--radius);
+                border: 2px solid var(--bg-3);
+                background: var(--bg-2);
+                color: var(--fg-1);
+                font-size: 14px;
+                font-family: var(--font);
+                transition: all 0.2s ease;
+            }
+            .headers-row input:focus {
+                outline: none;
+                background-color: var(--bg-1);
+                border-color: var(--fg-accent);
+            }
+            .headers-row input::placeholder {
+                color: var(--fg-2);
+            }
+            .header-key-input {
+                flex: 1;
+            }
+            .header-value-input {
+                flex: 2;
+            }
+            .remove-header-btn {
+                padding: var(--padding-w2);
+                border-radius: var(--radius);
+                border: 2px solid transparent;
+                background: var(--bg-3);
+                color: var(--fg-1);
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                min-width: 32px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .remove-header-btn:hover {
+                background-color: var(--bg-red);
+                color: var(--fg-red);
+            }
+            .add-header-btn {
+                padding: var(--padding-w2);
+                border-radius: calc(var(--radius-large) * 20);
+                border: 2px solid var(--bg-3);
+                background: var(--bg-1);
+                color: var(--fg-1);
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: var(--gap-2);
+                margin-top: var(--gap-2);
+            }
+            .add-header-btn:hover {
+                background-color: var(--bg-3);
             }
 
             .body-textarea {
                 width: 100%;
                 min-height: 100px;
-                padding: var(--padding-3);
+                padding: var(--padding-w2);
                 border-radius: var(--radius);
-                border: 1px solid var(--border-1);
-                background: var(--bg-1);
+                border: 2px solid var(--bg-3);
+                background: var(--bg-2);
                 color: var(--fg-1);
                 font-family: var(--font-mono);
                 font-size: 13px;
                 resize: vertical;
+                transition: all 0.2s ease;
             }
             .body-textarea:focus {
                 outline: none;
-                border-color: var(--fg-1);
+                background-color: var(--bg-1);
+                border-color: var(--fg-accent);
             }
             .body-textarea::placeholder {
                 color: var(--fg-2);
@@ -209,6 +305,7 @@ class HttpElement extends LitElement {
                 word-break: break-word;
                 background: var(--bg-1);
                 color: var(--fg-1);
+                user-select: text;
             }
             .response-content.json {
                 white-space: pre;
@@ -266,25 +363,40 @@ class HttpElement extends LitElement {
             .curl-textarea {
                 width: 100%;
                 height: 150px;
-                padding: var(--padding-3);
+                padding: var(--padding-w2);
                 border-radius: var(--radius);
-                border: 1px solid var(--border-1);
+                border: 2px solid var(--bg-3);
                 font-family: var(--font-mono);
                 font-size: 13px;
-                background: var(--bg-1);
+                background: var(--bg-2);
                 color: var(--fg-1);
+                transition: all 0.2s ease;
+            }
+            .curl-textarea:focus {
+                outline: none;
+                background-color: var(--bg-1);
+                border-color: var(--fg-accent);
             }
             .curl-submit-button {
                 margin-top: var(--padding-3);
-                padding: var(--padding-3) var(--padding-4);
-                border-radius: var(--radius);
-                border: none;
+                padding: var(--padding-w2);
+                border-radius: calc(var(--radius-large) * 20);
+                border: 2px solid transparent;
                 background: var(--fg-1);
                 color: var(--bg-1);
                 margin-left: auto;
                 font-size: 14px;
                 font-weight: 600;
                 cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: var(--gap-2);
+                transition: all 0.2s ease;
+            }
+            .curl-submit-button:hover {
+                background-color: transparent;
+                border: 2px solid var(--fg-1);
+                color: var(--fg-1);
             }
         `,
     ];
@@ -299,7 +411,8 @@ class HttpElement extends LitElement {
         _statusText: { type: String, state: true },
         _loading: { type: Boolean, state: true },
         _error: { type: String, state: true },
-        _headers: { type: Object, state: true },
+        _headers: { type: Array, state: true },
+        _showHeaders: { type: Boolean, state: true },
         _savedResponse: { type: Object, state: true },
         _showCurlDialog: { type: Boolean, state: true },
     };
@@ -315,7 +428,8 @@ class HttpElement extends LitElement {
         this._statusText = '';
         this._loading = false;
         this._error = '';
-        this._headers = { 'Content-Type': 'application/json' };
+        this._headers = [{ key: 'Content-Type', value: 'application/json', id: Date.now() }];
+        this._showHeaders = false;
         this._savedResponse = null;
         this._showCurlDialog = false;
     }
@@ -323,13 +437,15 @@ class HttpElement extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         if (this._savedResponse) {
-            this._url = this._savedResponse.url;
-            this._method = this._savedResponse.method;
-            this._status = this._savedResponse.status;
-            this._statusText = this._savedResponse.statusText;
-            this._response = this._savedResponse.response;
-            this._body = this._savedResponse.body;
-            this._showBody = !!this._body;
+            this._url = this._savedResponse.url || '';
+            this._method = this._savedResponse.method || 'GET';
+            this._status = this._savedResponse.status || 0;
+            this._statusText = this._savedResponse.statusText || '';
+            this._response = this._savedResponse.response || '';
+            this._body = this._savedResponse.body || '';
+            this._showBody = this._savedResponse.showBody !== undefined ? this._savedResponse.showBody : !!this._body;
+            this._headers = this._savedResponse.headers || [{ key: 'Content-Type', value: 'application/json', id: Date.now() }];
+            this._showHeaders = this._savedResponse.showHeaders !== undefined ? this._savedResponse.showHeaders : false;
         }
     }
 
@@ -340,6 +456,7 @@ class HttpElement extends LitElement {
             body: this._body,
             showBody: this._showBody,
             headers: this._headers,
+            showHeaders: this._showHeaders,
             savedResponse: this._savedResponse,
         };
     }
@@ -350,7 +467,22 @@ class HttpElement extends LitElement {
         if (value.body !== undefined) this._body = value.body;
         if (value.showBody !== undefined) this._showBody = value.showBody;
         if (value.headers !== undefined) this._headers = value.headers;
-        if (value.savedResponse !== undefined) this._savedResponse = value.savedResponse;
+        if (value.showHeaders !== undefined) this._showHeaders = value.showHeaders;
+        if (value.savedResponse !== undefined) {
+            this._savedResponse = value.savedResponse;
+            // Restore saved state
+            if (this._savedResponse) {
+                this._url = this._savedResponse.url || this._url;
+                this._method = this._savedResponse.method || this._method;
+                this._status = this._savedResponse.status || 0;
+                this._statusText = this._savedResponse.statusText || '';
+                this._response = this._savedResponse.response || '';
+                this._body = this._savedResponse.body || this._body;
+                this._showBody = this._savedResponse.showBody !== undefined ? this._savedResponse.showBody : this._showBody;
+                this._headers = this._savedResponse.headers || this._headers;
+                this._showHeaders = this._savedResponse.showHeaders !== undefined ? this._savedResponse.showHeaders : this._showHeaders;
+            }
+        }
         this.requestUpdate();
     }
 
@@ -378,6 +510,31 @@ class HttpElement extends LitElement {
         this.sendUpdates();
     }
 
+    toggleHeaders() {
+        this._showHeaders = !this._showHeaders;
+        this.sendUpdates();
+    }
+
+    addHeader() {
+        this._headers = [...this._headers, { key: '', value: '', id: Date.now() }];
+        this.sendUpdates();
+    }
+
+    removeHeader(id) {
+        this._headers = this._headers.filter(h => h.id !== id);
+        this.sendUpdates();
+    }
+
+    updateHeaderKey(id, key) {
+        this._headers = this._headers.map(h => (h.id === id ? { ...h, key } : h));
+        this.sendUpdates();
+    }
+
+    updateHeaderValue(id, value) {
+        this._headers = this._headers.map(h => (h.id === id ? { ...h, value } : h));
+        this.sendUpdates();
+    }
+
     saveResponse() {
         if (this._response && this._status > 0) {
             this._savedResponse = {
@@ -388,6 +545,9 @@ class HttpElement extends LitElement {
                 response: this._response,
                 timestamp: new Date().toISOString(),
                 body: this._body,
+                headers: this._headers,
+                showBody: this._showBody,
+                showHeaders: this._showHeaders,
             };
             this.sendUpdates();
         }
@@ -452,7 +612,7 @@ class HttpElement extends LitElement {
         if (current) tokens.push(current);
 
         let method = 'GET';
-        let headers = {};
+        let headers = [];
         let body = '';
         let url = '';
         const used = new Array(tokens.length).fill(false);
@@ -476,7 +636,11 @@ class HttpElement extends LitElement {
                 if (i + 1 < tokens.length) {
                     const header = tokens[i + 1].split(':', 2);
                     if (header.length === 2) {
-                        headers[header[0].trim()] = header[1].trim();
+                        headers.push({
+                            key: header[0].trim(),
+                            value: header[1].trim(),
+                            id: Date.now() + headers.length,
+                        });
                     }
                     used[i] = true;
                     used[i + 1] = true;
@@ -503,9 +667,10 @@ class HttpElement extends LitElement {
         // Apply parsed values
         this._url = url;
         this._method = method;
-        this._headers = Object.keys(headers).length ? headers : { 'Content-Type': 'application/json' };
+        this._headers = headers.length ? headers : [{ key: 'Content-Type', value: 'application/json', id: Date.now() }];
         this._body = body;
         this._showBody = !!body;
+        this._showHeaders = headers.length > 0;
         this._showCurlDialog = false;
         this.sendUpdates();
     }
@@ -524,7 +689,16 @@ class HttpElement extends LitElement {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 30000);
-            const options = { method: this._method, headers: this._headers, signal: controller.signal };
+
+            // Convert headers array to object
+            const headersObj = {};
+            this._headers.forEach(h => {
+                if (h.key && h.value) {
+                    headersObj[h.key] = h.value;
+                }
+            });
+
+            const options = { method: this._method, headers: headersObj, signal: controller.signal };
             if (this._showBody && this._body && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(this._method)) options.body = this._body;
 
             const response = await fetch(this._url, options);
@@ -579,6 +753,39 @@ class HttpElement extends LitElement {
                         <button class="send-button" @click="${this.sendRequest}" ?disabled="${this._loading}">
                             ${this._loading ? 'Sending...' : 'Send'}
                         </button>
+                    </div>
+                </div>
+
+                <div class="headers-section">
+                    <div class="headers-toggle" @click="${this.toggleHeaders}">
+                        <input type="checkbox" .checked="${this._showHeaders}" @change="${this.toggleHeaders}" />
+                        <span>Headers</span>
+                    </div>
+                    <div class="headers-content ${this._showHeaders ? 'visible' : ''}">
+                        <div class="headers-table">
+                            ${this._headers.map(
+                                header => html`
+                                    <div class="headers-row">
+                                        <input
+                                            type="text"
+                                            class="header-key-input"
+                                            placeholder="Header Key"
+                                            .value="${header.key}"
+                                            @input="${e => this.updateHeaderKey(header.id, e.target.value)}"
+                                        />
+                                        <input
+                                            type="text"
+                                            class="header-value-input"
+                                            placeholder="Header Value"
+                                            .value="${header.value}"
+                                            @input="${e => this.updateHeaderValue(header.id, e.target.value)}"
+                                        />
+                                        <button class="remove-header-btn" @click="${() => this.removeHeader(header.id)}">×</button>
+                                    </div>
+                                `
+                            )}
+                        </div>
+                        <button class="add-header-btn" @click="${this.addHeader}">+ Add Header</button>
                     </div>
                 </div>
 

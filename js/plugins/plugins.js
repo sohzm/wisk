@@ -190,6 +190,7 @@ function addToNavBar(content, inx) {
     if (content.title == 'Options') {
         button.style.order = 1000;
         button.classList.add('options-button');
+        button.classList.add('options-button-main');
     }
 
     // Handle nav-mini category differently

@@ -190,7 +190,7 @@ class PluginManager extends LitElement {
         .search-container {
             overflow: hidden;
             transition: width 0.3s ease;
-            width: 50px;
+            width: 60px;
             display: flex;
             align-items: center;
         }
@@ -263,7 +263,6 @@ class PluginManager extends LitElement {
             color: var(--fg-1);
             align-items: center;
             padding: var(--padding-3) 0;
-            border-bottom: solid 1px var(--bg-2);
             border-radius: 0;
         }
         .content-section--column {
@@ -403,6 +402,12 @@ class PluginManager extends LitElement {
         showPluginSearch: { type: Boolean },
     };
 
+    opened() {
+        this.searchTerm = '';
+        this.currentView = 'plugins';
+        this.requestUpdate();
+    }
+
     constructor() {
         super();
         this.plugins = [];
@@ -524,6 +529,7 @@ class PluginManager extends LitElement {
                                     }}"
                                     class="icon"
                                     draggable="false"
+                                    onboarding-plugins-close
                                     style="padding: var(--padding-3);"
                                 />
                             </div>
