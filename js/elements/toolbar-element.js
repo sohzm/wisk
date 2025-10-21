@@ -19,42 +19,39 @@ class ToolbarElement extends LitElement {
             position: fixed;
             background: var(--bg-1);
             border: 1px solid var(--border-1);
-            border-radius: calc(var(--radius-large) * 10);
+            border-radius: calc(20 * var(--radius-large));
             filter: var(--drop-shadow);
-            padding: var(--padding-2);
-            gap: var(--gap-2);
+            padding: var(--padding-1);
+            gap: var(--gap-1);
             z-index: 99;
             display: none;
             width: max-content;
-            transform: translateZ(0); /* Prevents jittering */
+            transform: translateZ(0);
             transition: all 0.2s ease;
-        }
-
-        @media (max-width: 1150px) {
-            .toolbar {
-                position: fixed;
-                background: var(--bg-3);
-                border: none;
-                border-radius: var(--radius-large);
-                padding: var(--padding-4);
-                gap: var(--gap-2);
-                filter: none;
-                z-index: 99;
-                display: none;
-                transform: translateZ(0);
-                width: calc(100% - 2 * var(--padding-4));
-                bottom: var(--padding-4);
-                flex-direction: column;
-                height: 90%;
-                height: 500px;
-            }
         }
 
         @media (max-width: 500px) {
             .toolbar {
                 position: fixed;
-                width: 60vw;
-                height: 400px;
+                background: var(--bg-1);
+                border: none;
+                border-radius: 0;
+                border-top-left-radius: var(--radius-large);
+                border-top-right-radius: var(--radius-large);
+                padding: var(--padding-3);
+                gap: var(--gap-2);
+                filter: var(--drop-shadow);
+                z-index: 9999;
+                display: none;
+                transform: translateZ(0);
+                width: 100%;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                margin: 0;
+                height: 90svh;
+                max-height: 90svh;
+                flex-direction: column;
             }
         }
 
@@ -62,51 +59,146 @@ class ToolbarElement extends LitElement {
             display: flex;
         }
 
-        .toolbar button {
-            background: var(--bg-1);
+        /* Standard toolbar button pattern */
+        .toolbar-btn {
+            background: transparent;
             border: none;
-            width: 28px;
-            height: 26px;
-            border-radius: calc(var(--radius-large) * 10);
+            padding: var(--padding-2);
+            border-radius: calc(var(--radius-large)*20);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--fg-1);
-            transition: background 0.2s ease-in-out;
-            gap: var(--gap-2);
-            opacity: 1;
+            transition: all 0.2s ease;
             user-select: none;
         }
 
-        @media (max-width: 1150px) {
-            .toolbar button {
-                min-height: 30px;
-                border-radius: var(--radius);
-                flex: 1;
-            }
-        }
-
-        .toolbar button[data-wide] {
-            padding: 2px 6px;
-            width: auto;
-        }
-
-        .toolbar button:hover {
+        .toolbar-btn:hover {
             background: var(--bg-3);
-            opacity: 1;
+        }
+
+        .toolbar-btn.wide {
+            padding: var(--padding-w1);
+            gap: var(--gap-2);
+            width: auto;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        img {
+            filter: var(--themed-svg);
+        }
+
+        .toolbar-btn img {
+            width: 16px;
+            height: 16px;
         }
 
         .separator {
             background: var(--border-1);
             height: auto;
             width: 1px;
-            opacity: 0.5;
+            opacity: 0.3;
         }
 
-        img {
-            filter: var(--themed-svg);
-            height: 19px;
+        /* AI command/dialog button icons */
+        .ai-commands-btn {
+            width: 100%;
+            text-align: left;
+            padding: var(--padding-2);
+            background: transparent;
+            justify-content: flex-start;
+            gap: var(--gap-2);
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            color: var(--fg-1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-commands-btn:hover {
+            background: var(--bg-3);
+        }
+
+        .ai-commands-btn img {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Submenu buttons */
+        .submenu-btn {
+            padding: var(--padding-w1);
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: transparent;
+            color: var(--fg-1);
+            cursor: pointer;
+            border-radius: var(--radius);
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+        }
+
+        .submenu-btn:hover {
+            background: var(--bg-3);
+        }
+
+        .submenu-btn img {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Dialog action buttons */
+        .dialog-buttons img {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Mobile sections */
+        .mobile-section {
+            display: none;
+        }
+
+        @media (max-width: 500px) {
+            .mobile-section {
+                display: flex;
+                flex-direction: column;
+                gap: var(--gap-2);
+            }
+
+            .desktop-only {
+                display: none;
+            }
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--fg-2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--gap-1);
+        }
+
+        .selected-text-preview {
+            padding: var(--padding-3);
+            border-radius: var(--radius);
+            background: var(--bg-2);
+            color: var(--fg-2);
+            font-size: 14px;
+            text-align: center;
+            max-height: 100px;
+            overflow-y: auto;
+            word-break: break-word;
+            flex-shrink: 0;
         }
 
         .dialog-container {
@@ -119,15 +211,15 @@ class ToolbarElement extends LitElement {
             display: flex;
         }
 
-        @media (max-width: 1150px) {
+        @media (max-width: 500px) {
             .dialog-container {
                 flex: 1;
                 overflow: auto;
-                background: var(--bg-3);
+                background: var(--bg-1);
             }
         }
 
-        @media (min-width: 1150px) {
+        @media (min-width: 501px) {
             .dialog-container {
                 position: absolute;
                 top: 100%;
@@ -137,7 +229,7 @@ class ToolbarElement extends LitElement {
                 max-height: 500px;
                 background: var(--bg-1);
                 border: 1px solid var(--border-1);
-                border-radius: var(--radius);
+                border-radius: var(--radius-large);
                 filter: var(--drop-shadow);
                 padding: var(--padding-3);
                 display: flex;
@@ -154,40 +246,85 @@ class ToolbarElement extends LitElement {
             height: 100%;
         }
 
+        .dialog-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--fg-1);
+            margin-bottom: var(--gap-3);
+            display: none;
+        }
+
         .dialog-buttons {
             display: flex;
-            gap: 8px;
+            gap: var(--gap-2);
             justify-content: flex-end;
-            margin-top: 8px;
+            margin-top: var(--gap-3);
         }
 
-        .dialog button {
-            padding: 8px 16px;
-            border: 1px solid var(--border-1);
-            border-radius: var(--radius);
+        /* Button styles following design system */
+        .btn-primary {
+            background: var(--fg-1);
+            color: var(--bg-1);
+            padding: var(--padding-w2);
+            font-weight: 600;
+            border-radius: calc(var(--radius-large) * 20);
+            border: 2px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--gap-2);
+            font-size: 14px;
+            transition: all 0.2s ease;
             cursor: pointer;
-            color: var(--fg-1);
-            width: auto;
-            height: auto;
         }
 
-        .dialog button.cancel {
-            background: var(--bg-1);
-            border: none;
+        .btn-primary:hover {
+            background-color: transparent;
+            border: 2px solid var(--fg-1);
+            color: var(--fg-1);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-1);
+            border: 2px solid var(--bg-3);
+            color: var(--fg-1);
+            font-weight: 500;
+            padding: var(--padding-w2);
+            border-radius: calc(var(--radius-large) * 20);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--gap-2);
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-3);
+        }
+
+        .btn-tertiary {
+            background-color: transparent;
+            border: 2px solid transparent;
+            color: var(--fg-1);
+            font-weight: 500;
+            padding: var(--padding-w2);
+            border-radius: calc(var(--radius-large) * 20);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--gap-2);
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-tertiary:hover {
+            background-color: var(--bg-3);
         }
 
         .ai-commands {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-        }
-
-        .ai-commands button {
-            width: 100%;
-            text-align: left;
-            padding: 8px;
-            background: var(--bg-1);
-            justify-content: flex-start;
+            gap: 0;
         }
 
         .source-item {
@@ -229,9 +366,10 @@ class ToolbarElement extends LitElement {
             border-radius: calc(var(--radius-large) * 10);
         }
 
-        @media (max-width: 1150px) {
+        @media (max-width: 500px) {
             .loading-overlay {
-                border-radius: var(--radius-large);
+                border-top-left-radius: var(--radius-large);
+                border-top-right-radius: var(--radius-large);
                 border-bottom-left-radius: 0;
                 border-bottom-right-radius: 0;
             }
@@ -295,50 +433,54 @@ class ToolbarElement extends LitElement {
         .command-section {
             display: flex;
             flex-direction: column;
+            gap: 0;
         }
 
-        .command-section h3 {
-            font-size: 11px;
-            color: var(--fg-2);
-            margin-bottom: 4px;
-            font-weight: 500;
-        }
-
-        .ai-input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid var(--border-1);
-            border-radius: var(--radius);
-            background: var(--bg-1);
-            color: var(--fg-1);
-            margin-bottom: 16px;
-            flex: 1;
-            width: auto;
-            margin-bottom: 0;
-            border: none;
-            background-color: transparent;
-        }
-
-        .ai-commands button {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            text-align: left;
-            padding: var(--padding-2);
-            background: var(--bg-1);
-            border: none;
-            border-radius: 4px;
+        /* Form input following design system */
+        .form-input {
+            padding: var(--padding-w2);
+            border: 2px solid var(--bg-3);
+            border-radius: calc(var(--radius) * 20);
+            background-color: var(--bg-2);
             color: var(--fg-1);
             font-size: 14px;
-            cursor: pointer;
-            transition: background 0.2s ease;
+            outline: none;
+            transition: all 0.2s ease;
+            width: 100%;
         }
 
-        .ai-commands button:hover {
-            background: var(--bg-2);
+        .form-input:focus {
+            background-color: var(--bg-1);
+            border-color: var(--fg-accent);
         }
 
-        .submenu-container {
+        .form-input::placeholder {
+            color: var(--fg-2);
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+            padding: var(--padding-w2);
+            border: 2px solid var(--bg-3);
+            border-radius: var(--radius);
+            background-color: var(--bg-2);
+            transition: all 0.2s ease;
+        }
+
+        .input-container:has(input:focus) {
+            border-color: var(--fg-accent);
+            background-color: var(--bg-1);
+        }
+
+        .input-container input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: var(--fg-1);
+            outline: none;
+            font-size: 14px;
         }
 
         .submenu-container:hover .submenu {
@@ -347,8 +489,6 @@ class ToolbarElement extends LitElement {
 
         .submenu {
             display: none;
-            left: 100%;
-            top: 0;
             background: var(--bg-1);
             border: 1px solid var(--border-1);
             border-radius: var(--radius);
@@ -356,49 +496,40 @@ class ToolbarElement extends LitElement {
             min-width: 150px;
             z-index: 1002;
             overflow: hidden;
+            padding: var(--padding-1);
         }
 
-        @media (min-width: 1150px) {
+        @media (min-width: 501px) {
+            .submenu-container {
+                position: relative;
+            }
+
             .submenu {
                 position: absolute;
+                left: calc(100% - 8px);
+                top: 0;
             }
         }
 
-        .submenu button {
-            padding: var(--padding-2) var(--padding-3);
-            width: 100%;
-            text-align: left;
-            border: none;
-            background: transparent;
-            color: var(--fg-1);
-            cursor: pointer;
-        }
+        @media (max-width: 500px) {
+            .submenu {
+                position: static;
+                margin-left: var(--padding-3);
+                margin-top: var(--gap-2);
+                border: none;
+                box-shadow: none;
+                padding: 0;
+                background: transparent;
+            }
 
-        .submenu button:hover {
-            background: var(--bg-2);
+            .submenu-container:hover .submenu,
+            .submenu {
+                display: block;
+            }
         }
 
         .submenu-trigger {
             position: relative;
-        }
-
-        .translate-menu {
-            left: 90%;
-            top: 20%;
-        }
-
-        .paraphrase-menu {
-            left: 90%;
-            top: 30%;
-        }
-
-        .tone-menu {
-            left: 90%;
-            top: 70%;
-        }
-
-        input {
-            outline: none;
         }
 
         .preview-container {
@@ -409,97 +540,22 @@ class ToolbarElement extends LitElement {
         .preview-content {
             padding: var(--padding-3);
             border-radius: var(--radius);
-            margin-bottom: var(--padding-3);
+            background: var(--bg-2);
+            margin-bottom: var(--gap-3);
             white-space: pre-wrap;
             user-select: text;
-        }
-
-        .preview-buttons {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-
-        .preview-buttons button {
-            padding: 8px 16px;
-            border: 1px solid var(--border-1);
-            border-radius: var(--radius);
-            cursor: pointer;
-            color: var(--bg-1);
-        }
-
-        .preview-buttons button.accept {
-            background: var(--fg-accent);
-            border: none;
-        }
-
-        .preview-buttons button.accept:hover {
-            background: var(--fg-2);
-        }
-
-        .preview-buttons button.discard {
-            background: transparent;
-            color: var(--fg-1);
-            border: none;
-        }
-
-        .od {
-            color: var(--fg-1);
-            background-color: var(--bg-2);
-            border-radius: var(--radius);
-            outline: none;
-            border: 2px solid var(--bg-3);
-            transition: all 0.2s ease;
-            margin: 2px;
-            display: flex;
-            gap: var(--gap-1);
-            align-items: center;
-            flex-wrap: wrap;
-            padding: var(--padding-1) var(--padding-3);
-            margin-bottom: 16px;
-        }
-
-        .od:has(input:focus) {
-            border-color: var(--fg-accent);
-            background-color: var(--bg-1);
-        }
-
-        .save {
-            background: var(--bg-2);
-            border: 1px solid var(--border-1);
-            color: var(--fg-1);
-        }
-
-        .save:hover {
-            background: var(--bg-3);
-        }
-
-        .dialog-buttons button.save {
-            background: var(--bg-2);
-            border: 1px solid var(--border-1);
+            font-size: 14px;
+            line-height: 1.6;
         }
 
         .color-menu {
-            display: none;
-            position: absolute;
-            left: 100%;
-            transform: translateX(-50%);
-            top: 100%;
-            background: var(--bg-1);
-            border: 1px solid var(--border-1);
-            border-radius: var(--radius);
-            box-shadow: var(--drop-shadow);
-            padding: var(--padding-4);
-            z-index: 1002;
-            margin-top: calc(var(--padding-2) * -1);
-        }
-
-        .submenu-container:hover .color-menu {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-3);
         }
 
         .color-section {
-            margin-bottom: var(--padding-4);
+            margin-bottom: var(--gap-2);
         }
 
         .color-section:last-child {
@@ -510,8 +566,9 @@ class ToolbarElement extends LitElement {
             font-size: 11px;
             text-transform: uppercase;
             color: var(--fg-2);
-            margin-bottom: 4px;
+            margin-bottom: var(--gap-1);
             font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
         .color-grid {
@@ -521,85 +578,170 @@ class ToolbarElement extends LitElement {
         }
 
         .color-option {
-            width: 30px;
-            height: 30px;
+            height: 32px;
             border-radius: var(--radius);
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s ease;
             position: relative;
+            border: 2px solid transparent;
         }
 
         .color-option:hover {
-            transform: scale(1.1);
+            transform: scale(1.05);
+            border-color: var(--fg-1);
         }
 
-        .submenu-container:hover .color-submenu {
-            display: block;
+        /* Color indicator previews inside dropdown */
+        .color-preview-row {
+            display: flex;
+            gap: var(--gap-2);
+            margin-bottom: var(--gap-2);
+            align-items: center;
         }
 
-        .selected-text-mob {
-            border: 1px solid var(--border-1);
-            padding: var(--padding-4);
-            border-radius: var(--radius-large);
+        .color-preview-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: var(--padding-2);
             background: var(--bg-2);
-            text-align: center;
+            border-radius: var(--radius);
+            flex: 1;
         }
 
-        @media (max-width: 1150px) {
+        .color-preview-text {
+            font-family: Georgia, serif;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .color-preview-bg {
+            width: 24px;
+            height: 24px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-1);
+        }
+
+        .color-preview-label {
+            font-size: 12px;
+            color: var(--fg-2);
+            font-weight: 500;
+        }
+
+        @media (max-width: 500px) {
             @starting-style {
                 .toolbar {
-                    bottom: -100%;
+                    transform: translateY(100%);
                 }
             }
-            .color-menu {
-                left: 0;
-                width: 100%;
-                transform: none;
-                top: unset;
-            }
-            .color-option {
-                width: 100%;
-                height: 20px;
-            }
-            .color-grid {
-                grid-template-columns: repeat(8, 1fr);
-                gap: var(--gap-1);
+
+            .backdrop {
+                background: rgba(0, 0, 0, 0.5);
             }
         }
 
-        @media (max-width: 1150px) {
-            .ai-commands button,
-            .submenu {
-                background: var(--bg-3);
-            }
-        }
-
-        .mob-input {
+        /* Mobile sheet handle */
+        .sheet-handle {
             display: none;
         }
 
-        @media (max-width: 1150px) {
-            .submenu {
-                margin: var(--padding-1);
-                margin-left: 21px;
-                display: block;
+        @media (max-width: 500px) {
+            .sheet-handle {
+                display: flex;
+                justify-content: center;
+                padding: var(--padding-2) 0;
+                margin-bottom: var(--gap-2);
             }
-            .mobhide {
-                display: none;
+
+            .sheet-handle-bar {
+                width: 40px;
+                height: 4px;
+                background: var(--fg-2);
+                border-radius: 2px;
+                opacity: 0.4;
             }
-            .mob-input {
-                display: block;
-                width: 100%;
-                padding: var(--padding-w2);
-                border: 2px solid transparent;
-                border-radius: calc(var(--radius-large) * 10);
-                background: var(--bg-1);
-                color: var(--fg-1);
-            }
-            .mob-input:focus {
-                border-color: var(--fg-accent);
-                background-color: var(--bg-1);
-            }
+        }
+
+        /* Mobile-specific button styles */
+        .mobile-action-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+            padding: var(--padding-w1);
+            background: transparent;
+            border: none;
+            border-radius: var(--radius);
+            color: var(--fg-1);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            text-align: left;
+            justify-content: flex-start;
+        }
+
+        .mobile-action-btn:hover {
+            background: var(--bg-3);
+        }
+
+        .mobile-action-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .mobile-header {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-2);
+            margin-bottom: var(--gap-3);
+            padding-bottom: var(--padding-2);
+            border-bottom: 1px solid var(--border-1);
+        }
+
+        .mobile-back-btn {
+            background: transparent;
+            border: none;
+            padding: var(--padding-2);
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--fg-1);
+            transition: all 0.2s ease;
+        }
+
+        .mobile-back-btn:hover {
+            background: var(--bg-3);
+        }
+
+        .mobile-back-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .mobile-header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--fg-1);
+        }
+
+        .mobile-section-divider {
+            height: 1px;
+            background: var(--border-1);
+            margin: var(--gap-2) 0;
+            opacity: 0.5;
+        }
+
+        /* Mobile scrollable content wrapper */
+        .mobile-scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-2);
         }
     `;
 
@@ -619,6 +761,7 @@ class ToolbarElement extends LitElement {
         activeTextColor: { type: String, state: true },
         activeBackgroundColor: { type: String, state: true },
         isMobile: { type: Boolean, state: true },
+        mobileView: { type: String, state: true }, // 'main', 'translate', 'tone', 'paraphrase', 'color', 'link'
     };
 
     constructor() {
@@ -635,7 +778,8 @@ class ToolbarElement extends LitElement {
         this.previewText = '';
         this.citations = [];
         this.showCitationsDialog = false;
-        this.isMobile = window.innerWidth < 1150;
+        this.isMobile = window.innerWidth < 500;
+        this.mobileView = 'main';
 
         this.colorOptions = {
             red: { fg: 'var(--fg-red)', bg: 'var(--bg-red)', name: 'Red' },
@@ -663,10 +807,26 @@ class ToolbarElement extends LitElement {
         }
 
         this._resizeListener = () => {
-            this.isMobile = window.innerWidth < 1150;
+            this.isMobile = window.innerWidth < 500;
             this.updateToolbarPosition();
         };
         window.addEventListener('resize', this._resizeListener);
+
+        // Add popstate listener for back button on mobile
+        this._popstateListener = (e) => {
+            // When user presses back and toolbar is visible
+            if (this.visible && this.isMobile) {
+                // Check if we're in a submenu
+                if (this.mobileView !== 'main') {
+                    // Go back to main view
+                    this.mobileView = 'main';
+                } else {
+                    // Close toolbar completely
+                    this.hideToolbar(true);
+                }
+            }
+        };
+        window.addEventListener('popstate', this._popstateListener);
     }
 
     disconnectedCallback() {
@@ -680,6 +840,10 @@ class ToolbarElement extends LitElement {
 
         if (this._resizeListener) {
             window.removeEventListener('resize', this._resizeListener);
+        }
+
+        if (this._popstateListener) {
+            window.removeEventListener('popstate', this._popstateListener);
         }
     }
 
@@ -711,6 +875,25 @@ class ToolbarElement extends LitElement {
         this.closeDialog();
     }
 
+    navigateToMobileView(view) {
+        // Navigate to a mobile submenu and add to history
+        if (this.isMobile && view !== 'main') {
+            history.pushState({ toolbarOpen: true, mobileView: view }, '');
+        }
+        this.mobileView = view;
+    }
+
+    goBackInMobileView(fromButton = false) {
+        // If triggered from UI button, just go back in history
+        // The popstate handler will set mobileView to 'main'
+        if (fromButton && window.history.state?.mobileView) {
+            history.back();
+        } else {
+            // If not from button (e.g., from popstate), update the view
+            this.mobileView = 'main';
+        }
+    }
+
     updateToolbarPosition() {
         if (!this.visible || !this.elementId) return;
 
@@ -718,8 +901,7 @@ class ToolbarElement extends LitElement {
         if (!toolbar) return;
 
         if (this.isMobile) {
-            toolbar.style.left = 'var(--padding-4)';
-            toolbar.style.top = 'unset';
+            // CSS handles mobile positioning (bottom sheet)
             return;
         }
 
@@ -786,6 +968,11 @@ class ToolbarElement extends LitElement {
             case 'ai-improve':
                 this.mode = 'dialog';
                 this.dialogName = 'ai-chat';
+                break;
+
+            case 'color':
+                this.mode = 'dialog';
+                this.dialogName = 'color';
                 break;
 
             case 'find-source':
@@ -952,12 +1139,26 @@ class ToolbarElement extends LitElement {
             return;
         }
 
-        this.shadowRoot.querySelector('.mob-input').value = '';
+        // Don't render toolbar on mobile (width < 500)
+        if (window.innerWidth < 500) {
+            return;
+        }
+
+        // Clear mobile AI input if it exists
+        const mobileInput = this.shadowRoot.querySelector('.mobile-section .form-input');
+        if (mobileInput) {
+            mobileInput.value = '';
+        }
 
         this.selectedText = selectedText;
         this.elementId = elementId;
         this.elementText = elementText;
         this.visible = true;
+
+        // Add to history on mobile so back button closes the toolbar
+        if (this.isMobile) {
+            history.pushState({ toolbarOpen: true }, '');
+        }
 
         // Run in next frame to ensure DOM is updated
         setTimeout(() => {
@@ -965,10 +1166,26 @@ class ToolbarElement extends LitElement {
         }, 0);
     }
 
-    hideToolbar() {
+    hideToolbar(fromPopstate = false) {
+        if (!this.visible) return; // Don't do anything if already hidden
+
+        const wasInSubview = this.mobileView !== 'main';
+
         this.visible = false;
         this.mode = 'simple';
         this.dialogName = '';
+        this.mobileView = 'main';
+
+        // If on mobile and not triggered by popstate, go back in history
+        if (this.isMobile && !fromPopstate) {
+            // If we were in a subview, we need to pop twice (subview + toolbar open)
+            // If we were in main view, we only need to pop once (toolbar open)
+            if (wasInSubview && window.history.state?.mobileView) {
+                history.go(-2);
+            } else if (window.history.state?.toolbarOpen) {
+                history.back();
+            }
+        }
     }
 
     async handleCreateReference(source) {
@@ -1095,28 +1312,28 @@ class ToolbarElement extends LitElement {
         return html`
             <div class="color-menu">
                 <div class="color-section">
-                    <h3 style="user-select: none;">Text Color</h3>
+                    <h3>Text Color</h3>
                     <div class="color-grid">
                         ${Object.entries(this.colorOptions).map(
                             ([key, color]) => html`
                                 <div
                                     class="color-option ${color.fg === this.activeTextColor ? 'active' : ''}"
-                                    style="background-color: ${color.fg}"
+                                    style="color: ${color.fg}; display: flex; align-items: center; justify-content: center; border: 1px solid ${color.fg};"
                                     @click=${() => this._handleTextColorClick(color.fg)}
                                     title="${color.name}"
-                                ></div>
+                                >Aa</div>
                             `
                         )}
                     </div>
                 </div>
                 <div class="color-section">
-                    <h3 style="user-select: none;">Background Color</h3>
+                    <h3>Background Color</h3>
                     <div class="color-grid">
                         ${Object.entries(this.colorOptions).map(
                             ([key, color]) => html`
                                 <div
                                     class="color-option ${color.bg === this.activeBackgroundColor ? 'active' : ''}"
-                                    style="background-color: ${color.bg}"
+                                    style="background-color: ${color.bg}; border: 1px solid ${color.fg}"
                                     @click=${() => this._handleBackgroundColorClick(color.bg)}
                                     title="${color.name}"
                                 ></div>
@@ -1125,37 +1342,6 @@ class ToolbarElement extends LitElement {
                     </div>
                 </div>
             </div>
-        `;
-    }
-
-    // yeah i know this is a mess, but i don't want to refactor it right now
-    renderNonAbsoluteColorMenu() {
-        return html`
-                    <div class="color-grid">
-                        ${Object.entries(this.colorOptions).map(
-                            ([key, color]) => html`
-                                <div
-                                    class="color-option ${color.fg === this.activeTextColor ? 'active' : ''}"
-                                    style="background-color: ${color.fg}"
-                                    @click=${() => this._handleTextColorClick(color.fg)}
-                                    title="${color.name}"
-                                ></div>
-                            `
-                        )}
-                    </div>
-                    <div style="margin-top: var(--gap-2);"></h3>
-                    <div class="color-grid">
-                        ${Object.entries(this.colorOptions).map(
-                            ([key, color]) => html`
-                                <div
-                                    class="color-option ${color.bg === this.activeBackgroundColor ? 'active' : ''}"
-                                    style="background-color: ${color.bg}"
-                                    @click=${() => this._handleBackgroundColorClick(color.bg)}
-                                    title="${color.name}"
-                                ></div>
-                            `
-                        )}
-                    </div>
         `;
     }
 
@@ -1196,11 +1382,12 @@ class ToolbarElement extends LitElement {
             case 'preview':
                 return html`
                     <div class="dialog">
+                        <h3 class="dialog-title">AI Preview</h3>
                         <div class="preview-container">
                             <div class="preview-content">${this.previewText}</div>
-                            <div class="preview-buttons">
-                                <button class="discard" @click=${this.handleDiscardPreview}>Discard</button>
-                                <button class="accept" @click=${this.handleAcceptPreview}>Accept</button>
+                            <div class="dialog-buttons">
+                                <button class="btn-tertiary" @click=${this.handleDiscardPreview}>Discard</button>
+                                <button class="btn-primary" @click=${this.handleAcceptPreview}>Accept</button>
                             </div>
                         </div>
                     </div>
@@ -1209,9 +1396,7 @@ class ToolbarElement extends LitElement {
             case 'citations':
                 return html`
                     <div class="dialog">
-                        <div class="dialog-header">
-                            <h3 style="margin-bottom: var(--gap-3)">Select Citation</h3>
-                        </div>
+                        <h3 class="dialog-title">Select Citation</h3>
                         <div style="overflow: auto; max-height: 400px;">
                             ${this.citations.length === 0
                                 ? html`<p style="line-height: 1.5; font-size: 14px">
@@ -1219,7 +1404,7 @@ class ToolbarElement extends LitElement {
                                       <span
                                           style="background: var(--bg-3); padding: 2px 4px; border-radius: 4px; color: var(--fg-1); display: inline-flex; align-items: center;"
                                       >
-                                          <img src="/a7/forget/source.svg" alt="Source" style="height: 14px; margin-right: 4px;" /> Find Source</span
+                                          <img src="/a7/forget/source.svg" alt="Source" style="width: 14px; height: 14px; margin-right: 4px;" /> Find Source</span
                                       >
                                       option.
                                   </p>`
@@ -1234,11 +1419,7 @@ class ToolbarElement extends LitElement {
                                                           ${citation.publish_date ? ` • ${new Date(citation.publish_date).getFullYear()}` : ''}
                                                       </p>
                                                   </div>
-                                                  <button
-                                                      @click=${() => this.handleInsertCitation(citation)}
-                                                      class="button"
-                                                      style="white-space: nowrap; margin-left: var(--gap-2);"
-                                                  >
+                                                  <button @click=${() => this.handleInsertCitation(citation)} class="btn-secondary" style="white-space: nowrap; margin-left: var(--gap-2);">
                                                       Insert
                                                   </button>
                                               </div>
@@ -1252,20 +1433,31 @@ class ToolbarElement extends LitElement {
             case 'link':
                 return html`
                     <div class="dialog">
-                        <div class="od">
-                            <img src="/a7/forget/link.svg" alt="Link" style="height: 18px; filter: var(--themed-svg);" />
+                        <h3 class="dialog-title">Add Link</h3>
+                        <div class="input-container">
+                            <img src="/a7/forget/link.svg" alt="Link" />
                             <input
                                 type="text"
                                 placeholder="Enter URL"
                                 .value=${this.linkUrl}
                                 @input=${e => (this.linkUrl = e.target.value)}
                                 @keydown=${this.handleLinkKeyDown}
-                                class="ai-input"
                             />
                         </div>
                         <div class="dialog-buttons">
-                            <button class="cancel" @click=${this.closeDialog}>Cancel</button>
-                            <button @click=${this.handleLinkSubmit} class="save">Save</button>
+                            <button class="btn-tertiary" @click=${this.closeDialog}>Cancel</button>
+                            <button class="btn-primary" @click=${this.handleLinkSubmit}>Save</button>
+                        </div>
+                    </div>
+                `;
+
+            case 'color':
+                return html`
+                    <div class="dialog">
+                        <h3 class="dialog-title">Text Colors</h3>
+                        ${this.renderColorMenu()}
+                        <div class="dialog-buttons">
+                            <button class="btn-primary" @click=${this.closeDialog}>Done</button>
                         </div>
                     </div>
                 `;
@@ -1273,111 +1465,107 @@ class ToolbarElement extends LitElement {
             case 'ai-chat':
                 return html`
                     <div class="dialog">
-                        <div class="od">
-                            <img src="/a7/plugins/toolbar/ai.svg" alt="AI" style="height: 24px;" />
-                            <input
-                                type="text"
-                                placeholder="Ask AI anything..."
-                                class="ai-input"
-                                @keydown=${e => e.key === 'Enter' && this.handleToolbarAction('ai-custom', e.target.value)}
-                            />
-                        </div>
+                        <h3 class="dialog-title">Neo AI</h3>
+                        <input
+                            type="text"
+                            placeholder="Ask AI anything..."
+                            class="form-input"
+                            @keydown=${e => e.key === 'Enter' && this.handleToolbarAction('ai-custom', e.target.value)}
+                            style="margin-bottom: var(--gap-3);"
+                        />
                         <div class="ai-commands">
                             <div class="command-section">
-                                <h3>Suggested</h3>
-                                <button @click=${() => this.handleToolbarAction('ai-operation', 'autocomplete-this-paragraph')}>
-                                    <img src="/a7/plugins/toolbar/autocomplete.svg" alt="wand" style="height: 16px;" /> AI Autocomplete
+                                <button @click=${() => this.handleToolbarAction('ai-operation', 'autocomplete-this-paragraph')} class="ai-commands-btn">
+                                    <img src="/a7/plugins/toolbar/autocomplete.svg" alt="wand" /> AI Autocomplete
                                 </button>
-                                <button @click=${() => this.handleToolbarAction('ai-operation', 'improve-writing')}>
-                                    <img src="/a7/plugins/toolbar/wand.svg" alt="wand" style="height: 16px;" /> Improve writing
+                                <button @click=${() => this.handleToolbarAction('ai-operation', 'improve-writing')} class="ai-commands-btn">
+                                    <img src="/a7/plugins/toolbar/wand.svg" alt="wand" /> Improve writing
                                 </button>
-                                <button @click=${() => this.handleToolbarAction('ai-operation', 'fix-spelling-grammar')}>
-                                    <img src="/a7/plugins/toolbar/check.svg" alt="check" style="height: 16px;" /> Fix spelling & grammar
+                                <button @click=${() => this.handleToolbarAction('ai-operation', 'fix-spelling-grammar')} class="ai-commands-btn">
+                                    <img src="/a7/plugins/toolbar/check.svg" alt="check" /> Fix spelling & grammar
                                 </button>
                                 <div class="submenu-container">
-                                    <button class="submenu-trigger">
-                                        <img src="/a7/plugins/toolbar/translate.svg" alt="Translate" style="height: 16px;" /> Translate to
+                                    <button class="ai-commands-btn submenu-trigger">
+                                        <img src="/a7/plugins/toolbar/translate.svg" alt="Translate" /> Translate to
                                         <div style="flex: 1"></div>
-                                        <img src="/a7/plugins/toolbar/right.svg" alt=">" style="height: 14px;" />
+                                        <img src="/a7/plugins/toolbar/right.svg" alt=">" />
                                     </button>
                                     <div class="submenu translate-menu">
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ko')}>Korean</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-zh')}>Chinese</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ja')}>Japanese</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-en')}>English</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-es')}>Spanish</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-fr')}>French</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-de')}>German</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-it')}>Italian</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-pt')}>Portuguese</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-id')}>Indonesian</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-vi')}>Vietnamese</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-th')}>Thai</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-hi')}>Hindi</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-mr')}>Marathi</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ar')}>Arabic</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ru')}>Russian</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ko')} class="submenu-btn">Korean</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-zh')} class="submenu-btn">Chinese</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ja')} class="submenu-btn">Japanese</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-en')} class="submenu-btn">English</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-es')} class="submenu-btn">Spanish</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-fr')} class="submenu-btn">French</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-de')} class="submenu-btn">German</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-it')} class="submenu-btn">Italian</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-pt')} class="submenu-btn">Portuguese</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-id')} class="submenu-btn">Indonesian</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-vi')} class="submenu-btn">Vietnamese</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-th')} class="submenu-btn">Thai</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-hi')} class="submenu-btn">Hindi</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-mr')} class="submenu-btn">Marathi</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ar')} class="submenu-btn">Arabic</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ru')} class="submenu-btn">Russian</button>
                                     </div>
                                 </div>
                                 <div class="submenu-container">
-                                    <button class="submenu-trigger">
-                                        <img src="/a7/plugins/toolbar/refresh.svg" alt="Translate" style="height: 16px;" /> Paraphrase
+                                    <button class="ai-commands-btn submenu-trigger">
+                                        <img src="/a7/plugins/toolbar/refresh.svg" alt="Paraphrase" /> Paraphrase
                                         <div style="flex: 1"></div>
-                                        <img src="/a7/plugins/toolbar/right.svg" alt=">" style="height: 14px;" />
+                                        <img src="/a7/plugins/toolbar/right.svg" alt=">" />
                                     </button>
                                     <div class="submenu paraphrase-menu">
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-academically')}>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-academically')} class="submenu-btn">
                                             Academically
                                         </button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-casually')}>Casually</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-persuasively')}>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-casually')} class="submenu-btn">Casually</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-persuasively')} class="submenu-btn">
                                             Persuasively
                                         </button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-boldly')}>Boldly</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-straightforwardly')}>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-boldly')} class="submenu-btn">Boldly</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-straightforwardly')} class="submenu-btn">
                                             Straightforwardly
                                         </button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-friendly')}>Friendly</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-friendly')} class="submenu-btn">Friendly</button>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="command-section">
-                                <h3>Research</h3>
-                                <button @click=${() => this.handleToolbarAction('ai-operation', 'define/explain')}>
-                                    <img src="/a7/plugins/toolbar/mean.svg" alt="check" style="height: 16px;" /> Define/Explain
+                                <button @click=${() => this.handleToolbarAction('ai-operation', 'define/explain')} class="ai-commands-btn">
+                                    <img src="/a7/plugins/toolbar/mean.svg" alt="check" /> Define/Explain
                                 </button>
-                                <button @click=${() => this.handleToolbarAction('ai-operation', 'improve-writing')}>
-                                    <img src="/a7/plugins/toolbar/edit.svg" alt="wand" style="height: 16px;" /> Write opposing argument
+                                <button @click=${() => this.handleToolbarAction('ai-operation', 'improve-writing')} class="ai-commands-btn">
+                                    <img src="/a7/plugins/toolbar/edit.svg" alt="wand" /> Write opposing argument
                                 </button>
                             </div>
 
                             <div class="command-section">
-                                <h3>Edit</h3>
-                                <button @click=${() => this.handleToolbarAction('ai-operation', 'make-shorter')}>
-                                    <img src="/a7/plugins/toolbar/shorter.svg" alt="Shorten" style="height: 16px;" /> Make shorter
+                                <button @click=${() => this.handleToolbarAction('ai-operation', 'make-shorter')} class="ai-commands-btn">
+                                    <img src="/a7/plugins/toolbar/shorter.svg" alt="Shorten" /> Make shorter
                                 </button>
-                                <button @click=${() => this.handleToolbarAction('ai-operation', 'make-longer')}>
-                                    <img src="/a7/plugins/toolbar/longer.svg" alt="Lengthen" style="height: 16px;" /> Make longer
+                                <button @click=${() => this.handleToolbarAction('ai-operation', 'make-longer')} class="ai-commands-btn">
+                                    <img src="/a7/plugins/toolbar/longer.svg" alt="Lengthen" /> Make longer
                                 </button>
                                 <div class="submenu-container">
-                                    <button class="submenu-trigger">
-                                        <img src="/a7/plugins/toolbar/tone.svg" alt="Tone" style="height: 16px;" /> Change tone
+                                    <button class="ai-commands-btn submenu-trigger">
+                                        <img src="/a7/plugins/toolbar/tone.svg" alt="Tone" /> Change tone
                                         <div style="flex: 1"></div>
-                                        <img src="/a7/plugins/toolbar/right.svg" alt=">" style="height: 14px;" />
+                                        <img src="/a7/plugins/toolbar/right.svg" alt=">" />
                                     </button>
                                     <div class="submenu tone-menu">
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-professional')}>Professional</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-casual')}>Casual</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-straightforward')}>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-professional')} class="submenu-btn">Professional</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-casual')} class="submenu-btn">Casual</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-straightforward')} class="submenu-btn">
                                             Straightforward
                                         </button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-confident')}>Confident</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-friendly')}>Friendly</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-confident')} class="submenu-btn">Confident</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-friendly')} class="submenu-btn">Friendly</button>
                                     </div>
                                 </div>
-                                <button @click=${() => this.handleToolbarAction('ai-operation', 'simplify')}>
-                                    <img src="/a7/plugins/toolbar/simplify.svg" alt="Simplify" style="height: 16px;" /> Simplify language
+                                <button @click=${() => this.handleToolbarAction('ai-operation', 'simplify')} class="ai-commands-btn">
+                                    <img src="/a7/plugins/toolbar/simplify.svg" alt="Simplify" /> Simplify language
                                 </button>
                             </div>
                         </div>
@@ -1387,24 +1575,17 @@ class ToolbarElement extends LitElement {
             case 'sources':
                 return html`
                     <div class="dialog">
-                        <div style="display: flex; gap: 8px; margin-bottom: 8px; flex-direction: column">
-                            <div class="od" style="margin-bottom: 0; flex: 1; padding: var(--padding-1) var(--padding-2)">
-                                <input type="text" placeholder="Search sources" id="source-search" .value=${this.selectedText} class="ai-input" />
-                                <button
-                                    style="border: none; font-size: 12px; padding: var(--padding-3); background: transparent"
-                                    @click=${this.updateSearch}
-                                >
-                                    <img src="/a7/plugins/toolbar/search.svg" alt="Search" style="height: 16px; filter: var(--themed-svg)" />
+                        <h3 class="dialog-title">Find Sources</h3>
+                        <div style="display: flex; gap: var(--gap-2); margin-bottom: var(--gap-3); flex-direction: column">
+                            <div class="input-container">
+                                <input type="text" placeholder="Search sources" id="source-search" .value=${this.selectedText} />
+                                <button style="border: none; padding: var(--padding-2); background: transparent; min-width: auto;" @click=${this.updateSearch}>
+                                    <img src="/a7/plugins/toolbar/search.svg" alt="Search" />
                                 </button>
                             </div>
 
-                            <button
-                                @click=${() => this.handleToolbarAction('show-citations')}
-                                title="Add Existing Citation"
-                                data-wide
-                                style="border: none; color: var(--fg-1);"
-                            >
-                                <img src="/a7/forget/list.svg" alt="Citation" style="filter: var(--themed-svg)" /> Show current citations
+                            <button @click=${() => this.handleToolbarAction('show-citations')} class="btn-secondary" style="width: 100%;">
+                                <img src="/a7/forget/list.svg" alt="Citation" /> Show current citations
                             </button>
                         </div>
                         <div style="overflow: auto; padding: var(--padding-3) 0">
@@ -1417,18 +1598,11 @@ class ToolbarElement extends LitElement {
                                           <div class="source-item">
                                               <h3 style="user-select: text">${source.title}</h3>
                                               <p style="user-select: text">${source.content}</p>
-                                              <div
-                                                  style="display: flex; flex-direction: row; justify-content: space-between; width: 100%; align-items: center;"
-                                              >
+                                              <div style="display: flex; flex-direction: row; justify-content: space-between; width: 100%; align-items: center;">
                                                   <a class="url" href=${source.url} target="_blank"
                                                       >${source.url.length > 40 ? source.url.slice(0, 40) + '...' : source.url}</a
                                                   >
-                                                  <button
-                                                      @click=${() => this.handleCreateReference(source)}
-                                                      style="border: 1px solid var(--border-1); color: var(--fg-1)"
-                                                  >
-                                                      Add Source
-                                                  </button>
+                                                  <button @click=${() => this.handleCreateReference(source)} class="btn-secondary">Add Source</button>
                                               </div>
                                           </div>
                                       `
@@ -1441,68 +1615,368 @@ class ToolbarElement extends LitElement {
         }
     }
 
-    render() {
-        return html`
-            ${this.mode === 'dialog' || this.mode === 'preview' ? html`<div class="backdrop" @click=${this.closeDialog}></div>` : ''}
+    renderMobile() {
+        // Main view - show all options
+        if (this.mobileView === 'main') {
+            return html`
+                <!-- Sheet Handle -->
+                <div class="sheet-handle">
+                    <div class="sheet-handle-bar"></div>
+                </div>
 
-            <div class="toolbar ${this.visible ? 'visible' : ''}">
-                <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap; justify-content: space-between; ">
-                    <button
-                        @click=${() => this.handleToolbarAction('ai-improve')}
-                        title="Improve with AI"
-                        data-wide
-                        style="${this.isMobile ? 'display: none;' : ''}"
-                    >
-                        <img src="/a7/forget/ai.svg" alt="AI" draggable="false" /> Neo AI
+                <!-- Selected Text Preview -->
+                <div class="selected-text-preview" style="margin-bottom: var(--gap-3);">${this.selectedText}</div>
+
+                <!-- Scrollable Content -->
+                <div class="mobile-scrollable-content">
+                    <!-- Ask AI Input -->
+                    <input
+                        type="text"
+                        placeholder="Ask AI anything..."
+                        class="form-input"
+                        @keydown=${e => {
+                            if (e.key === 'Enter' && e.target.value.trim()) {
+                                this.handleToolbarAction('ai-custom', e.target.value);
+                                e.target.value = '';
+                            }
+                        }}
+                    />
+
+                    <!-- Formatting Options -->
+                <button @click=${() => this.handleToolbarAction('bold')} class="mobile-action-btn">
+                    <img src="/a7/forget/bold.svg" alt="Bold" /> Bold
+                </button>
+                <button @click=${() => this.handleToolbarAction('italic')} class="mobile-action-btn">
+                    <img src="/a7/forget/italics.svg" alt="Italic" /> Italic
+                </button>
+                <button @click=${() => this.handleToolbarAction('underline')} class="mobile-action-btn">
+                    <img src="/a7/forget/underline.svg" alt="Underline" /> Underline
+                </button>
+                <button @click=${() => this.handleToolbarAction('strikeThrough')} class="mobile-action-btn">
+                    <img src="/a7/forget/strikethrough.svg" alt="Strikethrough" /> Strikethrough
+                </button>
+                <button @click=${() => this.navigateToMobileView('link')} class="mobile-action-btn">
+                    <img src="/a7/forget/link.svg" alt="Link" /> Add Link
+                    <div style="flex: 1"></div>
+                    <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
+                </button>
+                <button @click=${() => this.handleToolbarAction('subscript')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/subscript.svg" alt="Subscript" /> Subscript
+                </button>
+                <button @click=${() => this.handleToolbarAction('superscript')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/superscript.svg" alt="Superscript" /> Superscript
+                </button>
+                <button @click=${() => this.navigateToMobileView('color')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/color.svg" alt="Colors" /> Text Colors
+                    <div style="flex: 1"></div>
+                    <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
+                </button>
+
+                <div class="mobile-section-divider"></div>
+
+                <!-- AI Options -->
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'autocomplete-this-paragraph')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/autocomplete.svg" alt="Autocomplete" /> AI Autocomplete
+                </button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'improve-writing')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/wand.svg" alt="Improve" /> Improve Writing
+                </button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'fix-spelling-grammar')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/check.svg" alt="Fix" /> Fix Spelling & Grammar
+                </button>
+                <button @click=${() => this.navigateToMobileView('translate')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/translate.svg" alt="Translate" /> Translate to
+                    <div style="flex: 1"></div>
+                    <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
+                </button>
+                <button @click=${() => this.navigateToMobileView('paraphrase')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/refresh.svg" alt="Paraphrase" /> Paraphrase
+                    <div style="flex: 1"></div>
+                    <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
+                </button>
+                <button @click=${() => this.navigateToMobileView('tone')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/tone.svg" alt="Tone" /> Change Tone
+                    <div style="flex: 1"></div>
+                    <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
+                </button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'make-shorter')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/shorter.svg" alt="Shorter" /> Make Shorter
+                </button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'make-longer')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/longer.svg" alt="Longer" /> Make Longer
+                </button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'simplify')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/simplify.svg" alt="Simplify" /> Simplify Language
+                </button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'define/explain')} class="mobile-action-btn">
+                    <img src="/a7/plugins/toolbar/mean.svg" alt="Define" /> Define/Explain
+                </button>
+                <button @click=${() => this.handleToolbarAction('find-source')} class="mobile-action-btn">
+                    <img src="/a7/forget/source.svg" alt="Source" /> Find Sources
+                </button>
+                </div>
+            `;
+        }
+
+        // Translate submenu
+        if (this.mobileView === 'translate') {
+            return html`
+                <!-- Sheet Handle -->
+                <div class="sheet-handle">
+                    <div class="sheet-handle-bar"></div>
+                </div>
+
+                <!-- Header with back button -->
+                <div class="mobile-header">
+                    <button @click=${() => this.goBackInMobileView(true)} class="mobile-back-btn">
+                        <img src="/a7/plugins/toolbar/left.svg" alt="Back" />
                     </button>
-                    <div class="separator" style="${this.isMobile ? 'display: none;' : ''}"></div>
+                    <div class="mobile-header-title">Translate to</div>
+                </div>
 
-                    <div style="display: flex; width: 100%; flex: 1; justify-content: space-between; gap: var(--gap-1);">
-                        <button @click=${() => this.handleToolbarAction('bold')} title="Bold">
-                            <img src="/a7/forget/bold.svg" alt="Bold" draggable="false" />
-                        </button>
-                        <button @click=${() => this.handleToolbarAction('italic')} title="Italic">
-                            <img src="/a7/forget/italics.svg" alt="Italic" draggable="false" />
-                        </button>
-                        <button @click=${() => this.handleToolbarAction('underline')} title="Underline">
-                            <img src="/a7/forget/underline.svg" alt="Underline" draggable="false" />
-                        </button>
-                        <button @click=${() => this.handleToolbarAction('strikeThrough')} title="Strikethrough">
-                            <img src="/a7/forget/strikethrough.svg" alt="Strikethrough" draggable="false" />
-                        </button>
-                        <button @click=${() => this.handleToolbarAction('link')} title="Add Link">
-                            <img src="/a7/forget/link.svg" alt="Link" draggable="false" />
-                        </button>
-                        <button @click=${() => this.handleToolbarAction('subscript')} title="Subscript">
-                            <img src="/a7/plugins/toolbar/subscript.svg" alt="Subscript" draggable="false" />
-                        </button>
-                        <button @click=${() => this.handleToolbarAction('superscript')} title="Superscript">
-                            <img src="/a7/plugins/toolbar/superscript.svg" alt="Superscript" draggable="false" />
-                        </button>
-                        <div class="submenu-container mobhide">
-                            <button class="submenu-trigger" title="Colors" style="width: auto; padding: 0 5px">
-                                <img src="/a7/plugins/toolbar/color.svg" alt="Colors" draggable="false" />
-                                <img src="/a7/plugins/toolbar/down.svg" alt="Colors" draggable="false" />
-                            </button>
-                            ${this.renderColorMenu()}
-                        </div>
+                <!-- Scrollable Content -->
+                <div class="mobile-scrollable-content">
+                    <!-- Translation options -->
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-en')} class="mobile-action-btn">English</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-es')} class="mobile-action-btn">Spanish</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-fr')} class="mobile-action-btn">French</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-de')} class="mobile-action-btn">German</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-it')} class="mobile-action-btn">Italian</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-pt')} class="mobile-action-btn">Portuguese</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-zh')} class="mobile-action-btn">Chinese</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ja')} class="mobile-action-btn">Japanese</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ko')} class="mobile-action-btn">Korean</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-id')} class="mobile-action-btn">Indonesian</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-vi')} class="mobile-action-btn">Vietnamese</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-th')} class="mobile-action-btn">Thai</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-hi')} class="mobile-action-btn">Hindi</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-mr')} class="mobile-action-btn">Marathi</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ar')} class="mobile-action-btn">Arabic</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ru')} class="mobile-action-btn">Russian</button>
+                </div>
+            `;
+        }
+
+        // Paraphrase submenu
+        if (this.mobileView === 'paraphrase') {
+            return html`
+                <!-- Sheet Handle -->
+                <div class="sheet-handle">
+                    <div class="sheet-handle-bar"></div>
+                </div>
+
+                <!-- Header with back button -->
+                <div class="mobile-header">
+                    <button @click=${() => this.goBackInMobileView(true)} class="mobile-back-btn">
+                        <img src="/a7/plugins/toolbar/left.svg" alt="Back" />
+                    </button>
+                    <div class="mobile-header-title">Paraphrase</div>
+                </div>
+
+                <!-- Scrollable Content -->
+                <div class="mobile-scrollable-content">
+                    <!-- Paraphrase options -->
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-academically')} class="mobile-action-btn">Academically</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-casually')} class="mobile-action-btn">Casually</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-persuasively')} class="mobile-action-btn">Persuasively</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-boldly')} class="mobile-action-btn">Boldly</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-straightforwardly')} class="mobile-action-btn">Straightforwardly</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-friendly')} class="mobile-action-btn">Friendly</button>
+                </div>
+            `;
+        }
+
+        // Tone submenu
+        if (this.mobileView === 'tone') {
+            return html`
+                <!-- Sheet Handle -->
+                <div class="sheet-handle">
+                    <div class="sheet-handle-bar"></div>
+                </div>
+
+                <!-- Header with back button -->
+                <div class="mobile-header">
+                    <button @click=${() => this.goBackInMobileView(true)} class="mobile-back-btn">
+                        <img src="/a7/plugins/toolbar/left.svg" alt="Back" />
+                    </button>
+                    <div class="mobile-header-title">Change Tone</div>
+                </div>
+
+                <!-- Scrollable Content -->
+                <div class="mobile-scrollable-content">
+                    <!-- Tone options -->
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-professional')} class="mobile-action-btn">Professional</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-casual')} class="mobile-action-btn">Casual</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-straightforward')} class="mobile-action-btn">Straightforward</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-confident')} class="mobile-action-btn">Confident</button>
+                <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-friendly')} class="mobile-action-btn">Friendly</button>
+                </div>
+            `;
+        }
+
+        // Color submenu
+        if (this.mobileView === 'color') {
+            return html`
+                <!-- Sheet Handle -->
+                <div class="sheet-handle">
+                    <div class="sheet-handle-bar"></div>
+                </div>
+
+                <!-- Header with back button -->
+                <div class="mobile-header">
+                    <button @click=${() => this.goBackInMobileView(true)} class="mobile-back-btn">
+                        <img src="/a7/plugins/toolbar/left.svg" alt="Back" />
+                    </button>
+                    <div class="mobile-header-title">Text Colors</div>
+                </div>
+
+                <!-- Scrollable Content -->
+                <div class="mobile-scrollable-content">
+                    <!-- Color Preview -->
+                <div style="display: flex; gap: var(--gap-2); margin-bottom: var(--gap-3); flex-direction: column;">
+                    <div style="display: flex; align-items: center; gap: var(--gap-2); padding: var(--padding-2); background: var(--bg-2); border-radius: var(--radius);">
+                        <span style="color: ${this.activeTextColor}; font-family: Georgia, serif; font-weight: 600; font-size: 18px;">Aa</span>
+                        <span style="font-size: 12px; color: var(--fg-2); font-weight: 500;">Text Color</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: var(--gap-2); padding: var(--padding-2); background: var(--bg-2); border-radius: var(--radius);">
+                        <div style="width: 24px; height: 24px; border-radius: var(--radius); border: 1px solid var(--border-1); background-color: ${this.activeBackgroundColor};"></div>
+                        <span style="font-size: 12px; color: var(--fg-2); font-weight: 500;">Background Color</span>
                     </div>
                 </div>
 
-                <div style="${this.isMobile ? '' : 'display: none'};">${this.renderNonAbsoluteColorMenu()}</div>
+                <!-- Text Color Section -->
+                <div style="margin-bottom: var(--gap-3);">
+                    <div style="font-size: 11px; text-transform: uppercase; color: var(--fg-2); margin-bottom: var(--gap-2); font-weight: 500; letter-spacing: 0.5px;">Text Color</div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap-2);">
+                        ${Object.entries(this.colorOptions).map(
+                            ([key, color]) => html`
+                                <button
+                                    @click=${() => this._handleTextColorClick(color.fg)}
+                                    style="width: 100%; aspect-ratio: 1; border-radius: var(--radius); cursor: pointer; border: 2px solid ${color.fg === this.activeTextColor ? 'var(--fg-1)' : 'transparent'}; background-color: ${color.fg}; padding: 0; transition: all 0.2s ease;"
+                                    title="${color.name}"
+                                ></button>
+                            `
+                        )}
+                    </div>
+                </div>
 
-                <input
-                    type="text"
-                    placeholder="Ask AI anything..."
-                    class="mob-input"
-                    @keydown=${e => e.key === 'Enter' && this.handleToolbarAction('ai-custom', e.target.value)}
-                />
+                <!-- Background Color Section -->
+                <div>
+                    <div style="font-size: 11px; text-transform: uppercase; color: var(--fg-2); margin-bottom: var(--gap-2); font-weight: 500; letter-spacing: 0.5px;">Background Color</div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap-2);">
+                        ${Object.entries(this.colorOptions).map(
+                            ([key, color]) => html`
+                                <button
+                                    @click=${() => this._handleBackgroundColorClick(color.bg)}
+                                    style="width: 100%; aspect-ratio: 1; border-radius: var(--radius); cursor: pointer; border: 2px solid ${color.bg === this.activeBackgroundColor ? 'var(--fg-1)' : 'transparent'}; background-color: ${color.bg}; padding: 0; transition: all 0.2s ease;"
+                                    title="${color.name}"
+                                ></button>
+                            `
+                        )}
+                    </div>
+                </div>
+                </div>
+            `;
+        }
+
+        // Link submenu
+        if (this.mobileView === 'link') {
+            return html`
+                <!-- Sheet Handle -->
+                <div class="sheet-handle">
+                    <div class="sheet-handle-bar"></div>
+                </div>
+
+                <!-- Header with back button -->
+                <div class="mobile-header">
+                    <button @click=${() => this.goBackInMobileView(true)} class="mobile-back-btn">
+                        <img src="/a7/plugins/toolbar/left.svg" alt="Back" />
+                    </button>
+                    <div class="mobile-header-title">Add Link</div>
+                </div>
+
+                <!-- Scrollable Content -->
+                <div class="mobile-scrollable-content">
+                    <!-- Link Input -->
+                <div class="input-container" style="margin-bottom: var(--gap-3);">
+                    <img src="/a7/forget/link.svg" alt="Link" style="width: 20px; height: 20px; filter: var(--themed-svg);" />
+                    <input
+                        type="text"
+                        placeholder="Enter URL"
+                        .value=${this.linkUrl}
+                        @input=${e => (this.linkUrl = e.target.value)}
+                        @keydown=${e => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                this.handleLinkSubmit();
+                                this.goBackInMobileView(true);
+                            }
+                        }}
+                    />
+                </div>
+
+                <!-- Action Buttons -->
+                <button @click=${() => {
+                    this.handleLinkSubmit();
+                    this.goBackInMobileView(true);
+                }} class="btn-primary" style="width: 100%;">
+                    Save Link
+                </button>
+                </div>
+            `;
+        }
+    }
+
+    renderDesktop() {
+        return html`
+            <!-- Desktop: Formatting Buttons -->
+            <div style="display: flex; gap: var(--gap-1); flex-wrap: wrap; align-items: center;">
+                <button @click=${() => this.handleToolbarAction('ai-improve')} title="Improve with AI" class="toolbar-btn wide">
+                    <img src="/a7/forget/ai.svg" alt="AI" /> Neo AI
+                </button>
+                <div class="separator"></div>
+
+                <button @click=${() => this.handleToolbarAction('bold')} title="Bold" class="toolbar-btn">
+                    <img src="/a7/forget/bold.svg" alt="Bold" />
+                </button>
+                <button @click=${() => this.handleToolbarAction('italic')} title="Italic" class="toolbar-btn">
+                    <img src="/a7/forget/italics.svg" alt="Italic" />
+                </button>
+                <button @click=${() => this.handleToolbarAction('underline')} title="Underline" class="toolbar-btn">
+                    <img src="/a7/forget/underline.svg" alt="Underline" />
+                </button>
+                <button @click=${() => this.handleToolbarAction('strikeThrough')} title="Strikethrough" class="toolbar-btn">
+                    <img src="/a7/forget/strikethrough.svg" alt="Strikethrough" />
+                </button>
+                <button @click=${() => this.handleToolbarAction('link')} title="Add Link" class="toolbar-btn">
+                    <img src="/a7/forget/link.svg" alt="Link" />
+                </button>
+                <button @click=${() => this.handleToolbarAction('subscript')} title="Subscript" class="toolbar-btn">
+                    <img src="/a7/plugins/toolbar/subscript.svg" alt="Subscript" />
+                </button>
+                <button @click=${() => this.handleToolbarAction('superscript')} title="Superscript" class="toolbar-btn">
+                    <img src="/a7/plugins/toolbar/superscript.svg" alt="Superscript" />
+                </button>
+                <button @click=${() => this.handleToolbarAction('color')} title="Colors" class="toolbar-btn">
+                    <img src="/a7/plugins/toolbar/color.svg" alt="Colors" />
+                </button>
+            </div>
+        `;
+    }
+
+    render() {
+        return html`
+            ${this.mode === 'dialog' || this.mode === 'preview' ? html`<div class="backdrop" @click=${this.closeDialog}></div>` : ''}
+            ${this.visible && this.isMobile && this.mode === 'simple' ? html`<div class="backdrop" @click=${this.hideToolbar}></div>` : ''}
+
+            <div class="toolbar ${this.visible ? 'visible' : ''}">
+                ${this.isMobile ? this.renderMobile() : this.renderDesktop()}
 
                 ${this.mode === 'loading' ? html`<div class="loading-overlay"><div class="loading-indicator"></div></div>` : ''}
                 ${this.mode === 'dialog' || this.mode === 'preview'
                     ? html`
                           <div class="dialog-container">
-                              <div style="overflow: auto; width: 100%;">${this.renderDialog()}</div>
+                              <div style="width: 100%;">${this.renderDialog()}</div>
                           </div>
                       `
                     : ''}
