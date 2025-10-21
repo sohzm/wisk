@@ -64,7 +64,7 @@ class ToolbarElement extends LitElement {
             background: transparent;
             border: none;
             padding: var(--padding-2);
-            border-radius: calc(var(--radius-large)*20);
+            border-radius: calc(var(--radius-large) * 20);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -813,7 +813,7 @@ class ToolbarElement extends LitElement {
         window.addEventListener('resize', this._resizeListener);
 
         // Add popstate listener for back button on mobile
-        this._popstateListener = (e) => {
+        this._popstateListener = e => {
             // When user presses back and toolbar is visible
             if (this.visible && this.isMobile) {
                 // Check if we're in a submenu
@@ -1321,7 +1321,9 @@ class ToolbarElement extends LitElement {
                                     style="color: ${color.fg}; display: flex; align-items: center; justify-content: center; border: 1px solid ${color.fg};"
                                     @click=${() => this._handleTextColorClick(color.fg)}
                                     title="${color.name}"
-                                >Aa</div>
+                                >
+                                    Aa
+                                </div>
                             `
                         )}
                     </div>
@@ -1404,7 +1406,8 @@ class ToolbarElement extends LitElement {
                                       <span
                                           style="background: var(--bg-3); padding: 2px 4px; border-radius: 4px; color: var(--fg-1); display: inline-flex; align-items: center;"
                                       >
-                                          <img src="/a7/forget/source.svg" alt="Source" style="width: 14px; height: 14px; margin-right: 4px;" /> Find Source</span
+                                          <img src="/a7/forget/source.svg" alt="Source" style="width: 14px; height: 14px; margin-right: 4px;" /> Find
+                                          Source</span
                                       >
                                       option.
                                   </p>`
@@ -1419,7 +1422,11 @@ class ToolbarElement extends LitElement {
                                                           ${citation.publish_date ? ` • ${new Date(citation.publish_date).getFullYear()}` : ''}
                                                       </p>
                                                   </div>
-                                                  <button @click=${() => this.handleInsertCitation(citation)} class="btn-secondary" style="white-space: nowrap; margin-left: var(--gap-2);">
+                                                  <button
+                                                      @click=${() => this.handleInsertCitation(citation)}
+                                                      class="btn-secondary"
+                                                      style="white-space: nowrap; margin-left: var(--gap-2);"
+                                                  >
                                                       Insert
                                                   </button>
                                               </div>
@@ -1475,7 +1482,10 @@ class ToolbarElement extends LitElement {
                         />
                         <div class="ai-commands">
                             <div class="command-section">
-                                <button @click=${() => this.handleToolbarAction('ai-operation', 'autocomplete-this-paragraph')} class="ai-commands-btn">
+                                <button
+                                    @click=${() => this.handleToolbarAction('ai-operation', 'autocomplete-this-paragraph')}
+                                    class="ai-commands-btn"
+                                >
                                     <img src="/a7/plugins/toolbar/autocomplete.svg" alt="wand" /> AI Autocomplete
                                 </button>
                                 <button @click=${() => this.handleToolbarAction('ai-operation', 'improve-writing')} class="ai-commands-btn">
@@ -1491,22 +1501,54 @@ class ToolbarElement extends LitElement {
                                         <img src="/a7/plugins/toolbar/right.svg" alt=">" />
                                     </button>
                                     <div class="submenu translate-menu">
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ko')} class="submenu-btn">Korean</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-zh')} class="submenu-btn">Chinese</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ja')} class="submenu-btn">Japanese</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-en')} class="submenu-btn">English</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-es')} class="submenu-btn">Spanish</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-fr')} class="submenu-btn">French</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-de')} class="submenu-btn">German</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-it')} class="submenu-btn">Italian</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-pt')} class="submenu-btn">Portuguese</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-id')} class="submenu-btn">Indonesian</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-vi')} class="submenu-btn">Vietnamese</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-th')} class="submenu-btn">Thai</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-hi')} class="submenu-btn">Hindi</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-mr')} class="submenu-btn">Marathi</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ar')} class="submenu-btn">Arabic</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ru')} class="submenu-btn">Russian</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ko')} class="submenu-btn">
+                                            Korean
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-zh')} class="submenu-btn">
+                                            Chinese
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ja')} class="submenu-btn">
+                                            Japanese
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-en')} class="submenu-btn">
+                                            English
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-es')} class="submenu-btn">
+                                            Spanish
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-fr')} class="submenu-btn">
+                                            French
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-de')} class="submenu-btn">
+                                            German
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-it')} class="submenu-btn">
+                                            Italian
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-pt')} class="submenu-btn">
+                                            Portuguese
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-id')} class="submenu-btn">
+                                            Indonesian
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-vi')} class="submenu-btn">
+                                            Vietnamese
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-th')} class="submenu-btn">
+                                            Thai
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-hi')} class="submenu-btn">
+                                            Hindi
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-mr')} class="submenu-btn">
+                                            Marathi
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ar')} class="submenu-btn">
+                                            Arabic
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ru')} class="submenu-btn">
+                                            Russian
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="submenu-container">
@@ -1516,18 +1558,33 @@ class ToolbarElement extends LitElement {
                                         <img src="/a7/plugins/toolbar/right.svg" alt=">" />
                                     </button>
                                     <div class="submenu paraphrase-menu">
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-academically')} class="submenu-btn">
+                                        <button
+                                            @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-academically')}
+                                            class="submenu-btn"
+                                        >
                                             Academically
                                         </button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-casually')} class="submenu-btn">Casually</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-persuasively')} class="submenu-btn">
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-casually')} class="submenu-btn">
+                                            Casually
+                                        </button>
+                                        <button
+                                            @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-persuasively')}
+                                            class="submenu-btn"
+                                        >
                                             Persuasively
                                         </button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-boldly')} class="submenu-btn">Boldly</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-straightforwardly')} class="submenu-btn">
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-boldly')} class="submenu-btn">
+                                            Boldly
+                                        </button>
+                                        <button
+                                            @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-straightforwardly')}
+                                            class="submenu-btn"
+                                        >
                                             Straightforwardly
                                         </button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-friendly')} class="submenu-btn">Friendly</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-friendly')} class="submenu-btn">
+                                            Friendly
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1555,13 +1612,21 @@ class ToolbarElement extends LitElement {
                                         <img src="/a7/plugins/toolbar/right.svg" alt=">" />
                                     </button>
                                     <div class="submenu tone-menu">
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-professional')} class="submenu-btn">Professional</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-casual')} class="submenu-btn">Casual</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-professional')} class="submenu-btn">
+                                            Professional
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-casual')} class="submenu-btn">
+                                            Casual
+                                        </button>
                                         <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-straightforward')} class="submenu-btn">
                                             Straightforward
                                         </button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-confident')} class="submenu-btn">Confident</button>
-                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-friendly')} class="submenu-btn">Friendly</button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-confident')} class="submenu-btn">
+                                            Confident
+                                        </button>
+                                        <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-friendly')} class="submenu-btn">
+                                            Friendly
+                                        </button>
                                     </div>
                                 </div>
                                 <button @click=${() => this.handleToolbarAction('ai-operation', 'simplify')} class="ai-commands-btn">
@@ -1579,7 +1644,10 @@ class ToolbarElement extends LitElement {
                         <div style="display: flex; gap: var(--gap-2); margin-bottom: var(--gap-3); flex-direction: column">
                             <div class="input-container">
                                 <input type="text" placeholder="Search sources" id="source-search" .value=${this.selectedText} />
-                                <button style="border: none; padding: var(--padding-2); background: transparent; min-width: auto;" @click=${this.updateSearch}>
+                                <button
+                                    style="border: none; padding: var(--padding-2); background: transparent; min-width: auto;"
+                                    @click=${this.updateSearch}
+                                >
                                     <img src="/a7/plugins/toolbar/search.svg" alt="Search" />
                                 </button>
                             </div>
@@ -1598,7 +1666,9 @@ class ToolbarElement extends LitElement {
                                           <div class="source-item">
                                               <h3 style="user-select: text">${source.title}</h3>
                                               <p style="user-select: text">${source.content}</p>
-                                              <div style="display: flex; flex-direction: row; justify-content: space-between; width: 100%; align-items: center;">
+                                              <div
+                                                  style="display: flex; flex-direction: row; justify-content: space-between; width: 100%; align-items: center;"
+                                              >
                                                   <a class="url" href=${source.url} target="_blank"
                                                       >${source.url.length > 40 ? source.url.slice(0, 40) + '...' : source.url}</a
                                                   >
@@ -1643,77 +1713,77 @@ class ToolbarElement extends LitElement {
                     />
 
                     <!-- Formatting Options -->
-                <button @click=${() => this.handleToolbarAction('bold')} class="mobile-action-btn">
-                    <img src="/a7/forget/bold.svg" alt="Bold" /> Bold
-                </button>
-                <button @click=${() => this.handleToolbarAction('italic')} class="mobile-action-btn">
-                    <img src="/a7/forget/italics.svg" alt="Italic" /> Italic
-                </button>
-                <button @click=${() => this.handleToolbarAction('underline')} class="mobile-action-btn">
-                    <img src="/a7/forget/underline.svg" alt="Underline" /> Underline
-                </button>
-                <button @click=${() => this.handleToolbarAction('strikeThrough')} class="mobile-action-btn">
-                    <img src="/a7/forget/strikethrough.svg" alt="Strikethrough" /> Strikethrough
-                </button>
-                <button @click=${() => this.navigateToMobileView('link')} class="mobile-action-btn">
-                    <img src="/a7/forget/link.svg" alt="Link" /> Add Link
-                    <div style="flex: 1"></div>
-                    <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
-                </button>
-                <button @click=${() => this.handleToolbarAction('subscript')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/subscript.svg" alt="Subscript" /> Subscript
-                </button>
-                <button @click=${() => this.handleToolbarAction('superscript')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/superscript.svg" alt="Superscript" /> Superscript
-                </button>
-                <button @click=${() => this.navigateToMobileView('color')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/color.svg" alt="Colors" /> Text Colors
-                    <div style="flex: 1"></div>
-                    <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
-                </button>
+                    <button @click=${() => this.handleToolbarAction('bold')} class="mobile-action-btn">
+                        <img src="/a7/forget/bold.svg" alt="Bold" /> Bold
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('italic')} class="mobile-action-btn">
+                        <img src="/a7/forget/italics.svg" alt="Italic" /> Italic
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('underline')} class="mobile-action-btn">
+                        <img src="/a7/forget/underline.svg" alt="Underline" /> Underline
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('strikeThrough')} class="mobile-action-btn">
+                        <img src="/a7/forget/strikethrough.svg" alt="Strikethrough" /> Strikethrough
+                    </button>
+                    <button @click=${() => this.navigateToMobileView('link')} class="mobile-action-btn">
+                        <img src="/a7/forget/link.svg" alt="Link" /> Add Link
+                        <div style="flex: 1"></div>
+                        <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('subscript')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/subscript.svg" alt="Subscript" /> Subscript
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('superscript')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/superscript.svg" alt="Superscript" /> Superscript
+                    </button>
+                    <button @click=${() => this.navigateToMobileView('color')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/color.svg" alt="Colors" /> Text Colors
+                        <div style="flex: 1"></div>
+                        <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
+                    </button>
 
-                <div class="mobile-section-divider"></div>
+                    <div class="mobile-section-divider"></div>
 
-                <!-- AI Options -->
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'autocomplete-this-paragraph')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/autocomplete.svg" alt="Autocomplete" /> AI Autocomplete
-                </button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'improve-writing')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/wand.svg" alt="Improve" /> Improve Writing
-                </button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'fix-spelling-grammar')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/check.svg" alt="Fix" /> Fix Spelling & Grammar
-                </button>
-                <button @click=${() => this.navigateToMobileView('translate')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/translate.svg" alt="Translate" /> Translate to
-                    <div style="flex: 1"></div>
-                    <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
-                </button>
-                <button @click=${() => this.navigateToMobileView('paraphrase')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/refresh.svg" alt="Paraphrase" /> Paraphrase
-                    <div style="flex: 1"></div>
-                    <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
-                </button>
-                <button @click=${() => this.navigateToMobileView('tone')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/tone.svg" alt="Tone" /> Change Tone
-                    <div style="flex: 1"></div>
-                    <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
-                </button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'make-shorter')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/shorter.svg" alt="Shorter" /> Make Shorter
-                </button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'make-longer')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/longer.svg" alt="Longer" /> Make Longer
-                </button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'simplify')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/simplify.svg" alt="Simplify" /> Simplify Language
-                </button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'define/explain')} class="mobile-action-btn">
-                    <img src="/a7/plugins/toolbar/mean.svg" alt="Define" /> Define/Explain
-                </button>
-                <button @click=${() => this.handleToolbarAction('find-source')} class="mobile-action-btn">
-                    <img src="/a7/forget/source.svg" alt="Source" /> Find Sources
-                </button>
+                    <!-- AI Options -->
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'autocomplete-this-paragraph')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/autocomplete.svg" alt="Autocomplete" /> AI Autocomplete
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'improve-writing')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/wand.svg" alt="Improve" /> Improve Writing
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'fix-spelling-grammar')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/check.svg" alt="Fix" /> Fix Spelling & Grammar
+                    </button>
+                    <button @click=${() => this.navigateToMobileView('translate')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/translate.svg" alt="Translate" /> Translate to
+                        <div style="flex: 1"></div>
+                        <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
+                    </button>
+                    <button @click=${() => this.navigateToMobileView('paraphrase')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/refresh.svg" alt="Paraphrase" /> Paraphrase
+                        <div style="flex: 1"></div>
+                        <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
+                    </button>
+                    <button @click=${() => this.navigateToMobileView('tone')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/tone.svg" alt="Tone" /> Change Tone
+                        <div style="flex: 1"></div>
+                        <img src="/a7/plugins/toolbar/right.svg" alt=">" style="width: 16px; height: 16px;" />
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'make-shorter')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/shorter.svg" alt="Shorter" /> Make Shorter
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'make-longer')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/longer.svg" alt="Longer" /> Make Longer
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'simplify')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/simplify.svg" alt="Simplify" /> Simplify Language
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'define/explain')} class="mobile-action-btn">
+                        <img src="/a7/plugins/toolbar/mean.svg" alt="Define" /> Define/Explain
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('find-source')} class="mobile-action-btn">
+                        <img src="/a7/forget/source.svg" alt="Source" /> Find Sources
+                    </button>
                 </div>
             `;
         }
@@ -1737,22 +1807,22 @@ class ToolbarElement extends LitElement {
                 <!-- Scrollable Content -->
                 <div class="mobile-scrollable-content">
                     <!-- Translation options -->
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-en')} class="mobile-action-btn">English</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-es')} class="mobile-action-btn">Spanish</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-fr')} class="mobile-action-btn">French</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-de')} class="mobile-action-btn">German</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-it')} class="mobile-action-btn">Italian</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-pt')} class="mobile-action-btn">Portuguese</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-zh')} class="mobile-action-btn">Chinese</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ja')} class="mobile-action-btn">Japanese</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ko')} class="mobile-action-btn">Korean</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-id')} class="mobile-action-btn">Indonesian</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-vi')} class="mobile-action-btn">Vietnamese</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-th')} class="mobile-action-btn">Thai</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-hi')} class="mobile-action-btn">Hindi</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-mr')} class="mobile-action-btn">Marathi</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ar')} class="mobile-action-btn">Arabic</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ru')} class="mobile-action-btn">Russian</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-en')} class="mobile-action-btn">English</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-es')} class="mobile-action-btn">Spanish</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-fr')} class="mobile-action-btn">French</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-de')} class="mobile-action-btn">German</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-it')} class="mobile-action-btn">Italian</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-pt')} class="mobile-action-btn">Portuguese</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-zh')} class="mobile-action-btn">Chinese</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ja')} class="mobile-action-btn">Japanese</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ko')} class="mobile-action-btn">Korean</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-id')} class="mobile-action-btn">Indonesian</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-vi')} class="mobile-action-btn">Vietnamese</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-th')} class="mobile-action-btn">Thai</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-hi')} class="mobile-action-btn">Hindi</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-mr')} class="mobile-action-btn">Marathi</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ar')} class="mobile-action-btn">Arabic</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'translate-ru')} class="mobile-action-btn">Russian</button>
                 </div>
             `;
         }
@@ -1776,12 +1846,22 @@ class ToolbarElement extends LitElement {
                 <!-- Scrollable Content -->
                 <div class="mobile-scrollable-content">
                     <!-- Paraphrase options -->
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-academically')} class="mobile-action-btn">Academically</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-casually')} class="mobile-action-btn">Casually</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-persuasively')} class="mobile-action-btn">Persuasively</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-boldly')} class="mobile-action-btn">Boldly</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-straightforwardly')} class="mobile-action-btn">Straightforwardly</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-friendly')} class="mobile-action-btn">Friendly</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-academically')} class="mobile-action-btn">
+                        Academically
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-casually')} class="mobile-action-btn">
+                        Casually
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-persuasively')} class="mobile-action-btn">
+                        Persuasively
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-boldly')} class="mobile-action-btn">Boldly</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-straightforwardly')} class="mobile-action-btn">
+                        Straightforwardly
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'paraphrase-friendly')} class="mobile-action-btn">
+                        Friendly
+                    </button>
                 </div>
             `;
         }
@@ -1805,11 +1885,15 @@ class ToolbarElement extends LitElement {
                 <!-- Scrollable Content -->
                 <div class="mobile-scrollable-content">
                     <!-- Tone options -->
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-professional')} class="mobile-action-btn">Professional</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-casual')} class="mobile-action-btn">Casual</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-straightforward')} class="mobile-action-btn">Straightforward</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-confident')} class="mobile-action-btn">Confident</button>
-                <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-friendly')} class="mobile-action-btn">Friendly</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-professional')} class="mobile-action-btn">
+                        Professional
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-casual')} class="mobile-action-btn">Casual</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-straightforward')} class="mobile-action-btn">
+                        Straightforward
+                    </button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-confident')} class="mobile-action-btn">Confident</button>
+                    <button @click=${() => this.handleToolbarAction('ai-operation', 'tone-friendly')} class="mobile-action-btn">Friendly</button>
                 </div>
             `;
         }
@@ -1833,48 +1917,69 @@ class ToolbarElement extends LitElement {
                 <!-- Scrollable Content -->
                 <div class="mobile-scrollable-content">
                     <!-- Color Preview -->
-                <div style="display: flex; gap: var(--gap-2); margin-bottom: var(--gap-3); flex-direction: column;">
-                    <div style="display: flex; align-items: center; gap: var(--gap-2); padding: var(--padding-2); background: var(--bg-2); border-radius: var(--radius);">
-                        <span style="color: ${this.activeTextColor}; font-family: Georgia, serif; font-weight: 600; font-size: 18px;">Aa</span>
-                        <span style="font-size: 12px; color: var(--fg-2); font-weight: 500;">Text Color</span>
+                    <div style="display: flex; gap: var(--gap-2); margin-bottom: var(--gap-3); flex-direction: column;">
+                        <div
+                            style="display: flex; align-items: center; gap: var(--gap-2); padding: var(--padding-2); background: var(--bg-2); border-radius: var(--radius);"
+                        >
+                            <span style="color: ${this.activeTextColor}; font-family: Georgia, serif; font-weight: 600; font-size: 18px;">Aa</span>
+                            <span style="font-size: 12px; color: var(--fg-2); font-weight: 500;">Text Color</span>
+                        </div>
+                        <div
+                            style="display: flex; align-items: center; gap: var(--gap-2); padding: var(--padding-2); background: var(--bg-2); border-radius: var(--radius);"
+                        >
+                            <div
+                                style="width: 24px; height: 24px; border-radius: var(--radius); border: 1px solid var(--border-1); background-color: ${this
+                                    .activeBackgroundColor};"
+                            ></div>
+                            <span style="font-size: 12px; color: var(--fg-2); font-weight: 500;">Background Color</span>
+                        </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: var(--gap-2); padding: var(--padding-2); background: var(--bg-2); border-radius: var(--radius);">
-                        <div style="width: 24px; height: 24px; border-radius: var(--radius); border: 1px solid var(--border-1); background-color: ${this.activeBackgroundColor};"></div>
-                        <span style="font-size: 12px; color: var(--fg-2); font-weight: 500;">Background Color</span>
-                    </div>
-                </div>
 
-                <!-- Text Color Section -->
-                <div style="margin-bottom: var(--gap-3);">
-                    <div style="font-size: 11px; text-transform: uppercase; color: var(--fg-2); margin-bottom: var(--gap-2); font-weight: 500; letter-spacing: 0.5px;">Text Color</div>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap-2);">
-                        ${Object.entries(this.colorOptions).map(
-                            ([key, color]) => html`
-                                <button
-                                    @click=${() => this._handleTextColorClick(color.fg)}
-                                    style="width: 100%; aspect-ratio: 1; border-radius: var(--radius); cursor: pointer; border: 2px solid ${color.fg === this.activeTextColor ? 'var(--fg-1)' : 'transparent'}; background-color: ${color.fg}; padding: 0; transition: all 0.2s ease;"
-                                    title="${color.name}"
-                                ></button>
-                            `
-                        )}
+                    <!-- Text Color Section -->
+                    <div style="margin-bottom: var(--gap-3);">
+                        <div
+                            style="font-size: 11px; text-transform: uppercase; color: var(--fg-2); margin-bottom: var(--gap-2); font-weight: 500; letter-spacing: 0.5px;"
+                        >
+                            Text Color
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap-2);">
+                            ${Object.entries(this.colorOptions).map(
+                                ([key, color]) => html`
+                                    <button
+                                        @click=${() => this._handleTextColorClick(color.fg)}
+                                        style="width: 100%; aspect-ratio: 1; border-radius: var(--radius); cursor: pointer; border: 2px solid ${color.fg ===
+                                        this.activeTextColor
+                                            ? 'var(--fg-1)'
+                                            : 'transparent'}; background-color: ${color.fg}; padding: 0; transition: all 0.2s ease;"
+                                        title="${color.name}"
+                                    ></button>
+                                `
+                            )}
+                        </div>
                     </div>
-                </div>
 
-                <!-- Background Color Section -->
-                <div>
-                    <div style="font-size: 11px; text-transform: uppercase; color: var(--fg-2); margin-bottom: var(--gap-2); font-weight: 500; letter-spacing: 0.5px;">Background Color</div>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap-2);">
-                        ${Object.entries(this.colorOptions).map(
-                            ([key, color]) => html`
-                                <button
-                                    @click=${() => this._handleBackgroundColorClick(color.bg)}
-                                    style="width: 100%; aspect-ratio: 1; border-radius: var(--radius); cursor: pointer; border: 2px solid ${color.bg === this.activeBackgroundColor ? 'var(--fg-1)' : 'transparent'}; background-color: ${color.bg}; padding: 0; transition: all 0.2s ease;"
-                                    title="${color.name}"
-                                ></button>
-                            `
-                        )}
+                    <!-- Background Color Section -->
+                    <div>
+                        <div
+                            style="font-size: 11px; text-transform: uppercase; color: var(--fg-2); margin-bottom: var(--gap-2); font-weight: 500; letter-spacing: 0.5px;"
+                        >
+                            Background Color
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap-2);">
+                            ${Object.entries(this.colorOptions).map(
+                                ([key, color]) => html`
+                                    <button
+                                        @click=${() => this._handleBackgroundColorClick(color.bg)}
+                                        style="width: 100%; aspect-ratio: 1; border-radius: var(--radius); cursor: pointer; border: 2px solid ${color.bg ===
+                                        this.activeBackgroundColor
+                                            ? 'var(--fg-1)'
+                                            : 'transparent'}; background-color: ${color.bg}; padding: 0; transition: all 0.2s ease;"
+                                        title="${color.name}"
+                                    ></button>
+                                `
+                            )}
+                        </div>
                     </div>
-                </div>
                 </div>
             `;
         }
@@ -1898,30 +2003,34 @@ class ToolbarElement extends LitElement {
                 <!-- Scrollable Content -->
                 <div class="mobile-scrollable-content">
                     <!-- Link Input -->
-                <div class="input-container" style="margin-bottom: var(--gap-3);">
-                    <img src="/a7/forget/link.svg" alt="Link" style="width: 20px; height: 20px; filter: var(--themed-svg);" />
-                    <input
-                        type="text"
-                        placeholder="Enter URL"
-                        .value=${this.linkUrl}
-                        @input=${e => (this.linkUrl = e.target.value)}
-                        @keydown=${e => {
-                            if (e.key === 'Enter') {
-                                e.preventDefault();
-                                this.handleLinkSubmit();
-                                this.goBackInMobileView(true);
-                            }
-                        }}
-                    />
-                </div>
+                    <div class="input-container" style="margin-bottom: var(--gap-3);">
+                        <img src="/a7/forget/link.svg" alt="Link" style="width: 20px; height: 20px; filter: var(--themed-svg);" />
+                        <input
+                            type="text"
+                            placeholder="Enter URL"
+                            .value=${this.linkUrl}
+                            @input=${e => (this.linkUrl = e.target.value)}
+                            @keydown=${e => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    this.handleLinkSubmit();
+                                    this.goBackInMobileView(true);
+                                }
+                            }}
+                        />
+                    </div>
 
-                <!-- Action Buttons -->
-                <button @click=${() => {
-                    this.handleLinkSubmit();
-                    this.goBackInMobileView(true);
-                }} class="btn-primary" style="width: 100%;">
-                    Save Link
-                </button>
+                    <!-- Action Buttons -->
+                    <button
+                        @click=${() => {
+                            this.handleLinkSubmit();
+                            this.goBackInMobileView(true);
+                        }}
+                        class="btn-primary"
+                        style="width: 100%;"
+                    >
+                        Save Link
+                    </button>
                 </div>
             `;
         }
@@ -1971,7 +2080,6 @@ class ToolbarElement extends LitElement {
 
             <div class="toolbar ${this.visible ? 'visible' : ''}">
                 ${this.isMobile ? this.renderMobile() : this.renderDesktop()}
-
                 ${this.mode === 'loading' ? html`<div class="loading-overlay"><div class="loading-indicator"></div></div>` : ''}
                 ${this.mode === 'dialog' || this.mode === 'preview'
                     ? html`

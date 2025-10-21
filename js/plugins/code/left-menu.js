@@ -178,7 +178,8 @@ class LeftMenu extends LitElement {
             opacity: 0;
             transition: opacity 0.2s;
         }
-        .item:hover .more-options {
+        .item:hover .more-options,
+        .workspace-item:hover .more-options {
             opacity: 1;
         }
         .more-options:hover {
@@ -222,10 +223,8 @@ class LeftMenu extends LitElement {
             font-size: 13px;
         }
         .delete-item {
-            color: #e11d48;
         }
         .delete-item img {
-            filter: invert(23%) sepia(94%) saturate(4465%) hue-rotate(336deg) brightness(90%) contrast(88%);
         }
         .dropdown-item:hover {
             background-color: var(--bg-2);
@@ -597,6 +596,14 @@ class LeftMenu extends LitElement {
         newWorkspaceName: { type: String },
         newWorkspaceEmoji: { type: String },
         workspaceValidationState: { type: String }, // 'valid', 'invalid', 'empty'
+        hoveredWorkspaceId: { type: String },
+        openWorkspaceDropdownId: { type: String },
+        isEditWorkspaceDialogOpen: { type: Boolean },
+        editWorkspaceName: { type: String },
+        editWorkspaceEmoji: { type: String },
+        editWorkspaceOriginalName: { type: String },
+        editWorkspaceOriginalId: { type: String },
+        editWorkspaceValidationState: { type: String },
     };
 
     constructor() {
@@ -612,6 +619,14 @@ class LeftMenu extends LitElement {
         this.newWorkspaceName = '';
         this.newWorkspaceEmoji = '';
         this.workspaceValidationState = 'empty';
+        this.hoveredWorkspaceId = null;
+        this.openWorkspaceDropdownId = null;
+        this.isEditWorkspaceDialogOpen = false;
+        this.editWorkspaceName = '';
+        this.editWorkspaceEmoji = '';
+        this.editWorkspaceOriginalName = '';
+        this.editWorkspaceOriginalId = '';
+        this.editWorkspaceValidationState = 'empty';
 
         // Add click event listener to close dropdown when clicking outside
         this.boundHandleClickOutside = this.handleClickOutside.bind(this);
@@ -931,38 +946,53 @@ class LeftMenu extends LitElement {
     }
 
     getCurrentWorkspaceName() {
-        const currentWorkspace = localStorage.getItem('currentWorkspace');
-        return currentWorkspace || 'Default Workspace';
+        const currentWorkspaceId = localStorage.getItem('currentWorkspace');
+        const workspaces = this.getWorkspaces();
+        const workspace = workspaces.find(w => w.id === currentWorkspaceId);
+        return workspace ? workspace.name : 'Default Workspace';
     }
 
     getWorkspaces() {
-        const workspaces = localStorage.getItem('workspaces');
-        return workspaces ? JSON.parse(workspaces) : [];
+        const workspacesData = localStorage.getItem('workspaces') || '{"version":1,"workspaces":[]}';
+        const parsed = JSON.parse(workspacesData);
+        return parsed.workspaces;
     }
 
     saveWorkspaces(workspaces) {
-        localStorage.setItem('workspaces', JSON.stringify(workspaces));
+        const structure = {
+            version: 1,
+            workspaces: workspaces,
+        };
+        localStorage.setItem('workspaces', JSON.stringify(structure));
     }
 
     createDefaultWorkspace() {
         const workspaces = this.getWorkspaces();
-        const defaultWorkspace = {
-            name: '',
-            emoji: '🍎',
-        };
 
-        // Add to workspaces if not already there
-        if (!workspaces.find(w => w.name === defaultWorkspace.name)) {
+        // Only create if no workspaces exist
+        if (workspaces.length === 0) {
+            const defaultWorkspace = {
+                name: 'Default Workspace',
+                emoji: '💕',
+                id: window.generateWorkspaceId(),
+            };
+
             workspaces.push(defaultWorkspace);
             this.saveWorkspaces(workspaces);
+            localStorage.setItem('currentWorkspace', defaultWorkspace.id);
+        } else {
+            // Ensure currentWorkspace is set to first workspace if not set
+            if (!localStorage.getItem('currentWorkspace')) {
+                localStorage.setItem('currentWorkspace', workspaces[0].id);
+            }
         }
     }
 
     getCurrentWorkspaceEmoji() {
         const workspaces = this.getWorkspaces();
-        const currentWorkspace = localStorage.getItem('currentWorkspace') || '';
-        const workspace = workspaces.find(w => w.name === currentWorkspace);
-        return workspace ? workspace.emoji : '🍎';
+        const currentWorkspaceId = localStorage.getItem('currentWorkspace');
+        const workspace = workspaces.find(w => w.id === currentWorkspaceId);
+        return workspace ? workspace.emoji : '💕';
     }
 
     getRandomEmoji() {
@@ -977,11 +1007,11 @@ class LeftMenu extends LitElement {
         this.requestUpdate();
     }
 
-    switchWorkspace(workspaceName, e) {
+    switchWorkspace(workspaceId, e) {
         e.preventDefault();
         e.stopPropagation();
 
-        localStorage.setItem('currentWorkspace', workspaceName);
+        localStorage.setItem('currentWorkspace', workspaceId);
         this.showWorkspaceDropdown = false;
 
         // Refresh to home to load the new workspace
@@ -1042,10 +1072,6 @@ class LeftMenu extends LitElement {
             return;
         }
 
-        // Generate the database name that would be created
-        const sanitizedName = name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-        const dbName = `WiskDatabase-${sanitizedName}`;
-
         // Check if workspace name already exists
         const workspaces = this.getWorkspaces();
         const nameExists = workspaces.some(w => w.name === name);
@@ -1075,9 +1101,13 @@ class LeftMenu extends LitElement {
         const name = this.newWorkspaceName.trim();
         const workspaces = this.getWorkspaces();
 
+        // Generate unique ID for the workspace
+        const id = window.generateWorkspaceId();
+
         const newWorkspace = {
             name: name,
             emoji: this.newWorkspaceEmoji,
+            id: id,
         };
 
         // Add to workspaces
@@ -1085,12 +1115,155 @@ class LeftMenu extends LitElement {
         this.saveWorkspaces(workspaces);
 
         // Switch to the new workspace
-        localStorage.setItem('currentWorkspace', name);
+        localStorage.setItem('currentWorkspace', id);
 
         this.closeNewWorkspaceDialog();
 
         // Refresh to home to load the new workspace
         window.location.href = '/?id=home';
+    }
+
+    toggleWorkspaceDropdown2(workspaceId, e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.openWorkspaceDropdownId = this.openWorkspaceDropdownId === workspaceId ? null : workspaceId;
+        this.requestUpdate();
+    }
+
+    showEditWorkspaceDialog(workspaceId, e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const workspaces = this.getWorkspaces();
+        const workspace = workspaces.find(w => w.id === workspaceId);
+
+        if (!workspace) return;
+
+        this.editWorkspaceOriginalName = workspace.name;
+        this.editWorkspaceName = workspace.name;
+        this.editWorkspaceEmoji = workspace.emoji;
+        this.editWorkspaceOriginalId = workspaceId;
+        this.editWorkspaceValidationState = 'valid';
+        this.isEditWorkspaceDialogOpen = true;
+        this.showWorkspaceDropdown = false;
+        this.openWorkspaceDropdownId = null;
+        this.requestUpdate();
+
+        // Focus on the input field after render
+        setTimeout(() => {
+            const input = this.shadowRoot.querySelector('.edit-workspace-name-input');
+            if (input) {
+                input.focus();
+            }
+        }, 100);
+    }
+
+    closeEditWorkspaceDialog(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        this.isEditWorkspaceDialogOpen = false;
+        this.editWorkspaceName = '';
+        this.editWorkspaceEmoji = '';
+        this.editWorkspaceOriginalName = '';
+        this.editWorkspaceOriginalId = '';
+        this.editWorkspaceValidationState = 'empty';
+        this.requestUpdate();
+    }
+
+    changeEditWorkspaceEmoji(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        this.editWorkspaceEmoji = this.getRandomEmoji();
+        this.requestUpdate();
+    }
+
+    updateEditWorkspaceName(e) {
+        this.editWorkspaceName = e.target.value;
+        this.validateEditWorkspaceName();
+    }
+
+    validateEditWorkspaceName() {
+        const name = this.editWorkspaceName.trim();
+
+        if (!name) {
+            this.editWorkspaceValidationState = 'empty';
+            return;
+        }
+
+        // Check if workspace name already exists (but allow the same name if it's the original)
+        const workspaces = this.getWorkspaces();
+        const nameExists = workspaces.some(w => w.name === name && w.id !== this.editWorkspaceOriginalId);
+
+        if (nameExists) {
+            this.editWorkspaceValidationState = 'invalid';
+        } else {
+            this.editWorkspaceValidationState = 'valid';
+        }
+    }
+
+    saveEditWorkspace(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Check validation state
+        if (this.editWorkspaceValidationState === 'empty') {
+            wisk.utils.showToast('Please enter a workspace name', 3000);
+            return;
+        }
+
+        if (this.editWorkspaceValidationState === 'invalid') {
+            wisk.utils.showToast('A workspace with this name already exists', 3000);
+            return;
+        }
+
+        const newName = this.editWorkspaceName.trim();
+        const workspaces = this.getWorkspaces();
+
+        // Find and update the workspace
+        const workspaceIndex = workspaces.findIndex(w => w.id === this.editWorkspaceOriginalId);
+        if (workspaceIndex !== -1) {
+            workspaces[workspaceIndex] = {
+                name: newName,
+                emoji: this.editWorkspaceEmoji,
+                id: this.editWorkspaceOriginalId,
+            };
+            this.saveWorkspaces(workspaces);
+        }
+
+        this.closeEditWorkspaceDialog();
+        this.requestUpdate();
+    }
+
+    deleteWorkspace(workspaceId, e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const currentWorkspaceId = localStorage.getItem('currentWorkspace');
+
+        // Prevent deleting the current workspace
+        if (workspaceId === currentWorkspaceId) {
+            wisk.utils.showToast('Cannot delete the current workspace. Switch to another workspace first.', 3000);
+            return;
+        }
+
+        const workspaces = this.getWorkspaces();
+        const workspace = workspaces.find(w => w.id === workspaceId);
+        const workspaceName = workspace ? workspace.name : 'Unknown';
+
+        const result = confirm(`Are you sure you want to delete the workspace "${workspaceName}"?`);
+        if (!result) {
+            return;
+        }
+
+        const filteredWorkspaces = workspaces.filter(w => w.id !== workspaceId);
+        this.saveWorkspaces(filteredWorkspaces);
+
+        this.openWorkspaceDropdownId = null;
+        this.requestUpdate();
     }
 
     render() {
@@ -1121,13 +1294,56 @@ class LeftMenu extends LitElement {
                                       ${this.getWorkspaces().map(
                                           workspace => html`
                                               <div
-                                                  class="workspace-item ${workspace.name === (localStorage.getItem('currentWorkspace') || '')
-                                                      ? 'active'
-                                                      : ''}"
-                                                  @click=${e => this.switchWorkspace(workspace.name, e)}
+                                                  class="workspace-item ${workspace.id === localStorage.getItem('currentWorkspace') ? 'active' : ''}"
+                                                  @click=${e => this.switchWorkspace(workspace.id, e)}
+                                                  @mouseenter=${() => (this.hoveredWorkspaceId = workspace.id)}
+                                                  @mouseleave=${() => {
+                                                      this.hoveredWorkspaceId = null;
+                                                      if (this.openWorkspaceDropdownId === workspace.id) {
+                                                          this.openWorkspaceDropdownId = null;
+                                                      }
+                                                  }}
                                               >
                                                   <span class="workspace-item-emoji">${workspace.emoji}</span>
-                                                  <span class="workspace-item-name">${workspace.name || 'Default Workspace'}</span>
+                                                  <span class="workspace-item-name">${workspace.name}</span>
+                                                  <div class="more-options" @click=${e => this.toggleWorkspaceDropdown2(workspace.id, e)}>
+                                                      <img
+                                                          src="/a7/forget/morex.svg"
+                                                          alt="More options"
+                                                          draggable="false"
+                                                          style="width: 20px; height: 20px;"
+                                                      />
+                                                      ${this.openWorkspaceDropdownId === workspace.id
+                                                          ? html`
+                                                                <div class="dropdown">
+                                                                    <div
+                                                                        class="dropdown-item"
+                                                                        @click=${e => this.showEditWorkspaceDialog(workspace.id, e)}
+                                                                    >
+                                                                        <img
+                                                                            src="/a7/forget/edit.svg"
+                                                                            alt="Edit"
+                                                                            draggable="false"
+                                                                            style="width: 16px; height: 16px;"
+                                                                        />
+                                                                        Edit
+                                                                    </div>
+                                                                    <div
+                                                                        class="dropdown-item delete-item"
+                                                                        @click=${e => this.deleteWorkspace(workspace.id, e)}
+                                                                    >
+                                                                        <img
+                                                                            src="/a7/forget/trash-new.svg"
+                                                                            alt="Delete"
+                                                                            draggable="false"
+                                                                            style="width: 16px; height: 16px;"
+                                                                        />
+                                                                        Delete
+                                                                    </div>
+                                                                </div>
+                                                            `
+                                                          : ''}
+                                                  </div>
                                               </div>
                                           `
                                       )}
@@ -1236,7 +1452,7 @@ class LeftMenu extends LitElement {
                                                       <div class="dropdown">
                                                           <div class="dropdown-item delete-item" @click=${e => this.removeItem(item.id, e)}>
                                                               <img
-                                                                  src="/a7/forget/trash.svg"
+                                                                  src="/a7/forget/trash-new.svg"
                                                                   alt="Delete"
                                                                   draggable="false"
                                                                   style="width: 20px; height: 20px;"
@@ -1306,6 +1522,56 @@ class LeftMenu extends LitElement {
                                       <div class="workspace-dialog-actions">
                                           <button class="workspace-btn tertiary" @click=${this.closeNewWorkspaceDialog}>Cancel</button>
                                           <button class="workspace-btn primary" @click=${this.saveNewWorkspace}>Create Workspace</button>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      `
+                    : ''}
+
+                <!-- Edit Workspace Dialog -->
+                ${this.isEditWorkspaceDialogOpen
+                    ? html`
+                          <div
+                              class="workspace-dialog"
+                              @click=${e => {
+                                  if (e.target === e.currentTarget) {
+                                      this.closeEditWorkspaceDialog();
+                                  }
+                              }}
+                          >
+                              <div class="workspace-dialog-content">
+                                  <div class="workspace-dialog-header">
+                                      <span class="workspace-dialog-title">Edit Workspace</span>
+                                      <button class="workspace-dialog-close" @click=${this.closeEditWorkspaceDialog}>
+                                          <img src="/a7/forget/dialog-x.svg" alt="Close" style=";" />
+                                      </button>
+                                  </div>
+
+                                  <div class="workspace-form">
+                                      <div class="workspace-emoji-section">
+                                          <div class="workspace-emoji-display" @click=${this.changeEditWorkspaceEmoji}>
+                                              ${this.editWorkspaceEmoji}
+                                          </div>
+                                          <input
+                                              type="text"
+                                              class="edit-workspace-name-input workspace-name-input ${this.editWorkspaceValidationState}"
+                                              placeholder="Workspace name"
+                                              .value=${this.editWorkspaceName}
+                                              @input=${this.updateEditWorkspaceName}
+                                              @keydown=${e => {
+                                                  if (e.key === 'Enter') {
+                                                      this.saveEditWorkspace(e);
+                                                  } else if (e.key === 'Escape') {
+                                                      this.closeEditWorkspaceDialog();
+                                                  }
+                                              }}
+                                          />
+                                      </div>
+
+                                      <div class="workspace-dialog-actions">
+                                          <button class="workspace-btn tertiary" @click=${this.closeEditWorkspaceDialog}>Cancel</button>
+                                          <button class="workspace-btn primary" @click=${this.saveEditWorkspace}>Save Changes</button>
                                       </div>
                                   </div>
                               </div>

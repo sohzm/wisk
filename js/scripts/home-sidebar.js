@@ -14,7 +14,7 @@ function initHomeSidebar() {
     workspaceAndThemeContainer.innerHTML = `
         <!-- Workspace Header -->
         <div id="workspace-header" style="display: flex; align-items: center; gap: var(--gap-2); padding: var(--padding-w1); border-radius: var(--radius); cursor: pointer; font-weight: 600; font-size: 15px; border: 1px solid transparent; transition: all 0.2s ease; position: relative; margin-bottom: var(--gap-2);">
-            <span id="workspace-emoji" style="font-size: 18px;">🍎</span>
+            <span id="workspace-emoji" style="font-size: 18px;">💕</span>
             <span id="workspace-name" style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Default Workspace</span>
             <img id="workspace-arrow" src="/a7/forget/down-arrow.svg" style="width: 20px; height: 20px; filter: var(--themed-svg); transition: transform 0.2s ease;" />
         </div>
@@ -41,7 +41,7 @@ function initHomeSidebar() {
                 </div>
                 <div style="display: flex; flex-direction: column; gap: var(--gap-3);">
                     <div style="display: flex; align-items: center; gap: var(--gap-2);">
-                        <div id="workspace-emoji-display" style="font-size: 32px; border-radius: var(--radius); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: all 0.15s ease;">🍎</div>
+                        <div id="workspace-emoji-display" style="font-size: 32px; border-radius: var(--radius); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: all 0.15s ease;">💕</div>
                         <input id="workspace-name-input" type="text" placeholder="Workspace name" style="flex: 1; padding: var(--padding-w2); border: 2px solid var(--bg-3); border-radius: var(--radius); background-color: var(--bg-2); color: var(--fg-1); font-size: 14px; outline: none; transition: all 0.15s ease;" />
                     </div>
                     <div style="display: flex; gap: var(--gap-2); justify-content: flex-end; margin-top: var(--padding-4);">
@@ -100,21 +100,19 @@ function initHomeSidebar() {
 
     // Workspace functionality
     const initWorkspace = () => {
-        const currentWorkspace = localStorage.getItem('currentWorkspace') || '';
-        const workspaces = JSON.parse(localStorage.getItem('workspaces') || '[]');
+        // Get workspaces from structure
+        const workspacesData = localStorage.getItem('workspaces') || '{"version":1,"workspaces":[]}';
+        const parsed = JSON.parse(workspacesData);
+        const workspaces = parsed.workspaces;
 
-        // Create default workspace if none exists
-        if (workspaces.length === 0) {
-            workspaces.push({ name: '', emoji: '🍎' });
-            localStorage.setItem('workspaces', JSON.stringify(workspaces));
-        }
+        const currentWorkspaceId = localStorage.getItem('currentWorkspace');
 
         // Get current workspace
-        const workspace = workspaces.find(w => w.name === currentWorkspace) || workspaces[0];
+        const workspace = workspaces.find(w => w.id === currentWorkspaceId) || workspaces[0];
 
         // Update UI
         document.getElementById('workspace-emoji').textContent = workspace.emoji;
-        document.getElementById('workspace-name').textContent = workspace.name || 'Default Workspace';
+        document.getElementById('workspace-name').textContent = workspace.name;
 
         // Workspace header click handler
         const workspaceHeader = document.getElementById('workspace-header');
@@ -138,11 +136,11 @@ function initHomeSidebar() {
                 // Populate dropdown
                 let dropdownHTML = '';
                 workspaces.forEach(ws => {
-                    const isActive = ws.name === currentWorkspace;
+                    const isActive = ws.id === currentWorkspaceId;
                     dropdownHTML += `
-                        <div class="workspace-item" data-workspace="${ws.name}" style="display: flex; align-items: center; gap: var(--gap-2); padding: var(--padding-w1); cursor: pointer; border-radius: var(--radius); color: var(--fg-1); font-weight: 500; font-size: 14px; transition: all 0.15s ease; ${isActive ? 'background-color: var(--bg-accent); color: var(--fg-accent);' : ''}">
+                        <div class="workspace-item" data-workspace-id="${ws.id}" style="display: flex; align-items: center; gap: var(--gap-2); padding: var(--padding-w1); cursor: pointer; border-radius: var(--radius); color: var(--fg-1); font-weight: 500; font-size: 14px; transition: all 0.15s ease; ${isActive ? 'background-color: var(--bg-accent); color: var(--fg-accent);' : ''}">
                             <span style="font-size: 16px;">${ws.emoji}</span>
-                            <span style="flex: 1;">${ws.name || 'Default Workspace'}</span>
+                            <span style="flex: 1;">${ws.name}</span>
                         </div>
                     `;
                 });
@@ -171,8 +169,8 @@ function initHomeSidebar() {
                     });
                     item.addEventListener('click', e => {
                         e.stopPropagation();
-                        const workspaceName = item.getAttribute('data-workspace');
-                        localStorage.setItem('currentWorkspace', workspaceName);
+                        const workspaceId = item.getAttribute('data-workspace-id');
+                        localStorage.setItem('currentWorkspace', workspaceId);
                         window.location.href = '/?id=home';
                     });
                 });
@@ -213,7 +211,7 @@ function initHomeSidebar() {
 
             // Random emoji
             const getRandomEmoji = () => {
-                const emojis = ['🍎', '🚀', '💡', '⭐', '🎨', '📚', '🏆', '🌟', '🔥', '💼', '🎯', '🌈'];
+                const emojis = ['💕', '🚀', '💡', '⭐', '🎨', '📚', '🏆', '🌟', '🔥', '💼', '🎯', '🌈'];
                 return emojis[Math.floor(Math.random() * emojis.length)];
             };
             emojiDisplay.textContent = getRandomEmoji();
@@ -297,11 +295,12 @@ function initHomeSidebar() {
                 const newWorkspace = {
                     name: input.value.trim(),
                     emoji: emojiDisplay.textContent,
+                    id: window.generateWorkspaceId(),
                 };
 
                 workspaces.push(newWorkspace);
-                localStorage.setItem('workspaces', JSON.stringify(workspaces));
-                localStorage.setItem('currentWorkspace', newWorkspace.name);
+                localStorage.setItem('workspaces', JSON.stringify({ version: 1, workspaces: workspaces }));
+                localStorage.setItem('currentWorkspace', newWorkspace.id);
 
                 closeDialog();
                 window.location.href = '/?id=home';

@@ -1326,39 +1326,28 @@ class OptionsComponent extends LitElement {
             wisk.utils.showToast('Exporting workspaces...', 3000);
 
             // Get workspaces from localStorage
-            const workspacesStr = localStorage.getItem('workspaces');
-            const originalWorkspaces = workspacesStr ? JSON.parse(workspacesStr) : [{ name: '', emoji: '🍎' }];
+            const workspacesStr = localStorage.getItem('workspaces') || '{"version":1,"workspaces":[]}';
+            const parsed = JSON.parse(workspacesStr);
+            const workspacesList = parsed.workspaces;
 
             const filesToZip = {};
 
-            // Create modified workspaces with generated names for export
-            const workspacesForExport = originalWorkspaces.map(workspace => {
-                if (!workspace.name || workspace.name === '') {
-                    const randomChars = Math.random().toString(36).substring(2, 6).toUpperCase();
-                    const generatedName = `Default-${randomChars}`;
-                    console.log(`Generated name for default workspace: ${generatedName}`);
-                    return { ...workspace, name: generatedName };
-                }
-                return workspace;
-            });
+            // Export workspaces with new structure
+            const workspacesForExport = {
+                version: 1,
+                workspaces: workspacesList,
+            };
 
-            // Add workspace metadata with updated names
+            // Add workspace metadata
             filesToZip['workspaces.json'] = new TextEncoder().encode(JSON.stringify(workspacesForExport, null, 2));
 
-            // Export each workspace using the updated names
-            for (let i = 0; i < originalWorkspaces.length; i++) {
-                const originalWorkspace = originalWorkspaces[i];
-                const exportWorkspace = workspacesForExport[i];
+            // Export each workspace using IDs
+            for (const workspace of workspacesList) {
+                const workspaceId = workspace.id;
+                const workspaceFolder = workspace.name;
 
-                const workspaceName = exportWorkspace.name;
-                const workspaceFolder = workspaceName;
-
-                // Create database name for this workspace (using original name since that's what exists)
-                const originalWorkspaceName = originalWorkspace.name;
-                const dbName =
-                    originalWorkspaceName === ''
-                        ? 'WiskDatabase'
-                        : `WiskDatabase-${originalWorkspaceName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+                // Create database name for this workspace using ID
+                const dbName = `WiskDatabase-${workspaceId}`;
 
                 try {
                     // Open the workspace database
@@ -1489,7 +1478,7 @@ class OptionsComponent extends LitElement {
 
                     db.close();
                 } catch (dbError) {
-                    console.warn(`Failed to export workspace "${workspaceName}":`, dbError);
+                    console.warn(`Failed to export workspace "${workspace.name || workspaceId}":`, dbError);
                     // Continue with other workspaces
                 }
             }

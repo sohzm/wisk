@@ -3,13 +3,13 @@ wisk.db = (function () {
     const bc = new BroadcastChannel('database-broadcast');
 
     const currentDB = (() => {
-        const name = localStorage.getItem('currentWorkspace');
-        return name ? `WiskDatabase-${name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}` : 'WiskDatabase';
+        const workspaceId = localStorage.getItem('currentWorkspace');
+        return workspaceId ? `WiskDatabase-${workspaceId}` : 'WiskDatabase';
     })();
-    const Workspaces = localStorage.getItem('workspaces') || '[]';
-    const dbNames = JSON.parse(Workspaces).map(w => {
-        return w.name === '' ? 'WiskDatabase' : `WiskDatabase-${w.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
-    });
+    const workspacesData = localStorage.getItem('workspaces') || '{"version":1,"workspaces":[]}';
+    const parsedWorkspaces = JSON.parse(workspacesData);
+    const workspacesList = parsedWorkspaces.workspaces;
+    const dbNames = workspacesList.map(w => `WiskDatabase-${w.id}`);
     const dbVersion = 5;
     const stores = ['WiskStore', 'WiskAssetStore', 'WiskPluginStore', 'WiskDatabaseStore', 'WiskSnapshots'];
     const functionNames = {
@@ -173,32 +173,34 @@ wisk.db = (function () {
             // Extract workspace metadata if exists
             let workspacesToImport = [];
             if (files['workspaces.json']) {
-                workspacesToImport = JSON.parse(new TextDecoder().decode(files['workspaces.json']));
+                const importedData = JSON.parse(new TextDecoder().decode(files['workspaces.json']));
+                workspacesToImport = importedData.workspaces;
             }
 
             // Check for database name clashes before importing
-            const existingWorkspaces = JSON.parse(localStorage.getItem('workspaces') || '[]');
+            const existingWorkspacesData = JSON.parse(localStorage.getItem('workspaces') || '{"version":1,"workspaces":[]}');
+            const existingWorkspaces = existingWorkspacesData.workspaces;
             const existingDbNames = new Set();
 
             // Get existing database names
             for (const workspace of existingWorkspaces) {
-                const dbName = workspace.name === '' ? 'WiskDatabase' : `WiskDatabase-${workspace.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+                const dbName = `WiskDatabase-${workspace.id}`;
                 existingDbNames.add(dbName);
             }
 
             // Check for clashes with workspaces to import
             const clashingWorkspaces = [];
             for (const workspace of workspacesToImport) {
-                const dbName = workspace.name === '' ? 'WiskDatabase' : `WiskDatabase-${workspace.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+                const dbName = `WiskDatabase-${workspace.id}`;
                 if (existingDbNames.has(dbName)) {
-                    clashingWorkspaces.push(workspace.name || 'Default');
+                    clashingWorkspaces.push(workspace.name);
                 }
             }
 
             // Reject import if there are clashes
             if (clashingWorkspaces.length > 0) {
                 throw new Error(
-                    `Workspace names clash with existing workspaces: ${clashingWorkspaces.join(', ')}. Please rename these workspaces in the export file or remove existing ones.`
+                    `Workspace IDs clash with existing workspaces: ${clashingWorkspaces.join(', ')}. Please export again to generate new IDs.`
                 );
             }
 
@@ -206,7 +208,11 @@ wisk.db = (function () {
             if (files['workspaces.json']) {
                 // Merge with existing workspaces
                 const updatedWorkspaces = [...existingWorkspaces, ...workspacesToImport];
-                localStorage.setItem('workspaces', JSON.stringify(updatedWorkspaces));
+                const newStructure = {
+                    version: 1,
+                    workspaces: updatedWorkspaces,
+                };
+                localStorage.setItem('workspaces', JSON.stringify(newStructure));
                 console.log(`Imported ${workspacesToImport.length} new workspaces`);
             }
 
@@ -237,9 +243,11 @@ wisk.db = (function () {
                 // Skip asset metadata files as they're processed above
                 if (fileInWorkspace === 'assets.json') continue;
 
-                // Create database name for this workspace
-                const workspaceDbName =
-                    workspaceName === '' ? 'WiskDatabase' : `WiskDatabase-${workspaceName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+                // Create database name for this workspace using ID
+                const workspace = workspacesToImport.find(w => workspaceName === w.name);
+                const workspaceDbName = workspace
+                    ? `WiskDatabase-${workspace.id}`
+                    : `WiskDatabase-${workspaceName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
 
                 // Open the workspace database
                 const workspaceDb = await new Promise((resolve, reject) => {
