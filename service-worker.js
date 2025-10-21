@@ -23,6 +23,7 @@ const CORE_ASSETS = [
     '/a7/background.svg',
     '/a7/cdn/chart.js',
     '/a7/cdn/d3-7.9.0.min.js',
+    '/a7/plugins/toolbar/left.svg',
     '/a7/cdn/fflate-0.8.2.min.js',
     '/a7/cdn/katex-0.16.9.min.css',
     '/a7/cdn/katex-0.16.9.min.js',
