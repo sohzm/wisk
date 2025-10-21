@@ -68,7 +68,10 @@ class VimEditor {
     }
 
     processAllElements() {
-        const editableElements = this.findEditableElements(document.body);
+        const editorMain = document.querySelector('.editor-main');
+        if (!editorMain) return;
+
+        const editableElements = this.findEditableElements(editorMain);
         editableElements.forEach(element => this.attachToEditable(element));
     }
 

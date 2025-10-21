@@ -89,7 +89,7 @@ class AccordionElement extends BaseTextElement {
             }
             .toggle-btn {
                 cursor: pointer;
-                transition: transform 0.3s ease;
+                transition: transform 0.2s ease;
                 filter: var(--themed-svg);
                 opacity: 0.6;
             }
@@ -103,12 +103,17 @@ class AccordionElement extends BaseTextElement {
                 outline: none;
                 line-height: 1.5;
                 border: none;
-                padding: var(--padding-4);
-                display: none;
+                padding: 0 var(--padding-4);
+                max-height: 0;
+                overflow: hidden;
                 color: var(--fg-2);
+                opacity: 0;
+                transition: max-height 0.2s ease, padding 0.2s ease, opacity 0.2s ease;
             }
             #editable.visible {
-                display: block;
+                max-height: 2000px;
+                padding: var(--padding-4);
+                opacity: 1;
             }
             #editable.empty:before {
                 content: attr(data-placeholder);
@@ -321,6 +326,20 @@ class AccordionElement extends BaseTextElement {
             text: this.shadowRoot.querySelector('.question').textContent + '? ' + this.editable.textContent,
             markdown: '# ' + this.shadowRoot.querySelector('.question').textContent + '?\n' + wisk.editor.htmlToMarkdown(this.editable.innerHTML),
         };
+    }
+
+    focus(identifier) {
+        const editable = this.shadowRoot.querySelector('#editable');
+        const toggleBtn = this.shadowRoot.querySelector('.toggle-btn');
+
+        // Open the accordion if not already open
+        if (!editable.classList.contains('visible')) {
+            editable.classList.add('visible');
+            toggleBtn.classList.add('open');
+        }
+
+        // Call parent's focus method
+        super.focus(identifier);
     }
 }
 
