@@ -6,7 +6,23 @@ class CodeElement extends LitElement {
             display: block;
             position: relative;
         }
-        select {
+        .language-selector {
+            position: absolute;
+            top: var(--padding-2);
+            right: var(--padding-2);
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        :host(:hover) .language-selector {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .language-selector {
+                opacity: 1;
+            }
+        }
+        .selector-button {
             font-family: var(--font-mono);
             padding: var(--padding-w1);
             border: 1px solid var(--border-1);
@@ -14,25 +30,67 @@ class CodeElement extends LitElement {
             background: var(--bg-2);
             color: var(--fg-1);
             cursor: pointer;
-            position: absolute;
-            top: var(--padding-2);
-            right: var(--padding-2);
-            z-index: 1;
             outline: none;
-            opacity: 0;
-            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
         }
-        select:focus {
-            outline: none;
+        .selector-button:hover {
+            background: var(--bg-3);
+        }
+        .selector-button:focus {
             border-color: var(--fg-accent);
         }
-        :host(:hover) select {
-            opacity: 1;
+        .dropdown-icon {
+            width: 12px;
+            height: 12px;
+            transition: transform 0.2s;
         }
-        @media (max-width: 768px) {
-            select {
-                opacity: 1;
-            }
+        .dropdown-icon.open {
+            transform: rotate(180deg);
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;
+            background: var(--bg-2);
+            border: 1px solid var(--border-1);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-height: 300px;
+            overflow-y: auto;
+            min-width: 150px;
+            opacity: 0;
+            transform: translateY(-8px);
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .dropdown-menu.open {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .dropdown-item {
+            font-family: var(--font-mono);
+            padding: var(--padding-w1) var(--padding-2);
+            cursor: pointer;
+            color: var(--fg-1);
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+        .dropdown-item:hover {
+            background: var(--bg-3);
+        }
+        .dropdown-item.selected {
+            background: var(--bg-accent);
+            color: var(--fg-accent);
+        }
+        .dropdown-item:first-child {
+            border-radius: var(--radius) var(--radius) 0 0;
+        }
+        .dropdown-item:last-child {
+            border-radius: 0 0 var(--radius) var(--radius);
         }
         .CodeMirror {
             height: auto;
@@ -93,6 +151,7 @@ class CodeElement extends LitElement {
         editor: { type: Object },
         valueBuffer: { type: Object },
         selectedLang: { type: String },
+        dropdownOpen: { type: Boolean },
     };
 
     constructor() {
@@ -116,11 +175,37 @@ class CodeElement extends LitElement {
         };
         this.valueBuffer = null;
         this.selectedLang = 'javascript';
+        this.dropdownOpen = false;
+        this.handleClickOutside = this.handleClickOutside.bind(this);
     }
 
     async firstUpdated() {
         await this.initializeCodeMirror();
-        this.initializeLanguageSelector();
+        document.addEventListener('click', this.handleClickOutside);
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        document.removeEventListener('click', this.handleClickOutside);
+    }
+
+    handleClickOutside(e) {
+        if (!this.renderRoot.contains(e.target)) {
+            this.dropdownOpen = false;
+        }
+    }
+
+    toggleDropdown(e) {
+        e.stopPropagation();
+        this.dropdownOpen = !this.dropdownOpen;
+    }
+
+    selectLanguage(lang) {
+        this.selectedLang = lang;
+        this.dropdownOpen = false;
+        const mode = this.getModeForLanguage(this.selectedLang);
+        this.editor.setOption('mode', mode);
+        this.sendUpdates();
     }
 
     async initializeCodeMirror() {
@@ -174,25 +259,10 @@ class CodeElement extends LitElement {
         }
     }
 
-    initializeLanguageSelector() {
-        const select = this.renderRoot.querySelector('#language-select');
-        select.value = this.selectedLang;
-        select.addEventListener('change', e => {
-            this.selectedLang = e.target.value;
-            const mode = this.getModeForLanguage(this.selectedLang);
-            this.editor.setOption('mode', mode);
-            this.sendUpdates();
-        });
-    }
-
     updated(changedProperties) {
         if (changedProperties.has('selectedLang') && this.editor) {
             const mode = this.getModeForLanguage(this.selectedLang);
             this.editor.setOption('mode', mode);
-            const select = this.renderRoot.querySelector('#language-select');
-            if (select && select.value !== this.selectedLang) {
-                select.value = this.selectedLang;
-            }
         }
     }
 
@@ -260,11 +330,34 @@ class CodeElement extends LitElement {
     render() {
         return html`
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css" />
-            <select id="language-select" style="${wisk.editor.readonly ? 'display: none' : ''}">
-                ${Object.entries(this.supportedLanguages).map(
-                    ([value, label]) => html`<option value="${value}" ?selected=${value === this.selectedLang}>${label}</option>`
-                )}
-            </select>
+            ${!wisk.editor.readonly ? html`
+                <div class="language-selector">
+                    <button 
+                        class="selector-button" 
+                        @click=${this.toggleDropdown}
+                        aria-haspopup="true"
+                        aria-expanded=${this.dropdownOpen}
+                    >
+                        <span>${this.supportedLanguages[this.selectedLang]}</span>
+                        <svg class="dropdown-icon ${this.dropdownOpen ? 'open' : ''}" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+                            <path d="M2 4l4 4 4-4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="dropdown-menu ${this.dropdownOpen ? 'open' : ''}" role="menu">
+                        ${Object.entries(this.supportedLanguages).map(
+                            ([value, label]) => html`
+                                <div 
+                                    class="dropdown-item ${value === this.selectedLang ? 'selected' : ''}"
+                                    role="menuitem"
+                                    @click=${() => this.selectLanguage(value)}
+                                >
+                                    ${label}
+                                </div>
+                            `
+                        )}
+                    </div>
+                </div>
+            ` : ''}
             <div id="editor"></div>
         `;
     }
