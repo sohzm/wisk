@@ -103,5 +103,41 @@
     justify-content: center;
     align-items: center;
     padding: var(--padding-2);
+    padding-top: var(--padding-2);
     font-weight: 400;
+    position: relative;
+    min-height: 30px;
+}
+
+.left-sidebar-title {
+    margin-top: var(--padding-2);
+}
+
+/* Mobile-only close button */
+.left-sidebar-close-mobile {
+    display: none; /* Hidden by default (desktop) */
+    position: absolute;
+    top: var(--padding-2);
+    right: var(--padding-2);
+    outline: none;
+    border: none;
+    background-color: transparent;
+    color: var(--fg-1);
+    cursor: pointer;
+    padding: var(--padding-w1);
+    border-radius: var(--radius);
+    transition: background-color 0.2s;
+}
+
+.left-sidebar-close-mobile:hover {
+    background-color: var(--bg-3);
+}
+
+/* Show close button only on mobile */
+@media (max-width: 900px) {
+    .left-sidebar-close-mobile {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
