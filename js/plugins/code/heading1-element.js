@@ -17,6 +17,7 @@ class Heading1Element extends BaseTextElement {
                 outline: none;
                 position: relative;
                 line-height: 1.5;
+                font-size: calc(var(--editor-font-size, 17px) * 2);
             }
             #editable.empty:before {
                 content: attr(data-placeholder);

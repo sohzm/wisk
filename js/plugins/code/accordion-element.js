@@ -109,6 +109,7 @@ class AccordionElement extends BaseTextElement {
                 color: var(--fg-2);
                 opacity: 0;
                 transition: max-height 0.2s ease, padding 0.2s ease, opacity 0.2s ease;
+                font-size: var(--editor-font-size, 17px);
             }
             #editable.visible {
                 max-height: 2000px;

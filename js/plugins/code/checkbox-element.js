@@ -394,6 +394,7 @@ class CheckboxElement extends BaseTextElement {
                 position: relative;
                 min-height: 24px;
                 transition: opacity 0.2s ease;
+                font-size: var(--editor-font-size, 17px);
             }
             #list-outer {
                 width: 100%;

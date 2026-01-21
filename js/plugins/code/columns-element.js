@@ -818,7 +818,7 @@ class ColumnsElement extends HTMLElement {
                     display: flex;
                     align-items: center;
                     gap: var(--gap-2);
-                    padding: 8px 10px;
+                    padding: var(--padding-3);
                     cursor: pointer;
                     outline: none;
                     transition:

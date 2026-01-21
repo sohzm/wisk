@@ -105,7 +105,7 @@ class CalloutElement extends BaseTextElement {
             }
             #editable {
                 flex: 1;
-                font-size: 16px;
+                font-size: var(--editor-font-size, 17px);
                 line-height: 1.5;
                 border: none;
                 border-radius: var(--radius);

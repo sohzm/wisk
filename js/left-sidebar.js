@@ -27,6 +27,8 @@ function initializeLeftSidebarResize() {
 
         let startX;
         let startWidth;
+        let resizeScheduled = false;
+        let latestClientX;
 
         handle.addEventListener('mousedown', initResize);
 
@@ -42,12 +44,20 @@ function initializeLeftSidebarResize() {
 
         function resize(e) {
             if (window.innerWidth < 900) return;
-            const diff = e.clientX - startX;
-            let newWidth = Math.min(Math.max(startWidth + diff, MIN_LEFT_WIDTH), MAX_LEFT_WIDTH);
-            sidebar.style.width = `${newWidth}px`;
-            leftSidebarWidth = newWidth;
-            localStorage.setItem('leftSidebarWidth', newWidth);
-            window.dispatchEvent(new Event('resize'));
+            latestClientX = e.clientX;
+
+            if (resizeScheduled) return;
+            resizeScheduled = true;
+
+            requestAnimationFrame(() => {
+                resizeScheduled = false;
+                const diff = latestClientX - startX;
+                let newWidth = Math.min(Math.max(startWidth + diff, MIN_LEFT_WIDTH), MAX_LEFT_WIDTH);
+                sidebar.style.width = `${newWidth}px`;
+                leftSidebarWidth = newWidth;
+                localStorage.setItem('leftSidebarWidth', newWidth);
+                window.dispatchEvent(new Event('resize'));
+            });
         }
 
         function stopResize() {

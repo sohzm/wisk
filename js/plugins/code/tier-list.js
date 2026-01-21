@@ -153,6 +153,10 @@ class TierList extends LitElement {
             F: 'rgb(127, 255, 255)',
         };
         this.draggedImage = null;
+        this.touchDraggedImage = null;
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+        this.touchMoving = false;
     }
 
     firstUpdated() {
@@ -171,6 +175,7 @@ class TierList extends LitElement {
         this.addEventListener('dragover', this.handleDragOver.bind(this));
         this.addEventListener('dragleave', this.handleDragLeave.bind(this));
         this.addEventListener('drop', this.handleDrop.bind(this));
+        this.addEventListener('touchstart', this.handleTouchStart.bind(this));
     }
 
     disconnectedCallback() {
@@ -246,6 +251,93 @@ class TierList extends LitElement {
             this.requestUpdate();
             this.sendUpdates();
         }
+    }
+
+    handleTouchStart(e) {
+        const target = e.composedPath()[0].closest('.tier-image');
+        if (!target) return;
+
+        this.touchStartX = e.touches[0].clientX;
+        this.touchStartY = e.touches[0].clientY;
+        this.touchDraggedImage = target;
+        this.touchMoving = false;
+
+        this.touchDraggedImage.style.opacity = '0.5';
+
+        this._boundTouchMove = this.handleTouchMoveEvent.bind(this);
+        this._boundTouchEnd = this.handleTouchEndEvent.bind(this);
+
+        document.addEventListener('touchmove', this._boundTouchMove, { passive: false });
+        document.addEventListener('touchend', this._boundTouchEnd);
+        document.addEventListener('touchcancel', this._boundTouchEnd);
+    }
+
+    handleTouchMoveEvent(e) {
+        if (!this.touchDraggedImage) return;
+
+        const touchX = e.touches[0].clientX;
+        const touchY = e.touches[0].clientY;
+        const deltaX = touchX - this.touchStartX;
+        const deltaY = touchY - this.touchStartY;
+
+        if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+            this.touchMoving = true;
+        }
+
+        if (this.touchMoving) {
+            this.touchDraggedImage.style.position = 'fixed';
+            this.touchDraggedImage.style.left = `${touchX - 30}px`;
+            this.touchDraggedImage.style.top = `${touchY - 30}px`;
+            this.touchDraggedImage.style.zIndex = '1000';
+            e.preventDefault();
+        }
+    }
+
+    handleTouchEndEvent(e) {
+        if (!this.touchDraggedImage) return;
+
+        const touch = e.changedTouches[0];
+
+        this.touchDraggedImage.style.display = 'none';
+        const elementUnderTouch = this.shadowRoot.elementFromPoint(touch.clientX, touch.clientY);
+        this.touchDraggedImage.style.display = '';
+
+        const dropTarget = elementUnderTouch?.closest('.tier-content') || elementUnderTouch?.closest('.image-pool');
+
+        this.touchDraggedImage.style.opacity = '1';
+        this.touchDraggedImage.style.position = '';
+        this.touchDraggedImage.style.left = '';
+        this.touchDraggedImage.style.top = '';
+        this.touchDraggedImage.style.zIndex = '';
+
+        if (this.touchMoving && dropTarget) {
+            const imageData = this.touchDraggedImage.src;
+            const targetTier = dropTarget.dataset.tier;
+
+            Object.keys(this.tiers).forEach(tier => {
+                this.tiers[tier] = this.tiers[tier].filter(img => img !== imageData);
+            });
+            this.images = this.images.filter(img => img !== imageData);
+
+            if (targetTier) {
+                this.tiers = {
+                    ...this.tiers,
+                    [targetTier]: [...this.tiers[targetTier], imageData],
+                };
+            } else {
+                this.images = [...this.images, imageData];
+            }
+
+            this.requestUpdate();
+            this.sendUpdates();
+        }
+
+        this.touchDraggedImage = null;
+        this.touchMoving = false;
+
+        document.removeEventListener('touchmove', this._boundTouchMove);
+        document.removeEventListener('touchend', this._boundTouchEnd);
+        document.removeEventListener('touchcancel', this._boundTouchEnd);
     }
 
     async handleFileSelect(e) {

@@ -32,7 +32,12 @@ wisk.theme.setTheme = async function (themeName) {
         }
     });
 
-    const styleSheet = document.createElement('style');
+    let styleSheet = document.getElementById('wisk-theme-selection-style');
+    if (!styleSheet) {
+        styleSheet = document.createElement('style');
+        styleSheet.id = 'wisk-theme-selection-style';
+        document.head.appendChild(styleSheet);
+    }
     styleSheet.textContent = `
         ::selection {
             background-color: var(--fg-accent);
@@ -43,15 +48,17 @@ wisk.theme.setTheme = async function (themeName) {
             color: var(--bg-accent);
         }
     `;
-    document.head.appendChild(styleSheet);
 
     const textColor = theme['--fg-1'] || '#000000';
     const bgColor = theme['--bg-1'] || '#ffffff';
-    const favicon = document.querySelector('link[rel="icon"]') || document.createElement('link');
-    favicon.rel = 'icon';
-    favicon.type = 'image/svg+xml';
+    let favicon = document.querySelector('link[rel="icon"]');
+    if (!favicon) {
+        favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        favicon.type = 'image/svg+xml';
+        document.head.appendChild(favicon);
+    }
     favicon.href = createThemedFaviconSVG(textColor, bgColor);
-    document.head.appendChild(favicon);
 
     // make a event to notify the theme change
     const event = new CustomEvent('wisk-theme-changed', { detail: { theme: theme } });
@@ -95,10 +102,15 @@ wisk.theme.addTheme = function (themeData) {
 
     wisk.theme.themeObject.themes.push(themeData);
 
-    wisk.editor.registerCommand(themeData.name, '', 'Theme', () => wisk.theme.setTheme(themeData.name), '');
+    const themeName = themeData.name;
+    wisk.editor.registerCommand(themeName, '', 'Theme', async () => {
+        wisk.theme.setTheme(themeName);
+        await wisk.editor.addConfigChange('document.config.theme', themeName);
+    }, '');
 
-    console.log('Theme "' + themeData.name + '" added successfully');
-    wisk.theme.setTheme(themeData.name);
+    console.log('Theme "' + themeName + '" added successfully');
+    wisk.theme.setTheme(themeName);
+    wisk.editor.addConfigChange('document.config.theme', themeName);
 
     return true;
 };
@@ -121,8 +133,12 @@ async function initTheme() {
         const response = await fetch(jsonUrl);
         const data = await response.json();
         wisk.theme.themeObject = data;
-        for (let i = 0; i < data.themes.length; i++) {
-            wisk.editor.registerCommand(data.themes[i].name, '', 'Theme', () => wisk.theme.setTheme(data.themes[i].name), '');
+        for (const theme of data.themes) {
+            const themeName = theme.name;
+            wisk.editor.registerCommand(themeName, '', 'Theme', async () => {
+                wisk.theme.setTheme(themeName);
+                await wisk.editor.addConfigChange('document.config.theme', themeName);
+            }, '');
         }
         await wisk.theme.setTheme(defaultTheme);
     } catch (error) {

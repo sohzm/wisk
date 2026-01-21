@@ -189,6 +189,12 @@ class HomeElement extends LitElement {
             cursor: pointer;
         }
 
+        @media (min-width: 769px) {
+            .mobile-only-template {
+                display: none;
+            }
+        }
+
         .file-card {
             padding: var(--padding-4);
             border-radius: var(--radius-large);
@@ -526,8 +532,8 @@ class HomeElement extends LitElement {
             opacity: 1;
         }
 
-        .tree-item:hover .tree-icon .emoji,
-        .tree-item:hover .tree-icon .page-icon {
+        .tree-item:hover .tree-icon:has(.arrow) .emoji,
+        .tree-item:hover .tree-icon:has(.arrow) .page-icon {
             opacity: 0;
         }
 
@@ -1293,8 +1299,8 @@ class HomeElement extends LitElement {
                         ${this.expandTemplates
                             ? html`
                                   ${this.templates.map(
-                                      template => html`
-                                          <div class="template-card" @click=${() => this.useTemplate(template)}>
+                                      (template, index) => html`
+                                          <div class="template-card ${index < 3 ? 'mobile-only-template' : ''}" @click=${() => this.useTemplate(template)}>
                                               <div class="template-info">
                                                   <h3>${template.name}</h3>
                                                   <span class="template-by">By ${template.by}</span>

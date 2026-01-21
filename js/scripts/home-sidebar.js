@@ -26,9 +26,9 @@ function initHomeSidebar() {
             <img src="/a7/forget/search-heroicon.svg" style="width: 20px; height: 20px; filter: var(--themed-svg);" />
             Search
         </button>
-        <select id="theme-selector" style="padding: var(--padding-w2); border: 2px solid var(--bg-3); border-radius: var(--radius); background-color: var(--bg-2); color: var(--fg-1); width: 100%; transition: all 0.2s ease; outline: none; cursor: pointer;">
+        <jalebi-select id="theme-selector" style="width: 100%;">
             <option value="">Loading themes...</option>
-        </select>
+        </jalebi-select>
 
         <!-- New Workspace Dialog (initially hidden) -->
         <div id="workspace-dialog" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; z-index: 2000; animation: fadeIn 0.2s ease;">
@@ -74,8 +74,11 @@ function initHomeSidebar() {
                 themeSelect.appendChild(option);
             });
 
+            themeSelect.setAttribute('value', currentTheme);
+
             themeSelect.addEventListener('change', e => {
-                wisk.theme.setTheme(e.target.value);
+                const value = e.detail?.value ?? e.target.value;
+                wisk.theme.setTheme(value);
             });
 
             // Add search button event listener

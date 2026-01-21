@@ -31,6 +31,14 @@
             "link": "https://wisk.cc",
             "path": "minimal-weekly-todo",
             "links": []
+        },
+        {
+            "name": "Project Documentation",
+            "description": "Technical docs with diagrams, code blocks, and API reference",
+            "by": "Wisk Team",
+            "link": "https://wisk.cc",
+            "path": "project-documentation",
+            "links": []
         }
     ]
 }

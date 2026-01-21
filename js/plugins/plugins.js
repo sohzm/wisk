@@ -4,6 +4,7 @@ wisk.plugins = {
         // editor elements
         'main-element',
         'text-element',
+        'link-element',
         'heading1-element',
         'heading2-element',
         'heading3-element',
@@ -34,7 +35,7 @@ wisk.plugins = {
         'left-menu',
         'plugin-manager',
     ],
-    loadedPlugins: [],
+    loadedPlugins: ['page-element'], // page-element is handled specially in selector
     pluginData: null,
     readyElements: new Map(),
 };

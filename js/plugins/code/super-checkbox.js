@@ -11,6 +11,7 @@ class SuperCheckbox extends BaseTextElement {
         };
 
         this.handleEmojiSelection = this.handleEmojiSelection.bind(this);
+        this.onCheckboxChange = this.onCheckboxChange.bind(this);
         this.defaultNextElement = 'super-checkbox';
 
         this.render();
@@ -32,13 +33,16 @@ class SuperCheckbox extends BaseTextElement {
         this.updateCheckbox();
         this.updatePlaceholder();
 
-        this.checkbox.addEventListener('change', this.onCheckboxChange.bind(this));
+        this.checkbox.addEventListener('change', this.onCheckboxChange);
         this.bindEvents();
     }
 
     disconnectedCallback() {
         super.disconnectedCallback();
         window.removeEventListener('emoji-selector', this.handleEmojiSelection);
+        if (this.checkbox) {
+            this.checkbox.removeEventListener('change', this.onCheckboxChange);
+        }
     }
 
     handleEmojiSelection(event) {
@@ -151,7 +155,7 @@ class SuperCheckbox extends BaseTextElement {
             }
             #editable {
                 flex: 1;
-                font-size: 16px;
+                font-size: var(--editor-font-size, 17px);
                 line-height: 1.5;
                 border: none;
                 border-radius: var(--radius);

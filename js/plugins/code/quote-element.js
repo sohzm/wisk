@@ -10,7 +10,7 @@ class QuoteElement extends BaseTextElement {
             }
             #editable {
                 outline: none;
-                font-size: 1.5rem;
+                font-size: calc(var(--editor-font-size, 17px) * 1.2);
                 line-height: 1.5;
                 border: none;
                 border-left: 5px solid var(--bg-3);

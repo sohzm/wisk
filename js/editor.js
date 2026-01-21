@@ -21,8 +21,11 @@ let autoScroll = null;
 const SCROLL_ZONE_SIZE = 40;
 const SCROLL_SPEED = 10;
 const SCROLL_INTERVAL = 16;
+let dragUpdateScheduled = false;
 // rectangle selection vars
 let rectangleSelectionState = null;
+// mobile keyboard vars
+let currentKeyboardHeight = 0;
 let selectionRectangle = null;
 let selectedElements = new Set();
 let selectionOverlays = new Map();
@@ -36,6 +39,8 @@ const createHoverImageContainer = elementId => {
 
     const addButton = createHoverButton('/a7/forget/plus-hover.svg', () => whenPlusClicked(elementId));
     const selectButton = createHoverButton('/a7/forget/dots-grid3x3.svg', () => whenSelectClicked(elementId));
+
+    selectButton.classList.add('drag-handle');
 
     selectButton.addEventListener('mousedown', event => {
         dragHoldTimer = setTimeout(() => {
@@ -52,10 +57,16 @@ const createHoverImageContainer = elementId => {
     });
 
     selectButton.addEventListener('touchstart', event => {
+        event.preventDefault();
         dragHoldTimer = setTimeout(() => onDragStart(event, elementId), 150);
-    });
+    }, { passive: false });
 
-    selectButton.addEventListener('touchend', () => clearTimeout(dragHoldTimer));
+    selectButton.addEventListener('touchend', () => {
+        clearTimeout(dragHoldTimer);
+        if (!dragState) {
+            whenSelectClicked(elementId);
+        }
+    });
 
     selectButton.addEventListener('touchcancel', () => clearTimeout(dragHoldTimer));
 
@@ -115,30 +126,177 @@ wisk.editor.generateNewId = id => {
 };
 
 wisk.editor.addConfigChange = async function (id, value) {
+    const timestamp = Date.now();
     switch (id) {
         case 'document.config.name':
-            wisk.editor.document.data.config.name = value;
-            document.title = value;
-            break;
+            {
+                // create event:
+                wisk.sync.newChange({
+                    path: 'data.config.name',
+                    value: {
+                        data: value,
+                        timestamp: timestamp,
+                        agent: wisk.sync.agent
+                    }
+                });
+                document.title = value;
+                break;
+            }
         case 'document.config.theme':
-            wisk.editor.document.data.config.theme = value;
-            wisk.theme.setTheme(value);
-            break;
+            {
+                wisk.sync.newChange({
+                    path: 'data.config.theme',
+                    value: {
+                        data: value,
+                        timestamp: timestamp,
+                        agent: wisk.sync.agent
+                    }
+                });
+                wisk.theme.setTheme(value);
+                break;
+            }
         case 'document.config.plugins.add':
-            wisk.editor.document.data.config.plugins.push(value);
-            wisk.plugins.loadPlugin(value);
-            break;
+            {
+                // get new plugins and add new ones
+                const currentPlugins = [...wisk.editor.document.data.config.plugins, value];
+                wisk.sync.newChange({
+                    path: 'data.config.plugins',
+                    value: {
+                        data: currentPlugins,
+                        timestamp: timestamp,
+                        agent: wisk.sync.agent
+                    }
+                });
+                wisk.plugins.loadPlugin(value);
+                break;
+            }
         case 'document.config.plugins.remove':
-            wisk.editor.document.data.config.plugins = wisk.editor.document.data.config.plugins.filter(p => p !== value);
-            break;
+            {
+                // get current plugins and filter the removed ones
+                const filteredPlugins = wisk.editor.document.data.config.plugins.filter(p => p !== value);
+                wisk.sync.newChange({
+                    path: 'data.config.plugins',
+                    value: {
+                        data: filteredPlugins,
+                        timestamp: timestamp,
+                        agent: wisk.sync.agent
+                    }
+                });
+                break;
+            }
+    }
+    await wisk.sync.enqueueSave('config-change');
+};
+
+wisk.editor.addUserAccess = async function (email) {
+    const timestamp = Date.now();
+
+    // Initialize access array if it doesn't exist
+    if (!wisk.editor.document.data.config.access) {
+        wisk.editor.document.data.config.access = [];
     }
 
-    await wisk.sync.saveUpdates();
+    // Don't add if already exists
+    if (wisk.editor.document.data.config.access.includes(email)) {
+        console.log('User already has access:', email);
+        return;
+    }
+
+    const currentAccess = [...wisk.editor.document.data.config.access, email];
+
+    wisk.sync.newChange({
+        path: 'data.config.access',
+        value: {
+            data: currentAccess,
+            timestamp: timestamp,
+            agent: wisk.sync.agent
+        }
+    });
+
+    await wisk.sync.enqueueSave('user-access-add');
+};
+
+wisk.editor.removeUserAccess = async function (email) {
+    const timestamp = Date.now();
+
+    if (!wisk.editor.document.data.config.access) {
+        wisk.editor.document.data.config.access = [];
+    }
+
+    const currentAccess = wisk.editor.document.data.config.access.filter(a => a !== email);
+
+    wisk.sync.newChange({
+        path: 'data.config.access',
+        value: {
+            data: currentAccess,
+            timestamp: timestamp,
+            agent: wisk.sync.agent
+        }
+    });
+
+    await wisk.sync.enqueueSave('user-access-remove');
+};
+
+wisk.editor.setPublicStatus = async function (isPublic) {
+    const timestamp = Date.now();
+
+    wisk.sync.newChange({
+        path: 'data.config.public',
+        value: {
+            data: isPublic,
+            timestamp: timestamp,
+            agent: wisk.sync.agent
+        }
+    });
+
+    await wisk.sync.enqueueSave('public-status');
+};
+
+wisk.editor.setDatabaseProp = async function (key, value) {
+    // Sanitize key to prevent path injection
+    if (typeof key !== 'string' || !key || /[.\[\]]/.test(key)) {
+        console.error('Invalid key for setDatabaseProp:', key);
+        return;
+    }
+
+    const timestamp = Date.now();
+
+    // Initialize databaseProps if it doesn't exist
+    if (!wisk.editor.document.data.config.databaseProps) {
+        wisk.editor.document.data.config.databaseProps = {};
+    }
+
+    wisk.sync.newChange({
+        path: `data.config.databaseProps.${key}`,
+        value: {
+            data: value,
+            timestamp: timestamp,
+            agent: wisk.sync.agent
+        }
+    });
+
+    await wisk.sync.enqueueSave('database-prop');
 };
 
 wisk.editor.savePluginData = async function (identifier, data) {
-    wisk.editor.document.data.pluginData[identifier] = data;
-    await wisk.sync.saveUpdates();
+    // Sanitize identifier to prevent path injection
+    if (typeof identifier !== 'string' || !identifier || /[.\[\]]/.test(identifier)) {
+        console.error('Invalid identifier for savePluginData:', identifier);
+        return;
+    }
+
+    const timestamp = Date.now();
+    // create event
+    wisk.sync.newChange({
+        path: `data.pluginData.${identifier}`,
+        value: {
+            data: data,
+            timestamp: timestamp,
+            agent: wisk.sync.agent
+        }
+    });
+
+    await wisk.sync.enqueueSave('plugin-data');
 };
 
 wisk.editor.getPluginData = function (identifier) {
@@ -160,7 +318,8 @@ wisk.editor.createBlockBase = function (elementId, blockType, value, remoteId, i
     }
 
     const id = isRemote ? remoteId : wisk.editor.generateNewId();
-    const obj = { value, id, component: blockType };
+    const timestamp = Date.now();
+    const obj = { value, id, component: blockType, lastUpdated: timestamp };
 
     const prevElement = document.getElementById(`div-${elementId}`);
     const blockElement = createBlockElement(id, blockType);
@@ -175,6 +334,27 @@ wisk.editor.createBlockBase = function (elementId, blockType, value, remoteId, i
 
     const elementIndex = wisk.editor.document.data.elements.findIndex(e => e.id === elementId);
     wisk.editor.document.data.elements.splice(elementIndex + 1, 0, obj);
+
+    // Create events for element creation (only if not remote)
+    if (!isRemote) {
+        wisk.sync.newChange({
+            path: 'data.elements',
+            value: {
+                data: obj,
+                timestamp: timestamp,
+                agent: wisk.sync.agent
+            }
+        });
+        wisk.sync.newChange({
+            path: 'data.elementOrder',
+            value: {
+                data: wisk.editor.document.data.elements.map(e => e.id),
+                timestamp: timestamp,
+                agent: wisk.sync.agent
+            }
+        });
+        wisk.sync.enqueueSave('block-creation');
+    }
 
     // TODO quick fix? idk if this is the best way to do it
     if (blockType === 'divider-element' || blockType === 'super-divider' || blockType === 'dots-divider') {
@@ -238,102 +418,230 @@ wisk.editor.createBlockNoFocus = function (elementId, blockType, value, rec, ani
     return id;
 };
 
-wisk.editor.handleChanges = async function (updateObject) {
-    if (!updateObject) return;
+wisk.editor.handleChanges = async function (eventPackage) {
+    if (!eventPackage) return;
 
-    const changes = Array.isArray(updateObject.changes) ? updateObject.changes : updateObject.changes ? [updateObject.changes] : [];
+    const events = Array.isArray(eventPackage.events) ? eventPackage.events : [];
 
-    const allElements = updateObject.allElements || [];
-    const newDeletedElements = updateObject.newDeletedElements || [];
+    // Group events by type for efficient processing
+    const elementPatchUpdates = [];
+    const elementValueUpdates = [];
+    const elementComponentUpdates = [];
+    const elementCreations = [];
+    const elementDeletions = [];
+    const elementOrderChanges = [];
+    const configChanges = [];
+    const pluginDataChanges = [];
 
-    await handleElementDeletions(newDeletedElements);
-
-    for (const change of changes) {
-        if (change.path === 'document.elements') {
-            await handleElementChange(change.values, allElements);
-        }
-        if (change.path.startsWith('document.config.access')) {
-            if (change.path.includes('public')) {
-                wisk.editor.document.data.config.public = change.values.public;
-            }
-            if (change.path.includes('add')) {
-                wisk.editor.document.data.config.access.push(change.values.email);
-            }
-            if (change.path.includes('remove')) {
-                wisk.editor.document.data.config.access = wisk.editor.document.data.config.access.filter(a => a !== change.values.email);
-            }
-        }
-        if (change.path.startsWith('document.config.plugins')) {
-            if (change.path.includes('add')) {
-                wisk.plugins.loadPlugin(change.values.plugin);
-            }
-            if (change.path.includes('remove')) {
-                window.location.reload();
+    events.forEach(event => {
+        const pathParts = event.path.split('.');
+        if (event.path.startsWith('data.elements.')) {
+            if (pathParts.length === 3) {
+                elementPatchUpdates.push(event);
+            } else if (event.path.includes('.value')) {
+                elementValueUpdates.push(event);
+            } else if (event.path.includes('.component')) {
+                elementComponentUpdates.push(event);
             }
         }
-        if (change.path.startsWith('document.config.theme')) {
-            wisk.theme.setTheme(change.values.theme);
+        else if (event.path === 'data.elements') {
+            elementCreations.push(event);
         }
-        if (change.path.startsWith('document.plugin')) {
-            if (change.values.data) {
-                document.getElementById(change.path.replace('document.plugin.', '')).loadData(change.values.data);
-            }
+        else if (event.path === 'data.deletedElements') {
+            elementDeletions.push(event);
         }
-    }
-
-    // Handle reordering only if necessary
-    if (allElements.length > 0) {
-        smartReorderElements(allElements);
-    }
-};
-
-const handleElementChange = async (updatedElement, allElements) => {
-    if (!updatedElement) return;
-
-    const existingElement = wisk.editor.document.data.elements.find(e => e.id === updatedElement.id);
-    const domElement = document.getElementById(updatedElement.id);
-
-    if (!existingElement || !domElement) {
-        const currentIndex = allElements.indexOf(updatedElement.id);
-        const prevElementId = currentIndex > 0 ? allElements[currentIndex - 1] : '';
-
-        wisk.editor.createRemoteBlock(prevElementId, updatedElement.component, updatedElement.value, updatedElement.id);
-    } else {
-        updateExistingElement(existingElement, updatedElement, domElement, 'uwu');
-    }
-};
-
-const updateExistingElement = (existingElement, updatedElement, domElement, rec) => {
-    Object.assign(existingElement, {
-        value: updatedElement.value,
-        lastEdited: updatedElement.lastEdited,
-        component: updatedElement.component,
+        else if (event.path === 'data.elementOrder') {
+            elementOrderChanges.push(event);
+        }
+        else if (event.path.startsWith('data.config')) {
+            configChanges.push(event);
+        }
+        else if (event.path.startsWith('data.pluginData')) {
+            pluginDataChanges.push(event);
+        }
     });
 
-    if (domElement.tagName.toLowerCase() !== updatedElement.component) {
-        const prevElement = wisk.editor.prevElement(updatedElement.id);
-        if (prevElement) {
-            wisk.editor.changeBlockType(updatedElement.id, updatedElement.value, updatedElement.component, rec);
-        }
-    } else {
+    await handleElementDeletions(elementDeletions);
+    for (const event of elementCreations) {
+        await handleElementCreation(event);
+    }
+    for (const event of elementPatchUpdates) {
+        await handleElementPatch(event);
+    }
+    for (const event of elementValueUpdates) {
+        await handleElementUpdate(event);
+    }
+    for (const event of elementComponentUpdates) {
+        await handleElementUpdate(event);
+    }
+    for (const event of configChanges) {
+        handleConfigChange(event);
+    }
+    for (const event of pluginDataChanges) {
+        handlePluginDataChange(event);
+    }
+    if (elementOrderChanges.length > 0) {
+        const lastOrderEvent = elementOrderChanges[elementOrderChanges.length - 1];
+        smartReorderElements(lastOrderEvent.value.data);
+        wisk.sync.applyEvent(wisk.editor.document, lastOrderEvent);
+    }
+};
+
+const handleElementCreation = async (event) => {
+    const newElement = event.value.data;
+    wisk.sync.applyEvent(wisk.editor.document, event);
+    if (document.getElementById(newElement.id)) {
+        console.log('Element already exists, skipping creation:', newElement.id);
+        return;
+    }
+    const elementIndex = wisk.editor.document.data.elements.findIndex(e => e.id === newElement.id);
+    let prevElementId = '';
+
+    if (elementIndex > 0) {
+        prevElementId = wisk.editor.document.data.elements[elementIndex - 1].id;
+    } else if (wisk.editor.document.data.elements.length > 0) {
+        prevElementId = wisk.editor.document.data.elements[0].id;
+    }
+
+    if (prevElementId) {
+        wisk.editor.createRemoteBlock(
+            prevElementId,
+            newElement.component,
+            newElement.value,
+            newElement.id
+        );
+    }
+};
+
+const handleElementUpdate = async (event) => {
+    const pathParts = event.path.split('.');
+    const elementId = pathParts[2];
+    const property = pathParts[3]; // 'value', 'component', 'lastUpdated'
+
+    const element = wisk.editor.getElement(elementId);
+    const domElement = document.getElementById(elementId);
+
+    if (!element || !domElement) {
+        console.warn(`Element ${elementId} not found for update`);
+        return;
+    }
+    wisk.sync.applyEvent(wisk.editor.document, event);
+    if (property === 'value') {
         setTimeout(() => {
-            domElement.setValue('', updatedElement.value);
+            domElement.setValue('', event.value.data);
+        }, 0);
+    } else if (property === 'component') {
+        const newType = event.value.data;
+        const newDomElement = document.createElement(newType);
+        newDomElement.id = elementId;
+        domElement.replaceWith(newDomElement);
+        setTimeout(() => {
+            newDomElement.setValue('', element.value);
         }, 0);
     }
 };
 
-const handleElementDeletions = async newDeletedElements => {
-    if (!Array.isArray(newDeletedElements)) return;
+const handleElementPatch = async (event) => {
+    const pathParts = event.path.split('.');
+    const elementId = pathParts[2];
+    const patch = event.value.data; // { value?: ..., component?: ... }
 
-    for (const deletedId of newDeletedElements) {
+    const element = wisk.editor.getElement(elementId);
+    let domElement = document.getElementById(elementId);
+
+    if (!element || !domElement) {
+        console.warn(`Element ${elementId} not found for patch`);
+        return;
+    }
+
+    // Apply event to document state first
+    wisk.sync.applyEvent(wisk.editor.document, event);
+
+    // Handle component change (must be done before value update)
+    if (patch.component && patch.component !== domElement.tagName.toLowerCase()) {
+        const newType = patch.component;
+        const newDomElement = document.createElement(newType);
+        newDomElement.id = elementId;
+        domElement.replaceWith(newDomElement);
+        domElement = newDomElement; // update reference for value setting
+    }
+
+    // Handle value update
+    if (patch.value !== undefined) {
+        setTimeout(() => {
+            domElement.setValue('', patch.value);
+        }, 0);
+    } else if (patch.component) {
+        // If only component changed, set value from current element state
+        setTimeout(() => {
+            domElement.setValue('', element.value);
+        }, 0);
+    }
+};
+
+const handleElementDeletions = async (events) => {
+    if (!Array.isArray(events)) return;
+
+    for (const event of events) {
+        const deletedElement = event.value.data;
+        const deletedId = deletedElement.id;
+
         if (!deletedElements.includes(deletedId)) {
             deletedElements.push(deletedId);
             const element = document.getElementById(`div-${deletedId}`);
             if (element) {
                 document.getElementById('editor').removeChild(element);
-                wisk.editor.document.data.elements = wisk.editor.document.data.elements.filter(e => e.id !== deletedId);
             }
+            wisk.editor.document.data.elements =
+                wisk.editor.document.data.elements.filter(e => e.id !== deletedId);
+
+            wisk.sync.applyEvent(wisk.editor.document, event);
         }
+    }
+};
+
+const handleConfigChange = (event) => {
+    wisk.sync.applyEvent(wisk.editor.document, event);
+
+    if (event.path === 'data.config.theme') {
+        wisk.theme.setTheme(event.value.data);
+    }
+    else if (event.path === 'data.config.name') {
+        document.title = event.value.data;
+    }
+    else if (event.path === 'data.config.plugins') {
+        window.location.reload();
+    }
+    else if (event.path === 'data.config.public') {
+        window.dispatchEvent(new CustomEvent('document-visibility-changed', {
+            detail: { isPublic: event.value.data }
+        }));
+    }
+    else if (event.path === 'data.config.access') {
+        window.dispatchEvent(new CustomEvent('document-access-changed', {
+            detail: { accessList: event.value.data }
+        }));
+    }
+    else if (event.path.startsWith('data.config.databaseProps')) {
+        window.dispatchEvent(new CustomEvent('database-props-changed', {
+            detail: {
+                props: wisk.editor.document.data.config.databaseProps,
+                path: event.path,
+                value: event.value.data
+            }
+        }));
+    }
+};
+
+const handlePluginDataChange = (event) => {
+    wisk.sync.applyEvent(wisk.editor.document, event);
+
+    const pathParts = event.path.split('.');
+    const pluginId = pathParts[2];
+
+    const pluginElement = document.getElementById(pluginId);
+    if (pluginElement && typeof pluginElement.loadData === 'function') {
+        pluginElement.loadData(event.value.data);
     }
 };
 
@@ -342,19 +650,13 @@ const smartReorderElements = allElements => {
 
     const editorElement = document.getElementById('editor');
     if (!editorElement) return;
-
-    // Get currently focused element if any
     const activeElement = document.activeElement;
     const focusedId = activeElement?.id;
-
-    // Create a map of current positions
     const currentPositions = new Map();
     Array.from(editorElement.children).forEach((element, index) => {
         const id = element.id?.replace('div-', '');
         if (id) currentPositions.set(id, index);
     });
-
-    // Calculate which elements need to move
     const elementsToMove = [];
     allElements.forEach((id, newIndex) => {
         const currentIndex = currentPositions.get(id);
@@ -362,8 +664,6 @@ const smartReorderElements = allElements => {
             elementsToMove.push({ id, newIndex, currentIndex });
         }
     });
-
-    // Move only the elements that are out of position
     elementsToMove.forEach(({ id, newIndex }) => {
         const element = document.getElementById(`div-${id}`);
         if (!element) return;
@@ -375,16 +675,12 @@ const smartReorderElements = allElements => {
             editorElement.appendChild(element);
         }
     });
-
-    // Restore focus if needed
     if (focusedId) {
         const elementToFocus = document.getElementById(focusedId);
         if (elementToFocus) {
             elementToFocus.focus();
         }
     }
-
-    // Update the elements array order to match
     wisk.editor.document.data.elements.sort((a, b) => allElements.indexOf(a.id) - allElements.indexOf(b.id));
 };
 
@@ -395,44 +691,31 @@ wisk.editor.moveBlock = function (elementId, afterElementId) {
         return;
     }
 
-    // Find the element to move
     const elementIndex = wisk.editor.document.data.elements.findIndex(e => e.id === elementId);
     if (elementIndex === -1) return;
 
     const elementToMove = wisk.editor.document.data.elements[elementIndex];
 
-    // Find the target position
     let targetIndex;
     if (afterElementId === '' || afterElementId === null) {
-        // Move to beginning
         targetIndex = 0;
     } else {
         const afterIndex = wisk.editor.document.data.elements.findIndex(e => e.id === afterElementId);
         if (afterIndex === -1) return;
         targetIndex = afterIndex + 1;
     }
-
-    // Remove element from current position
     wisk.editor.document.data.elements.splice(elementIndex, 1);
-
-    // Adjust target index if needed (element was removed from before target)
     if (elementIndex < targetIndex) {
         targetIndex--;
     }
-
-    // Insert element at new position
     wisk.editor.document.data.elements.splice(targetIndex, 0, elementToMove);
-
-    // Update DOM order
     const elementDiv = document.getElementById(`div-${elementId}`);
     if (!elementDiv) return;
 
     const editorElement = document.getElementById('editor');
     if (targetIndex === 0) {
-        // Move to beginning
         editorElement.insertBefore(elementDiv, editorElement.firstChild);
     } else {
-        // Move after the target element
         const afterElementDiv = document.getElementById(`div-${afterElementId}`);
         if (afterElementDiv && afterElementDiv.nextSibling) {
             editorElement.insertBefore(elementDiv, afterElementDiv.nextSibling);
@@ -441,8 +724,16 @@ wisk.editor.moveBlock = function (elementId, afterElementId) {
         }
     }
 
-    // Trigger sync updates
-    wisk.editor.justUpdates();
+    const timestamp = Date.now();
+    wisk.sync.newChange({
+        path: 'data.elementOrder',
+        value: {
+            data: wisk.editor.document.data.elements.map(e => e.id),
+            timestamp: timestamp,
+            agent: wisk.sync.agent
+        }
+    });
+    wisk.sync.enqueueSave('block-move');
 
     window.dispatchEvent(
         new CustomEvent('block-moved', {
@@ -458,8 +749,6 @@ wisk.editor.moveBlock = function (elementId, afterElementId) {
 wisk.editor.refreshEditor = function () {
     const editorElement = document.getElementById('editor');
     if (!editorElement) return;
-
-    // Store current focus information
     const activeElement = document.activeElement;
     const focusedId = activeElement?.id;
     let focusOffset = 0;
@@ -472,11 +761,9 @@ wisk.editor.refreshEditor = function () {
         }
     }
 
-    // Clear all current block elements from DOM
     const blockElements = editorElement.querySelectorAll('.rndr');
     blockElements.forEach(element => element.remove());
 
-    // Recreate all elements from data array
     for (let i = 0; i < wisk.editor.document.data.elements.length; i++) {
         const element = wisk.editor.document.data.elements[i];
 
@@ -489,8 +776,6 @@ wisk.editor.refreshEditor = function () {
         editorElement.appendChild(container);
 
         window.dispatchEvent(new CustomEvent('block-created', { detail: { id: element.id } }));
-
-        // Set element value
         setTimeout(() => {
             const domElement = document.getElementById(element.id);
             if (domElement) {
@@ -499,7 +784,6 @@ wisk.editor.refreshEditor = function () {
         }, 0);
     }
 
-    // Restore focus if possible
     if (focusedId) {
         setTimeout(() => {
             const elementToFocus = document.getElementById(focusedId);
@@ -655,34 +939,53 @@ wisk.editor.htmlToMarkdown = function (html) {
         }
 
         switch (node.nodeName.toLowerCase()) {
-            case 'cite-element':
+            case 'cite-element': {
                 const referenceId = node.getAttribute('reference-id');
                 return `--citation-element--${referenceId}--`;
-            case 'a':
+            }
+            case 'a': {
                 if (node.classList?.contains('reference-number')) {
                     const refNum = result.replace(/[\[\]]/g, '');
                     return `[ref_${refNum}]`;
                 }
                 return `[${result}](${node.href})`;
+            }
             case 'b':
-            case 'strong':
+            case 'strong': {
                 return `**${result}**`;
+            }
             case 'i':
-            case 'em':
+            case 'em': {
                 return `*${result}*`;
-            case 'strike':
+            }
+            case 'strike': {
                 return `~~${result}~~`;
-            case 'u':
+            }
+            case 'u': {
                 return `__${result}__`;
-            case 'span':
+            }
+            case 'code':
+                return `\`${result}\``;
+            case 'sup': {
+                // Check if it contains a reference number link
+                const supRefLink = node.querySelector('a.reference-number');
+                if (supRefLink) {
+                    const refNum = supRefLink.textContent.replace(/[\[\]]/g, '');
+                    return `[ref_${refNum}]`;
+                }
+                return result;
+            }
+            case 'span': {
                 const refSpan = node.querySelector('.reference-number');
                 if (refSpan) {
                     const refNum = refSpan.textContent.replace(/[\[\]]/g, '');
                     return result.replace(refSpan.outerHTML, `[ref_${refNum}]`);
                 }
                 return result;
-            default:
+            }
+            default: {
                 return result;
+            }
         }
     }
 
@@ -727,7 +1030,7 @@ wisk.editor.showSelector = function (elementId, focusIdentifier) {
     selector.show(elementId);
 };
 
-wisk.editor.deleteBlock = function (elementId, rec) {
+wisk.editor.deleteBlock = async function (elementId, rec) {
     if (elementId === 'abcdxyz') {
         wisk.utils.showToast('Nah you cant do that.', 2000);
         return;
@@ -739,17 +1042,37 @@ wisk.editor.deleteBlock = function (elementId, rec) {
         return;
     }
 
-    deletedElements.push(elementId);
-    const element = document.getElementById(`div-${elementId}`);
-    if (element) {
-        document.getElementById('editor').removeChild(element);
-        wisk.editor.document.data.elements = wisk.editor.document.data.elements.filter(e => e.id !== elementId);
-        deletedElementsLeft.push(elementId);
+    const elementData = wisk.editor.document.data.elements.find(e => e.id === elementId);
 
-        window.dispatchEvent(new CustomEvent('block-deleted', { detail: { id: elementId } }));
+    if(elementData) {
+        const timestamp = Date.now();
 
-        if (rec == undefined) {
-            wisk.editor.justUpdates();
+        wisk.sync.newChange({
+            path: 'data.deletedElements',
+            value: {
+                data: elementData,
+                timestamp: timestamp,
+                agent: wisk.sync.agent
+            }
+        });
+
+        const element = document.getElementById(`div-${elementId}`);
+        if(element) {
+            document.getElementById('editor').removeChild(element);
+
+            wisk.editor.document.data.elements = wisk.editor.document.data.elements.filter(e => e.id !== elementId);
+            deletedElements.push(elementId);
+            deletedElementsLeft.push(elementId);
+
+            window.dispatchEvent(new CustomEvent('block-deleted', {
+                detail: {
+                    id: elementId
+                }
+            }));
+
+            if(rec === undefined) {
+                await wisk.sync.enqueueSave('block-delete');
+            }
         }
     }
 };
@@ -786,23 +1109,62 @@ wisk.editor.updateBlock = function (elementId, path, newValue, rec) {
     }
 };
 
-wisk.editor.changeBlockType = function (elementId, value, newType, rec) {
+wisk.editor.changeBlockType = async function (elementId, value, newType, rec) {
     if (elementId.includes('-')) {
-        console.log('CHANGE BLOCK TYPE IN IFRAME', elementId, newType);
         eid = elementId.split('-')[0];
         document.getElementById(eid).editor.changeBlockType(elementId, value, newType, rec);
         return;
     }
 
-    const prevElement = wisk.editor.prevElement(elementId);
-    if (!prevElement) {
-        return;
+    const element = wisk.editor.getElement(elementId);
+    if (!element) return;
+
+    const timestamp = Date.now();
+
+    wisk.sync.newChange({
+        path: `data.elements.${elementId}`,
+        value: {
+            data: { component: newType, value: value },
+            timestamp: timestamp,
+            agent: wisk.sync.agent
+        }
+    });
+
+    element.component = newType;
+    element.value = value;
+    element.lastUpdated = timestamp;
+
+    const oldDomElement = document.getElementById(elementId);
+    if (oldDomElement) {
+        const newDomElement = document.createElement(newType);
+        newDomElement.id = elementId;
+        oldDomElement.replaceWith(newDomElement);
+
+        const container = document.getElementById(`div-${elementId}`);
+        if (container) {
+            const pluginDetail = wisk.plugins.getPluginDetail(newType);
+            if (pluginDetail.width === 'max') {
+                container.classList.add('rndr-full-width');
+            } else {
+                container.classList.remove('rndr-full-width');
+            }
+        }
+
+        setTimeout(() => {
+            newDomElement.setValue('', value);
+            // Focus the new element after setting value
+            if (typeof newDomElement.focus === 'function') {
+                newDomElement.focus({ x: 0 });
+            }
+        }, 0);
     }
 
-    wisk.editor.deleteBlock(elementId, rec);
-    wisk.editor.createNewBlock(prevElement.id, newType, value, { x: 0 }, rec);
-
-    window.dispatchEvent(new CustomEvent('block-changed', { detail: { id: prevElement.id } }));
+    window.dispatchEvent(new CustomEvent('block-changed', {
+        detail: { id: elementId }
+    }));
+    if (rec === undefined) {
+        await wisk.sync.enqueueSave('block-type-change');
+    }
 };
 
 wisk.editor.runBlockFunction = function (elementId, functionName, arg) {
@@ -876,6 +1238,7 @@ wisk.editor.convertMarkdownToElements = function (markdown) {
 
     // Remove YAML frontmatter if present
     markdown = markdown.replace(/^---\n[\s\S]*?\n---\n/, '');
+
     // Initialize elements array with the main element
     const elements = [
         {
@@ -1052,6 +1415,14 @@ function createHeadingElement(text, component) {
 }
 
 function convertInlineMarkdown(text) {
+    // Citation elements (must be before links to avoid conflicts)
+    text = text.replace(/--citation-element--([^-]+)--/g, (match, referenceId) => {
+        return `<cite-element reference-id="${referenceId}"></cite-element>`;
+    });
+
+    // Inline code (must be before other formatting to preserve code content)
+    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+
     // Bold
     text = text.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
     text = text.replace(/__(.+?)__/g, '<b>$1</b>');
@@ -1063,11 +1434,11 @@ function convertInlineMarkdown(text) {
     // Strikethrough
     text = text.replace(/~~(.+?)~~/g, '<strike>$1</strike>');
 
-    // Links
-    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    // Links (must be before reference numbers)
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" contenteditable="false" target="_blank">$1</a>');
 
-    // Reference numbers
-    text = text.replace(/\[ref_(\d+)\]/g, '<span class="reference-number">[$1]</span>');
+    // Reference numbers (footnote markers) - superscript style
+    text = text.replace(/\[ref_(\d+)\]/g, '<sup><a href="#footnote-$1" class="reference-number" contenteditable="false">$1</a></sup>');
 
     return text;
 }
@@ -1122,6 +1493,7 @@ function createMenuItem(label, onClick, itemClass = '', icon = '/a7/forget/null.
     item.addEventListener('click', e => {
         e.stopPropagation();
         onClick();
+        document.body.classList.remove('context-menu-open');
         const existingMenu = document.querySelector('.context-menu');
         if (existingMenu) {
             existingMenu.remove();
@@ -1200,6 +1572,7 @@ function whenSelectClicked(elementId) {
     }
 
     document.body.appendChild(contextMenu);
+    document.body.classList.add('context-menu-open');
 
     // positioning
     const hover = blockDiv.querySelector('.hover-images') || blockDiv;
@@ -1245,6 +1618,7 @@ function whenSelectClicked(elementId) {
     const scrollerEl = document.querySelector('.editor');
 
     function cleanup() {
+        document.body.classList.remove('context-menu-open');
         if (contextMenu && contextMenu.parentNode) contextMenu.remove();
         if (scrollerEl && scrollerEl.removeEventListener) {
             scrollerEl.removeEventListener('scroll', onScroll);
@@ -1319,6 +1693,7 @@ function onDragStart(event, elementId) {
     if (elementId == 'abcdxyz') return;
     event.preventDefault();
     event.stopPropagation();
+    document.body.classList.add('is-dragging');
     // clone the element
     const original = document.getElementById(elementId);
     const block = wisk.editor.getElement(elementId);
@@ -1341,24 +1716,67 @@ function onDragStart(event, elementId) {
     window.addEventListener('mouseup', handleDrop);
     window.addEventListener('touchmove', handleDrag, { passive: false });
     window.addEventListener('touchend', handleDrop);
+    window.addEventListener('blur', cleanupDrag);
+    window.addEventListener('keydown', handleDragKeydown);
+}
+
+function handleDragKeydown(e) {
+    if (e.key === 'Escape') {
+        cleanupDrag();
+    }
+}
+
+function cleanupDrag() {
+    if (!dragState) return;
+
+    document.body.classList.remove('is-dragging');
+
+    if (autoScroll) {
+        clearInterval(autoScroll);
+        autoScroll = null;
+    }
+    hideDropIndicator();
+
+    if (dragState.clone && dragState.clone.parentNode) {
+        document.body.removeChild(dragState.clone);
+    }
+
+    window.removeEventListener('mousemove', handleDrag);
+    window.removeEventListener('mouseup', handleDrop);
+    window.removeEventListener('touchmove', handleDrag);
+    window.removeEventListener('touchend', handleDrop);
+    window.removeEventListener('blur', cleanupDrag);
+    window.removeEventListener('keydown', handleDragKeydown);
+
+    dragState = null;
 }
 
 function handleDrag(e) {
     if (!dragState) return;
 
     const event = e.touches ? e.touches[0] : e;
+    dragState.latestClientX = event.clientX;
+    dragState.latestClientY = event.clientY;
 
-    const { clone } = dragState;
-    clone.style.left = event.clientX + 'px';
-    clone.style.top = event.clientY + 'px';
-    const elementAbove = getElementAbove(event.clientX, event.clientY);
-    const targetContainer = elementAbove ? elementAbove.closest('.rndr') : null;
-    if (targetContainer) {
-        showDropIndicator(targetContainer);
-    } else {
-        hideDropIndicator();
-    }
-    handleScroll(e.clientY);
+    if (dragUpdateScheduled) return;
+    dragUpdateScheduled = true;
+
+    requestAnimationFrame(() => {
+        dragUpdateScheduled = false;
+        if (!dragState) return;
+
+        const { clone, latestClientX, latestClientY } = dragState;
+        clone.style.left = latestClientX + 'px';
+        clone.style.top = latestClientY + 'px';
+        const elementAbove = getElementAbove(latestClientX, latestClientY);
+        const targetContainer = elementAbove ? elementAbove.closest('.rndr') : null;
+        if (targetContainer) {
+            showDropIndicator(targetContainer);
+        } else {
+            hideDropIndicator();
+        }
+        handleScroll(latestClientY);
+    });
 }
 
 function handleScroll(y) {
@@ -1366,6 +1784,8 @@ function handleScroll(y) {
     if (!scrollContainer) return;
 
     const containerRect = scrollContainer.getBoundingClientRect();
+    // Account for keyboard height when determining visible bottom
+    const visibleBottom = containerRect.bottom - currentKeyboardHeight;
 
     // clear existing scroll
     if (autoScroll) {
@@ -1379,9 +1799,9 @@ function handleScroll(y) {
     if (y < containerRect.top + SCROLL_ZONE_SIZE) {
         scrollDir = -1; // up
         distance = containerRect.top + SCROLL_ZONE_SIZE - y;
-    } else if (y > containerRect.bottom - SCROLL_ZONE_SIZE) {
+    } else if (y > visibleBottom - SCROLL_ZONE_SIZE) {
         scrollDir = 1; // down
-        distance = y - (containerRect.bottom - SCROLL_ZONE_SIZE);
+        distance = y - (visibleBottom - SCROLL_ZONE_SIZE);
     }
 
     if (scrollDir !== 0) {
@@ -1401,21 +1821,8 @@ function handleScroll(y) {
 
 function handleDrop(e) {
     if (!dragState) return;
-    // Clear auto-scroll when dropping
-    if (autoScroll) {
-        clearInterval(autoScroll);
-        autoScroll = null;
-    }
-    hideDropIndicator();
-    const { elementId, original, clone, originalValue, originalComponent } = dragState;
 
-    document.body.removeChild(clone);
-
-    window.removeEventListener('mousemove', handleDrag);
-    window.removeEventListener('mouseup', handleDrop);
-    window.removeEventListener('touchmove', handleDrop);
-    window.removeEventListener('touchend', handleDrop);
-
+    const { elementId, originalValue, originalComponent } = dragState;
     const event = e.changedTouches ? e.changedTouches[0] : e;
 
     // get the above element of the clone and put the clone below it after which delete the original
@@ -1429,10 +1836,52 @@ function handleDrop(e) {
         if (targetId != elementId) {
             wisk.editor.deleteBlock(elementId);
             wisk.editor.createNewBlock(targetId, originalComponent, originalValue, { x: 0 });
+            setTimeout(wisk.editor.renumberNumberedLists, 50);
         }
     }
 
-    dragState = null;
+    cleanupDrag();
+}
+
+wisk.editor.renumberNumberedLists = function() {
+    const elements = wisk.editor.document.data.elements;
+    const counters = [0]; // Stack for tracking numbers at each indent level
+
+    for (let i = 0; i < elements.length; i++) {
+        const el = elements[i];
+        if (el.component === 'numbered-list-element') {
+            const domEl = document.getElementById(el.id);
+            if (!domEl) continue;
+
+            const indent = domEl.indent || 0;
+
+            // Adjust counter stack for current indent level
+            while (counters.length <= indent) {
+                counters.push(0);
+            }
+            while (counters.length > indent + 1) {
+                counters.pop();
+            }
+
+            // Increment counter for current level
+            counters[indent]++;
+
+            // Update the element's number
+            const newNumber = counters[indent];
+            if (domEl.number !== newNumber) {
+                domEl.number = newNumber;
+                domEl.updateNumber();
+                el.value.number = newNumber;
+            }
+        } else {
+            // Reset counters when encountering non-numbered-list element
+            counters.length = 1;
+            counters[0] = 0;
+        }
+    }
+
+    // Save modifications
+    wisk.editor.justUpdates(elements[0]?.id);
 }
 
 // Rectangle Selection Functions
@@ -1648,7 +2097,7 @@ function createSelectionOverlay(elementContainer, elementId) {
     const editorRect = editorElement.getBoundingClientRect();
     const overlays = [];
 
-    // Helper function to get all text nodes, including within shadow roots
+    // Helper function to get all text nodes from editable content only
     function getTextNodes(node, results = []) {
         if (node.nodeType === Node.TEXT_NODE) {
             // Only include text nodes with non-whitespace content
@@ -1656,16 +2105,17 @@ function createSelectionOverlay(elementContainer, elementId) {
                 results.push(node);
             }
         } else if (node.nodeType === Node.ELEMENT_NODE) {
-            // Check for shadow root
+            // Check for shadow root - only get #editable content
             if (node.shadowRoot) {
-                for (const child of node.shadowRoot.childNodes) {
+                const editable = node.shadowRoot.querySelector('#editable');
+                if (editable) {
+                    getTextNodes(editable, results);
+                }
+            } else {
+                // Process regular child nodes
+                for (const child of node.childNodes) {
                     getTextNodes(child, results);
                 }
-            }
-
-            // Process regular child nodes
-            for (const child of node.childNodes) {
-                getTextNodes(child, results);
             }
         }
         return results;
@@ -1840,29 +2290,15 @@ function handleSelectionKeyboard(event) {
 
 // Handle paste event to intercept our custom clipboard format
 function handlePasteEvent(event) {
-    const clipboardData = event.clipboardData;
-    if (!clipboardData) return;
+    const elements = WiskPasteHandler.handleWiskClipboardPaste(event);
 
-    // Check if HTML contains our custom format
-    const html = clipboardData.getData('text/html');
-    if (html) {
-        const match = html.match(/__WISK_CLIPBOARD__(.+?)__WISK_CLIPBOARD_END__/);
-        if (match) {
-            // Prevent default paste behavior
-            event.preventDefault();
-            event.stopPropagation();
+    if (elements) {
+        event.preventDefault();
+        event.stopPropagation();
 
-            try {
-                const wiskData = JSON.parse(match[1]);
-                if (wiskData.__wisk_elements__ && wiskData.elements) {
-                    // Restore our internal clipboard
-                    elementClipboard = wiskData.elements;
-                    pasteElements();
-                }
-            } catch (err) {
-                console.error('Failed to parse wisk clipboard data:', err);
-            }
-        }
+        // restore our internal clipboard and paste
+        elementClipboard = elements;
+        pasteElements();
     }
 }
 
@@ -1871,6 +2307,19 @@ function deleteSelectedElements() {
     if (selectedElements.size === 0) return;
 
     const elementsToDelete = Array.from(selectedElements);
+
+    let elementToFocus = null;
+    const firstDeletedId = elementsToDelete[0];
+    const prevElement = wisk.editor.prevElement(firstDeletedId);
+    const lastDeletedId = elementsToDelete[elementsToDelete.length - 1];
+    const nextElement = wisk.editor.nextElement(lastDeletedId);
+
+    if (prevElement && !elementsToDelete.includes(prevElement.id)) {
+        elementToFocus = prevElement;
+    } else if (nextElement && !elementsToDelete.includes(nextElement.id)) {
+        elementToFocus = nextElement;
+    }
+
     elementsToDelete.forEach(elementId => {
         if (elementId !== 'abcdxyz') {
             // Don't delete the main element
@@ -1879,6 +2328,67 @@ function deleteSelectedElements() {
     });
 
     clearSelection();
+
+    if (elementToFocus) {
+        const componentDetail = wisk.plugins.getPluginDetail(elementToFocus.component);
+        if (componentDetail && componentDetail.textual) {
+            wisk.editor.focusBlock(elementToFocus.id, { x: elementToFocus.value?.textContent?.length || 0 });
+        } else {
+            wisk.editor.focusBlock(elementToFocus.id, {});
+        }
+    }
+}
+
+// Sanitize HTML to remove problematic link attributes that break JSON
+function sanitizeHtmlForClipboard(html) {
+    if (!html || typeof html !== 'string' || !html.includes('<a')) {
+        return html;
+    }
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    const links = tempDiv.querySelectorAll('a');
+    links.forEach(link => {
+        // Store the href before clearing
+        let href = link.getAttribute('href');
+        const linkText = link.textContent;
+
+        // Clean the href if it exists
+        if (href) {
+            href = href.replace(/\\/g, '').replace(/&quot;/g, '').replace(/&amp;/g, '&');
+
+            // Sanitize protocol - only allow safe protocols
+            const safeProtocols = ['http:', 'https:', 'mailto:', 'tel:'];
+            try {
+                // Handle relative URLs and absolute URLs
+                const url = new URL(href, window.location.origin);
+                if (!safeProtocols.includes(url.protocol)) {
+                    // Dangerous protocol (javascript:, data:, vbscript:, etc.) - remove href
+                    href = null;
+                }
+            } catch {
+                // If URL parsing fails, check for dangerous protocols manually
+                const lowerHref = href.toLowerCase().trim();
+                if (lowerHref.startsWith('javascript:') ||
+                    lowerHref.startsWith('data:') ||
+                    lowerHref.startsWith('vbscript:')) {
+                    href = null;
+                }
+            }
+        }
+
+        // Remove ALL attributes
+        while (link.attributes.length > 0) {
+            link.removeAttribute(link.attributes[0].name);
+        }
+
+        // Set only clean attributes
+        if (href) {
+            link.setAttribute('href', href);
+        }
+        link.setAttribute('contenteditable', 'false');
+        link.setAttribute('target', '_blank');
+    });
+    return tempDiv.innerHTML;
 }
 
 async function copySelectedElements() {
@@ -1894,9 +2404,16 @@ async function copySelectedElements() {
             // Don't copy the main element
             const element = wisk.editor.getElement(elementId);
             if (element) {
+                const clonedValue = JSON.parse(JSON.stringify(element.value || {}));
+
+                // Sanitize textContent if it contains HTML with links
+                if (clonedValue.textContent) {
+                    clonedValue.textContent = sanitizeHtmlForClipboard(clonedValue.textContent);
+                }
+
                 elementClipboard.push({
                     component: element.component,
-                    value: JSON.parse(JSON.stringify(element.value || {})), // Deep clone
+                    value: clonedValue,
                 });
 
                 // Collect text content
@@ -1922,7 +2439,10 @@ async function copySelectedElements() {
 
     // Copy both plain text and our custom format to system clipboard
     const combinedText = textParts.length > 0 ? textParts.join('\n\n') : '';
-    const customFormat = `__WISK_CLIPBOARD__${JSON.stringify(wiskClipboardData)}__WISK_CLIPBOARD_END__`;
+    // Base64 encode the JSON to prevent HTML entity corruption
+    const jsonString = JSON.stringify(wiskClipboardData);
+    const base64Data = btoa(unescape(encodeURIComponent(jsonString)));
+    const customFormat = `__WISK_CLIPBOARD__${base64Data}__WISK_CLIPBOARD_END__`;
 
     try {
         // Write both formats - the custom format as HTML to preserve it
@@ -2095,76 +2615,109 @@ const menuActions = {
     deleteItem: elementId => deleteItem(elementId),
 };
 
-wisk.editor.justUpdates = async function (elementId) {
-    console.log('JUST UPDATES', elementId);
+const elementUpdatesNeeded = new Set(); // track elements needing update
 
-    // Handle nested elements with IDs containing hyphens
-    if (elementId && elementId.includes('-')) {
-        const eid = elementId.split('-')[0];
-        document.getElementById(eid).editor.justUpdates(elementId);
+wisk.editor.justUpdates = async function (elementIdOrEvent) {
+    console.log('justUpdates called with:', elementIdOrEvent);
+
+    // handle event objects passed directly
+    if(typeof elementIdOrEvent === 'object') {
+        wisk.sync.newChange(elementIdOrEvent);
+
+        await wisk.sync.enqueueSave('direct-event');
+
+        // TODO: Send event to server here
         return;
     }
 
-    window.dispatchEvent(new CustomEvent('something-updated', { detail: { id: elementId } }));
-
-    if (elementId) {
-        if (elementId === wisk.editor.document.data.elements[0].id) {
-            document.title = byQuery('#' + elementId).getTextContent().text;
-            wisk.editor.document.data.config.name = document.title;
-            wisk.sync.newChange({
-                action: 'config',
-                key: 'name',
-                value: document.title,
-            });
+    const elementId = elementIdOrEvent;
+    // handle nested elements
+    if(elementId && elementId.includes('-')) {
+        const eid = elementId.split('-')[0];
+        const parentElement = document.getElementById(eid);
+        if(parentElement && parentElement.editor) {
+            parentElement.editor.justUpdates(elementId);
         }
-
-        const element = wisk.editor.getElement(elementId);
-        if (element) {
-            const domElement = document.getElementById(elementId);
-            if (domElement) {
-                element.value = domElement.getValue();
-                element.lastEdited = Math.floor(Date.now() / 1000);
-                element.component = domElement.tagName.toLowerCase();
-                document.getElementById('nav').classList.add('nav-disappear');
-                document.getElementById('getting-started').style.display = 'none';
-
-                if (!elementUpdatesLeft.includes(elementId)) {
-                    elementUpdatesLeft.push(elementId);
-                }
-            }
-        }
+        return;
     }
 
+    if(!elementId) {
+        return;
+    }
+
+    // mark element as needing update (not creating events yet)
+    elementUpdatesNeeded.add(elementId);
+
+    // UI updates
+    const nav = document.getElementById('nav');
+    if(nav) {
+        nav.classList.add('nav-disappear');
+    }
+
+    const gettingStarted = document.getElementById('getting-started');
+    if(gettingStarted) {
+        gettingStarted.style.display = 'none';
+    }
+
+    // dispatch event
+    window.dispatchEvent(new CustomEvent('something-updates', {
+        detail: { id: elementId }
+    }));
+
     clearTimeout(debounceTimer);
+
     debounceTimer = setTimeout(async () => {
-        const changed = elementUpdatesLeft
-            .map(elementId => {
-                const element = wisk.editor.getElement(elementId);
-                if (element) {
-                    return {
-                        path: 'document.elements',
-                        values: {
-                            id: element.id,
-                            value: element.value,
-                            lastEdited: element.lastEdited,
-                            component: element.component,
-                        },
-                    };
+        console.log('typing stopped, creating events for: ', elementUpdatesNeeded.size, 'elements');
+
+        const timestamp = Date.now();
+
+        // create events for all elements needing update
+        elementUpdatesNeeded.forEach(elementId => {
+            const domElement = document.getElementById(elementId);
+            if(!domElement) {
+                return;
+            }
+
+            const elementValue = domElement.getValue();
+
+            // emit single fused patch event
+            wisk.sync.newChange({
+                path: `data.elements.${elementId}`,
+                value: {
+                    data: { value: elementValue },
+                    timestamp: timestamp,
+                    agent: wisk.sync.agent
                 }
-                return null;
-            })
-            .filter(Boolean);
+            });
 
-        const elementIds = wisk.editor.document.data.elements.map(e => e.id);
+            // special case: first element
+            if(elementId === wisk.editor.document.data.elements[0].id) {
+                const textContent = domElement.getTextContent().text || '';
 
-        await wisk.sync.saveUpdates();
+                if(textContent) {
+                    document.title = textContent;
+                    wisk.sync.newChange({
+                        path: 'data.config.name',
+                        value: {
+                            data: textContent, 
+                            timestamp: timestamp,
+                            agent: wisk.sync.agent
+                        }
+                    });
+                }
+            }
+        });
 
-        elementUpdatesLeft = [];
-        deletedElementsLeft = [];
-    }, elementSyncTimer); // should it be less? to voice your opinion, join our discord server: https://discord.gg/D8tQCvgDhu
+        await wisk.sync.enqueueSave('content-update');
+
+        // TODO: Send only the events to server (future step)
+        // await sendEventsToServer(wisk.sync.eventLog);
+
+        // Clear the set
+        elementUpdatesNeeded.clear();
+    }, 300);
 };
 
-// TODO remove??? idk
 function initKeyboardDetection() {
     // Use Visual Viewport API (better browser support)
     if (window.visualViewport) {
@@ -2199,3 +2752,34 @@ function initKeyboardDetection() {
 }
 
 initKeyboardDetection();
+
+// Handle virtual keyboard visibility changes
+window.addEventListener('virtual-keyboard-visible', e => {
+    const { isVisible, height } = e.detail;
+    currentKeyboardHeight = isVisible ? height : 0;
+
+    const editor = document.querySelector('.editor');
+    if (!editor) return;
+
+    // Add padding to prevent content from being hidden behind keyboard
+    editor.style.paddingBottom = isVisible ? `${height}px` : '';
+
+    // Scroll the focused element into view
+    if (isVisible) {
+        const activeElement = document.activeElement;
+        // Check if it's a custom element with shadow DOM
+        const shadowRoot = activeElement?.shadowRoot;
+        const focusedEditable = shadowRoot?.activeElement || shadowRoot?.querySelector('[contenteditable="true"]:focus');
+
+        if (focusedEditable) {
+            // Use a small delay to let the keyboard finish animating
+            setTimeout(() => {
+                focusedEditable.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        } else if (activeElement?.closest('.rndr')) {
+            setTimeout(() => {
+                activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+    }
+});

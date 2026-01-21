@@ -167,6 +167,51 @@
             ]
         },
 
+        "page-element": {
+            "name": "page-element",
+            "title": "Page",
+            "author": "Wisk Team",
+            "contact": "https://wisk.cc",
+            "icon": "page.svg",
+            "tags": ["page", "document", "nested", "subpage"],
+            "description": "Create a nested page within the document",
+            "contents": [
+                {
+                    "title": "Page",
+                    "icon": "page.svg",
+                    "category": "component",
+                    "component": "link-element",
+                    "nav": false,
+                    "textual": false,
+                    "loadAsModule": false,
+                    "width": "mini"
+                }
+            ]
+        },
+
+        "link-element": {
+            "name": "link-element",
+            "title": "Link",
+            "author": "Wisk Team",
+            "contact": "https://wisk.cc",
+            "icon": "link.svg",
+            "tags": ["link", "url", "hyperlink", "page"],
+            "description": "A link element for internal page links and external URLs",
+            "hide": true,
+            "contents": [
+                {
+                    "title": "Link",
+                    "icon": "link.svg",
+                    "category": "component",
+                    "component": "link-element",
+                    "nav": false,
+                    "textual": true,
+                    "loadAsModule": false,
+                    "width": "mini"
+                }
+            ]
+        },
+
         "text-element": {
             "name": "text-element",
             "title": "Text Element",
@@ -609,7 +654,7 @@
                     "category": "component",
                     "component": "link-preview-element",
                     "nav": false,
-                    "textual": false,
+                    "textual": true,
                     "loadAsModule": false,
                     "width": "mini"
                 }

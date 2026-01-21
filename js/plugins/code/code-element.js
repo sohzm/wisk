@@ -5,14 +5,16 @@ class CodeElement extends LitElement {
         :host {
             display: block;
             position: relative;
+            margin: var(--padding-2) 0;
         }
         select {
             font-family: var(--font-mono);
-            padding: var(--padding-w1);
+            font-size: 12px;
+            padding: var(--padding-2) var(--padding-3);
             border: 1px solid var(--border-1);
             border-radius: var(--radius);
             background: var(--bg-2);
-            color: var(--fg-1);
+            color: var(--fg-2);
             cursor: pointer;
             position: absolute;
             top: var(--padding-2);
@@ -26,7 +28,8 @@ class CodeElement extends LitElement {
             outline: none;
             border-color: var(--fg-accent);
         }
-        :host(:hover) select {
+        :host(:hover) select,
+        select:focus {
             opacity: 1;
         }
         @media (max-width: 768px) {
@@ -37,13 +40,22 @@ class CodeElement extends LitElement {
         .CodeMirror {
             height: auto;
             font-family: var(--font-mono);
-            background: var(--bg-1);
+            background: var(--bg-2);
             color: var(--fg-1);
             border: 1px solid var(--border-1);
             border-radius: var(--radius);
             padding: var(--padding-3);
+            padding-top: var(--padding-4);
+            padding-bottom: var(--padding-4);
             caret-color: var(--fg-1);
             font-size: 14px;
+            line-height: 1.5;
+        }
+        .CodeMirror pre {
+            padding: 0 var(--padding-2);
+        }
+        .CodeMirror-scroll {
+            overflow: visible !important;
         }
         .cm-matchingbracket {
             background-color: var(--bg-green);
@@ -54,13 +66,23 @@ class CodeElement extends LitElement {
             color: var(--fg-red) !important;
         }
         .CodeMirror-selected {
+            background-color: var(--bg-3) !important;
+        }
+        .CodeMirror-focused .CodeMirror-selected {
             background-color: var(--bg-accent) !important;
         }
         .cm-variable {
             color: var(--fg-1);
         }
+        .cm-variable-2 {
+            color: var(--fg-blue);
+        }
+        .cm-variable-3 {
+            color: var(--fg-cyan);
+        }
         .cm-keyword {
             color: var(--fg-purple);
+            font-weight: 500;
         }
         .cm-def {
             color: var(--fg-blue);
@@ -72,19 +94,47 @@ class CodeElement extends LitElement {
             color: var(--fg-orange);
         }
         .cm-string {
-            color: var(--fg-accent);
+            color: var(--fg-green);
+        }
+        .cm-string-2 {
+            color: var(--fg-orange);
         }
         .cm-property {
             color: var(--fg-cyan);
         }
+        .cm-attribute {
+            color: var(--fg-purple);
+        }
         .cm-comment {
             color: var(--fg-2);
+            font-style: italic;
+        }
+        .cm-tag {
+            color: var(--fg-red);
+        }
+        .cm-builtin {
+            color: var(--fg-purple);
+        }
+        .cm-atom {
+            color: var(--fg-orange);
+        }
+        .cm-meta {
+            color: var(--fg-2);
+        }
+        .cm-qualifier {
+            color: var(--fg-orange);
+        }
+        .cm-type {
+            color: var(--fg-cyan);
         }
         .CodeMirror-gutters {
             display: none;
         }
         .CodeMirror-cursor {
-            border-left: 1px solid var(--fg-1);
+            border-left: 2px solid var(--fg-1);
+        }
+        .CodeMirror-lines {
+            padding: var(--padding-2) 0;
         }
     `;
 
@@ -99,20 +149,32 @@ class CodeElement extends LitElement {
         super();
         this.supportedLanguages = {
             javascript: 'JavaScript',
-            python: 'Python',
             typescript: 'TypeScript',
+            python: 'Python',
             java: 'Java',
-            go: 'Go',
             cpp: 'C++',
+            c: 'C',
             csharp: 'C#',
+            go: 'Go',
+            rust: 'Rust',
             php: 'PHP',
             ruby: 'Ruby',
             swift: 'Swift',
             kotlin: 'Kotlin',
+            scala: 'Scala',
             sql: 'SQL',
             html: 'HTML',
             css: 'CSS',
+            scss: 'SCSS',
+            xml: 'XML',
+            json: 'JSON',
+            yaml: 'YAML',
             markdown: 'Markdown',
+            bash: 'Bash',
+            shell: 'Shell',
+            powershell: 'PowerShell',
+            dockerfile: 'Dockerfile',
+            plaintext: 'Plain Text',
         };
         this.valueBuffer = null;
         this.selectedLang = 'javascript';
@@ -126,7 +188,14 @@ class CodeElement extends LitElement {
     async initializeCodeMirror() {
         await import('https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js');
 
-        const modes = ['javascript', 'xml', 'css', 'python', 'clike', 'markdown', 'go', 'sql', 'php', 'ruby', 'swift'];
+        // Load simple mode addon first (required by rust and some other modes)
+        await import('https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/mode/simple.min.js');
+
+        const modes = [
+            'javascript', 'xml', 'css', 'python', 'clike', 'markdown',
+            'go', 'sql', 'php', 'ruby', 'swift', 'rust', 'yaml',
+            'shell', 'powershell', 'dockerfile', 'sass'
+        ];
 
         await Promise.all([
             ...modes.map(mode => import(`https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/${mode}/${mode}.min.js`)),
@@ -172,6 +241,12 @@ class CodeElement extends LitElement {
             this.setValue(null, this.valueBuffer);
             this.valueBuffer = null;
         }
+
+        // Auto-focus the editor after initialization
+        requestAnimationFrame(() => {
+            this.editor.focus();
+            this.editor.setCursor(this.editor.lineCount(), 0);
+        });
     }
 
     initializeLanguageSelector() {
@@ -199,22 +274,34 @@ class CodeElement extends LitElement {
     getModeForLanguage(lang) {
         const modeMap = {
             javascript: 'javascript',
-            typescript: 'javascript',
+            typescript: 'text/typescript',
+            python: 'python',
             java: 'text/x-java',
             cpp: 'text/x-c++src',
+            c: 'text/x-csrc',
             csharp: 'text/x-csharp',
-            python: 'python',
             go: 'go',
+            rust: 'rust',
             php: 'php',
             ruby: 'ruby',
             swift: 'swift',
             kotlin: 'text/x-kotlin',
+            scala: 'text/x-scala',
             sql: 'sql',
             html: 'xml',
             css: 'css',
+            scss: 'text/x-scss',
+            xml: 'xml',
+            json: 'application/json',
+            yaml: 'yaml',
             markdown: 'markdown',
+            bash: 'shell',
+            shell: 'shell',
+            powershell: 'powershell',
+            dockerfile: 'dockerfile',
+            plaintext: 'text/plain',
         };
-        return modeMap[lang] || lang;
+        return modeMap[lang] || 'text/plain';
     }
 
     setValue(path, value) {

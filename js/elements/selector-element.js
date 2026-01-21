@@ -53,24 +53,88 @@ class SelectorElement extends HTMLElement {
         return queryIndex === query.length;
     }
 
-    selectButton(btn) {
+    async selectButton(btn) {
         var element = byQueryShadowroot('#' + this.elementId);
-        // var elementData = wisk.editor.getElement(this.elementId);
-        // console.log(this.elementId, element, elementData);
-        // var callingDetail = wisk.plugins.getPluginDetail(elementData.component);
 
         var dataPluginId = btn.getAttribute('data-plugin-id');
         var dataContentId = btn.getAttribute('data-content-id');
         var newDetail = wisk.plugins.pluginData.list[dataPluginId].contents[dataContentId];
 
-        wisk.editor.changeBlockType(this.elementId, element.getValue(), newDetail.component);
-        // if (callingDetail.textual && newDetail.textual) {
-        //     // TODO see why this is not working
-        //     // wisk.editor.focusBlock(this.elementId, { x: elementData.value.textContent.length });
-        // }
+        if (newDetail.title === 'Page') {
+            this.hide();
+            await this.createPageAndLink();
+            return;
+            // console.log('Creating child page...');
+            // this.hide();
+            // this.createChildPage(wisk.editor.pageId);
+        }
 
+        wisk.editor.changeBlockType(this.elementId, element.getValue(), newDetail.component);
         this.hide();
     }
+
+    async createPageAndLink() {
+        try {
+            const parentId = wisk.editor.pageId;
+            const randomId = Math.random().toString(36).substring(2, 12).toUpperCase();
+            const newPageId = parentId + '.' + randomId;
+            const newPageUrl = window.location.origin + '/?id=' + newPageId;
+
+            // Create the new page in database
+            await wisk.db.setPage(newPageId, {
+                id: newPageId,
+                lastUpdated: Date.now(),
+                data: {
+                    config: {
+                        plugins: [],
+                        theme: 'default',
+                        access: [],
+                        public: false,
+                        name: 'Untitled',
+                        databaseProps: {},
+                    },
+                    elements: [
+                        {
+                            id: 'main' + randomId.substring(0, 6),
+                            component: 'main-element',
+                            value: { textContent: '' },
+                            lastUpdated: Date.now(),
+                        },
+                    ],
+                    deletedElements: [],
+                    pluginData: {},
+                    sync: { syncLogs: [], isPushed: false, lastSync: 0 },
+                },
+            });
+
+            // Create link-element block in parent page pointing to new page
+            await wisk.editor.changeBlockType(this.elementId, {
+                url: newPageUrl,
+                title: 'Untitled',
+                display: 'block'
+            }, 'link-element');
+
+            // Redirect to the new page
+            window.location.href = newPageUrl;
+
+        } catch (error) {
+            console.error('Error creating child page:', error);
+        }
+    }
+
+    // createChildPage(parentId, e) {
+    //     if (e) {
+    //         e.stopPropagation();
+    //         e.preventDefault();
+    //     }
+    //     wisk.editor.changeBlockType(this.elementId, {
+    //             url: newPageUrl,
+    //             title: 'Untitled',
+    //             display: 'block'
+    //         }, 'link-element');
+    //     // Navigate to new page with parent_id parameter
+    //     window.location.href = `/?id=newpage&parent_id=${parentId}`;
+    // }
 
     handleInput(e) {
         if (e.keyCode === 27) {
@@ -93,19 +157,29 @@ class SelectorElement extends HTMLElement {
         }
 
         if (e.keyCode === 38 || e.keyCode === 40) {
-            const buttons = this.shadowRoot.querySelectorAll('.selector-button');
+            // Only navigate through visible buttons
+            const visibleButtons = Array.from(this.shadowRoot.querySelectorAll('.selector-button'))
+                .filter(btn => btn.style.display !== 'none');
+
+            if (visibleButtons.length === 0) return;
+
             let focusedButton = this.shadowRoot.querySelector('.selector-button-focused');
+            let currentIndex = focusedButton ? visibleButtons.indexOf(focusedButton) : -1;
+
             if (focusedButton) {
                 focusedButton.classList.remove('selector-button-focused');
-                if (e.keyCode === 38) {
-                    focusedButton = focusedButton.previousElementSibling || buttons[buttons.length - 1];
-                } else {
-                    focusedButton = focusedButton.nextElementSibling || buttons[0];
-                }
-                focusedButton.classList.add('selector-button-focused');
-            } else {
-                buttons[0].classList.add('selector-button-focused');
             }
+
+            if (e.keyCode === 38) {
+                // Up arrow
+                currentIndex = currentIndex <= 0 ? visibleButtons.length - 1 : currentIndex - 1;
+            } else {
+                // Down arrow
+                currentIndex = currentIndex >= visibleButtons.length - 1 ? 0 : currentIndex + 1;
+            }
+
+            focusedButton = visibleButtons[currentIndex];
+            focusedButton.classList.add('selector-button-focused');
 
             // also scroll the buttons
             focusedButton.scrollIntoView({
@@ -119,7 +193,7 @@ class SelectorElement extends HTMLElement {
         this.renderButtons(e.target.value);
     }
 
-    renderButtons(query) {
+    createAllButtons() {
         const buttonsContainer = this.shadowRoot.querySelector('.buttons');
         buttonsContainer.innerHTML = '';
 
@@ -136,10 +210,6 @@ class SelectorElement extends HTMLElement {
                     }
 
                     let title = wisk.plugins.pluginData.list[key].contents[i].title;
-
-                    if (query && !this.fuzzySearch(query, title)) {
-                        continue;
-                    }
 
                     const button = document.createElement('button');
                     button.classList.add('selector-button');
@@ -170,9 +240,26 @@ class SelectorElement extends HTMLElement {
                 }
             }
         }
-        const firstButton = this.shadowRoot.querySelector('.selector-button');
-        if (firstButton) {
-            firstButton.classList.add('selector-button-focused');
+    }
+
+    renderButtons(query) {
+        // Filter: hide/show existing buttons based on query
+        const buttons = this.shadowRoot.querySelectorAll('.selector-button');
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selector-button-focused');
+            const title = btn.getAttribute('data-title');
+            if (!query || this.fuzzySearch(query, title)) {
+                btn.style.display = '';
+            } else {
+                btn.style.display = 'none';
+            }
+        });
+
+        // Set focus on first visible button
+        const firstVisible = this.shadowRoot.querySelector('.selector-button:not([style*="display: none"])');
+        if (firstVisible) {
+            firstVisible.classList.add('selector-button-focused');
         }
     }
 
@@ -190,6 +277,7 @@ class SelectorElement extends HTMLElement {
         this.shadowRoot.querySelector('#selector').classList.remove('displayNone');
         this.shadowRoot.querySelector('#selector-bg').classList.remove('displayNone');
         this.shadowRoot.querySelector('#selector-input').focus();
+        this.createAllButtons();
         this.renderButtons('');
     }
 

@@ -103,8 +103,8 @@ class ListElement extends BaseTextElement {
                 this.sendUpdates();
             } else {
                 const prevElement = wisk.editor.prevElement(this.id);
-                const prevDomElement = wisk.editor.getElement(prevElement.id);
                 if (prevElement) {
+                    const prevDomElement = wisk.editor.getElement(prevElement.id);
                     const prevComponentDetail = wisk.plugins.getPluginDetail(prevElement.component);
                     if (prevComponentDetail.textual) {
                         const len = prevDomElement.value.textContent.length;
@@ -144,8 +144,7 @@ class ListElement extends BaseTextElement {
             }
             #dot {
                 position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
+                top: 0.6em;
                 width: 6px;
                 height: 6px;
                 background-color: var(--fg-1);
@@ -156,6 +155,7 @@ class ListElement extends BaseTextElement {
                 outline: none;
                 transition: padding-left 0.1s ease-in-out;
                 min-height: 24px;
+                font-size: var(--editor-font-size, 17px);
             }
             #editable.empty:empty:before {
                 content: attr(data-placeholder);

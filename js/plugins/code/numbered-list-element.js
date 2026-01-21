@@ -21,14 +21,14 @@ class NumberedListElement extends BaseTextElement {
         const styles = [
             // Level 0: 1, 2, 3...
             n => n,
-            // Level 1: i, ii, iii...
-            n => this.toRoman(n).toLowerCase(),
-            // Level 2: a, b, c...
+            // Level 1: a, b, c...
             n => String.fromCharCode(96 + n),
+            // Level 2: i, ii, iii...
+            n => this.toRoman(n).toLowerCase(),
             // Level 3: 1, 2, 3... (repeat)
             n => n,
-            // Level 4: i, ii, iii... (repeat)
-            n => this.toRoman(n).toLowerCase(),
+            // Level 4: a, b, c... (repeat)
+            n => String.fromCharCode(96 + n),
         ];
 
         return styles[level % styles.length](num);
@@ -111,6 +111,7 @@ class NumberedListElement extends BaseTextElement {
         } else if (event.inputType === 'insertText' && event.data === ' ' && this.getFocus() === 0) {
             event.preventDefault();
             this.indent++;
+            this.number = 1;
             this.updateIndent();
             this.sendUpdates();
         }
@@ -138,7 +139,9 @@ class NumberedListElement extends BaseTextElement {
         this.editable.innerHTML = beforeContainer.innerHTML;
         this.sendUpdates();
 
-        if (this.editable.innerText.trim().length === 0) {
+        const isEmpty = this.editable.innerText.trim().length === 0 && this.editable.children.length === 0;
+
+        if (isEmpty) {
             wisk.editor.changeBlockType(this.id, { textContent: afterContainer.innerHTML }, 'text-element');
         } else {
             wisk.editor.createNewBlock(
@@ -154,6 +157,7 @@ class NumberedListElement extends BaseTextElement {
         }
     }
 
+
     handleBackspace(event) {
         if (this.getFocus() === 0) {
             event.preventDefault();
@@ -164,8 +168,8 @@ class NumberedListElement extends BaseTextElement {
                 this.sendUpdates();
             } else {
                 const prevElement = wisk.editor.prevElement(this.id);
-                const prevDomElement = wisk.editor.getElement(prevElement.id);
                 if (prevElement) {
+                    const prevDomElement = wisk.editor.getElement(prevElement.id);
                     const prevComponentDetail = wisk.plugins.getPluginDetail(prevElement.component);
                     if (prevComponentDetail.textual) {
                         const len = prevDomElement.value.textContent.length;
@@ -175,6 +179,7 @@ class NumberedListElement extends BaseTextElement {
                         wisk.editor.focusBlock(prevElement.id, { x: len });
                     }
                     wisk.editor.deleteBlock(this.id);
+                    setTimeout(wisk.editor.renumberNumberedLists, 50);
                 }
             }
         }
@@ -184,6 +189,7 @@ class NumberedListElement extends BaseTextElement {
         event.preventDefault();
         if (this.getFocus() === 0) {
             this.indent++;
+            this.number = 1;
             this.updateIndent();
             this.sendUpdates();
         } else {
@@ -217,6 +223,7 @@ class NumberedListElement extends BaseTextElement {
                 outline: none;
                 transition: padding-left 0.1s ease-in-out;
                 min-height: 24px;
+                font-size: var(--editor-font-size, 17px);
             }
             #editable.empty:empty:before {
                 content: attr(data-placeholder);

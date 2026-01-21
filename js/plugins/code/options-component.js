@@ -523,6 +523,13 @@ class OptionsComponent extends LitElement {
             border-radius: 20px;
             border: 4px solid var(--bg-3);
         }
+        jalebi-select {
+            min-width: 130px;
+            max-width: 150px;
+        }
+        .content-section label {
+            white-space: nowrap;
+        }
         @media (max-width: 768px) {
             .menu-item,
             .content-section,
@@ -708,6 +715,7 @@ class OptionsComponent extends LitElement {
         changelog: { type: String },
         showSnapshotInfo: { type: Boolean },
         snapshots: { type: Array },
+        editorFontSize: { type: String },
     };
 
     constructor() {
@@ -725,6 +733,18 @@ class OptionsComponent extends LitElement {
         this.initEmojiTracker();
         this.changelog = '';
         this.fetchChangelog();
+
+        // Font size options
+        this.fontSizeOptions = [
+            { label: 'Smallest', value: 'smallest', size: '14px' },
+            { label: 'Small', value: 'small', size: '15px' },
+            { label: 'Medium', value: 'medium', size: '16px' },
+            { label: 'Default', value: 'default', size: '17px' },
+            { label: 'Large', value: 'large', size: '18px' },
+            { label: 'Max', value: 'max', size: '20px' },
+        ];
+        this.editorFontSize = localStorage.getItem('editor-fontsize') || 'default';
+        this.applyFontSize(this.editorFontSize);
 
         this.developerItems = [
             {
@@ -1069,14 +1089,21 @@ class OptionsComponent extends LitElement {
     }
 
     async restoreSnapshot(s) {
-        // ask for alert
         if (!confirm('Are you sure you want to restore this snapshot? This will overwrite your current document.')) {
             return;
         }
 
-        wisk.editor.document = s.data;
-        await wisk.sync.saveUpdates();
-        // reload page
+        // Use event system for restore
+        wisk.sync.newChange({
+            path: 'data',
+            action: 'restore',
+            value: {
+                data: s.data.data,
+                snapshotId: s.id
+            }
+        });
+
+        await wisk.sync.enqueueSave('snapshot-restore');
         window.location.reload();
     }
 
@@ -1105,6 +1132,21 @@ class OptionsComponent extends LitElement {
     toggleGPTZero() {
         wisk.editor.gptZero = !wisk.editor.gptZero;
         wisk.utils.showToast('GPTZero Protection Mode ' + (wisk.editor.gptZero ? 'On' : 'Off'), 3000);
+        this.requestUpdate();
+    }
+
+    applyFontSize(sizeValue) {
+        const option = this.fontSizeOptions.find(opt => opt.value === sizeValue);
+        if (option) {
+            document.documentElement.style.setProperty('--editor-font-size', option.size);
+        }
+    }
+
+    changeFontSize(e) {
+        const newSize = e.target.value;
+        this.editorFontSize = newSize;
+        localStorage.setItem('editor-fontsize', newSize);
+        this.applyFontSize(newSize);
         this.requestUpdate();
     }
 
@@ -1551,7 +1593,12 @@ class OptionsComponent extends LitElement {
                             <jalebi-toggle id="toggle-notifications" ?checked="${this.notificationsEnabled}" @valuechange="${this.toggleNotifications}"></jalebi-toggle>
                         </div>
 
-                        
+                        <div class="menu-item-static content-section">
+                            <label for="editor-font-size">Editor Font Size</label>
+                            <jalebi-select id="editor-font-size" @change="${this.changeFontSize}" value="${this.editorFontSize}">
+                                ${this.fontSizeOptions.map(opt => html`<option value="${opt.value}" ?selected="${this.editorFontSize === opt.value}">${opt.label}</option>`)}
+                            </jalebi-select>
+                        </div>
 
                         <!--
                         <div class="menu-item-static content-section">

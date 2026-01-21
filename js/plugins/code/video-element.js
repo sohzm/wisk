@@ -329,7 +329,7 @@ class VideoElement extends BaseTextElement {
             #editable {
                 outline: none;
                 color: var(--fg-2);
-                font-size: 14px;
+                font-size: calc(var(--editor-font-size, 17px) * 0.85);
                 text-align: left;
                 line-height: 1.5;
                 margin-top: var(--padding-3);

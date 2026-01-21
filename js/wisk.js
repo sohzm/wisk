@@ -63,7 +63,6 @@ wisk.sync = {
     instance: '',
     changes: [],
     newChange: function (change) {},
-    saveUpdates: function () {},
 };
 
 var rand7 = () => {
@@ -82,3 +81,12 @@ wisk.sync.instance = 'inst-' + rand7();
 if (location.href.includes('.wisk.site')) {
     wisk.editor.readonly = true;
 }
+
+// Apply saved editor font size
+(function() {
+    var fontSizeMap = { smallest: '14px', small: '15px', medium: '16px', default: '17px', large: '18px', max: '20px' };
+    var saved = localStorage.getItem('editor-fontsize') || 'default';
+    if (fontSizeMap[saved]) {
+        document.documentElement.style.setProperty('--editor-font-size', fontSizeMap[saved]);
+    }
+})();

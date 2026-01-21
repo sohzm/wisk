@@ -21,7 +21,7 @@ body {
 .editor-main {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-2);
+    gap: 2px;
     padding: var(--padding-w3);
     padding-top: 0;
     padding-bottom: 0px;
@@ -49,8 +49,6 @@ nav {
     background-color: var(--bg-1);
 }
 .nav-plugins {
-    display: flex;
-    gap: var(--gap-2);
     display: flex;
     gap: var(--gap-2);
     background: var(--bg-1);
@@ -103,6 +101,15 @@ nav {
     mix-blend-mode: difference;
     filter: invert(100%) contrast(1000%) brightness(1000%);
     width: 22px;
+    cursor: pointer;
+    outline: none;
+    background-color: transparent;
+    border: 1px solid var(--bg-1);
+    border-radius: var(--radius);
+    padding: var(--padding-2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .rndr:hover > .left-buttons {
@@ -111,19 +118,6 @@ nav {
 
 .rndr > *:last-child {
     flex: 1;
-}
-
-.left-buttons {
-    cursor: pointer;
-    outline: none;
-    border: none;
-    background-color: transparent;
-    border: 1px solid var(--bg-1);
-    border-radius: var(--radius);
-    padding: var(--padding-2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .left-buttons:hover {
@@ -190,15 +184,36 @@ nav {
 .hover-image {
     width: 30px;
     height: 30px;
-    padding: 7px;
+    padding: var(--padding-3);
     display: block;
     cursor: pointer;
     border-radius: var(--radius);
     transition: 0.2s ease;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: none;
 }
 
 .hover-image:hover {
     scale: 1.1;
+}
+
+.drag-handle {
+    cursor: grab;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+body.is-dragging,
+body.is-dragging * {
+    cursor: grabbing !important;
+}
+
+body.context-menu-open .drag-handle {
+    cursor: default;
 }
 
 @media (min-width: 900px) {
@@ -429,7 +444,7 @@ nav {
     border-radius: var(--radius);
     outline: none;
     border: none;
-    padding: var(--padding-w3);
+    padding: var(--padding-w2);
     font-weight: 600;
     cursor: pointer;
     background: var(--fg-1);
@@ -446,7 +461,7 @@ nav {
     color: var(--fg-1);
     outline: none;
     border: none;
-    padding: var(--padding-w3);
+    padding: var(--padding-w2);
     font-weight: 600;
     cursor: pointer;
     position: absolute;
@@ -572,7 +587,7 @@ nav {
     display: flex;
     align-items: center;
     gap: var(--gap-2);
-    padding: 8px 10px;
+    padding: var(--padding-3);
     border-radius: var(--radius);
     cursor: pointer;
     outline: none;

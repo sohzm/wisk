@@ -1,0 +1,583 @@
+{
+    "plugins": [
+        "mermaid-element",
+        "table-of-contents"
+    ],
+    "theme": "Light",
+    "elements": [
+        {
+            "id": "abcdxyz",
+            "component": "main-element",
+            "value": {
+                "textContent": "Project Documentation",
+                "emoji": "📚",
+                "backgroundUrl": null,
+                "gradientData": {
+                    "type": "linear",
+                    "angle": 135,
+                    "stops": [
+                        {
+                            "color": "#11998e",
+                            "position": 0
+                        },
+                        {
+                            "color": "#38ef7d",
+                            "position": 100
+                        }
+                    ]
+                },
+                "bannerSize": "small"
+            },
+            "lastEdited": 1759537251
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc001",
+            "component": "text-element",
+            "lastEdited": 1759475000
+        },
+        {
+            "value": {},
+            "id": "doc002",
+            "component": "table-of-contents",
+            "lastEdited": 1759475001
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc003",
+            "component": "text-element",
+            "lastEdited": 1759475002
+        },
+        {
+            "value": {
+                "textContent": "Overview"
+            },
+            "id": "doc004",
+            "component": "heading1-element",
+            "lastEdited": 1759475003
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc005",
+            "component": "text-element",
+            "lastEdited": 1759475004
+        },
+        {
+            "value": {
+                "textContent": "A brief description of your project. What problem does it solve? Who is it for?"
+            },
+            "id": "doc006",
+            "component": "text-element",
+            "lastEdited": 1759475005
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc007",
+            "component": "text-element",
+            "lastEdited": 1759475006
+        },
+        {
+            "value": {
+                "textContent": "<b>Key Features</b>"
+            },
+            "id": "doc008",
+            "component": "text-element",
+            "lastEdited": 1759475007
+        },
+        {
+            "value": {
+                "textContent": "Feature 1 - Description",
+                "indent": 0
+            },
+            "id": "doc009",
+            "component": "list-element",
+            "lastEdited": 1759475008
+        },
+        {
+            "value": {
+                "textContent": "Feature 2 - Description",
+                "indent": 0
+            },
+            "id": "doc010",
+            "component": "list-element",
+            "lastEdited": 1759475009
+        },
+        {
+            "value": {
+                "textContent": "Feature 3 - Description",
+                "indent": 0
+            },
+            "id": "doc011",
+            "component": "list-element",
+            "lastEdited": 1759475010
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc012",
+            "component": "text-element",
+            "lastEdited": 1759475011
+        },
+        {
+            "value": {
+                "textContent": "Architecture"
+            },
+            "id": "doc013",
+            "component": "heading1-element",
+            "lastEdited": 1759475012
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc014",
+            "component": "text-element",
+            "lastEdited": 1759475013
+        },
+        {
+            "value": {
+                "textContent": "The following diagram shows the high-level architecture:"
+            },
+            "id": "doc015",
+            "component": "text-element",
+            "lastEdited": 1759475014
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc016",
+            "component": "text-element",
+            "lastEdited": 1759475015
+        },
+        {
+            "value": {
+                "mermaid": "graph TD\n    A[Client] --> B[API Gateway]\n    B --> C[Auth Service]\n    B --> D[Main Service]\n    D --> E[(Database)]\n    D --> F[Cache]\n    C --> E"
+            },
+            "id": "doc017",
+            "component": "mermaid-element",
+            "lastEdited": 1759475016
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc018",
+            "component": "text-element",
+            "lastEdited": 1759475017
+        },
+        {
+            "value": {
+                "textContent": "Getting Started"
+            },
+            "id": "doc019",
+            "component": "heading1-element",
+            "lastEdited": 1759475018
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc020",
+            "component": "text-element",
+            "lastEdited": 1759475019
+        },
+        {
+            "value": {
+                "textContent": "Prerequisites"
+            },
+            "id": "doc021",
+            "component": "heading2-element",
+            "lastEdited": 1759475020
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc022",
+            "component": "text-element",
+            "lastEdited": 1759475021
+        },
+        {
+            "value": {
+                "textContent": "Node.js >= 18.0",
+                "indent": 0
+            },
+            "id": "doc023",
+            "component": "list-element",
+            "lastEdited": 1759475022
+        },
+        {
+            "value": {
+                "textContent": "npm or yarn",
+                "indent": 0
+            },
+            "id": "doc024",
+            "component": "list-element",
+            "lastEdited": 1759475023
+        },
+        {
+            "value": {
+                "textContent": "Git",
+                "indent": 0
+            },
+            "id": "doc025",
+            "component": "list-element",
+            "lastEdited": 1759475024
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc026",
+            "component": "text-element",
+            "lastEdited": 1759475025
+        },
+        {
+            "value": {
+                "textContent": "Installation"
+            },
+            "id": "doc027",
+            "component": "heading2-element",
+            "lastEdited": 1759475026
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc028",
+            "component": "text-element",
+            "lastEdited": 1759475027
+        },
+        {
+            "value": {
+                "textContent": "# Clone the repository\ngit clone https://github.com/your-org/project.git\n\n# Navigate to project directory\ncd project\n\n# Install dependencies\nnpm install\n\n# Start development server\nnpm run dev",
+                "language": "bash"
+            },
+            "id": "doc029",
+            "component": "code-element",
+            "lastEdited": 1759475028
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc030",
+            "component": "text-element",
+            "lastEdited": 1759475029
+        },
+        {
+            "value": {
+                "textContent": "API Reference"
+            },
+            "id": "doc031",
+            "component": "heading1-element",
+            "lastEdited": 1759475030
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc032",
+            "component": "text-element",
+            "lastEdited": 1759475031
+        },
+        {
+            "value": {
+                "textContent": "Base URL: <code>https://api.example.com/v1</code>"
+            },
+            "id": "doc032b",
+            "component": "text-element",
+            "lastEdited": 1759475031
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc032c",
+            "component": "text-element",
+            "lastEdited": 1759475031
+        },
+        {
+            "value": {
+                "tableContent": {
+                    "headers": [
+                        "Method",
+                        "Endpoint",
+                        "Description"
+                    ],
+                    "rows": [
+                        [
+                            "GET",
+                            "/api/users",
+                            "List all users"
+                        ],
+                        [
+                            "POST",
+                            "/api/users",
+                            "Create a new user"
+                        ],
+                        [
+                            "GET",
+                            "/api/users/:id",
+                            "Get user by ID"
+                        ],
+                        [
+                            "PUT",
+                            "/api/users/:id",
+                            "Update user"
+                        ],
+                        [
+                            "DELETE",
+                            "/api/users/:id",
+                            "Delete user"
+                        ]
+                    ]
+                }
+            },
+            "id": "doc033",
+            "component": "table-element",
+            "lastEdited": 1759475032
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc034",
+            "component": "text-element",
+            "lastEdited": 1759475033
+        },
+        {
+            "value": {
+                "textContent": "Example Request"
+            },
+            "id": "doc035",
+            "component": "heading3-element",
+            "lastEdited": 1759475034
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc036",
+            "component": "text-element",
+            "lastEdited": 1759475035
+        },
+        {
+            "value": {
+                "textContent": "const response = await fetch('/api/users', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    name: 'John Doe',\n    email: 'john@example.com'\n  })\n});\n\nconst data = await response.json();",
+                "language": "javascript"
+            },
+            "id": "doc037",
+            "component": "code-element",
+            "lastEdited": 1759475036
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc038",
+            "component": "text-element",
+            "lastEdited": 1759475037
+        },
+        {
+            "value": {
+                "textContent": "Configuration"
+            },
+            "id": "doc039",
+            "component": "heading1-element",
+            "lastEdited": 1759475038
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc040",
+            "component": "text-element",
+            "lastEdited": 1759475039
+        },
+        {
+            "value": {
+                "textContent": "<b>⚠️ Important: Never commit sensitive configuration to version control!</b>",
+                "emoji": "⚙️"
+            },
+            "id": "doc041",
+            "component": "callout-element",
+            "lastEdited": 1759475040
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc042",
+            "component": "text-element",
+            "lastEdited": 1759475041
+        },
+        {
+            "value": {
+                "textContent": "Create a <code>.env</code> file in the root directory:"
+            },
+            "id": "doc042b",
+            "component": "text-element",
+            "lastEdited": 1759475041
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc042c",
+            "component": "text-element",
+            "lastEdited": 1759475041
+        },
+        {
+            "value": {
+                "textContent": "# Server Configuration\nPORT=3000\nNODE_ENV=development\n\n# Database\nDATABASE_URL=postgresql://user:password@localhost:5432/dbname\n\n# External Services\nAPI_KEY=your_api_key_here\nSECRET_KEY=your_secret_key_here",
+                "language": "bash"
+            },
+            "id": "doc043",
+            "component": "code-element",
+            "lastEdited": 1759475042
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc044",
+            "component": "text-element",
+            "lastEdited": 1759475043
+        },
+        {
+            "value": {
+                "textContent": "Contributing"
+            },
+            "id": "doc045",
+            "component": "heading1-element",
+            "lastEdited": 1759475044
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc046",
+            "component": "text-element",
+            "lastEdited": 1759475045
+        },
+        {
+            "value": {
+                "textContent": "Fork the repository",
+                "number": 1,
+                "indent": 0
+            },
+            "id": "doc047",
+            "component": "numbered-list-element",
+            "lastEdited": 1759475046
+        },
+        {
+            "value": {
+                "textContent": "Create your feature branch (<code>git checkout -b feature/amazing-feature</code>)",
+                "number": 2,
+                "indent": 0
+            },
+            "id": "doc048",
+            "component": "numbered-list-element",
+            "lastEdited": 1759475047
+        },
+        {
+            "value": {
+                "textContent": "Commit your changes (<code>git commit -m 'Add amazing feature'</code>)",
+                "number": 3,
+                "indent": 0
+            },
+            "id": "doc049",
+            "component": "numbered-list-element",
+            "lastEdited": 1759475048
+        },
+        {
+            "value": {
+                "textContent": "Push to the branch (<code>git push origin feature/amazing-feature</code>)",
+                "number": 4,
+                "indent": 0
+            },
+            "id": "doc050",
+            "component": "numbered-list-element",
+            "lastEdited": 1759475049
+        },
+        {
+            "value": {
+                "textContent": "Open a Pull Request",
+                "number": 5,
+                "indent": 0
+            },
+            "id": "doc051",
+            "component": "numbered-list-element",
+            "lastEdited": 1759475050
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc052",
+            "component": "text-element",
+            "lastEdited": 1759475051
+        },
+        {
+            "value": {
+                "textContent": "License"
+            },
+            "id": "doc053",
+            "component": "heading1-element",
+            "lastEdited": 1759475052
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc054",
+            "component": "text-element",
+            "lastEdited": 1759475053
+        },
+        {
+            "value": {
+                "textContent": "This project is licensed under the <b>MIT License</b> - see the LICENSE file for details."
+            },
+            "id": "doc055",
+            "component": "text-element",
+            "lastEdited": 1759475054
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc056",
+            "component": "text-element",
+            "lastEdited": 1759475055
+        },
+        {
+            "value": {
+                "textContent": "MIT License\n\nCopyright (c) [year] [fullname]\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.",
+                "language": "text"
+            },
+            "id": "doc057",
+            "component": "code-element",
+            "lastEdited": 1759475056
+        },
+        {
+            "value": {
+                "textContent": ""
+            },
+            "id": "doc058",
+            "component": "text-element",
+            "lastEdited": 1759475057
+        }
+    ],
+    "name": "Project Documentation"
+}

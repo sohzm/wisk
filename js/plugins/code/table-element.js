@@ -193,27 +193,13 @@ class TableElement extends HTMLElement {
 
     getTextContent() {
         const { headers, rows } = this.tableContent;
-        const colWidths = headers.map((h, i) => {
-            const columnCells = [h, ...rows.map(row => row[i] || '')];
-            return Math.max(...columnCells.map(cell => (cell || '').toString().length));
-        });
-
-        const headerRow = '| ' + headers.map((h, i) => (h || '').toString().padEnd(colWidths[i])).join(' | ') + ' |';
-
-        const separatorRow = '|' + colWidths.map(w => '-'.repeat(w + 2)).join('|') + '|';
-
-        const dataRows = rows.map(row => '| ' + row.map((cell, i) => (cell || '').toString().padEnd(colWidths[i])).join(' | ') + ' |');
-
-        const markdown = [headerRow, separatorRow, ...dataRows].join('\n');
-
         return {
             html: this.shadowRoot.querySelector('table').outerHTML,
             text: headers.join('\t') + '\n' + rows.map(row => row.join('\t')).join('\n'),
-            markdown: markdown,
+            markdown: this.getMarkdownText(),
         };
     }
 
-    // TODO remove one of these
     getMarkdownText() {
         const { headers, rows } = this.tableContent;
 

@@ -54,6 +54,11 @@ class BaseTextElement extends HTMLElement {
         this.showingEmojiSuggestions = false;
         this.selectedEmojiIndex = 0;
         this.currentEmojiQuery = '';
+
+        // paste link menu state
+        this.showingPasteLinkMenu = false;
+        this.pendingPasteUrl = null;
+        this.selectedPasteLinkIndex = 0;
     }
 
     getSurroundingText() {
@@ -217,7 +222,6 @@ class BaseTextElement extends HTMLElement {
 
     handleAIOperationFallback(newText, selection) {
         try {
-            // Fallback method using execCommand
             document.execCommand('insertText', false, newText);
             this.sendUpdates();
         } catch (fallbackError) {
@@ -344,6 +348,7 @@ class BaseTextElement extends HTMLElement {
     connectedCallback() {
         this.editable = this.shadowRoot.querySelector('#editable');
         this.emojiSuggestionsContainer = this.shadowRoot.querySelector('.emoji-suggestions');
+        this.pasteLinkMenu = this.shadowRoot.querySelector('.paste-link-menu');
 
         this.updatePlaceholder();
         this.bindEvents();
@@ -446,8 +451,12 @@ class BaseTextElement extends HTMLElement {
 
         this.editable.addEventListener('focus', () => {
             this.isEditableFocused = true;
-            if (this.editable.innerText.trim() === '') {
-                this.editable.classList.add('empty');
+            this.updatePlaceholder();
+            // On mobile, scroll into view when focused (above keyboard)
+            if (this.isVirtualKeyboard) {
+                setTimeout(() => {
+                    this.editable.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 150);
             }
         });
 
@@ -457,6 +466,8 @@ class BaseTextElement extends HTMLElement {
         });
 
         this.editable.addEventListener('paste', this.handlePaste.bind(this));
+
+        this.editable.addEventListener('copy', this.handleCopy.bind(this));
 
         const handleSelectionChange = () => {
             const selection = this.shadowRoot.getSelection();
@@ -535,7 +546,6 @@ class BaseTextElement extends HTMLElement {
                     this.hideEmojiSuggestions();
                 }
             }, 0);
-            this.updatePlaceholder();
         });
 
         this.emojiSuggestionsContainer.addEventListener('mouseenter', () => {
@@ -616,63 +626,70 @@ class BaseTextElement extends HTMLElement {
 
         var newType = 'uwu';
         switch (this.editable.innerText.trim()) {
-            case '#':
+            case '#': {
                 newType = 'heading1-element';
                 break;
-            case '##':
+            }
+            case '##': {
                 newType = 'heading2-element';
                 break;
-            case '###':
+            }
+            case '###': {
                 newType = 'heading3-element';
                 break;
-            case '####':
+            }
+            case '####': {
                 newType = 'heading4-element';
                 break;
-            case '#####':
+            }
+            case '#####': {
                 newType = 'heading5-element';
                 break;
+            }
             case '-':
-                newType = 'list-element';
-                break;
             case '+':
+            case '*': {
                 newType = 'list-element';
                 break;
-            case '*':
-                newType = 'list-element';
-                break;
-            case '1.':
-                newType = 'numbered-list-element';
-                break;
-            case '1)':
-                newType = 'numbered-list-element';
-                break;
-            case '>':
+            }
+            case '>': {
                 newType = 'quote-element';
                 break;
-            case '```':
+            }
+            case '```': {
                 newType = 'code-element';
                 break;
+            }
             case '---':
-                newType = 'divider-element';
-                break;
             case '***':
+            case '___': {
                 newType = 'divider-element';
                 break;
-            case '___':
-                newType = 'divider-element';
-                break;
+            }
             case '- [ ]':
+            case '- [x]': {
                 newType = 'checkbox-element';
                 break;
-            case '- [x]':
-                newType = 'checkbox-element';
-                break;
+            }
+        }
+
+        if (newType === 'uwu') {
+            const numberedMatch = this.editable.innerText.trim().match(/^(\d+)[.)]$/);
+            if (numberedMatch) {
+                newType = 'numbered-list-element';
+            }
         }
 
         if (newType != 'uwu') {
+            event.preventDefault();
             var val = { textContent: '' };
             if (this.editable.innerText.trim() === '- [x]') {
                 val.checked = true;
+            }
+
+            const numberedMatch = this.editable.innerText.trim().match(/^(\d+)[.)]$/);
+            if (numberedMatch && newType === 'numbered-list-element') {
+                val.number = parseInt(numberedMatch[1], 10);
             }
 
             wisk.editor.changeBlockType(this.id, val, newType);
@@ -761,6 +778,7 @@ class BaseTextElement extends HTMLElement {
                 outline: none;
                 position: relative;
                 line-height: 1.5;
+                font-size: var(--editor-font-size, 17px);
             }
             #editable.empty:before {
                 content: attr(data-placeholder);
@@ -959,7 +977,168 @@ class BaseTextElement extends HTMLElement {
         }
     }
 
+    stripProtocol(url) {
+        return url.replace(/^https?:\/\//, '');
+    }
+
+    showPasteLinkMenu(url) {
+        if (!this.pasteLinkMenu) return;
+
+        this.pendingPasteUrl = url;
+        this.showingPasteLinkMenu = true;
+        this.selectedPasteLinkIndex = 0;
+        const normalizedUrl = this.normalizeUrl(url);
+        const linkElement = document.createElement('link-element');
+        linkElement.setAttribute('url', normalizedUrl);
+        linkElement.setAttribute('display', 'inline');
+        linkElement.setAttribute('contenteditable', 'false');
+        this._pendingLinkElement = linkElement;
+        const selection = this.shadowRoot.getSelection();
+        let range;
+
+        if (selection.rangeCount > 0) {
+            range = selection.getRangeAt(0);
+        } else {
+            range = document.createRange();
+            range.selectNodeContents(this.editable);
+            range.collapse(false);
+        }
+
+        range.insertNode(linkElement);
+        this.editable.classList.remove('empty');
+        const spaceNode = document.createTextNode(' ');
+        range.setStartAfter(linkElement);
+        range.insertNode(spaceNode);
+        range.setStartAfter(spaceNode);
+        range.setEndAfter(spaceNode);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        requestAnimationFrame(() => {
+            this.updatePlaceholder();
+            this.sendUpdates();
+            const linkRect = linkElement.getBoundingClientRect();
+            const editableRect = this.editable.getBoundingClientRect();
+
+            let left = linkRect.left - editableRect.left;
+            let top = linkRect.bottom - editableRect.top + 4;
+
+            this.pasteLinkMenu.style.left = left + 'px';
+            this.pasteLinkMenu.style.top = top + 'px';
+            requestAnimationFrame(() => {
+                this.pasteLinkMenu.classList.add('visible');
+            });
+            this.updatePasteLinkMenuSelection();
+
+            this.pasteLinkMenu.querySelectorAll('.paste-link-option').forEach(opt => {
+                opt.onclick = (e) => {
+                    e.preventDefault();
+                    this.handlePasteLinkChoice(opt.dataset.type);
+                };
+            });
+
+            setTimeout(() => {
+                this._closePasteMenuHandler = (e) => {
+                    const path = e.composedPath();
+                    const clickedInMenu = path.some(el => el === this.pasteLinkMenu);
+                    const clickedInHost = path.some(el => el === this);
+                    if (!clickedInMenu && !clickedInHost) {
+                        this.hidePasteLinkMenu();
+                    }
+                };
+                document.addEventListener('mousedown', this._closePasteMenuHandler);
+            }, 0);
+        });
+    }
+
+    hidePasteLinkMenu() {
+        if (!this.pasteLinkMenu) return;
+        this.pasteLinkMenu.classList.remove('visible');
+        this.showingPasteLinkMenu = false;
+        this.pendingPasteUrl = null;
+        this._pendingLinkElement = null;
+        if (this._closePasteMenuHandler) {
+            document.removeEventListener('mousedown', this._closePasteMenuHandler);
+            this._closePasteMenuHandler = null;
+        }
+    }
+
+    updatePasteLinkMenuSelection() {
+        if (!this.pasteLinkMenu) return;
+        const options = this.pasteLinkMenu.querySelectorAll('.paste-link-option');
+        options.forEach((opt, i) => {
+            opt.classList.toggle('selected', i === this.selectedPasteLinkIndex);
+        });
+    }
+
+    handlePasteLinkChoice(type) {
+        const url = this.normalizeUrl(this.pendingPasteUrl);
+        const pendingLink = this._pendingLinkElement;
+        this.hidePasteLinkMenu();
+
+        switch (type) {
+            case 'url':
+                {
+                    this.editable.focus();
+                    break;
+                }
+            case 'bookmark':
+                {
+                    if (pendingLink && pendingLink.parentNode) {
+                        const nextSibling = pendingLink.nextSibling;
+                        if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE && nextSibling.textContent === ' ') {
+                            nextSibling.remove();
+                        }
+                        pendingLink.remove();
+                    }
+                    wisk.editor.changeBlockType(this.id, {
+                        textContent: this.stripProtocol(url)
+                    }, 'link-preview-element');
+                    break;
+                }
+            case 'embed':
+                {
+                    if (pendingLink && pendingLink.parentNode) {
+                        const nextSibling = pendingLink.nextSibling;
+                        if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE && nextSibling.textContent === ' ') {
+                            nextSibling.remove();
+                        }
+                        pendingLink.remove();
+                    }
+                    wisk.editor.changeBlockType(this.id, {
+                        textContent: this.stripProtocol(url)
+                    }, 'embed-element');
+                    break;
+                }
+        }
+    }
+
     handleKeyDown(event) {
+        if (this.showingPasteLinkMenu) {
+            switch (event.key) {
+                case 'ArrowDown':
+                    event.preventDefault();
+                    this.selectedPasteLinkIndex = Math.min(2, this.selectedPasteLinkIndex + 1);
+                    this.updatePasteLinkMenuSelection();
+                    return;
+                case 'ArrowUp':
+                    event.preventDefault();
+                    this.selectedPasteLinkIndex = Math.max(0, this.selectedPasteLinkIndex - 1);
+                    this.updatePasteLinkMenuSelection();
+                    return;
+                case 'Enter': {
+                    event.preventDefault();
+                    const types = ['url', 'bookmark', 'embed'];
+                    this.handlePasteLinkChoice(types[this.selectedPasteLinkIndex]);
+                    return;
+                }
+                case 'Escape':
+                    event.preventDefault();
+                    this.hidePasteLinkMenu();
+                    return;
+            }
+        }
+
         if (this.showingEmojiSuggestions) {
             this.discardSuggestion();
             switch (event.key) {
@@ -1060,7 +1239,7 @@ class BaseTextElement extends HTMLElement {
                     document.execCommand('foreColor', false, formatValue);
                     document.execCommand('styleWithCSS', false, false);
                     break;
-                case 'backColor':
+                case 'backColor': {
                     const selection = this.shadowRoot.getSelection();
                     if (selection.rangeCount > 0) {
                         const range = selection.getRangeAt(0);
@@ -1075,6 +1254,7 @@ class BaseTextElement extends HTMLElement {
                         selection.addRange(range);
                     }
                     break;
+                }
                 case 'make-longer':
                 case 'make-shorter':
                 case 'fix-spelling-grammar':
@@ -1130,6 +1310,10 @@ class BaseTextElement extends HTMLElement {
             console.error('Format fallback failed:', fallbackError);
             try {
                 const selection = this.shadowRoot.getSelection();
+                if (!selection.rangeCount) {
+                    return;
+                }
+                const range = selection.getRangeAt(0);
                 if (selection.toString()) {
                     const text = selection.toString();
                     const span = document.createElement('span');
@@ -1148,7 +1332,6 @@ class BaseTextElement extends HTMLElement {
 
     handleEnterKey(event) {
         event.preventDefault();
-        console.log('Enter key pressed, suggestion active:', this.suggestionActive);
         if (this.suggestionActive) {
             this.acceptSuggestion();
             return;
@@ -1177,11 +1360,37 @@ class BaseTextElement extends HTMLElement {
     }
 
     handleBackspace(event) {
+        const selection = this.shadowRoot.getSelection();
+        if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            if (range.collapsed) {
+                const container = range.startContainer;
+                const offset = range.startOffset;
+                if (container.nodeType === Node.TEXT_NODE && offset === 0) {
+                    const prevSibling = container.previousSibling;
+                    if (prevSibling && prevSibling.nodeName === 'LINK-ELEMENT') {
+                        event.preventDefault();
+                        prevSibling.remove();
+                        this.sendUpdates();
+                        return;
+                    }
+                }
+                if (container.nodeType === Node.ELEMENT_NODE && offset > 0) {
+                    const prevChild = container.childNodes[offset - 1];
+                    if (prevChild && prevChild.nodeName === 'LINK-ELEMENT') {
+                        event.preventDefault();
+                        prevChild.remove();
+                        this.sendUpdates();
+                        return;
+                    }
+                }
+            }
+        }
         if (this.getFocus() === 0) {
             event.preventDefault();
             const prevElement = wisk.editor.prevElement(this.id);
-            const prevDomElement = wisk.editor.getElement(prevElement.id);
             if (!prevElement) return;
+            const prevDomElement = wisk.editor.getElement(prevElement.id);
 
             const prevComponentDetail = wisk.plugins.getPluginDetail(prevElement.component);
             if (prevComponentDetail.textual) {
@@ -1205,6 +1414,7 @@ class BaseTextElement extends HTMLElement {
 
     handleArrowKey(event, direction, targetOffset) {
         const pos = this.getFocus();
+
         if (pos === targetOffset) {
             event.preventDefault();
             const adjacentElement = direction === 'next-up' ? wisk.editor.prevElement(this.id) : wisk.editor.nextElement(this.id);
@@ -1222,6 +1432,7 @@ class BaseTextElement extends HTMLElement {
     focus(identifier) {
         if (!identifier) {
             this.editable.focus();
+            this.updatePlaceholder();
             return;
         }
         console.log('Focus called with identifier', identifier, this.id);
@@ -1260,6 +1471,7 @@ class BaseTextElement extends HTMLElement {
                 range.setEnd(firstNode, offset);
                 selection.removeAllRanges();
                 selection.addRange(range);
+                this.updatePlaceholder();
                 return;
             } catch (e) {
                 console.warn('Failed to set cursor at beginning:', e);
@@ -1267,6 +1479,7 @@ class BaseTextElement extends HTMLElement {
         }
 
         if (!this.editable.childNodes.length) {
+            this.updatePlaceholder();
             return;
         }
 
@@ -1343,23 +1556,31 @@ class BaseTextElement extends HTMLElement {
             selection.removeAllRanges();
             selection.addRange(range);
         }
+
+        // On mobile, scroll the focused element into view (above keyboard)
+        if (this.isVirtualKeyboard) {
+            setTimeout(() => {
+                this.editable.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 150);
+        }
+
+        this.updatePlaceholder();
     }
 
     handleVerticalArrow(event, direction) {
-        console.log('Vertical arrow key pressed', direction);
         const pos = this.getFocus();
+        const len = this.editable.innerText.length;
+
         setTimeout(() => {
             const newPos = this.getFocus();
-            if ((direction === 'next-up' && newPos === 0) || (direction === 'next-down' && newPos === this.editable.innerText.length)) {
-                console.log('Moving to adjacent element');
-                const adjacentElement = direction === 'next-up' ? wisk.editor.prevElement(this.id) : wisk.editor.nextElement(this.id);
+            if (pos !== newPos) return; // cursor moved within element, do nothing
 
-                if (adjacentElement) {
-                    const componentDetail = wisk.plugins.getPluginDetail(adjacentElement.component);
-                    if (componentDetail.textual) {
-                        wisk.editor.focusBlock(adjacentElement.id, { x: pos });
-                    }
-                }
+            const adjacentElement = direction === 'next-up' ? wisk.editor.prevElement(this.id) : wisk.editor.nextElement(this.id);
+            if (!adjacentElement) return;
+
+            const componentDetail = wisk.plugins.getPluginDetail(adjacentElement.component);
+            if (componentDetail.textual) {
+                wisk.editor.focusBlock(adjacentElement.id, { x: newPos });
             }
         }, 0);
     }
@@ -1393,14 +1614,15 @@ class BaseTextElement extends HTMLElement {
 
     updatePlaceholder() {
         if (this.editable) {
-            const isEmpty = this.editable.innerText.trim() === '';
+            const hasText = this.editable.innerText.trim() !== '';
+            const hasChildElements = this.editable.childElementCount > 0;
+            const isEmpty = !hasText && !hasChildElements;
             this.editable.classList.toggle('empty', isEmpty);
             this.editable.dataset.placeholder = this.getAttribute('placeholder') || this.placeholder;
         }
     }
 
     sendUpdates() {
-        console.log('Sending updates', this.id);
         setTimeout(() => {
             wisk.editor.justUpdates(this.id);
         }, 0);
@@ -1552,248 +1774,80 @@ class BaseTextElement extends HTMLElement {
         }
     }
 
+    handleCopy(event) {
+        const selection = this.shadowRoot.getSelection();
+        if (!selection.rangeCount) return;
+
+        const range = selection.getRangeAt(0);
+        const clonedContent = range.cloneContents();
+
+        // Create a temporary container to process the content
+        const tempDiv = document.createElement('div');
+        tempDiv.appendChild(clonedContent);
+
+        // Find all link-elements and convert them to serialized format
+        const linkElements = tempDiv.querySelectorAll('link-element');
+        linkElements.forEach(linkEl => {
+            const url = linkEl.getAttribute('url') || '';
+            const title = linkEl.getAttribute('title') || linkEl.textContent || url;
+            const display = linkEl.getAttribute('display') || 'inline';
+
+            // Create a replacement that preserves link-element format for wisk
+            // and also creates an <a> tag for external paste compatibility
+            const replacement = document.createElement('a');
+            replacement.href = url;
+            replacement.textContent = title;
+            replacement.setAttribute('target', '_blank');
+            replacement.setAttribute('data-wisk-link', 'true');
+            replacement.setAttribute('data-wisk-display', display);
+
+            linkEl.parentNode.replaceChild(replacement, linkEl);
+        });
+
+        const htmlContent = tempDiv.innerHTML;
+        const textContent = tempDiv.textContent;
+
+        event.preventDefault();
+        event.clipboardData.setData('text/html', htmlContent);
+        event.clipboardData.setData('text/plain', textContent);
+    }
+
     handlePaste(event) {
         const clipboardData = event.clipboardData || window.clipboardData;
+        const plainText = clipboardData.getData('text/plain') || clipboardData.getData('text');
         const htmlData = clipboardData.getData('text/html');
-        console.log('Pasting:', clipboardData, htmlData);
 
-        // Check if this is a wisk clipboard format (multi-element paste)
-        if (htmlData && htmlData.includes('__WISK_CLIPBOARD__')) {
-            // Let the document-level paste handler deal with it
-            return;
-        }
-
-        if (htmlData) {
-            event.preventDefault();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlData, 'text/html');
-            const structuredElements = [];
-
-            const processListItems = items => {
-                return Array.from(items).map(li => ({
-                    text: li.textContent.trim(),
-                    indent: getIndentLevel(li),
-                }));
-            };
-
-            const getIndentLevel = element => {
-                let indent = 0;
-                let parent = element.parentElement;
-                while (parent) {
-                    if (parent.tagName === 'UL' || parent.tagName === 'OL') {
-                        indent++;
-                    }
-                    parent = parent.parentElement;
-                }
-                return Math.max(0, indent - 1);
-            };
-
-            const isPartOfProcessedList = node => {
-                let parent = node.parentElement;
-                while (parent) {
-                    if (parent._processed) {
-                        return true;
-                    }
-                    parent = parent.parentElement;
-                }
-                return false;
-            };
-
-            const processNode = node => {
-                console.log('Processing node:', node);
-
-                if (node.nodeType !== Node.ELEMENT_NODE) return;
-
-                let element = null;
-
-                switch (node.tagName.toLowerCase()) {
-                    case 'h1':
-                        element = { elementName: 'heading1-element', value: node.textContent.trim() };
-                        break;
-                    case 'h2':
-                        element = { elementName: 'heading2-element', value: node.textContent.trim() };
-                        break;
-                    case 'h3':
-                        element = { elementName: 'heading3-element', value: node.textContent.trim() };
-                        break;
-                    case 'h4':
-                        element = { elementName: 'heading4-element', value: node.textContent.trim() };
-                        break;
-                    case 'h5':
-                        element = { elementName: 'heading5-element', value: node.textContent.trim() };
-                        break;
-                    case 'ul':
-                    case 'ol':
-                        node._processed = true; // Mark as processed
-                        const isCheckboxList = Array.from(node.querySelectorAll('li')).some(
-                            li => li.textContent.startsWith('[ ]') || li.textContent.startsWith('[x]') || li.querySelector('input[type="checkbox"]')
-                        );
-
-                        if (isCheckboxList && node.tagName.toLowerCase() === 'ul') {
-                            element = {
-                                elementName: 'checkbox-element',
-                                value: Array.from(node.querySelectorAll('li')).map(li => {
-                                    const isChecked = li.textContent.startsWith('[x]') || li.querySelector('input[type="checkbox"]')?.checked;
-                                    return {
-                                        text: li.textContent.replace(/^\[[\sx]\]\s*/, '').trim(),
-                                        checked: isChecked,
-                                        indent: getIndentLevel(li),
-                                    };
-                                }),
-                            };
-                        } else {
-                            element = {
-                                elementName: node.tagName.toLowerCase() === 'ul' ? 'list-element' : 'numbered-list-element',
-                                value: processListItems(node.querySelectorAll('li')),
-                            };
-                        }
-                        break;
-                    case 'li':
-                        if (!isPartOfProcessedList(node)) {
-                            const isCheckbox =
-                                node.textContent.startsWith('[ ]') ||
-                                node.textContent.startsWith('[x]') ||
-                                node.querySelector('input[type="checkbox"]');
-
-                            if (isCheckbox) {
-                                element = {
-                                    elementName: 'checkbox-element',
-                                    value: [
-                                        {
-                                            text: node.textContent.replace(/^\[[\sx]\]\s*/, '').trim(),
-                                            checked: node.textContent.startsWith('[x]') || node.querySelector('input[type="checkbox"]')?.checked,
-                                            indent: getIndentLevel(node),
-                                        },
-                                    ],
-                                };
-                            } else {
-                                element = {
-                                    elementName: 'list-element',
-                                    value: [
-                                        {
-                                            text: node.textContent.trim(),
-                                            indent: getIndentLevel(node),
-                                        },
-                                    ],
-                                };
-                            }
-                        }
-                        break;
-                    case 'blockquote':
-                        element = { elementName: 'quote-element', value: node.textContent.trim() };
-                        break;
-                    case 'pre':
-                    case 'code':
-                        element = { elementName: 'code-element', value: node.textContent.trim() };
-                        break;
-                    case 'hr':
-                        element = { elementName: 'divider-element', value: '' };
-                        break;
-                    case 'img':
-                        if (node.src) {
-                            element = {
-                                elementName: 'image-element',
-                                value: node.src.startsWith('data:') ? node.src : node.src,
-                            };
-                        }
-                        break;
-                    case 'p':
-                        if (node.textContent.trim()) {
-                            element = { elementName: 'text-element', value: node.textContent.trim() };
-                        }
-                        break;
-                }
-
-                if (element) {
-                    structuredElements.push(element);
-                }
-
-                node.childNodes.forEach(childNode => {
-                    processNode(childNode);
-                });
-            };
-
-            processNode(doc.body);
-
-            const flattenedElements = [];
-
-            structuredElements.forEach(element => {
-                if (Array.isArray(element.value)) {
-                    element.value.forEach(item => {
-                        if (typeof item === 'object') {
-                            const newElement = {
-                                elementName: element.elementName,
-                                value: {
-                                    textContent: item.text || '',
-                                    indent: typeof item.indent === 'number' ? item.indent : 0,
-                                },
-                            };
-
-                            if (element.elementName === 'checkbox-element') {
-                                newElement.value.checked = !!item.checked;
-                            }
-
-                            flattenedElements.push(newElement);
-                        } else {
-                            flattenedElements.push({
-                                elementName: element.elementName,
-                                value: {
-                                    textContent: item,
-                                },
-                            });
-                        }
-                    });
-                } else if (element.elementName === 'image-element') {
-                    // Handle images
-                    flattenedElements.push({
-                        elementName: element.elementName,
-                        value: {
-                            imageUrl: element.value,
-                            textContent: '',
-                        },
-                    });
+        if (plainText && WiskPasteHandler.isURL(plainText.trim())) {
+            const url = plainText.trim();
+            const normalizedUrl = WiskPasteHandler.normalizeUrl(url);
+            if (this.editable.innerText.trim() === '') {
+                event.preventDefault();
+                if (WiskPasteHandler.isInternalUrl(normalizedUrl)) {
+                    wisk.editor.changeBlockType(this.id, {
+                        url: normalizedUrl,
+                        title: 'Page',
+                        display: 'block'
+                    }, 'link-element');
                 } else {
-                    flattenedElements.push({
-                        elementName: element.elementName,
-                        value: {
-                            textContent: element.value,
-                        },
-                    });
-                }
-            });
-
-            console.log('Flattened elements:', JSON.parse(JSON.stringify(flattenedElements)));
-            if (flattenedElements.length === 0) {
-                const text = clipboardData.getData('text') || clipboardData.getData('text/plain');
-                if (text) {
-                    event.preventDefault();
-                    const cleanedText = text.replace(/[\r\n]+/g, ' ').trim();
-                    document.execCommand('insertText', false, cleanedText);
+                    this.showPasteLinkMenu(url);
                 }
                 return;
             }
-
-            var inx = 0;
-            if (flattenedElements[0].value.textContent != '') {
-                wisk.editor.updateBlock(this.id, 'value.append', flattenedElements[0].value);
-                inx = 1;
-            }
-
-            var lastId = this.id;
-            for (var i = inx; i < flattenedElements.length; i++) {
-                lastId = wisk.editor.createBlockNoFocus(lastId, flattenedElements[i].elementName, flattenedElements[i].value);
-            }
-
-            return flattenedElements;
-        } else {
-            const text = clipboardData.getData('text') || clipboardData.getData('text/plain');
-            if (text) {
-                event.preventDefault();
-                const cleanedText = text.replace(/[\r\n]+/g, ' ').trim();
-                document.execCommand('insertText', false, cleanedText);
-            }
         }
-        return [];
+
+        if (WiskPasteHandler.isWiskClipboardFormat(htmlData)) {
+            return;
+        }
+
+        const result = WiskPasteHandler.handleTextElementPaste(event, this.id, {
+            isCurrentBlockEmpty: this.editable.innerText.trim() === ''
+        });
+
+        if (result.handled) {
+            this.sendUpdates();
+        }
+
+        return result.elements || [];
     }
 }
 

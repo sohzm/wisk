@@ -9,8 +9,8 @@
 }
 
 body {
-    background-color: #ffffff;
-    color: #333;
+    background-color: var(--bg-1, #ffffff);
+    color: var(--fg-1, #333);
     line-height: 1.6;
 }
 
@@ -94,7 +94,7 @@ p {
 /* Buttons */
 .button {
     display: inline-block;
-    padding: 0.5rem 1rem;
+    padding: var(--padding-w2);
     background-color: #000;
     color: #fff;
     text-decoration: none;

@@ -667,8 +667,12 @@ class MainElement extends BaseTextElement {
                 gap: var(--gap-1);
             }
             .empty-emoji {
-                background: var(--bg-2) !important;
+                opacity: 0;
                 padding: 8px 12px;
+            }
+            .header-container:hover .empty-emoji {
+                opacity: 1;
+                background: var(--bg-2)
             }
             #emoji:hover {
                 background: var(--bg-2);
@@ -677,7 +681,7 @@ class MainElement extends BaseTextElement {
                 outline: none;
                 position: relative;
                 line-height: 1.5;
-                font-size: 2.5em;
+                font-size: calc(var(--editor-font-size, 17px) * 2.5);
                 font-weight: 700;
                 flex-grow: 1;
                 background: transparent;
@@ -715,7 +719,6 @@ class MainElement extends BaseTextElement {
             .header-container:hover .header-actions {
                 opacity: 1;
             }
-
             .header-btn {
                 padding: var(--padding-w1);
                 background-color: var(--bg-2);

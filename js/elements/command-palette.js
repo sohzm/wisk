@@ -10,7 +10,7 @@ class CommandPalette extends HTMLElement {
     addGlobalShortcut() {
         document.addEventListener('keydown', e => {
             // ctrl shift p
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 80) {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
                 e.preventDefault();
                 this.show();
             }
@@ -46,16 +46,16 @@ class CommandPalette extends HTMLElement {
     }
 
     handleInput(e) {
-        if (e.keyCode === 27) {
+        if (e.key === 'Escape') {
             this.hide();
             return;
         }
 
-        if (e.type === 'keyup' && (e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40)) {
+        if (e.type === 'keyup' && (e.key === 'Enter' || e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
             return;
         }
 
-        if (e.keyCode === 13) {
+        if (e.key === 'Enter') {
             const focusedButton = this.shadowRoot.querySelector('.selector-button-focused');
             if (focusedButton) {
                 e.preventDefault();
@@ -65,7 +65,7 @@ class CommandPalette extends HTMLElement {
             return;
         }
 
-        if (e.keyCode === 38 || e.keyCode === 40) {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
             e.preventDefault();
             const buttons = this.shadowRoot.querySelectorAll('.selector-button');
             let focusedButton = this.shadowRoot.querySelector('.selector-button-focused');
@@ -73,7 +73,7 @@ class CommandPalette extends HTMLElement {
 
             if (focusedButton) {
                 focusedButton.classList.remove('selector-button-focused');
-                if (e.keyCode === 38) {
+                if (e.key === 'ArrowUp') {
                     // Up arrow
                     nextButton = this.getPreviousButton(focusedButton);
                 } else {
