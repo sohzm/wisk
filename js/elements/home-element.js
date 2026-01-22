@@ -1,5 +1,8 @@
 import { html, css, LitElement } from '/a7/cdn/lit-core-2.7.4.min.js';
 
+// Base URL for wisk-templates repository (GitHub Pages)
+const TEMPLATES_BASE_URL = 'https://sohzm.github.io/wisk-templates';
+
 class HomeElement extends LitElement {
     static styles = css`
         * {
@@ -939,12 +942,13 @@ class HomeElement extends LitElement {
 
     async fetchTemplates() {
         try {
-            const response = await fetch('/js/templates/templates.json');
+            const url = `${TEMPLATES_BASE_URL}/templates.json`;
+            const response = await fetch(url);
             const data = await response.json();
             this.templates = data.templates;
             this.requestUpdate();
         } catch (error) {
-            console.error('Error fetching templates:', error);
+            console.error('[Home] Error fetching templates:', error);
         }
     }
 
@@ -964,7 +968,7 @@ class HomeElement extends LitElement {
     }
 
     useTemplate(template) {
-        window.location.href = `/?id=newpage&template=${template.path}`;
+        window.location.href = `/?id=newpage&template=${template.id}`;
     }
 
     getGreeting() {
@@ -1276,7 +1280,7 @@ class HomeElement extends LitElement {
                                     <div class="preview-container">
                                         <div
                                             class="desktop-preview"
-                                            style="background-image: url(/a7/templates/${template.path}/preview/desktop.png)"
+                                            style="background-image: url(${TEMPLATES_BASE_URL}/templates/${template.id}/preview-desktop.png)"
                                             alt="${template.name} preview"
                                         ></div>
                                     </div>
@@ -1303,7 +1307,7 @@ class HomeElement extends LitElement {
                                               <div class="preview-container">
                                                   <div
                                                       class="desktop-preview"
-                                                      style="background-image: url(/a7/templates/${template.path}/preview/desktop.png)"
+                                                      style="background-image: url(${TEMPLATES_BASE_URL}/templates/${template.id}/preview-desktop.png)"
                                                       alt="${template.name} preview"
                                                   ></div>
                                               </div>

@@ -2,6 +2,9 @@
 //                 and:  430x932 at 75% zoom
 import { html, css, LitElement } from '/a7/cdn/lit-core-2.7.4.min.js';
 
+// Base URL for wisk-templates repository (GitHub Pages)
+const TEMPLATES_BASE_URL = 'https://sohzm.github.io/wisk-templates';
+
 class TemplateDialog extends LitElement {
     static styles = css`
         * {
@@ -318,12 +321,13 @@ class TemplateDialog extends LitElement {
 
     async fetchTemplates() {
         try {
-            const response = await fetch('/js/templates/templates.json');
+            const url = `${TEMPLATES_BASE_URL}/templates.json`;
+            const response = await fetch(url);
             const data = await response.json();
             this.templates = data.templates;
             this.requestUpdate();
         } catch (error) {
-            console.error('Error fetching templates:', error);
+            console.error('[Template Dialog] Error fetching templates:', error);
         }
     }
 
@@ -366,12 +370,26 @@ class TemplateDialog extends LitElement {
     }
 
     async useTemplate() {
-        // get template json from /js/templates/storage/${this.selectedTemplate.path}.json
-        // run wisk.editor.useTemplate(template)
-        const response = await fetch(`/js/templates/storage/${this.selectedTemplate.path}.json`);
-        const data = await response.json();
-        wisk.editor.useTemplate(data);
-        this.hide();
+        try {
+            // Show loading indicator
+            wisk.utils.showLoading('Loading template...');
+
+            // Load template from ZIP file
+            const zipUrl = `${TEMPLATES_BASE_URL}/templates/${this.selectedTemplate.id}/data.zip`;
+            const { template, assetMap } = await wisk.utils.loadTemplateFromZip(zipUrl);
+
+            // Resolve asset references in template
+            const resolvedTemplate = wisk.utils.resolveTemplateAssets(template, assetMap);
+            // Apply the template
+            wisk.editor.useTemplate(resolvedTemplate);
+
+            wisk.utils.hideLoading();
+            this.hide();
+        } catch (error) {
+            console.error('Error loading template:', error);
+            wisk.utils.hideLoading();
+            wisk.utils.showToast('Failed to load template. Please try again.', 3000);
+        }
     }
 
     render() {
@@ -416,7 +434,7 @@ class TemplateDialog extends LitElement {
                                     <div class="preview-container">
                                         <div
                                             class="desktop-preview"
-                                            style="background-image: url(/a7/templates/${template.path}/preview/desktop.png)"
+                                            style="background-image: url(${TEMPLATES_BASE_URL}/templates/${template.id}/preview-desktop.png)"
                                             alt="${template.name} desktop preview"
                                         ></div>
                                     </div>
