@@ -16,8 +16,8 @@ function determineServerUrl() {
             serverUrl = currentUrl.split('.ngrok-free.app')[0] + '.ngrok-free.app';
             break;
 
-        case currentUrl.includes('wisk.cc'):
-            serverUrl = 'https://app.wisk.cc';
+        case currentUrl.includes('wisk.lol'):
+            serverUrl = 'https://app.wisk.lol';
             break;
     }
 

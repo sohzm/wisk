@@ -1590,7 +1590,7 @@ class OptionsComponent extends LitElement {
                     <div style="flex: 1"></div>
                     <p style="color: var(--fg-2); padding: 10px 0">
                         btw you can also create your own plugins and themes, check out the 
-                        <a href="https://wisk.cc/docs" target="_blank" style="color: var(--fg-blue)">docs</a>
+                        <a href="https://wisk.lol/docs" target="_blank" style="color: var(--fg-blue)">docs</a>
                     </p>
                 </div>
 
@@ -2047,7 +2047,7 @@ class OptionsComponent extends LitElement {
                             <div style="display: flex; flex-direction: column; gap: var(--gap-1)">
                                 <p style="color: var(--fg-2); font-size: 14px">
                                     Licensed under the Functional Source License (FSL), Version 1.1, with Apache License Version 2.0 as the Future License.
-                                    See the <a href="https://app.wisk.cc/LICENSE.md" target="_blank" class="link-blue">LICENSE.md</a> for more details.
+                                    See the <a href="https://app.wisk.lol/LICENSE.md" target="_blank" class="link-blue">LICENSE.md</a> for more details.
                                 </p>
                             </div>
                         </div>

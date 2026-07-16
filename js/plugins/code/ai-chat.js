@@ -402,7 +402,7 @@ class AIChat extends LitElement {
                         <p class="neo-description">
                             Your intelligent document companion – researching, writing, and organizing at superhuman speed.
                             <br />
-                            <a href="https://wisk.cc/neo" target="_blank" style="color: var(--fg-blue)">Learn more</a>
+                            <a href="https://wisk.lol/neo" target="_blank" style="color: var(--fg-blue)">Learn more</a>
                         </p>
                     </div>
 

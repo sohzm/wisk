@@ -26,8 +26,8 @@ wisk.editor = {
     pageId: '',
     document: {}, // supposed to replace elements, data, config
     readonly: false,
-    backendUrl: 'https://api.wisk.cc',
-    wsBackendUrl: 'wss://api.wisk.cc',
+    backendUrl: 'https://api.wisk.lol',
+    wsBackendUrl: 'wss://api.wisk.lol',
     aiAutocomplete: false,
     gptZero: false,
     createNewBlock: function (elementId, blockType, value, focusIdentifier) {},

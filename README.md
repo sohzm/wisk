@@ -1,4 +1,4 @@
-![Wisk](https://wisk.cc/a7/forget/img.png)
+![Wisk](https://wisk.lol/a7/forget/img.png)
 
 # Wisk
 
@@ -6,8 +6,8 @@ A plugin-based document editor built with vanilla JavaScript and Web Components.
 
 ## Quick Links
 
-- **Try Wisk**: Start using Wisk immediately at [app.wisk.cc](https://app.wisk.cc)
-- **Website**: Visit [wisk.cc](https://wisk.cc) for more information
+- **Try Wisk**: Start using Wisk immediately at [app.wisk.lol](https://app.wisk.lol)
+- **Website**: Visit [wisk.lol](https://wisk.lol) for more information
 
 ## Overview
 

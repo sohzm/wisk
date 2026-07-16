@@ -4,7 +4,7 @@
             "name": "Simple Blog",
             "description": "Default Blog Template whose design is very human",
             "by": "Wisk Team",
-            "link": "https://wisk.cc",
+            "link": "https://wisk.lol",
             "path": "blog-simple",
             "links": []
         },
@@ -12,7 +12,7 @@
             "name": "Travel Itinerary",
             "description": "A travel itinerary template that is perfect for travel bloggers",
             "by": "Wisk Team",
-            "link": "https://wisk.cc",
+            "link": "https://wisk.lol",
             "path": "travel-itinerary-simple",
             "links": []
         },
@@ -20,7 +20,7 @@
             "name": "Daily Planner",
             "description": "A simple daily planner template",
             "by": "Wisk Team",
-            "link": "https://wisk.cc",
+            "link": "https://wisk.lol",
             "path": "daily-planner-simple",
             "links": []
         },
@@ -28,7 +28,7 @@
             "name": "Minimal Weekly Todo",
             "description": "A simple weekly todo list template",
             "by": "Wisk Team",
-            "link": "https://wisk.cc",
+            "link": "https://wisk.lol",
             "path": "minimal-weekly-todo",
             "links": []
         }

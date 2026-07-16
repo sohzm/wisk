@@ -2,7 +2,7 @@ class LinkElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
-        this.link = 'wisk.cc';
+        this.link = 'wisk.lol';
         this.metadata = null;
         this.render();
         this.isVirtualKeyboard = this.checkIfVirtualKeyboard();
@@ -91,7 +91,7 @@ class LinkElement extends HTMLElement {
                 url = 'https://' + url;
             }
 
-            const response = await fetch('https://render.wisk.cc/fetch-metadata', {
+            const response = await fetch('https://render.wisk.lol/fetch-metadata', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

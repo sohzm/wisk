@@ -852,7 +852,7 @@ class LeftMenu extends LitElement {
     }
 
     openInEditor() {
-        var url = 'https://app.wisk.cc?id=' + wisk.editor.pageId;
+        var url = 'https://app.wisk.lol?id=' + wisk.editor.pageId;
         window.open(url, '_blank');
     }
 

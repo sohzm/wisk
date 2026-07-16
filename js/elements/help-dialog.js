@@ -239,10 +239,10 @@ class HelpDialog extends LitElement {
                         <div style="display: flex; gap: var(--gap-2); flex-wrap: wrap">
                             <button @click="${() => this.showOnboarding()}" class="quick-link">Onboarding Guide</button>
 
-                            <a target="_blank" href="https://wisk.cc/faq" class="quick-link">FAQ</a>
+                            <a target="_blank" href="https://wisk.lol/faq" class="quick-link">FAQ</a>
                             <a target="_blank" href="https://discord.gg/D8tQCvgDhu" class="quick-link">Discord</a>
                             <a target="_blank" href="https://github.com/sohzm/wisk/blob/master/docs/docs.md" class="quick-link">Documentation</a>
-                            <a target="_blank" href="https://wisk.cc/contact" class="quick-link">Contact Support</a>
+                            <a target="_blank" href="https://wisk.lol/contact" class="quick-link">Contact Support</a>
                         </div>
                     </div>
 

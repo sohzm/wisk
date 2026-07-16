@@ -2,7 +2,7 @@ class EmbedElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
-        this.link = 'wisk.cc';
+        this.link = 'wisk.lol';
         this.render();
         this.isVirtualKeyboard = this.checkIfVirtualKeyboard();
     }

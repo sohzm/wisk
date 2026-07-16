@@ -37,7 +37,7 @@ Most common plugin type - adds new block types to documents:
     "name": "plugin-name",
     "title": "Human Readable Title",
     "author": "Wisk Team",
-    "contact": "https://wisk.cc",
+    "contact": "https://wisk.lol",
     "icon": "icon-name.svg",
     "tags": ["tag1", "tag2"],
     "description": "Plugin description",
