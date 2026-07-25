@@ -154,3 +154,6 @@ function createThemedFaviconSVG(textColor, bgColor) {
 }
 
 initTheme();
+window.addEventListener('popstate', () => {
+  setTimeout(() => wisk.theme.setTheme(wisk.theme.getTheme()), 0);
+});
