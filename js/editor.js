@@ -544,7 +544,11 @@ async function initEditor(doc) {
         }
     }
 
-    wisk.theme.setTheme(doc.data.config.theme);
+    // Use workspace theme as fallback if document theme is 'default' or empty
+    const docTheme = doc.data.config.theme;
+    const workspaceTheme = wisk.theme.getWorkspaceTheme();
+    const themeToApply = (!docTheme || docTheme === 'default') ? (workspaceTheme || docTheme) : docTheme;
+    wisk.theme.setTheme(themeToApply);
 
     const page = doc.data;
     deletedElements = page.deletedElements;

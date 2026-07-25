@@ -76,6 +76,12 @@ function initHomeSidebar() {
 
             themeSelect.addEventListener('change', e => {
                 wisk.theme.setTheme(e.target.value);
+                wisk.theme.setWorkspaceTheme(e.target.value);
+            });
+
+            window.addEventListener('wisk-theme-changed', () => {
+                const currentTheme = wisk.theme.getTheme();
+                themeSelect.value = currentTheme;
             });
 
             // Add search button event listener
@@ -113,6 +119,11 @@ function initHomeSidebar() {
         // Update UI
         document.getElementById('workspace-emoji').textContent = workspace.emoji;
         document.getElementById('workspace-name').textContent = workspace.name;
+
+        // Apply workspace theme
+        if (workspace.theme) {
+            wisk.theme.setTheme(workspace.theme);
+        }
 
         // Workspace header click handler
         const workspaceHeader = document.getElementById('workspace-header');
@@ -296,6 +307,7 @@ function initHomeSidebar() {
                     name: input.value.trim(),
                     emoji: emojiDisplay.textContent,
                     id: window.generateWorkspaceId(),
+                    theme: wisk.theme.getTheme() || 'Light',
                 };
 
                 workspaces.push(newWorkspace);
