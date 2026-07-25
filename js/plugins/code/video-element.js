@@ -4,6 +4,7 @@ class VideoElement extends BaseTextElement {
         this.videoUrl = null;
         this.MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB in bytes
         this.loading = false;
+        this.showBorder = false;
     }
 
     connectedCallback() {
@@ -12,96 +13,82 @@ class VideoElement extends BaseTextElement {
         this.fileInput = this.shadowRoot.querySelector('#file');
         this.uploadArea = this.shadowRoot.querySelector('.upload-video');
         this.uploadButton = this.shadowRoot.querySelector('#upload-button');
-        this.optionsButton = this.shadowRoot.querySelector('#options-button');
-        this.optionsDialog = this.shadowRoot.querySelector('#options-dialog');
         this.bindVideoEvents();
-        this.bindOptionEvents();
     }
 
-    bindOptionEvents() {
-        const optionsButton = this.shadowRoot.querySelector('#options-button');
-        const optionsDialog = this.shadowRoot.querySelector('#options-dialog');
-        const changeVideoBtn = this.shadowRoot.querySelector('#change-video');
-        const fullscreenBtn = this.shadowRoot.querySelector('#fullscreen');
-        const downloadBtn = this.shadowRoot.querySelector('#download-video');
-        const borderToggle = this.shadowRoot.querySelector('#border-toggle');
+    filterContextMenuOptions(options) {
+        // Only show options when a video is loaded
+        if (!this.videoUrl) {
+            return [];
+        }
+        return options;
+    }
 
-        optionsButton?.addEventListener('click', e => {
-            e.stopPropagation();
-            optionsDialog.style.display = optionsDialog.style.display !== 'flex' ? 'flex' : 'none';
-        });
+    runArg(action) {
+        switch (action) {
+            case 'download':
+                return this.download();
+            case 'change-video':
+                this.fileInput.click();
+                return;
+            case 'fullscreen':
+                return this.viewFullSize();
+            case 'toggle-border':
+                return this.toggleBorder();
+            default:
+                throw new Error(`Unknown action: ${action}`);
+        }
+    }
 
-        // Close options dialog when clicking outside
-        document.addEventListener('click', e => {
-            if (!optionsDialog.contains(e.target) && e.target !== optionsButton) {
-                optionsDialog.style.display = 'none';
-            }
-        });
-
-        changeVideoBtn?.addEventListener('click', () => {
-            this.fileInput.click();
-            optionsDialog.style.display = 'none';
-        });
-
-        fullscreenBtn?.addEventListener('click', async () => {
-            if (this.videoUrl) {
-                try {
-                    // Retrieve the actual blob from the asset store
-                    const blob = await wisk.db.getAsset(this.videoUrl);
-                    if (blob) {
-                        const objectUrl = URL.createObjectURL(blob);
-                        window.open(objectUrl, '_blank');
-                        // Clean up the object URL after it's opened
-                        setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-                    }
-                } catch (error) {
-                    console.error('Error opening fullscreen video:', error);
+    async viewFullSize() {
+        if (this.videoUrl) {
+            try {
+                const blob = await wisk.db.getAsset(this.videoUrl);
+                if (blob) {
+                    const objectUrl = URL.createObjectURL(blob);
+                    window.open(objectUrl, '_blank');
+                    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
                 }
+            } catch (error) {
+                console.error('Error opening fullscreen video:', error);
             }
-            optionsDialog.style.display = 'none';
-        });
+        }
+    }
 
-        downloadBtn?.addEventListener('click', async () => {
-            if (this.videoUrl) {
-                try {
-                    wisk.utils.showToast('Downloading video...', 3000);
+    async download() {
+        if (this.videoUrl) {
+            try {
+                wisk.utils.showToast('Downloading video...', 3000);
 
-                    // Get the blob from IndexedDB
-                    const blob = await wisk.db.getAsset(this.videoUrl);
-                    if (!blob) {
-                        throw new Error('Video not found in storage');
-                    }
-
-                    const blobUrl = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = blobUrl;
-
-                    // Create a filename from the stored key
-                    const filename = this.videoUrl;
-                    a.download = filename;
-
-                    document.body.appendChild(a);
-                    a.click();
-
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(blobUrl);
-                } catch (error) {
-                    console.error('Error downloading video:', error);
-                    wisk.utils.showToast('Failed to download video', 3000);
+                const blob = await wisk.db.getAsset(this.videoUrl);
+                if (!blob) {
+                    throw new Error('Video not found in storage');
                 }
-            }
-            this.shadowRoot.querySelector('#options-dialog').style.display = 'none';
-        });
 
-        borderToggle?.addEventListener('change', e => {
-            const video = this.shadowRoot.querySelector('#video-editable');
-            if (e.target.checked) {
-                video.style.border = '1px solid var(--border-1)';
-            } else {
-                video.style.border = 'none';
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = this.videoUrl;
+
+                document.body.appendChild(a);
+                a.click();
+
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(blobUrl);
+            } catch (error) {
+                console.error('Error downloading video:', error);
+                wisk.utils.showToast('Failed to download video', 3000);
             }
-            this.sendUpdates();
-        });
+        }
+    }
+
+    toggleBorder() {
+        this.showBorder = !this.showBorder;
+        const video = this.shadowRoot.querySelector('#video-editable');
+        if (video) {
+            video.style.border = this.showBorder ? '1px solid var(--border-1)' : 'none';
+        }
+        this.sendUpdates();
     }
 
     onVideoSelected(event) {
@@ -176,7 +163,6 @@ class VideoElement extends BaseTextElement {
                     this.uploadArea.classList.add('has-video');
                     this.fileInput.style.display = 'none';
                     this.uploadButton.style.display = 'none';
-                    this.optionsButton.style.display = 'block';
 
                     const container = this.shadowRoot.querySelector('.video-container');
                     if (container) {
@@ -189,7 +175,6 @@ class VideoElement extends BaseTextElement {
         } else {
             this.uploadArea.classList.add('empty');
             this.uploadArea.classList.remove('has-video');
-            this.optionsButton.style.display = 'none';
             this.videoElement.style.display = 'none';
             const container = this.shadowRoot.querySelector('.video-container');
             if (container) {
@@ -269,62 +254,6 @@ class VideoElement extends BaseTextElement {
             .upload-video.has-video {
                 padding: 0;
                 border: none;
-            }
-            .upload-video.has-video:hover #options-button {
-                opacity: 1;
-            }
-            #options-button {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                background: var(--bg-1);
-                border: 1px solid var(--border-1);
-                border-radius: 100px;
-                padding: var(--padding-2);
-                cursor: pointer;
-                opacity: 0;
-                transition: opacity 0.2s;
-                z-index: 2;
-            }
-            #options-dialog {
-                position: absolute;
-                top: 50px;
-                right: 10px;
-                background: var(--bg-1);
-                border: 1px solid var(--border-1);
-                border-radius: var(--radius-large);
-                padding: var(--padding-3);
-                box-shadow: var(--drop-shadow);
-                z-index: 3;
-                display: none;
-                flex-direction: column;
-                gap: var(--gap-1);
-            }
-            .dialog-option {
-                padding: var(--padding-w1);
-                display: block;
-                width: 100%;
-                text-align: left;
-                background: none;
-                border: none;
-                border-radius: var(--radius);
-                cursor: pointer;
-                color: var(--fg-1);
-            }
-            .dialog-option:hover {
-                background: var(--bg-2);
-            }
-            .border-toggle {
-                display: flex;
-                align-items: center;
-                font-size: smaller;
-            }
-            .border-toggle input[type="checkbox"] {
-                margin: 0;
-            }
-            .border-toggle label {
-                cursor: pointer;
-                padding-right: var(--gap-2);
             }
             #editable {
                 outline: none;
@@ -478,19 +407,6 @@ class VideoElement extends BaseTextElement {
                     </video>
                 </div>
                 <button id="upload-button"><img src="/a7/plugins/image-element/upload.svg" width="30" height="30" style="filter: var(--themed-svg);">Upload Video</button>
-                <button id="options-button" style="display: none;">
-                    <img src="/a7/forget/morex.svg" width="22" height="22" style="filter: var(--themed-svg);">
-                </button>
-                <!-- Options dialog -->
-                <div id="options-dialog">
-                    <button class="dialog-option" ${wisk.editor.readonly ? 'style="display: none;"' : ''} id="change-video">Change Video</button>
-                    <button class="dialog-option" id="download-video">Download Video</button>
-                    <button class="dialog-option" id="fullscreen">View Full Size</button>
-                    <div class="dialog-option border-toggle" ${wisk.editor.readonly ? 'style="display: none;"' : ''}>
-                        <label for="border-toggle">Show Border</label>
-                        <input type="checkbox" id="border-toggle" />
-                    </div>
-                </div>
             </div>
             <p id="editable" contenteditable="${!wisk.editor.readonly}" spellcheck="false" data-placeholder="${this.placeholder}"></p>
                 <div class="suggestion-container">
@@ -519,7 +435,7 @@ class VideoElement extends BaseTextElement {
         return {
             textContent: this.editable.innerHTML,
             videoUrl: this.videoUrl,
-            showBorder: this.shadowRoot.querySelector('#border-toggle')?.checked || false,
+            showBorder: this.showBorder,
         };
     }
 
@@ -533,10 +449,9 @@ class VideoElement extends BaseTextElement {
                 this.updateVideo();
             }
             if (value.showBorder !== undefined) {
-                const borderToggle = this.shadowRoot.querySelector('#border-toggle');
-                if (borderToggle) {
-                    borderToggle.checked = value.showBorder;
-                    const video = this.shadowRoot.querySelector('#video-editable');
+                this.showBorder = value.showBorder;
+                const video = this.shadowRoot.querySelector('#video-editable');
+                if (video) {
                     video.style.border = value.showBorder ? '1px solid var(--border-1)' : 'none';
                 }
             }

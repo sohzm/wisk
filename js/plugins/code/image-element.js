@@ -9,6 +9,7 @@ class ImageElement extends BaseTextElement {
         this.currentResizeHandle = null;
         this.startX = 0;
         this.startWidth = 0;
+        this.showBorder = false;
     }
 
     connectedCallback() {
@@ -19,10 +20,8 @@ class ImageElement extends BaseTextElement {
         this.uploadButton = this.shadowRoot.querySelector('#upload-button');
         this.linkButton = this.shadowRoot.querySelector('#link-button');
         this.searchGifsButton = this.shadowRoot.querySelector('#search-gifs-btn');
-        this.optionsButton = this.shadowRoot.querySelector('#options-button');
-        this.optionsDialog = this.shadowRoot.querySelector('#options-dialog');
         this.bindImageEvents();
-        this.bindOptionEvents();
+        this.bindGifSearchEvents();
         this.bindResizeEvents();
         this.bindLinkDialogEvents();
     }
@@ -227,117 +226,18 @@ class ImageElement extends BaseTextElement {
         });
     }
 
-    bindOptionEvents() {
-        const optionsButton = this.shadowRoot.querySelector('#options-button');
-        const optionsDialog = this.shadowRoot.querySelector('#options-dialog');
-        const changeImageBtn = this.shadowRoot.querySelector('#change-image');
-        const searchGifBtn = this.shadowRoot.querySelector('#search-gif');
-        const addLinkMenuBtn = this.shadowRoot.querySelector('#add-link-menu'); // Changed ID here
-        const linkImageBtn = this.shadowRoot.querySelector('#link-button');
-        const searchGifBtn2 = this.shadowRoot.querySelector('#search-gifs-btn');
-        const fullscreenBtn = this.shadowRoot.querySelector('#fullscreen');
-        const downloadBtn = this.shadowRoot.querySelector('#download-image');
-        const borderToggle = this.shadowRoot.querySelector('#border-toggle');
+    bindGifSearchEvents() {
+        const searchGifBtn = this.shadowRoot.querySelector('#search-gifs-btn');
         const gifSearchDialog = this.shadowRoot.querySelector('#gif-search-dialog');
         const gifSearchInput = this.shadowRoot.querySelector('#gif-search-input');
         const closeGifSearch = this.shadowRoot.querySelector('#close-gif-search');
 
-        // Ensure the dialog is accessible in the DOM
         if (!gifSearchDialog) {
             console.error('GIF search dialog not found in the DOM');
             return;
         }
 
-        optionsButton?.addEventListener('click', e => {
-            e.stopPropagation();
-            optionsDialog.style.display = optionsDialog.style.display !== 'flex' ? 'flex' : 'none';
-        });
-
-        // Close options dialog when clicking outside
-        document.addEventListener('click', e => {
-            if (!optionsDialog.contains(e.target) && e.target !== optionsButton) {
-                optionsDialog.style.display = 'none';
-            }
-        });
-
-        changeImageBtn?.addEventListener('click', () => {
-            this.fileInput.click();
-            optionsDialog.style.display = 'none';
-        });
-
-        fullscreenBtn?.addEventListener('click', async () => {
-            if (this.imageUrl) {
-                try {
-                    // Retrieve the actual blob from the asset store
-                    const blob = await wisk.db.setAsset(this.imageUrl);
-                    if (blob) {
-                        const objectUrl = URL.createObjectURL(blob);
-                        window.open(objectUrl, '_blank');
-                        // Clean up the object URL after it's opened
-                        setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-                    }
-                } catch (error) {
-                    console.error('Error opening fullscreen image:', error);
-                }
-            }
-            optionsDialog.style.display = 'none';
-        });
-
-        downloadBtn?.addEventListener('click', async () => {
-            if (this.imageUrl) {
-                try {
-                    wisk.utils.showToast('Downloading image...', 3000);
-
-                    // Get the blob from IndexedDB
-                    const blob = await wisk.db.getAsset(this.imageUrl);
-                    if (!blob) {
-                        throw new Error('Image not found in storage');
-                    }
-
-                    const blobUrl = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = blobUrl;
-
-                    // Create a filename from the stored key
-                    const filename = this.imageUrl;
-                    a.download = filename;
-
-                    document.body.appendChild(a);
-                    a.click();
-
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(blobUrl);
-                } catch (error) {
-                    console.error('Error downloading image:', error);
-                    wisk.utils.showToast('Failed to download image', 3000);
-                }
-            }
-            this.shadowRoot.querySelector('#options-dialog').style.display = 'none';
-        });
-
-        borderToggle?.addEventListener('change', e => {
-            const img = this.shadowRoot.querySelector('#img-editable');
-            if (e.target.checked) {
-                img.style.border = '1px solid var(--border-1)';
-            } else {
-                img.style.border = 'none';
-            }
-            this.sendUpdates();
-        });
-
-        // GIF search functionality
         searchGifBtn?.addEventListener('click', () => {
-            gifSearchDialog.style.display = 'flex';
-            optionsDialog.style.display = 'none';
-            gifSearchInput?.focus();
-        });
-
-        addLinkMenuBtn?.addEventListener('click', () => {
-            this.shadowRoot.querySelector('#link-dialog').style.display = 'flex';
-            optionsDialog.style.display = 'none';
-        });
-
-        searchGifBtn2?.addEventListener('click', () => {
             gifSearchDialog.style.display = 'flex';
             gifSearchInput?.focus();
         });
@@ -495,7 +395,6 @@ class ImageElement extends BaseTextElement {
                     this.uploadButton.style.display = 'none';
                     this.searchGifsButton.style.display = 'none';
                     this.linkButton.style.display = 'none';
-                    this.optionsButton.style.display = 'block';
 
                     const container = this.shadowRoot.querySelector('.image-container');
                     if (container) {
@@ -508,7 +407,6 @@ class ImageElement extends BaseTextElement {
         } else {
             this.uploadArea.classList.add('empty');
             this.uploadArea.classList.remove('has-image');
-            this.optionsButton.style.display = 'none';
             this.imageElement.style.display = 'none';
             const container = this.shadowRoot.querySelector('.image-container');
             if (container) {
@@ -586,62 +484,6 @@ class ImageElement extends BaseTextElement {
             .upload-img.has-image {
                 padding: 0;
                 border: none;
-            }
-            .upload-img.has-image:hover #options-button {
-                opacity: 1;
-            }
-            #options-button {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                background: var(--bg-1);
-                border: 1px solid var(--border-1);
-                border-radius: 100px;
-                padding: var(--padding-2);
-                cursor: pointer;
-                opacity: 0;
-                transition: opacity 0.2s;
-                z-index: 2;
-            }
-            #options-dialog {
-                position: absolute;
-                top: 50px;
-                right: 10px;
-                background: var(--bg-1);
-                border: 1px solid var(--border-1);
-                border-radius: var(--radius-large);
-                padding: var(--padding-3);
-                box-shadow: var(--drop-shadow);
-                z-index: 3;
-                display: none;
-                flex-direction: column;
-                gap: var(--gap-1);
-            }
-            .dialog-option {
-                padding: var(--padding-w1);
-                display: block;
-                width: 100%;
-                text-align: left;
-                background: none;
-                border: none;
-                border-radius: var(--radius);
-                cursor: pointer;
-                color: var(--fg-1);
-            }
-            .dialog-option:hover {
-                background: var(--bg-2);
-            }
-            .border-toggle {
-                display: flex;
-                align-items: center;
-                font-size: smaller;
-            }
-            .border-toggle input[type="checkbox"] {
-                margin: 0;
-            }
-            .border-toggle label {
-                cursor: pointer;
-                padding-right: var(--gap-2);
             }
             #editable {
                 outline: none;
@@ -1009,22 +851,7 @@ class ImageElement extends BaseTextElement {
                 <button id="upload-button"><img src="/a7/plugins/image-element/upload.svg" width="30" height="30" style="filter: var(--themed-svg);">Upload Image</button>
                 <button id="link-button"><img src="/a7/plugins/image-element/link.svg" width="30" height="30" style="filter: var(--themed-svg);">Link Image</button>
                 <button id="search-gifs-btn"><img src="/a7/plugins/image-element/gif.svg" width="30" height="30" style="filter: var(--themed-svg);">Search GIFs</button>
-                <button id="options-button" style="display: none;">
-                    <img src="/a7/forget/morex.svg" width="22" height="22" style="filter: var(--themed-svg);">
-                </button>
-                <!-- Modified options dialog -->
-                <div id="options-dialog">
-                    <button class="dialog-option" ${wisk.editor.readonly ? 'style="display: none;"' : ''} id="change-image">Change Image</button>
-                    <button class="dialog-option" id="download-image">Download Image</button>
-                    <button class="dialog-option" ${wisk.editor.readonly ? 'style="display: none;"' : ''} id="search-gif">Search GIFs</button>
-                    <button class="dialog-option" ${wisk.editor.readonly ? 'style="display: none;"' : ''} id="add-link-menu">Add Image URL</button>
-                    <button class="dialog-option" id="fullscreen">View Full Size</button>
-                    <div class="dialog-option border-toggle" ${wisk.editor.readonly ? 'style="display: none;"' : ''}>
-                        <label for="border-toggle">Show Border</label>
-                        <input type="checkbox" id="border-toggle" />
-                    </div>
-                </div>
-                <!-- Add GIF search dialog -->
+                <!-- GIF search dialog -->
                 <div id="gif-search-dialog" style="display: none;">
                     <div class="gif-search-header">
                         <input type="text" id="gif-search-input" placeholder="Search GIFs..." autocomplete="off" />
@@ -1080,7 +907,7 @@ class ImageElement extends BaseTextElement {
         return {
             textContent: this.editable.innerHTML,
             imageUrl: this.imageUrl,
-            showBorder: this.shadowRoot.querySelector('#border-toggle')?.checked || false,
+            showBorder: this.showBorder,
             imageWidth: this.imageElement?.style.width || 'auto',
         };
     }
@@ -1098,10 +925,9 @@ class ImageElement extends BaseTextElement {
                 }
             }
             if (value.showBorder !== undefined) {
-                const borderToggle = this.shadowRoot.querySelector('#border-toggle');
-                if (borderToggle) {
-                    borderToggle.checked = value.showBorder;
-                    const img = this.shadowRoot.querySelector('#img-editable');
+                this.showBorder = value.showBorder;
+                const img = this.shadowRoot.querySelector('#img-editable');
+                if (img) {
                     img.style.border = value.showBorder ? '1px solid var(--border-1)' : 'none';
                 }
             }
@@ -1133,12 +959,58 @@ class ImageElement extends BaseTextElement {
         }
     }
 
+    filterContextMenuOptions(options) {
+        // Only show options when an image is loaded
+        if (!this.imageUrl) {
+            return [];
+        }
+        return options;
+    }
+
     runArg(action) {
         switch (action) {
             case 'download':
                 return this.download();
+            case 'change-image':
+                this.fileInput.click();
+                return;
+            case 'search-gifs':
+                this.shadowRoot.querySelector('#gif-search-dialog').style.display = 'flex';
+                this.shadowRoot.querySelector('#gif-search-input')?.focus();
+                return;
+            case 'add-url':
+                this.shadowRoot.querySelector('#link-dialog').style.display = 'flex';
+                return;
+            case 'fullscreen':
+                return this.viewFullSize();
+            case 'toggle-border':
+                return this.toggleBorder();
             default:
                 throw new Error(`Unknown action: ${action}`);
+        }
+    }
+
+    toggleBorder() {
+        this.showBorder = !this.showBorder;
+        const img = this.shadowRoot.querySelector('#img-editable');
+        if (img) {
+            img.style.border = this.showBorder ? '1px solid var(--border-1)' : 'none';
+        }
+        this.sendUpdates();
+    }
+
+    async viewFullSize() {
+        if (this.imageUrl) {
+            try {
+                const blob = await wisk.db.getAsset(this.imageUrl);
+                if (blob) {
+                    const objectUrl = URL.createObjectURL(blob);
+                    window.open(objectUrl, '_blank');
+                    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+                }
+            } catch (error) {
+                console.error('Error opening fullscreen image:', error);
+            }
         }
     }
 

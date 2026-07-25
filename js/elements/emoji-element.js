@@ -149,12 +149,111 @@ class EmojiSelector extends LitElement {
         .search:has(input:focus) {
             background-color: var(--bg-2);
         }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-1);
+            padding: 0 var(--padding-3);
+        }
+        .tab {
+            padding: var(--padding-3) var(--padding-4);
+            background: none;
+            border: none;
+            color: var(--fg-2);
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .tab:hover {
+            color: var(--fg-1);
+        }
+        .tab.active {
+            color: var(--fg-1);
+            border-bottom-color: var(--fg-1);
+        }
+        .tab-remove {
+            margin-left: auto;
+            color: var(--fg-red, #e53935);
+        }
+        .icons-grid {
+            display: flex;
+            flex-wrap: wrap;
+            padding: var(--padding-3);
+            gap: var(--gap-2);
+            overflow-y: auto;
+            justify-content: flex-start;
+            flex: 1;
+            align-items: flex-start;
+            align-content: flex-start;
+        }
+        .icons-grid button {
+            background: none;
+            border: none;
+            width: 44px;
+            height: 44px;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icons-grid button:hover {
+            background: var(--bg-3);
+        }
+        .icons-grid button img {
+            width: 100%;
+            height: 100%;
+            filter: var(--themed-svg);
+        }
+        .upload-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--padding-4);
+            gap: var(--gap-3);
+        }
+        .upload-dropzone {
+            width: 100%;
+            max-width: 300px;
+            height: 150px;
+            border: 2px dashed var(--border-1);
+            border-radius: var(--radius-large);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--gap-2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .upload-dropzone:hover {
+            border-color: var(--fg-2);
+            background: var(--bg-2);
+        }
+        .upload-dropzone img {
+            width: 40px;
+            height: 40px;
+            filter: var(--themed-svg);
+            opacity: 0.5;
+        }
+        .upload-dropzone span {
+            color: var(--fg-2);
+            font-size: 14px;
+        }
+        .upload-input {
+            display: none;
+        }
     `;
 
     static properties = {
         value: { type: String },
         selectedCategory: { type: String },
         searchResults: { type: Array },
+        activeTab: { type: String },
+        iconSearchResults: { type: Array },
     };
 
     constructor() {
@@ -1844,6 +1943,8 @@ class EmojiSelector extends LitElement {
         this.givenId = '';
 
         this.searchResults = [];
+        this.iconSearchResults = [];
+        this.activeTab = 'emoji';
 
         this.allEmojis = [
             ...this.smileysAndEmotion,
@@ -1856,6 +1957,30 @@ class EmojiSelector extends LitElement {
             ...this.symbols,
             ...this.flags,
         ];
+        this.iconoirCdnBase = 'https://cdn.jsdelivr.net/npm/iconoir@7/icons/regular/';
+        this.popularIcons = [
+            'home', 'home-simple', 'search', 'settings', 'user', 'user-circle',
+            'star', 'heart', 'bookmark', 'folder', 'page', 'calendar',
+            'check', 'check-circle', 'xmark', 'warning-triangle', 'info-circle',
+            'plus', 'minus', 'refresh', 'arrow-up', 'arrow-down', 'arrow-left', 'arrow-right',
+            'mail', 'send', 'chat-bubble', 'phone', 'video-camera', 'camera',
+            'play', 'pause', 'sun-light', 'moon-sat', 'cloud', 'flash',
+            'lock', 'key', 'shield', 'eye', 'link', 'download', 'upload',
+            'trash', 'archive', 'edit-pencil', 'copy', 'code', 'terminal', 'database',
+            'cart', 'credit-card', 'wallet', 'gift', 'map-pin', 'globe', 'building',
+            'book', 'open-book', 'graduation-cap', 'trophy', 'rocket', 'light-bulb-on',
+            'bell', 'wifi', 'battery-full', 'cpu', 'laptop', 'github', 'figma',
+        ];
+
+        this.allIconoirNames = [
+            'accessibility-sign','accessibility-tech','accessibility','activity','adobe-after-effects','adobe-illustrator','adobe-indesign','adobe-lightroom','adobe-photoshop','adobe-xd','african-tree','agile','air-conditioner','airplane-helix-45deg','airplane-helix','airplane-off','airplane-rotation','airplane','airplay','alarm','album-carousel','album-list','album-open','album','align-bottom-box','align-center','align-horizontal-centers','align-horizontal-spacing','align-justify','align-left-box','align-left','align-right-box','align-right','align-top-box','align-vertical-centers','align-vertical-spacing','angle-tool','antenna-off','antenna-signal-tag','antenna-signal','antenna','app-notification','app-store','app-window','apple-half','apple-imac-2021-side','apple-imac-2021','apple-mac','apple-shortcuts','apple-swift','apple-wallet','apple','ar-tag','arc-3d-center-point','arc-3d','arcade','archery-match','archery','archive','area-search','arrow-archery','arrow-down-circle','arrow-down-left-circle','arrow-down-left-square','arrow-down-left','arrow-down-right-circle','arrow-down-right-square','arrow-down-right','arrow-down-tag','arrow-down','arrow-email-forward','arrow-enlarge-tag','arrow-left-circle','arrow-left-tag','arrow-left','arrow-reduce-tag','arrow-right-circle','arrow-right-tag','arrow-right','arrow-separate-vertical','arrow-separate','arrow-union-vertical','arrow-union','arrow-up-circle','arrow-up-left-circle','arrow-up-left-square','arrow-up-left','arrow-up-right-circle','arrow-up-right-square','arrow-up-right','arrow-up-tag','arrow-up','arrows-up-from-line','asana','asterisk','at-sign-circle','at-sign','atom','attachment','augmented-reality','auto-flash','avi-format','axes','backward-15-seconds','badge-check','bag','balcony','bank','barcode','basketball-field','basketball','bathroom','battery-25','battery-50','battery-75','battery-charging','battery-empty','battery-full','battery-indicator','battery-slash','battery-warning','bbq','beach-bag','bed-ready','bed','behance-tag','behance','bell-notification','bell-off','bell','bicycle','bin-full','bin-half','bin-minus-in','bin-plus-in','bin','binocular','birthday-cake','bishop','bitbucket','bitcoin-circle','bitcoin-rotate-out','bluetooth-tag','bluetooth','bold-square','bold','bonfire','book-lock','book-stack','book','bookmark-book','bookmark-circle','bookmark','border-bl','border-bottom','border-br','border-inner','border-left','border-out','border-right','border-tl','border-top','border-tr','bounce-left','bounce-right','bowling-ball','box-3d-center','box-3d-point','box-3d-three-points','box-iso','box','boxing-glove','brain-electricity','brain-research','brain-warning','brain','bread-slice','bridge-3d','bridge-surface','bright-crown','bright-star','brightness-window','brightness','bubble-download','bubble-income','bubble-outcome','bubble-search','bubble-star','bubble-upload','bubble-warning','bubble-xmark','bug','building','bus-green','bus-stop','bus','c-square','cable-tag','calculator','calendar-arrow-down','calendar-arrow-up','calendar-check','calendar-minus','calendar-plus','calendar-rotate','calendar-xmark','calendar','camera','candlestick-chart','car','card-lock','card-no-access','card-reader','card-shield','card-wallet','cart-alt','cart-minus','cart-plus','cart','cash','cell-2x2','cellar','center-align','chat-bubble-check','chat-bubble-empty','chat-bubble-question','chat-bubble-translate','chat-bubble-warning','chat-bubble-xmark','chat-bubble','chat-lines','chat-minus-in','chat-plus-in','check-circle','check-square','check','chocolate','chromecast-active','chromecast','church-side','church','cigarette-slash','cinema-old','circle-spark','circle','city','clipboard-check','clock-rotate-right','clock','closed-captions-tag','closet','cloud-bookmark','cloud-check','cloud-desync','cloud-download','cloud-square','cloud-sunny','cloud-sync','cloud-upload','cloud-xmark','cloud','code-brackets-square','code-brackets','code','codepen','coffee-cup','coin-slash','coins-swap','coins','collage-frame','collapse','color-filter','color-picker','color-wheel','combine','commodity','community','comp-align-bottom','comp-align-left','comp-align-right','comp-align-top','compact-disc','compass','component','compress-lines','compress','computer','constrained-surface','consumable','contactless','control-slider','cookie','cooling-square','copy','copyright','corner-bottom-left','corner-bottom-right','corner-top-left','corner-top-right','cpu-warning','cpu','cracked-egg','creative-commons','credit-card-slash','credit-card','credit-cards','crib','crop-rotate-bl','crop-rotate-br','crop-rotate-tl','crop-rotate-tr','crop','crown-circle','crown','css3','cube-bandage','cube-cut-with-curve','cube-dots','cube-hole','cube-replace-face','cube-scan','cube','cursor-pointer','curve-array','cut','cutlery','cycling','cylinder','dash-flag','dashboard-dots','dashboard-speed','dashboard','data-transfer-both','data-transfer-check','data-transfer-down','data-transfer-up','data-transfer-warning','database-backup','database-check','database-export','database-monitor','database-restore','database-script-minus','database-script-plus','database-script','database-search','database-settings','database-star','database-stats','database-tag','database-warning','database-xmark','database','de-compress','delivery-truck','delivery','depth','design-nib','design-pencil','desk','developer','dew-point','dialpad','diameter','dice-five','dice-four','dice-one','dice-six','dice-three','dice-two','dimmer-switch','director-chair','discord','dishwasher','display-4k','divide-three','divide','dna','dns','doc-magnifying-glass-in','doc-magnifying-glass','doc-star-in','doc-star','dogecoin-circle','dogecoin-rotate-out','dollar-circle','dollar','domotic-warning','donate','dot-arrow-down','dot-arrow-left','dot-arrow-right','dot-arrow-up','dots-grid-3x3','double-check','download-circle','download-data-window','download-square','download','drag-hand-gesture','drag','drawer','dribbble','drone-charge-full','drone-charge-half','drone-charge-low','drone-check','drone-landing','drone-refresh','drone-take-off','drone-xmark','drone','droplet-check','droplet-half','droplet-snow-flake-in','droplet','ease-curve-control-points','ease-in-control-point','ease-in-out','ease-in','ease-out-control-point','ease-out','ecology-book','edit-pencil','edit','egg','eject','electronics-chip','electronics-transistor','elevator','ellipse-3d-three-points','ellipse-3d','emoji-ball','emoji-blink-left','emoji-blink-right','emoji-look-down','emoji-look-left','emoji-look-right','emoji-look-up','emoji-puzzled','emoji-quite','emoji-really','emoji-sad','emoji-satisfied','emoji-sing-left-note','emoji-sing-left','emoji-sing-right-note','emoji-sing-right','emoji-surprise-alt','emoji-surprise','emoji-talking-angry','emoji-talking-happy','emoji-think-left','emoji-think-right','emoji','empty-page','energy-usage-window','enlarge','erase','ethereum-circle','ethereum-rotate-out','euro-square','euro','ev-charge-alt','ev-charge','ev-plug-charging','ev-plug-xmark','ev-plug','ev-station','ev-tag','exclude','expand-lines','expand','extrude','eye-closed','eye','f-square','face-3d-draft','face-id','facebook-tag','facebook','facetime','farm','fast-arrow-down-square','fast-arrow-down','fast-arrow-left-square','fast-arrow-left','fast-arrow-right-square','fast-arrow-right','fast-arrow-up-square','fast-arrow-up','fast-down-circle','fast-left-circle','fast-right-circle','fast-up-circle','favourite-book','favourite-window','female','figma','file-not-found','fill-color','fillet-3d','filter-alt','filter-list-circle','filter-list','filter','finder','fingerprint-check-circle','fingerprint-circle','fingerprint-lock-circle','fingerprint-scan','fingerprint-square','fingerprint-window','fingerprint-xmark-circle','fingerprint','fire-flame','fish','fishing','flare','flash-off','flash','flask','flip-reverse','flip','floppy-disk-arrow-in','floppy-disk-arrow-out','floppy-disk','flower','fog','folder-minus','folder-plus','folder-settings','folder-warning','folder','font-question','football-ball','football','forward-15-seconds','forward-message','forward','frame-alt-empty','frame-alt','frame-minus-in','frame-plus-in','frame-select','frame-simple','frame-tool','frame','fridge','fx-tag','fx','gamepad','garage','gas-tank-droplet','gas-tank','gas','gif-format','gift','git-branch','git-cherry-pick-commit','git-commit','git-compare','git-fork','git-merge','git-pull-request-closed','git-pull-request','git','github-circle','github','gitlab-full','glass-empty','glass-fragile','glass-half-alt','glass-half','glasses','globe','golf','google-circle','google-docs','google-drive-check','google-drive-sync','google-drive-warning','google-drive','google-home','google-one','google','gps','graduation-cap','graph-down','graph-up','grid-minus','grid-plus','grid-xmark','group','gym','h-square','half-cookie','half-moon','hammer','hand-brake','hand-card','hand-cash','handbag','hard-drive','hashtag','hat','hd-display','hd','hdr','headset-bolt','headset-help','headset-warning','headset','health-shield','healthcare','heart-arrow-down','heart','heating-square','heavy-rain','help-circle','help-square','heptagon','hexagon-dice','hexagon-plus','hexagon','historic-shield-alt','historic-shield','home-alt-slim-horiz','home-alt-slim','home-alt','home-hospital','home-sale','home-secure','home-shield','home-simple-door','home-simple','home-table','home-temperature-in','home-temperature-out','home-user','home','horiz-distribution-left','horiz-distribution-right','horizontal-merge','horizontal-split','hospital-circle','hospital','hot-air-balloon','hourglass','house-rooms','html5','ice-cream','iconoir','import','inclination','industry','infinite','info-circle','input-field','input-output','input-search','instagram','internet','intersect-alt','intersect','ios-settings','ip-address-tag','iris-scan','italic-square','italic','jellyfish','journal-page','journal','jpeg-format','jpg-format','kanban-board','key-back','key-command','key-minus','key-plus','key-xmark','key','keyframe-align-center','keyframe-align-horizontal','keyframe-align-vertical','keyframe-minus-in','keyframe-minus','keyframe-plus-in','keyframe-plus','keyframe-position','keyframe','keyframes-couple','keyframes-minus','keyframes-plus','keyframes','label','lamp','language','laptop-charging','laptop-dev-mode','laptop-fix','laptop-warning','laptop','layout-left','layout-right','leaderboard-star','leaderboard','leaf','learning','lens-plus','lens','lifebelt','light-bulb-off','light-bulb-on','light-bulb','line-space','linear','link-slash','link-xmark','link','linkedin','linux','list-select','list','litecoin-circle','litecoin-rotate-out','lock-slash','lock-square','lock','loft-3d','log-in','log-no-access','log-out','long-arrow-down-left','long-arrow-down-right','long-arrow-left-down','long-arrow-left-up','long-arrow-right-down','long-arrow-right-up','long-arrow-up-left','long-arrow-up-right','lot-of-cash','lullaby','mac-control-key','mac-dock','mac-option-key','mac-os-window','magic-wand','magnet-energy','magnet','mail-in','mail-open','mail-out','mail','male','map-pin-minus','map-pin-plus','map-pin-xmark','map-pin','map-xmark','map','maps-arrow-diagonal','maps-arrow-xmark','maps-arrow','maps-go-straight','maps-turn-back','maps-turn-left','maps-turn-right','mask-square','mastercard-card','mastodon','math-book','maximize','medal-1st','medal','media-image-folder','media-image-list','media-image-plus','media-image-xmark','media-image','media-video-folder','media-video-list','media-video-plus','media-video-xmark','media-video','medium','megaphone','menu-scale','menu','message-alert','message-text','message','meter-arrow-down-right','metro','microphone-check','microphone-minus','microphone-mute','microphone-plus','microphone-speaking','microphone-warning','microphone','microscope','minus-circle','minus-hexagon','minus-square-dashed','minus-square','minus','mirror','mobile-dev-mode','mobile-fingerprint','mobile-voice','modern-tv-4k','modern-tv','money-square','moon-sat','more-horiz-circle','more-horiz','more-vert-circle','more-vert','motorcycle','mouse-button-left','mouse-button-right','mouse-scroll-wheel','movie','mpeg-format','multi-bubble','multi-mac-os-window','multi-window','multiple-pages-empty','multiple-pages-minus','multiple-pages-plus','multiple-pages-xmark','multiple-pages','music-double-note-plus','music-double-note','music-note-plus','music-note','n-square','nav-arrow-down','nav-arrow-left','nav-arrow-right','nav-arrow-up','navigator-alt','navigator','neighbourhood','network-left','network-reverse','network-right','network','new-tab','nintendo-switch','no-smoking-circle','non-binary','notes','npm-square','npm','number-0-square','number-1-square','number-2-square','number-3-square','number-4-square','number-5-square','number-6-square','number-7-square','number-8-square','number-9-square','numbered-list-left','numbered-list-right','o-square','octagon','off-tag','oil-industry','okrs','on-tag','one-finger-select-hand-gesture','one-point-circle','open-book','open-in-browser','open-in-window','open-new-window','open-select-hand-gesture','open-vpn','orange-half','orange-slice-alt','orange-slice','organic-food-square','organic-food','orthogonal-view','package-lock','package','packages','pacman','page-down','page-edit','page-flip','page-left','page-minus-in','page-minus','page-plus-in','page-plus','page-right','page-search','page-star','page-up','page','palette','panorama-enlarge','panorama-reduce','pants-pockets','pants','parking','password-check','password-cursor','password-xmark','paste-clipboard','path-arrow','pause-window','pause','paypal','pc-check','pc-firewall','pc-mouse','pc-no-entry','pc-warning','peace-hand','peerlist','pen-connect-bluetooth','pen-connect-wifi','pen-tablet-connect-usb','pen-tablet-connect-wifi','pen-tablet','pentagon','people-tag','percent-rotate-out','percentage-circle','percentage-square','percentage','perspective-view','pharmacy-cross-circle','pharmacy-cross-tag','phone-disabled','phone-income','phone-minus','phone-outcome','phone-paused','phone-plus','phone-xmark','phone','piggy-bank','pillow','pin-slash','pin','pine-tree','pinterest','pipe-3d','pizza-slice','planet-alt','planet-sat','planet','planimetry','play','playlist-play','playlist-plus','playlist','playstation-gamepad','plug-type-a','plug-type-c','plug-type-g','plug-type-l','plus-circle','plus-square-dashed','plus-square','plus','png-format','pocket','podcast','pokeball','polar-sh','position-align','position','post','potion','pound','precision-tool','presentation','printer','printing-page','priority-down','priority-high','priority-medium','priority-up','privacy-policy','private-wifi','profile-circle','prohibition','project-curve-3d','puzzle','qr-code','question-mark','quote-message','quote','radiation','radius','rain','raw-format','receive-dollars','receive-euros','receive-pounds','receive-yens','redo-action','redo-circle','redo','reduce','refresh-circle','refresh-double','refresh','reload-window','reminder-hand-gesture','repeat-once','repeat','reply-to-message','reply','report-columns','reports','repository','restart','rewind','rhombus-arrow-right','rhombus','rings','rocket','rook','rotate-camera-left','rotate-camera-right','round-flask','rounded-mirror','rss-feed-tag','rss-feed','rubik-cube','ruler-arrows','ruler-combine','ruler-minus','ruler-plus','ruler','running','safari','safe-arrow-left','safe-arrow-right','safe-open','safe','sandals','scale-frame-enlarge','scale-frame-reduce','scan-barcode','scan-qr-code','scanning','scarf','scissor-alt','scissor','screenshot','sea-and-sun','sea-waves','search-engine','search-window','search','secure-window','security-pass','select-edge-3d','select-face-3d','select-point-3d','select-window','selective-tool','send-diagonal','send-dollars','send-euros','send-mail','send-pounds','send-yens','send','server-connection','server','settings-profiles','settings','share-android','share-ios','shield-alert','shield-alt','shield-broken','shield-check','shield-download','shield-eye','shield-loading','shield-minus','shield-plus-in','shield-question','shield-search','shield-upload','shield-xmark','shield','shirt-tank-top','shirt','shop-four-tiles-window','shop-four-tiles','shop-window','shop','shopping-bag-arrow-down','shopping-bag-arrow-up','shopping-bag-check','shopping-bag-minus','shopping-bag-plus','shopping-bag-pocket','shopping-bag-warning','shopping-bag','shopping-code-check','shopping-code-xmark','shopping-code','short-pants-pockets','short-pants','shortcut-square','shuffle','sidebar-collapse','sidebar-expand','sigma-function','simple-cart','sine-wave','single-tap-gesture','skateboard','skateboarding','skip-next','skip-prev','slash-square','slash','sleeper-chair','slips','small-lamp-alt','small-lamp','smartphone-device','smoking','snapchat','snow-flake','snow','soap','soccer-ball','sofa','soil-alt','soil','sort-down','sort-up','sort','sound-high','sound-low','sound-min','sound-off','spades','spark','sparks','sphere','spiral','split-area','split-square-dashed','spock-hand-gesture','spotify','square-3d-corner-to-corner','square-3d-from-center','square-3d-three-points','square-cursor','square-dashed','square-wave','square','stackoverflow','star-dashed','star-half-dashed','star','stat-down','stat-up','stats-down-square','stats-report','stats-up-square','strategy','stretching','strikethrough','stroller','style-border','submit-document','substract','suggestion','suitcase','sun-light','svg-format','sweep-3d','swimming','swipe-down-gesture','swipe-left-gesture','swipe-right-gesture','swipe-two-fingers-down-gesture','swipe-two-fingers-left-gesture','swipe-two-fingers-right-gesture','swipe-two-fingers-up-gesture','swipe-up-gesture','switch-off','switch-on','system-restart','system-shut','table-2-columns','table-rows','table','task-list','telegram-circle','telegram','temperature-down','temperature-high','temperature-low','temperature-up','tennis-ball-alt','tennis-ball','terminal-tag','terminal','test-tube','text-arrows-up-down','text-box','text-magnifying-glass','text-size','text-square','text','threads','three-points-circle','three-stars','thumbs-down','thumbs-up','thunderstorm','tif-format','tiff-format','tiktok','time-zone','timer-off','timer','tools','tournament','tower-check','tower-no-access','tower-warning','tower','trademark','train','tram','transition-down','transition-left','transition-right','transition-up','translate','trash','treadmill','tree','trekking','trello','triangle-flag-circle','triangle-flag-two-stripes','triangle-flag','triangle','trophy','truck-green','truck-length','truck','tunnel','tv-fix','tv-warning','tv','twitter','two-points-circle','two-seater-sofa','type','u-turn-arrow-left','u-turn-arrow-right','umbrella','underline-square','underline','undo-action','undo-circle','undo','union-alt','union-horiz-alt','union','unity-5','unity','unjoin-3d','upload-data-window','upload-square','upload','usb','user-badge-check','user-bag','user-cart','user-circle','user-crown','user-love','user-plus','user-scan','user-square','user-star','user-xmark','user','vegan-circle','vegan-square','vegan','vehicle-green','vertical-merge','vertical-split','vials','video-camera-off','video-camera','video-projector','view-360','view-columns-2','view-columns-3','view-grid','view-structure-down','view-structure-up','voice-check','voice-circle','voice-lock-circle','voice-scan','voice-square','voice-xmark','voice','vr-tag','vue-js','waist','walking','wallet','warning-circle','warning-hexagon','warning-square','warning-triangle','warning-window','wash','washing-machine','watering-soil','web-window-energy-consumption','web-window-xmark','web-window','webp-format','weight-alt','weight','whatsapp','white-flag','wifi-off','wifi-signal-none','wifi-tag','wifi-warning','wifi-xmark','wifi','wind','window-check','window-lock','window-no-access','window-tabs','window-xmark','windows','wolf','wrap-text','wrench','wristwatch','www','x-square','x','xbox-a','xbox-b','xbox-x','xbox-y','xmark-circle','xmark-square','xmark','xray-view','y-square','yelp','yen-square','yen','yoga','youtube','z-square','zoom-in','zoom-out'
+        ];
+
+        // Initialize icons from popular list for default display
+        this.iconoirIcons = this.popularIcons.map(name => ({
+            name,
+            path: this.iconoirCdnBase + name + '.svg'
+        }));
     }
 
     changeCategory(category) {
@@ -1893,13 +2018,90 @@ class EmojiSelector extends LitElement {
 
     show(id) {
         this.searchResults = [];
+        this.iconSearchResults = [];
         this.selectedCategory = this.smileysAndEmotion;
+        this.activeTab = 'emoji';
         this.givenId = id;
-        this.shadowRoot.querySelector('.search input').value = '';
         this.shadowRoot.querySelector('.outer').classList.add('show');
         this.shadowRoot.querySelector('.inner').classList.add('show');
 
-        this.shadowRoot.querySelector('.search input').focus();
+        // Focus search input after render
+        this.updateComplete.then(() => {
+            const searchInput = this.shadowRoot.querySelector('.search input');
+            if (searchInput) searchInput.value = '';
+            searchInput?.focus();
+        });
+    }
+
+    switchTab(tab) {
+        this.activeTab = tab;
+        this.searchResults = [];
+        this.iconSearchResults = [];
+        this.requestUpdate();
+    }
+
+    dispatchIcon(iconPath) {
+        window.dispatchEvent(new CustomEvent('emoji-selector', {
+            detail: { id: this.givenId, emoji: '', icon: iconPath }
+        }));
+        this.hide();
+    }
+
+    searchIcons(query) {
+        const searchTerm = query.toLowerCase();
+        return this.iconoirIcons.filter(icon =>
+            icon.name.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    onIconSearch(e) {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        if (!searchTerm) {
+            this.iconSearchResults = [];
+            this.requestUpdate();
+            return;
+        }
+
+        // Search through all 1600+ icons
+        const matchingNames = this.allIconoirNames.filter(name =>
+            name.toLowerCase().includes(searchTerm)
+        ).slice(0, 100); // Limit to 100 results for performance
+
+        this.iconSearchResults = matchingNames.map(name => ({
+            name,
+            path: this.iconoirCdnBase + name + '.svg'
+        }));
+        this.requestUpdate();
+    }
+
+    handleUploadClick() {
+        this.shadowRoot.querySelector('.upload-input')?.click();
+    }
+
+    async handleFileUpload(e) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            wisk.utils.showToast('Please select an image file', 3000);
+            return;
+        }
+        if (file.size > 1024 * 1024) {
+            wisk.utils.showToast('Image must be less than 1MB', 3000);
+            return;
+        }
+
+        try {
+            const ext = file.name.split('.').pop() || 'png';
+            const filename = `page-icon-${Date.now()}.${ext}`;
+            await wisk.db.setAsset(filename, file);
+            window.dispatchEvent(new CustomEvent('emoji-selector', {
+                detail: { id: this.givenId, emoji: '', icon: filename, isCustom: true }
+            }));
+            this.hide();
+        } catch (error) {
+            console.error('Error uploading icon:', error);
+            wisk.utils.showToast('Failed to upload icon', 3000);
+        }
     }
 
     hide() {
@@ -1928,7 +2130,6 @@ class EmojiSelector extends LitElement {
         this.shadowRoot.querySelector('.outer').classList.remove('show');
         this.shadowRoot.querySelector('.inner').classList.remove('show');
         console.log('Dispatched emoji: ' + emoji, 'to id: ' + this.givenId);
-        // copy to clipboard
         navigator.clipboard.writeText(emoji);
         wisk.utils.showToast('Emoji copied to clipboard', 3000);
     }
@@ -1940,8 +2141,6 @@ class EmojiSelector extends LitElement {
             this.requestUpdate();
             return;
         }
-
-        // Search through all categories
         this.searchResults = [
             ...this.smileysAndEmotion.filter(
                 emoji => emoji.name.toLowerCase().includes(searchTerm) || emoji.emoji.toLowerCase().includes(searchTerm)
@@ -1985,68 +2184,107 @@ class EmojiSelector extends LitElement {
         return null;
     }
 
+    renderEmojiTab() {
+        return html`
+            <div class="search">
+                <img src="/a7/forget/emoji-search.svg" alt="search" />
+                <input type="text" placeholder="Search emoji" @input=${this.onSearch} @keydown=${this.onKeyDown} />
+                <button @click=${() => this.dispatch(this.randomEmoji())} class="search-button search-button1">
+                    <img src="/a7/forget/emoji-shuffle.svg" alt="shuffle" draggable="false" />
+                </button>
+            </div>
+
+            <div class="emojis">
+                ${this.searchResults.length > 0
+                    ? this.searchResults.map(
+                          emojiObj =>
+                              html`<button @click=${() => this.dispatch(emojiObj.emoji)} title="${emojiObj.name}">${emojiObj.emoji}</button>`
+                      )
+                    : this.selectedCategory.map(
+                          emojiObj =>
+                              html`<button @click=${() => this.dispatch(emojiObj.emoji)} title="${emojiObj.name}">${emojiObj.emoji}</button>`
+                      )}
+            </div>
+
+            <div class="header">
+                <button @click=${() => this.changeCategory('smiley')} class="${this.selectedCategory === this.smileysAndEmotion ? 'active' : ''}">
+                    <img src="/a7/forget/emoji-smile.svg" alt="smiley" draggable="false" />
+                </button>
+                <button @click=${() => this.changeCategory('people')} class="${this.selectedCategory === this.peopleAndBody ? 'active' : ''}">
+                    <img src="/a7/forget/emoji-person.svg" alt="people" draggable="false" />
+                </button>
+                <button @click=${() => this.changeCategory('nature')} class="${this.selectedCategory === this.animalsAndNature ? 'active' : ''}">
+                    <img src="/a7/forget/emoji-leaf.svg" alt="nature" draggable="false" />
+                </button>
+                <button @click=${() => this.changeCategory('foodAndDrink')} class="${this.selectedCategory === this.foodAndDrink ? 'active' : ''}">
+                    <img src="/a7/forget/emoji-pizza.svg" alt="food" draggable="false" />
+                </button>
+                <button @click=${() => this.changeCategory('travelAndPlaces')} class="${this.selectedCategory === this.travelAndPlaces ? 'active' : ''}">
+                    <img src="/a7/forget/emoji-truck.svg" alt="travel" draggable="false" />
+                </button>
+                <button @click=${() => this.changeCategory('activities')} class="${this.selectedCategory === this.activities ? 'active' : ''}">
+                    <img src="/a7/forget/emoji-basketball.svg" alt="activities" draggable="false" />
+                </button>
+                <button @click=${() => this.changeCategory('objects')} class="${this.selectedCategory === this.objects ? 'active' : ''}">
+                    <img src="/a7/forget/emoji-mac.svg" alt="objects" draggable="false" />
+                </button>
+                <button @click=${() => this.changeCategory('symbols')} class="${this.selectedCategory === this.symbols ? 'active' : ''}">
+                    <img src="/a7/forget/emoji-heart.svg" alt="symbols" draggable="false" />
+                </button>
+                <button @click=${() => this.changeCategory('flags')} class="${this.selectedCategory === this.flags ? 'active' : ''}">
+                    <img src="/a7/forget/emoji-flag.svg" alt="flags" draggable="false" />
+                </button>
+            </div>
+        `;
+    }
+
+    renderIconsTab() {
+        const iconsToShow = this.iconSearchResults.length > 0 ? this.iconSearchResults : this.iconoirIcons;
+        return html`
+            <div class="search">
+                <img src="/a7/forget/emoji-search.svg" alt="search" />
+                <input type="text" placeholder="Search 1600+ icons..." @input=${this.onIconSearch} />
+            </div>
+
+            <div class="icons-grid">
+                ${iconsToShow.map(
+                    icon => html`
+                        <button @click=${() => this.dispatchIcon(icon.path)} title="${icon.name}">
+                            <img src="${icon.path}" alt="${icon.name}" draggable="false" />
+                        </button>
+                    `
+                )}
+            </div>
+        `;
+    }
+
+    renderUploadTab() {
+        return html`
+            <div class="upload-area">
+                <div class="upload-dropzone" @click=${this.handleUploadClick}>
+                    <img src="/a7/plugins/image-element/upload.svg" alt="upload" />
+                    <span>Click to upload an image</span>
+                    <span style="font-size: 12px; opacity: 0.6;">Max 1MB, PNG/JPG/SVG</span>
+                </div>
+                <input type="file" class="upload-input" accept="image/*" @change=${this.handleFileUpload} />
+            </div>
+        `;
+    }
+
     render() {
         return html`
             <div class="outer" @click=${() => this.hide()}></div>
             <div class="inner">
-                <div class="search">
-                    <img src="/a7/forget/emoji-search.svg" alt="search" />
-                    <input type="text" placeholder="Search emoji" @input=${this.onSearch} @keydown=${this.onKeyDown} />
-
-                    <button @click=${() => this.dispatch(this.randomEmoji())} class="search-button search-button1">
-                        <img src="/a7/forget/emoji-shuffle.svg" alt="smiley" draggable="false" />
-                    </button>
-
-                    <button @click=${() => this.dispatch('')} class="search-button" class="search-button">Remove</button>
+                <div class="tabs">
+                    <button class="tab ${this.activeTab === 'emoji' ? 'active' : ''}" @click=${() => this.switchTab('emoji')}>Emoji</button>
+                    <button class="tab ${this.activeTab === 'icons' ? 'active' : ''}" @click=${() => this.switchTab('icons')}>Icons</button>
+                    <button class="tab ${this.activeTab === 'upload' ? 'active' : ''}" @click=${() => this.switchTab('upload')}>Upload</button>
+                    <button class="tab tab-remove" @click=${() => this.dispatch('')}>Remove</button>
                 </div>
 
-                <div class="emojis">
-                    ${this.searchResults.length > 0
-                        ? this.searchResults.map(
-                              emojiObj =>
-                                  html` <button @click=${() => this.dispatch(emojiObj.emoji)} title="${emojiObj.name}">${emojiObj.emoji}</button>`
-                          )
-                        : this.selectedCategory.map(
-                              emojiObj =>
-                                  html` <button @click=${() => this.dispatch(emojiObj.emoji)} title="${emojiObj.name}">${emojiObj.emoji}</button>`
-                          )}
-                </div>
-
-                <div class="header">
-                    <button @click=${() => this.changeCategory('smiley')} class="${this.selectedCategory === this.smileysAndEmotion ? 'active' : ''}">
-                        <img src="/a7/forget/emoji-smile.svg" alt="smiley" draggable="false" />
-                    </button>
-                    <button @click=${() => this.changeCategory('people')} class="${this.selectedCategory === this.peopleAndBody ? 'active' : ''}">
-                        <img src="/a7/forget/emoji-person.svg" alt="people" draggable="false" />
-                    </button>
-                    <button @click=${() => this.changeCategory('nature')} class="${this.selectedCategory === this.animalsAndNature ? 'active' : ''}">
-                        <img src="/a7/forget/emoji-leaf.svg" alt="nature" draggable="false" />
-                    </button>
-                    <button
-                        @click=${() => this.changeCategory('foodAndDrink')}
-                        class="${this.selectedCategory === this.foodAndDrink ? 'active' : ''}"
-                    >
-                        <img src="/a7/forget/emoji-pizza.svg" alt="food" draggable="false" />
-                    </button>
-                    <button
-                        @click=${() => this.changeCategory('travelAndPlaces')}
-                        class="${this.selectedCategory === this.travelAndPlaces ? 'active' : ''}"
-                    >
-                        <img src="/a7/forget/emoji-truck.svg" alt="travel" draggable="false" />
-                    </button>
-                    <button @click=${() => this.changeCategory('activities')} class="${this.selectedCategory === this.activities ? 'active' : ''}">
-                        <img src="/a7/forget/emoji-basketball.svg" alt="activities" draggable="false" />
-                    </button>
-                    <button @click=${() => this.changeCategory('objects')} class="${this.selectedCategory === this.objects ? 'active' : ''}">
-                        <img src="/a7/forget/emoji-mac.svg" alt="objects" draggable="false" />
-                    </button>
-                    <button @click=${() => this.changeCategory('symbols')} class="${this.selectedCategory === this.symbols ? 'active' : ''}">
-                        <img src="/a7/forget/emoji-heart.svg" alt="symbols" draggable="false" />
-                    </button>
-                    <button @click=${() => this.changeCategory('flags')} class="${this.selectedCategory === this.flags ? 'active' : ''}">
-                        <img src="/a7/forget/emoji-flag.svg" alt="flags" draggable="false" />
-                    </button>
-                </div>
+                ${this.activeTab === 'emoji' ? this.renderEmojiTab() : ''}
+                ${this.activeTab === 'icons' ? this.renderIconsTab() : ''}
+                ${this.activeTab === 'upload' ? this.renderUploadTab() : ''}
             </div>
         `;
     }

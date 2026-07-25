@@ -430,9 +430,44 @@
                     "width": "mini",
                     "context-menu-options": [
                         {
+                            "label": "Change Image",
+                            "action": "change-image",
+                            "icon": "/a7/plugins/image-element/upload.svg",
+                            "type": "button",
+                            "hideOnReadonly": true
+                        },
+                        {
                             "label": "Download",
                             "action": "download",
-                            "icon": "/a7/iconoir/download-circle.svg"
+                            "icon": "/a7/iconoir/download-circle.svg",
+                            "type": "button"
+                        },
+                        {
+                            "label": "Search GIFs",
+                            "action": "search-gifs",
+                            "icon": "/a7/plugins/image-element/gif.svg",
+                            "type": "button",
+                            "hideOnReadonly": true
+                        },
+                        {
+                            "label": "Add Image URL",
+                            "action": "add-url",
+                            "icon": "/a7/plugins/image-element/link.svg",
+                            "type": "button",
+                            "hideOnReadonly": true
+                        },
+                        {
+                            "label": "View Full Size",
+                            "action": "fullscreen",
+                            "icon": "/a7/iconoir/expand.svg",
+                            "type": "button"
+                        },
+                        {
+                            "label": "Toggle Border",
+                            "action": "toggle-border",
+                            "icon": "/js/plugins/icons/switch-on.svg",
+                            "type": "button",
+                            "hideOnReadonly": true
                         }
                     ]
                 }
@@ -456,7 +491,35 @@
                     "nav": false,
                     "textual": true,
                     "loadAsModule": false,
-                    "width": "mini"
+                    "width": "mini",
+                    "context-menu-options": [
+                        {
+                            "label": "Change Video",
+                            "action": "change-video",
+                            "icon": "/a7/plugins/image-element/upload.svg",
+                            "type": "button",
+                            "hideOnReadonly": true
+                        },
+                        {
+                            "label": "Download",
+                            "action": "download",
+                            "icon": "/a7/iconoir/download-circle.svg",
+                            "type": "button"
+                        },
+                        {
+                            "label": "View Full Size",
+                            "action": "fullscreen",
+                            "icon": "/a7/iconoir/expand.svg",
+                            "type": "button"
+                        },
+                        {
+                            "label": "Toggle Border",
+                            "action": "toggle-border",
+                            "icon": "/js/plugins/icons/switch-on.svg",
+                            "type": "button",
+                            "hideOnReadonly": true
+                        }
+                    ]
                 }
             ]
         },

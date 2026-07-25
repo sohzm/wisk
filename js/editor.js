@@ -1168,34 +1168,65 @@ function whenSelectClicked(elementId) {
     const element = document.getElementById(elementId);
     if (!blockDiv || !element) return;
 
-    // Close any existing menu
+    // Check if menu is already open for this element - if so, close it (toggle behavior)
     const existingMenu = document.querySelector('.context-menu');
-    if (existingMenu) existingMenu.remove();
+    if (existingMenu) {
+        const isForSameElement = existingMenu.dataset.elementId === elementId;
+        existingMenu.remove();
+        if (isForSameElement) {
+            return; // Toggle off - don't recreate
+        }
+    }
 
     // Build menu
     const contextMenu = document.createElement('div');
     contextMenu.classList.add('context-menu');
+    contextMenu.dataset.elementId = elementId;
 
     // Mandatory items
     contextMenu.appendChild(createMenuItem('Duplicate', () => menuActions.duplicateItem(elementId), 'duplicate', '/a7/iconoir/copy.svg'));
     contextMenu.appendChild(createMenuItem('Delete', () => menuActions.deleteItem(elementId), 'delete', '/a7/forget/trash.svg'));
 
-    // Plugin-specific items
+    // Get element type and plugin details
     const elType = element.tagName.toLowerCase();
-    const elActions = wisk.plugins.getPluginDetail(elType)['context-menu-options'];
-    if (Array.isArray(elActions)) {
-        for (const action of elActions) {
-            contextMenu.appendChild(
-                createMenuItem(
-                    action.label,
-                    () => {
-                        const element = document.getElementById(elementId);
-                        element.runArg(action.action);
-                    },
-                    '',
-                    action.icon || ''
-                )
-            );
+    const pluginDetail = wisk.plugins.getPluginDetail(elType);
+
+    // Get options from plugin-data.json (static)
+    let allActions = [];
+    const staticActions = pluginDetail ? pluginDetail['context-menu-options'] : null;
+    if (Array.isArray(staticActions)) {
+        allActions = staticActions;
+    }
+
+    // Allow element to filter/modify the options via filterContextMenuOptions method
+    if (typeof element.filterContextMenuOptions === 'function') {
+        allActions = element.filterContextMenuOptions(allActions);
+    }
+
+    // Add all collected actions to menu
+    for (const action of allActions) {
+        // Skip options marked as hideOnReadonly when in readonly mode
+        if (action.hideOnReadonly && wisk.editor.readonly) {
+            continue;
+        }
+
+        // Handle different option types (extensible for future types like sub-menus)
+        const optionType = action.type || 'button';
+        switch (optionType) {
+            case 'button':
+            default:
+                contextMenu.appendChild(
+                    createMenuItem(
+                        action.label,
+                        () => {
+                            const el = document.getElementById(elementId);
+                            el.runArg(action.action);
+                        },
+                        '',
+                        action.icon || ''
+                    )
+                );
+                break;
         }
     }
 

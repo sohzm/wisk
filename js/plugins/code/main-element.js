@@ -4,6 +4,8 @@ class MainElement extends BaseTextElement {
         this.placeholder = this.getAttribute('placeholder') || wisk.editor.readonly ? '' : 'edit me';
         this.bannerSize = 'big'; // Can be 'smallest', 'small', 'big', 'bigger', 'biggest'
         this.emoji = this.getAttribute('emoji') || '';
+        this.icon = '';  // SVG icon path (alternative to emoji)
+        this.isCustomIcon = false;  // Whether icon is a custom uploaded image
         this.backgroundUrl = null;
         this.gradientData = null;
         this.MAX_WIDTH = 1920;
@@ -42,7 +44,18 @@ class MainElement extends BaseTextElement {
     handleEmojiSelection(event) {
         // Only handle events meant for this instance
         if (event.detail.id === this.id) {
-            this.emoji = event.detail.emoji;
+            // Handle both emoji and icon selections
+            if (event.detail.icon) {
+                // Icon selected (either built-in or custom uploaded)
+                this.emoji = '';
+                this.icon = event.detail.icon;
+                this.isCustomIcon = event.detail.isCustom || false;
+            } else {
+                // Emoji selected (or removed)
+                this.emoji = event.detail.emoji;
+                this.icon = '';
+                this.isCustomIcon = false;
+            }
             this.updateEmoji();
             this.sendUpdates();
         }
@@ -52,6 +65,8 @@ class MainElement extends BaseTextElement {
         return {
             textContent: this.editable.innerHTML,
             emoji: this.emoji,
+            icon: this.icon,
+            isCustomIcon: this.isCustomIcon,
             backgroundUrl: this.backgroundUrl,
             gradientData: this.gradientData,
             bannerSize: this.bannerSize,
@@ -65,6 +80,14 @@ class MainElement extends BaseTextElement {
             this.editable.innerHTML = value.textContent;
             if (value.emoji) {
                 this.emoji = value.emoji;
+                this.icon = '';
+                this.isCustomIcon = false;
+                this.updateEmoji();
+            }
+            if (value.icon) {
+                this.icon = value.icon;
+                this.isCustomIcon = value.isCustomIcon || false;
+                this.emoji = '';
                 this.updateEmoji();
             }
             if (value.backgroundUrl) {
@@ -277,9 +300,28 @@ class MainElement extends BaseTextElement {
         });
     }
 
-    updateEmoji() {
+    async updateEmoji() {
         if (this.emojiElement) {
-            if (this.emoji && this.emoji.trim()) {
+            if (this.icon) {
+                // Display icon (either built-in SVG or custom uploaded)
+                if (this.isCustomIcon) {
+                    // Custom uploaded icon - load from IndexedDB
+                    try {
+                        const blob = await wisk.db.getAsset(this.icon);
+                        if (blob) {
+                            const objectUrl = URL.createObjectURL(blob);
+                            this.emojiElement.innerHTML = `<img src="${objectUrl}" alt="icon" style="width: 1em; height: 1em; object-fit: contain;" />`;
+                        }
+                    } catch (error) {
+                        console.error('Error loading custom icon:', error);
+                        this.emojiElement.innerHTML = `<img src="${this.icon}" alt="icon" style="width: 1em; height: 1em; filter: var(--themed-svg);" />`;
+                    }
+                } else {
+                    // Built-in SVG icon
+                    this.emojiElement.innerHTML = `<img src="${this.icon}" alt="icon" style="width: 1em; height: 1em; filter: var(--themed-svg);" />`;
+                }
+                this.emojiElement.classList.remove('empty-emoji');
+            } else if (this.emoji && this.emoji.trim()) {
                 this.emojiElement.innerHTML = this.emoji;
                 this.emojiElement.classList.remove('empty-emoji');
             } else {
